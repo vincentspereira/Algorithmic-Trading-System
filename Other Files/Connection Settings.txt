@@ -1,0 +1,5 @@
+The current connection settings are:
+
+Host: http://127.0.0.1:8050 (localhost)
+Port: 7497 (IBKR Paper Trading port)
+Client ID: 1
