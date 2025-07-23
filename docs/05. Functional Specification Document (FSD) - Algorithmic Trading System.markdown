@@ -1,448 +1,322 @@
-# Functional Specification Document (FSD)
-## Algorithmic Trading System
-
----
-
-### Table of Contents
-
-- [Functional Specification Document (FSD)](#functional-specification-document-fsd)
-  - [Algorithmic Trading System](#algorithmic-trading-system)
-    - [Table of Contents](#table-of-contents)
-  - [1. Introduction](#1-introduction)
-    - [1.1 Purpose](#11-purpose)
-    - [1.2 Scope](#12-scope)
-    - [1.3 Definitions, Acronyms, and Abbreviations](#13-definitions-acronyms-and-abbreviations)
-    - [1.4 References](#14-references)
-    - [1.5 Overview](#15-overview)
-  - [2. System Overview](#2-system-overview)
-    - [2.1 Product Perspective](#21-product-perspective)
-    - [2.2 Product Functions](#22-product-functions)
-    - [2.3 User Classes and Characteristics](#23-user-classes-and-characteristics)
-    - [2.4 Operating Environment](#24-operating-environment)
-    - [2.5 Design and Implementation Constraints](#25-design-and-implementation-constraints)
-    - [2.6 Assumptions and Dependencies](#26-assumptions-and-dependencies)
-  - [3. Functional Requirements](#3-functional-requirements)
-    - [3.1 User Management](#31-user-management)
-    - [3.2 Core Trading Infrastructure](#32-core-trading-infrastructure)
-    - [3.3 Data Management and Analytics](#33-data-management-and-analytics)
-    - [3.4 AI-Powered Strategy Development and Backtesting](#34-ai-powered-strategy-development-and-backtesting)
-    - [3.5 Agentic AI Assistant](#35-agentic-ai-assistant)
-    - [3.6 User Experience and Multi-Platform Accessibility](#36-user-experience-and-multi-platform-accessibility)
-    - [3.7 Enterprise-Grade Security, Compliance, and Operations](#37-enterprise-grade-security-compliance-and-operations)
-    - [3.8 Options Trading](#38-options-trading)
-  - [4. External Interface Requirements](#4-external-interface-requirements)
-    - [4.1 User Interfaces](#41-user-interfaces)
-    - [4.2 Hardware Interfaces](#42-hardware-interfaces)
-    - [4.3 Software Interfaces](#43-software-interfaces)
-    - [4.4 Communication Interfaces](#44-communication-interfaces)
-  - [5. Non-Functional Requirements](#5-non-functional-requirements)
-    - [5.1 Performance Requirements](#51-performance-requirements)
-    - [5.2 Security Requirements](#52-security-requirements)
-    - [5.3 Scalability Requirements](#53-scalability-requirements)
-    - [5.4 Usability Requirements](#54-usability-requirements)
-    - [5.5 Reliability Requirements](#55-reliability-requirements)
-  - [6. Other Requirements](#6-other-requirements)
-    - [6.1 Legal and Regulatory Compliance](#61-legal-and-regulatory-compliance)
-    - [6.2 Audit and Logging](#62-audit-and-logging)
-  - [7. Development with Kilo Code](#7-development-with-kilo-code)
-    - [7.1 Integration with Kilo Code](#71-integration-with-kilo-code)
-    - [7.2 AI-Assisted Coding Features](#72-ai-assisted-coding-features)
-    - [7.3 Workflow and Best Practices](#73-workflow-and-best-practices)
-  - [8. Appendices](#8-appendices)
-    - [8.1 Glossary](#81-glossary)
-    - [8.2 References](#82-references)
-
----
+# Functional Specification Document (FSD): Algorithmic Trading System
 
 ## 1. Introduction
 
 ### 1.1 Purpose
-This Functional Specification Document (FSD) outlines the detailed functional requirements for the Algorithmic Trading System, a sophisticated platform designed to automate and optimize trading strategies across multiple asset classes. The document serves as a comprehensive blueprint for developers, testers, and stakeholders, ensuring alignment on the system's capabilities and facilitating its development using **Kilo Code**, an AI Coding App integrated with Visual Studio Code (VS Code). The FSD specifies what the system should do, how it should behave, and the features it must include, providing a foundation for subsequent design, implementation, and testing phases.
+
+This Functional Specification Document (FSD) provides an exhaustive description of the functional design and requirements for the Algorithmic Trading System (ATS). It serves as a technical blueprint for developers, testers, and stakeholders to implement and validate the system, ensuring alignment with the business goals outlined in the Business Requirements Document (BRD), the functional details in the Functional Requirements Document (FRD), and the product vision in the Product Requirements Document (PRD). The FSD bridges the gap between high-level requirements and technical implementation, detailing how the system will operate, its features, and its interactions with users and external systems.
 
 ### 1.2 Scope
-The Algorithmic Trading System is an enterprise-grade platform that integrates advanced artificial intelligence (AI) and machine learning (ML) technologies to empower traders, portfolio managers, quants, risk managers, and compliance officers. It supports trading across stocks, ETFs, futures, options, forex, and cryptocurrencies, with features including:
 
-- Secure user management with role-based access control (RBAC).
-- A core trading infrastructure with multi-broker integration and an order management system (OMS).
-- Data management and analytics for real-time and historical market data, including alternative data sources.
-- AI-powered tools for strategy development, backtesting, and optimization.
-- An Agentic AI Assistant for natural language interaction and task automation.
-- A responsive, multi-platform user interface with personalized dashboards and institutional-grade charting.
-- Enterprise-grade security, compliance, and risk management features.
-- Specialized tools for options trading, including Greeks calculation and volatility analysis.
+The ATS is an enterprise-grade platform designed to enable users to develop, test, and execute trading strategies across multiple asset classes, including stocks, ETFs, futures, options, forex, and cryptocurrencies. This FSD covers the following functional areas:
 
-**Out of Scope:**
-- Development or modification of third-party broker systems beyond integration points.
-- Management of external data sources beyond specified integrations and fallback mechanisms.
-- Hardware infrastructure provisioning, assumed to be managed by deployment teams.
+- **Core Trading Engine**: Strategy execution, backtesting, and live trading capabilities.
+- **Data Pipelines**: Real-time market data ingestion, processing, and storage.
+- **Agentic AI Assistant**: Natural language interaction, strategy generation, and code debugging.
+- **Prediction and Analytics**: Machine learning-based forecasting and backtesting tools.
+- **User Interface**: Real-time dashboards, no-code strategy builder, and AI007 tools.
+- **API and Orchestration**: RESTful APIs and low-latency streaming services.
+- **Security and Compliance**: Zero-Trust architecture, encryption, and audit trails.
 
-This FSD focuses on functional specifications, leaving detailed technical designs to the Technical Specification Document (TSD) and implementation details to the development team using Kilo Code.
+Non-functional aspects like performance and scalability are referenced where they impact functionality but are detailed in the PRD.
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
+
+- **ATS**: Algorithmic Trading System
+- **BRD**: Business Requirements Document
+- **FRD**: Functional Requirements Document
+- **PRD**: Product Requirements Document
+- **FSD**: Functional Specification Document
 - **AI**: Artificial Intelligence
 - **ML**: Machine Learning
-- **OMS**: Order Management System
-- **RAG**: Retrieval-Augmented Generation
+- **API**: Application Programming Interface
+- **UI**: User Interface
+- **UX**: User Experience
 - **RBAC**: Role-Based Access Control
-- **JWT**: JSON Web Token
-- **SSO**: Single Sign-On
-- **MFA**: Multi-Factor Authentication
-- **PWA**: Progressive Web App
-- **WCAG**: Web Content Accessibility Guidelines
-- **GDPR**: General Data Protection Regulation
+- **SMA**: Simple Moving Average
+- **RSI**: Relative Strength Index
+- **VWAP**: Volume-Weighted Average Price
+- **TWAP**: Time-Weighted Average Price
+- **VaR**: Value at Risk
 - **SEC**: Securities and Exchange Commission
 - **FINRA**: Financial Industry Regulatory Authority
-- **FIX**: Financial Information Exchange Protocol
-- **TOTP**: Time-Based One-Time Password
-- **LEAN**: QuantConnect LEAN Engine
-- **Kilo Code**: AI Coding App integrated with VS Code
+- **GDPR**: General Data Protection Regulation
+- **CCPA**: California Consumer Privacy Act
 
 ### 1.4 References
-- **Business Requirements Document (BRD)**
-- **Product Requirements Document (PRD)**
-- **Functional Requirements Document (FRD)**
-- **Software Requirements Specification (SRS)**
-- **Technical Specification Document (TSD)**
-- **System Design Document (SDD)**
-- **API Documentation**
-- **Data Flow Document (DFD)**
-- **Configuration Management Plan**
-- **Features, Phases & Integration Strategy**
 
-### 1.5 Overview
-This document is structured to provide a holistic view of the Algorithmic Trading System's functional requirements. It begins with an introduction and system overview, followed by detailed functional requirements organized by major components. External interface requirements, non-functional requirements, and additional considerations such as legal compliance and development with Kilo Code are also covered. Appendices provide a glossary and references for further context.
+- "Features, Phases & Integration Strategy - Algorithmic Trading System.docx"
+- Business Requirements Document (BRD)
+- Functional Requirements Document (FRD)
+- Product Requirements Document (PRD)
 
 ---
 
 ## 2. System Overview
 
-### 2.1 Product Perspective
-The Algorithmic Trading System is a standalone, modular platform that integrates with external brokers (e.g., Interactive Brokers, Alpaca) and data sources (e.g., Yahoo Finance, Alpha Vantage) to deliver a comprehensive trading solution. Built on a microservices architecture, it ensures flexibility, scalability, and maintainability, leveraging open-source technologies like QuantConnect LEAN, LangChain, and Next.js. The system aims to democratize advanced trading tools, making them accessible to both retail and professional traders through AI-driven automation and an intuitive interface.
+### 2.1 System Description
 
-### 2.2 Product Functions
-The system provides the following high-level functions:
-- **User Management**: Secure registration, authentication, and profile management with RBAC.
-- **Core Trading Infrastructure**: Multi-asset trading, broker integrations, and a robust OMS.
-- **Data Management and Analytics**: Real-time and historical data processing with advanced analytics tools.
-- **AI-Powered Strategy Development**: No-code and code-based strategy creation, backtesting, and optimization.
-- **Agentic AI Assistant**: Natural language interaction for trading commands, portfolio insights, and document analysis.
-- **User Experience**: Responsive web and mobile interfaces with customizable dashboards and charting.
-- **Security and Compliance**: Enterprise-grade security, regulatory compliance, and risk management.
-- **Options Trading**: Tools for pricing, analyzing, and trading options strategies.
+The ATS is a modular, scalable platform leveraging a "Best-of-Breed" integration strategy with leading open-source technologies. It supports two primary user personas:
 
-### 2.3 User Classes and Characteristics
-| **User Class**         | **Description**                                                                                  | **Characteristics**                          |
-|-------------------------|--------------------------------------------------------------------------------------------------|----------------------------------------------|
-| **Admin**              | Manages system configurations, user accounts, and audit logs.                                   | Technical expertise, full system access.     |
-| **Trader**             | Places and manages orders, views market data, and uses dashboards.                              | Trading knowledge, needs real-time data.     |
-| **Quant**              | Develops, backtests, and deploys trading strategies using no-code or Python tools.              | Analytical skills, programming ability.      |
-| **Risk Manager**       | Sets risk parameters, monitors positions, and approves high-risk trades.                        | Risk management expertise, decision-making.  |
-| **Compliance Officer** | Ensures regulatory compliance, generates reports, and accesses audit trails.                   | Regulatory knowledge, auditing skills.       |
+- **Non-technical Traders**: Retail investors seeking intuitive, no-code tools.
+- **Professional Traders/Analysts**: Experts requiring high-performance, customizable solutions.
 
-### 2.4 Operating Environment
-- **Hardware**: Cloud-based infrastructure (e.g., AWS, Azure) with scalable compute and storage resources.
-- **Software**:
-  - **OS**: Ubuntu 20.04 LTS or later.
-  - **Database**: PostgreSQL with pgvector, Qdrant.
-  - **Web Server**: Nginx.
-  - **Application Server**: Gunicorn (Python), Node.js.
-  - **Containers**: Docker, orchestrated with Kubernetes.
-- **Network**: High-speed, low-latency internet connection for real-time trading.
+Key components include:
+- **Core Trading Engine**: Powered by NautilusTrader for strategy execution and order management.
+- **Data Pipelines**: Apache Kafka-based real-time data streaming and processing.
+- **Agentic AI Assistant**: LangChain and LangGraph-driven natural language and code generation.
+- **Prediction and Analytics**: ML models and backtesting tools for strategy optimization.
+- **User Interface**: Next.js frontend with dashboards and a no-code builder.
+- **API and Orchestration**: FastAPI and gRPC for internal and external communication.
+- **Security and Compliance**: Zero-Trust, RBAC, and immutable audit trails.
 
-### 2.5 Design and Implementation Constraints
-- Use of specified open-source technologies (e.g., QuantConnect LEAN, LangChain, Next.js, QuantLib).
-- Adherence to the 5-phase development roadmap outlined in "Features, Phases & Integration Strategy."
-- Compliance with financial regulations (e.g., SEC, FINRA) and data protection laws (e.g., GDPR).
-- Development must leverage Kilo Code for AI-assisted coding within VS Code.
+### 2.2 System Architecture
 
-### 2.6 Assumptions and Dependencies
-- **Assumptions**:
-  - Users have basic trading knowledge.
-  - External APIs and data feeds are reliable within specified tolerances.
-  - Sufficient resources are available for AI model training and backtesting.
-- **Dependencies**:
-  - Availability of third-party broker APIs (e.g., Interactive Brokers).
-  - Stability and updates of open-source libraries (e.g., TA-Lib, pandas-ta).
-  - Cloud infrastructure provisioning by deployment teams.
+The ATS employs a microservices architecture with Apache Kafka as the central event bus. Below is a high-level diagram:
+
+```mermaid
+graph TD
+    A[Next.js Frontend] -->|REST API| B[FastAPI Gateway]
+    B -->|gRPC| C[Kafka Data Bus]
+    C -->|Pub/Sub| D[NautilusTrader Engine]
+    C -->|Pub/Sub| E[AI Assistant Service]
+    C -->|Pub/Sub| F[Data Pipeline Service]
+    F -->|Ingest| G[Market Data Sources (Yahoo Finance, Alpha Vantage, IB)]
+    D -->|Execute Trades| H[Interactive Brokers]
+    E -->|NLP & Code Gen| I[LangChain & OpenHands]
+    B --> J[PostgreSQL]
+    J -->|Store| K[User Data & Strategies]
+    F --> L[ClickHouse]
+    L -->|Analyze| M[Time-Series Data]
+    E --> N[Qdrant]
+    N -->|Vector Search| O[AI Embeddings]
+    F --> P[Apache Iceberg]
+    P -->|Audit Trails| Q[Compliance Logs]
+```
+
+This architecture ensures decoupling, scalability, and real-time capabilities.
 
 ---
 
 ## 3. Functional Requirements
-This section details the functional requirements for each major component, including specific identifiers (e.g., FR-UM-01) for traceability.
 
-### 3.1 User Management
-- **FR-UM-01**: The system shall allow user registration with a unique email and password.
-  - *Details*: Passwords must meet strong policies (min. 12 characters, uppercase, lowercase, numbers, special characters).
-  - *Acceptance Criteria*: Successful registration creates a user profile in the database.
-- **FR-UM-02**: The system shall support MFA using TOTP or authenticator apps.
-  - *Acceptance Criteria*: Users can enable MFA and must enter a valid code during login.
-- **FR-UM-03**: The system shall integrate SSO with major identity providers (e.g., Google, Okta).
-  - *Acceptance Criteria*: Users can log in using external credentials.
-- **FR-UM-04**: The system shall enable profile updates (e.g., name, preferences).
-  - *Acceptance Criteria*: Updates are saved and reflected immediately.
-- **FR-UM-05**: The system shall provide a secure password reset mechanism with email verification.
-  - *Details*: Links expire within 24 hours.
-  - *Acceptance Criteria*: Users can reset passwords using a temporary link.
-- **FR-UM-06**: The system shall log all authentication events.
-  - *Acceptance Criteria*: Logs include timestamps, user IDs, and event types.
+### 3.1 Core Trading Engine
 
-### 3.2 Core Trading Infrastructure
-- **FR-CTI-01**: The system shall integrate with multiple brokers (e.g., Interactive Brokers, Alpaca).
-  - *Acceptance Criteria*: Orders are placed and status retrieved successfully.
-- **FR-CTI-02**: The system shall support trading across multiple asset classes.
-  - *Details*: Stocks, ETFs, futures, options, forex, cryptocurrencies.
-  - *Acceptance Criteria*: Each asset class is tradable with appropriate validation.
-- **FR-CTI-03**: The system shall include an OMS supporting:
-  - Basic order types: Market, Limit, Stop, Stop-Limit, Trailing Stop.
-  - Advanced order types: GTC, IOC, FOK, VWAP, TWAP, Iceberg, OCO.
-  - *Acceptance Criteria*: All order types execute correctly under normal conditions.
-- **FR-CTI-04**: The system shall provide real-time order status updates and notifications.
-  - *Details*: Via email or in-app alerts.
-  - *Acceptance Criteria*: Updates reflect within 1 second of execution.
-- **FR-CTI-05**: The system shall log all orders and executions.
-  - *Acceptance Criteria*: Logs include timestamps, order details, and errors.
-- **FR-CTI-06**: The system shall support switching between paper and live trading modes.
-  - *Acceptance Criteria*: Mode switch occurs without manual reconfiguration.
-- **FR-CTI-07**: The system shall validate orders against risk limits.
-  - *Acceptance Criteria*: Orders exceeding limits are rejected with error messages.
+The Core Trading Engine manages trading strategies and broker interactions.
 
-### 3.3 Data Management and Analytics
-- **FR-DMA-01**: The system shall integrate with free market data sources for paper trading.
-  - *Details*: Yahoo Finance, Alpha Vantage, etc.
-  - *Acceptance Criteria*: Data is accessible in paper mode.
-- **FR-DMA-02**: The system shall integrate with Interactive Brokers for live trading data.
-  - *Acceptance Criteria*: Live data feeds are operational.
-- **FR-DMA-03**: The system shall implement a fallback mechanism for data sources.
-  - *Details*: Switches to alternatives on primary failure (e.g., Yahoo → Alpha Vantage).
-  - *Acceptance Criteria*: Fallback activates within 5 seconds.
-- **FR-DMA-04**: The system shall store historical market data (min. 5 years).
-  - *Acceptance Criteria*: Data is queryable and exportable.
-- **FR-DMA-05**: The system shall integrate alternative data sources (e.g., news feeds).
-  - *Acceptance Criteria*: Sentiment analysis is applied to news data.
-- **FR-DMA-06**: The system shall provide advanced analytics tools:
-  - Market screener with natural language filters.
-  - AI-powered opportunity detection.
-  - Market microstructure analysis.
-  - *Acceptance Criteria*: Tools return results within 2 seconds.
-- **FR-DMA-07**: The system shall ensure data integrity with checksum validation.
-  - *Acceptance Criteria*: Corrupted data is flagged.
+- **FR-CE-001**: Support trading across stocks, ETFs, futures, options, forex, and cryptocurrencies.
+  - **Details**: Configurable asset selection via UI or API.
+- **FR-CE-002**: Enable custom Python-based strategies with technical indicators (SMA, RSI).
+  - **Details**: Supports manual coding or AI-generated scripts.
+- **FR-CE-003**: Provide backtesting with metrics (profit/loss, Sharpe ratio).
+  - **Details**: Customizable parameters (e.g., date range).
+- **FR-CE-004**: Facilitate live trading with real-time data and broker connectivity.
+  - **Details**: Supports Interactive Brokers with authentication.
+- **FR-CE-005**: Handle order types (market, limit, VWAP, TWAP).
+  - **Details**: Configurable via UI or strategy logic.
+- **FR-CE-006**: Maintain a real-time portfolio view (positions, P/L).
+  - **Details**: Updated via Kafka streams.
+- **FR-CE-007**: Offer order management (place, modify, cancel).
+  - **Details**: Accessible via UI and API.
+- **FR-CE-008**: Support paper trading with simulated real-time data.
+  - **Details**: Mirrors live trading conditions.
 
-### 3.4 AI-Powered Strategy Development and Backtesting
-- **FR-AIS-01**: The system shall provide a no-code strategy builder with drag-and-drop interface.
-  - *Acceptance Criteria*: Strategies are created and executable visually.
-- **FR-AIS-02**: The system shall include a generative AI tool for strategy code generation.
-  - *Example*: "Buy when RSI < 30."
-  - *Acceptance Criteria*: Generated code matches intent and executes.
-- **FR-AIS-03**: The system shall offer a Python-based studio with Jupyter notebooks.
-  - *Acceptance Criteria*: Notebooks support real-time execution.
-- **FR-AIS-04**: The system shall provide an enterprise-grade backtesting engine.
-  - *Details*: Includes slippage, commissions, market impact.
-  - *Acceptance Criteria*: Results align with historical data (2% margin).
-- **FR-AIS-05**: The system shall include a strategy marketplace.
-  - *Acceptance Criteria*: Users can share, license, and purchase strategies.
-- **FR-AIS-06**: The system shall support version control for strategies (Git integration).
-  - *Acceptance Criteria*: Commit history is maintained.
-- **FR-AIS-07**: The system shall generate detailed backtest reports.
-  - *Details*: Sharpe Ratio, max drawdown, etc.
-  - *Acceptance Criteria*: Reports are exportable in PDF.
+### 3.2 Data Pipelines
 
-### 3.5 Agentic AI Assistant
-- **FR-AIA-01**: The system shall provide an AI Assistant for natural language queries.
-  - *Examples*: "What’s AAPL’s price?" "Buy 100 TSLA shares."
-  - *Acceptance Criteria*: Responses within 3 seconds.
-- **FR-AIA-02**: The AI Assistant shall execute trading commands.
-  - *Acceptance Criteria*: Commands are validated and executed.
-- **FR-AIA-03**: The AI Assistant shall analyze uploaded documents using Agentic RAG.
-  - *Acceptance Criteria*: Insights extracted within 10 seconds.
-- **FR-AIA-04**: The system shall implement a collaborative agent network.
-  - *Details*: Analyst, Researcher, Risk Manager agents.
-  - *Acceptance Criteria*: Tasks are delegated effectively.
-- **FR-AIA-05**: The AI Assistant shall support continuous learning.
-  - *Acceptance Criteria*: Accuracy improves with user feedback.
-- **FR-AIA-06**: The system shall provide tools for custom AI model fine-tuning.
-  - *Acceptance Criteria*: Users can upload datasets for tuning.
-- **FR-AIA-07**: The AI Assistant shall support multi-modal inputs (text, voice).
-  - *Acceptance Criteria*: 95% accuracy in recognition.
+Manages market data ingestion and processing.
 
-### 3.6 User Experience and Multi-Platform Accessibility
-- **FR-UE-01**: The system shall provide a responsive web interface with dashboards.
-  - *Acceptance Criteria*: Adapts to user preferences and devices.
-- **FR-UE-02**: The interface shall integrate institutional-grade charting (e.g., TradingView).
-  - *Acceptance Criteria*: Charts render in real-time (<1s lag).
-- **FR-UE-03**: The system shall include a conversational chatbot interface.
-  - *Acceptance Criteria*: Supports text and voice with 95% accuracy.
-- **FR-UE-04**: The system shall support multi-platform access (web, PWA).
-  - *Acceptance Criteria*: Installable with offline capabilities.
-- **FR-UE-05**: The system shall comply with WCAG 2.1 Level AA standards.
-  - *Acceptance Criteria*: Passes accessibility audits.
-- **FR-UE-06**: The system shall support multi-language interfaces.
-  - *Acceptance Criteria*: Real-time translation available.
-- **FR-UE-07**: The system shall allow dashboard widget customization.
-  - *Acceptance Criteria*: Users can rearrange widgets via drag-and-drop.
+- **FR-DP-001**: Ingest real-time data from Yahoo Finance, Alpha Vantage, and Interactive Brokers.
+  - **Details**: Kafka streams ensure low latency.
+- **FR-DP-002**: Normalize data for consistency (timestamps, missing values).
+  - **Details**: Pre-storage processing service.
+- **FR-DP-003**: Store historical data in ClickHouse.
+  - **Details**: Optimized for time-series queries.
+- **FR-DP-004**: Implement fallback for data source outages.
+  - **Details**: Automatic switching with priority rules.
+- **FR-DP-005**: Use Kafka for scalable data streaming.
+  - **Details**: Pub/sub model for downstream services.
+- **FR-DP-006**: Log events and metrics for auditing.
+  - **Details**: Stored in Apache Iceberg.
 
-### 3.7 Enterprise-Grade Security, Compliance, and Operations
-- **FR-SEC-01**: The system shall implement a Zero-Trust Architecture.
-  - *Acceptance Criteria*: All requests are verified continuously.
-- **FR-SEC-02**: The system shall comply with regulatory standards (e.g., GDPR, SEC).
-  - *Acceptance Criteria*: Passes compliance audits.
-- **FR-SEC-03**: The system shall provide automated compliance reporting and audit trails.
-  - *Acceptance Criteria*: Reports generated within 5 minutes.
-- **FR-SEC-04**: The system shall include a real-time risk management hub.
-  - *Details*: Pre-trade checks, circuit breakers.
-  - *Acceptance Criteria*: Alerts within 1 second.
-- **FR-SEC-05**: The system shall support operational monitoring (Prometheus, Grafana).
-  - *Acceptance Criteria*: Dashboards update every 5 seconds.
-- **FR-SEC-06**: The system shall enforce RBAC with customizable roles.
-  - *Acceptance Criteria*: Permissions align with user roles.
-- **FR-SEC-07**: The system shall encrypt sensitive data at rest and in transit.
-  - *Details*: AES-256, TLS 1.3.
-  - *Acceptance Criteria*: Encryption is verifiable.
+### 3.3 Agentic AI Assistant
 
-### 3.8 Options Trading
-- **FR-OPT-01**: The system shall support trading of options strategies.
-  - *Details*: Straddles, spreads, iron condors.
-  - *Acceptance Criteria*: Strategies are executable.
-- **FR-OPT-02**: The system shall provide tools for calculating Greeks and payoff diagrams.
-  - *Acceptance Criteria*: Accuracy within 0.01% of reference values.
-- **FR-OPT-03**: The system shall include a volatility suite.
-  - *Details*: Surface constructors, skew detectors.
-  - *Acceptance Criteria*: Surfaces render within 3 seconds.
-- **FR-OPT-04**: The system shall offer options-specific risk management tools.
-  - *Details*: Margin calculators, stress testing.
-  - *Acceptance Criteria*: Real-time updates.
-- **FR-OPT-05**: The system shall provide real-time implied volatility surfaces.
-  - *Acceptance Criteria*: Updates reflect market changes.
-- **FR-OPT-06**: The system shall integrate dividend forecasts into options pricing.
-  - *Acceptance Criteria*: Pricing reflects forecasts.
-- **FR-OPT-07**: The system shall support exotic options with customizable parameters.
-  - *Acceptance Criteria*: Users can define parameters.
+Enhances user interaction via AI.
+
+- **FR-AI-001**: Interpret natural language queries (e.g., "AAPL trend").
+  - **Details**: LangChain processes and responds.
+- **FR-AI-002**: Generate Python strategy code from descriptions.
+  - **Details**: OpenHands ensures executable output.
+- **FR-AI-003**: Debug and optimize existing code.
+  - **Details**: Suggests fixes and improvements.
+- **FR-AI-004**: Integrate RAG for document-based insights.
+  - **Details**: Uses Qdrant for vector search.
+- **FR-AI-005**: Support multi-turn conversations.
+  - **Details**: Maintains context across queries.
+
+### 3.4 Prediction and Analytics
+
+Provides forecasting and evaluation tools.
+
+- **FR-PA-001**: Include ML models (LSTM, ARIMA) for predictions.
+  - **Details**: Trained on historical data.
+- **FR-PA-002**: Offer backtesting with detailed metrics (VaR, beta).
+  - **Details**: Visualized via equity curves.
+- **FR-PA-003**: Provide portfolio optimization (PyPortfolioOpt).
+  - **Details**: User-defined risk/return inputs.
+- **FR-PA-004**: Detect anomalies (PyOD).
+  - **Details**: Alerts for price spikes or errors.
+- **FR-PA-005**: Generate exportable reports (PDF, CSV).
+  - **Details**: Includes backtest and analytics data.
+
+### 3.5 User Interface
+
+Delivers intuitive frontend experiences.
+
+- **FR-UI-001**: Provide a real-time dashboard.
+  - **Details**: Portfolio, charts (react-financial-charts), and risk metrics.
+- **FR-UI-002**: Support interactive charting (timeframes, indicators).
+  - **Details**: Zoomable and pannable.
+- **FR-UI-003**: Include a no-code strategy builder (Blockly).
+  - **Details**: Drag-and-drop with visual workflows.
+- **FR-UI-004**: Generate Python code from visual strategies.
+  - **Details**: Editable by advanced users.
+- **FR-UI-005**: Integrate an AI chat interface.
+  - **Details**: Conversational panel in dashboard.
+- **FR-UI-006**: Support authentication and RBAC.
+  - **Details**: Secure, role-based access.
+
+### 3.6 API and Orchestration
+
+Manages system communication.
+
+- **FR-AO-001**: Use FastAPI for RESTful endpoints.
+  - **Details**: Exposes strategies, portfolio, etc.
+- **FR-AO-002**: Implement gRPC for low-latency streaming.
+  - **Details**: Internal service communication.
+- **FR-AO-003**: Support OAuth2 with JWT.
+  - **Details**: Secure API access.
+- **FR-AO-004**: Provide Swagger-based API documentation.
+  - **Details**: Auto-generated from code.
+
+### 3.7 Security and Compliance
+
+Ensures data protection and regulatory adherence.
+
+- **FR-SC-001**: Enforce Zero-Trust architecture.
+  - **Details**: Verification for all requests.
+- **FR-SC-002**: Implement RBAC for permissions.
+  - **Details**: Roles: Trader, Analyst, Admin.
+- **FR-SC-003**: Encrypt data with AES-256.
+  - **Details**: At rest and in transit.
+- **FR-SC-004**: Maintain immutable audit trails (Iceberg).
+  - **Details**: Logs all activities.
+- **FR-SC-005**: Comply with SEC, FINRA, GDPR, CCPA.
+  - **Details**: Regulatory reporting supported.
 
 ---
 
-## 4. External Interface Requirements
+## 4. Use Cases
 
-### 4.1 User Interfaces
-- **UI-01**: The system shall provide a web-based UI using Next.js, React, and TypeScript.
-  - *Acceptance Criteria*: Compiles and runs without errors.
-- **UI-02**: The UI shall be responsive across devices.
-  - *Acceptance Criteria*: Passes responsive design tests.
-- **UI-03**: The UI shall include personalized dashboards and charting tools.
-  - *Acceptance Criteria*: Customization is persistent.
+### 4.1 Non-technical User Creating a Strategy
 
-### 4.2 Hardware Interfaces
-- **HI-01**: The system shall operate on cloud infrastructure (e.g., AWS).
-  - *Acceptance Criteria*: Deploys successfully on specified hardware.
-- **HI-02**: The system shall support Docker containerization.
-  - *Acceptance Criteria*: Containers run consistently.
+- **Actor**: Sarah (Non-technical Trader)
+- **Steps**:
+  1. Logs in and accesses strategy builder.
+  2. Selects "Moving Average Crossover" template.
+  3. Configures parameters (10-day SMA, 50-day SMA, AAPL).
+  4. Runs backtest and reviews metrics.
+  5. Deploys strategy for live trading.
 
-### 4.3 Software Interfaces
-- **SI-01**: The system shall integrate with broker APIs (e.g., Interactive Brokers).
-  - *Acceptance Criteria*: API calls succeed within 100ms.
-- **SI-02**: The system shall use PostgreSQL with pgvector for data storage.
-  - *Acceptance Criteria*: Queries execute within 50ms.
-- **SI-03**: The system shall use Qdrant for vector search.
-  - *Acceptance Criteria*: Search latency <20ms for 1M vectors.
+### 4.2 Professional Trader Executing a Trade
 
-### 4.4 Communication Interfaces
-- **CI-01**: The system shall use HTTPS for secure communication.
-  - *Acceptance Criteria*: All traffic uses TLS 1.3.
-- **CI-02**: The system shall support WebSocket for real-time updates.
-  - *Acceptance Criteria*: Updates push within 50ms.
-- **CI-03**: The system shall use RESTful APIs for service interactions.
-  - *Acceptance Criteria*: Conforms to OpenAPI 3.0.
+- **Actor**: Michael (Professional Trader)
+- **Steps**:
+  1. Views real-time dashboard.
+  2. Submits market order via API.
+  3. Receives confirmation within 100ms.
+  4. Reviews post-trade analytics.
+
+### 4.3 User Querying AI Assistant
+
+- **Actor**: Any User
+- **Steps**:
+  1. Opens AI chat interface.
+  2. Queries "AAPL trend?"
+  3. Receives response with data summary.
+  4. Follows up with "Should I buy?"
 
 ---
 
-## 5. Non-Functional Requirements
+## 5. User Interface Requirements
 
-### 5.1 Performance Requirements
-- **PR-01**: Order execution latency shall be <100ms.
-  - *Acceptance Criteria*: Measured under 1,000 concurrent orders.
-- **PR-02**: API response times shall be <100ms for critical operations.
-  - *Acceptance Criteria*: 95th percentile meets threshold.
-- **PR-03**: The system shall support 10,000 concurrent users.
-  - *Acceptance Criteria*: No degradation under load.
+### 5.1 Dashboard Flow
 
-### 5.2 Security Requirements
-- **SR-01**: The system shall comply with OWASP Top 10 standards.
-  - *Acceptance Criteria*: Passes security scans.
-- **SR-02**: Sensitive data shall be encrypted (AES-256, TLS 1.3).
-  - *Acceptance Criteria*: Encryption is verifiable.
-- **SR-03**: Regular security audits shall be conducted.
-  - *Acceptance Criteria*: Quarterly audits with remediation.
+```mermaid
+graph TD
+    A[Login] --> B[Dashboard]
+    B --> C[Portfolio Summary]
+    B --> D[Interactive Charts]
+    B --> E[Order Blotter]
+    D --> F[Add Indicators]
+    E --> G[Place Order]
+```
 
-### 5.3 Scalability Requirements
-- **SCR-01**: The system shall support horizontal scaling.
-  - *Acceptance Criteria*: Adding nodes reduces latency by 20%.
-- **SCR-02**: Microservices shall scale independently.
-  - *Acceptance Criteria*: Scaling one service does not affect others.
+### 5.2 Strategy Builder
 
-### 5.4 Usability Requirements
-- **UR-01**: The interface shall have a learning curve <1 hour.
-  - *Acceptance Criteria*: 90% of users complete tasks in testing.
-- **UR-02**: Comprehensive documentation shall be provided.
-  - *Acceptance Criteria*: Covers all features online.
+- Drag-and-drop blocks: Data Inputs, Indicators, Conditions, Actions.
+- Generates Python code viewable/editable.
 
-### 5.5 Reliability Requirements
-- **RR-01**: The system shall achieve 99.99% uptime.
-  - *Acceptance Criteria*: Measured over 3 months.
-- **RR-02**: Automated backups and disaster recovery shall be implemented.
-  - *Acceptance Criteria*: RTO <1 hour.
+### 5.3 AI Chat
+
+- Scrollable history with multi-turn context support.
 
 ---
 
-## 6. Other Requirements
+## 6. Data Requirements
 
-### 6.1 Legal and Regulatory Compliance
-- **LR-01**: The system shall comply with financial regulations (e.g., SEC, FINRA).
-  - *Acceptance Criteria*: Passes regulatory audits.
-- **LR-02**: The system shall adhere to data protection laws (e.g., GDPR).
-  - *Acceptance Criteria*: Includes consent mechanisms.
+### 6.1 Data Flow
 
-### 6.2 Audit and Logging
-- **AL-01**: The system shall log all user actions and events.
-  - *Acceptance Criteria*: Logs include timestamps and details.
-- **AL-02**: Audit logs shall be immutable and retained for 7 years.
-  - *Acceptance Criteria*: Logs are tamper-proof and exportable.
+```mermaid
+graph LR
+    A[Market Data Sources] -->|Kafka| B[Data Pipeline]
+    B --> C[ClickHouse]
+    B --> D[NautilusTrader]
+    B --> E[AI Assistant]
+    D --> F[Interactive Brokers]
+    E --> G[Qdrant]
+```
 
----
-
-## 7. Development with Kilo Code
-
-### 7.1 Integration with Kilo Code
-- The system shall be developed using Kilo Code within VS Code.
-- *Acceptance Criteria*: Kilo Code is installed and functional in the development environment.
-
-### 7.2 AI-Assisted Coding Features
-- **KC-01**: Kilo Code shall generate code snippets from natural language prompts.
-  - *Acceptance Criteria*: Snippets are syntactically correct and functional.
-- **KC-02**: Kilo Code shall provide AI-driven code reviews and suggestions.
-  - *Acceptance Criteria*: Suggestions improve code quality.
-- **KC-03**: Kilo Code shall integrate with Git for version control.
-  - *Acceptance Criteria*: Commits are manageable within VS Code.
-
-### 7.3 Workflow and Best Practices
-- **KC-04**: Developers shall follow best practices for code structure and documentation.
-  - *Acceptance Criteria*: Code adheres to PEP 8 and includes docstrings.
-- **KC-05**: Kilo Code shall automate repetitive tasks (e.g., boilerplate generation).
-  - *Acceptance Criteria*: Reduces development time by 20%.
+- **Market Data**: Price, volume, order book.
+- **User Data**: Profiles, strategies, encrypted in PostgreSQL.
+- **System Data**: Logs in Apache Iceberg.
 
 ---
 
-## 8. Appendices
+## 7. Integration Requirements
 
-### 8.1 Glossary
-- **Agentic RAG**: Retrieval-Augmented Generation with AI agents.
-- **Zero-Trust Architecture**: Security model requiring continuous verification.
-- **OMS**: Order Management System.
-- **Greeks**: Options risk metrics (Delta, Gamma, Theta, Vega, Rho).
-
-### 8.2 References
-- QuantConnect LEAN Documentation
-- LangChain Documentation
-- Next.js Documentation
-- Interactive Brokers API Documentation
+- **NautilusTrader**: Subscribes to Kafka, publishes order events.
+- **FastAPI**: REST endpoints (e.g., `/strategies`).
+- **gRPC**: Low-latency internal streams.
+- **External**: FIX protocol for brokers.
 
 ---
 
-This FSD provides a detailed and elaborate specification for the Algorithmic Trading System, ensuring all functional aspects are clearly defined for development with Kilo Code. It serves as a comprehensive guide for creating a robust, scalable, and user-friendly trading platform.
+## 8. Testing and Quality Assurance
+
+- **Unit Tests**: 80% coverage with pytest.
+- **Integration Tests**: Service and external system interactions.
+- **UAT**: Validates use cases with end-users.
+
+---
+
+## 9. Appendices
+
+### 9.1 Glossary
+
+- **Agentic AI**: Autonomous AI for decision-making.
+- **RAG**: Retrieval-Augmented Generation.
+
+### 9.2 References
+
+- NautilusTrader Docs: [link]
+- Kafka Docs: [link]

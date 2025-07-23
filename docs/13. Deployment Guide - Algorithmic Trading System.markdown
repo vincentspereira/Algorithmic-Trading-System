@@ -1,326 +1,306 @@
-# Deployment Guide
-## Algorithmic Trading System
+# Deployment Guide  
+## Algorithmic Trading System (ATS)  
 
 ---
 
-## Table of Contents
-- [Deployment Guide](#deployment-guide)
-  - [Algorithmic Trading System](#algorithmic-trading-system)
-  - [Table of Contents](#table-of-contents)
-  - [Introduction](#introduction)
-  - [Prerequisites](#prerequisites)
-    - [Hardware Requirements](#hardware-requirements)
-    - [Software Requirements](#software-requirements)
-    - [Cloud Provider Account](#cloud-provider-account)
-    - [Access Credentials](#access-credentials)
-  - [System Architecture Overview](#system-architecture-overview)
-  - [Deployment Environment](#deployment-environment)
-  - [Installation and Configuration](#installation-and-configuration)
-    - [Infrastructure Setup](#infrastructure-setup)
-    - [Database Configuration](#database-configuration)
-    - [Application Deployment](#application-deployment)
-    - [AI and Machine Learning Models](#ai-and-machine-learning-models)
-  - [Security Considerations](#security-considerations)
-  - [Monitoring and Logging](#monitoring-and-logging)
-  - [Backup and Recovery](#backup-and-recovery)
-  - [Troubleshooting](#troubleshooting)
-  - [FAQs](#faqs)
-  - [Appendices](#appendices)
-    - [Appendix A: Configuration Files](#appendix-a-configuration-files)
-    - [Appendix B: API Endpoints](#appendix-b-api-endpoints)
-    - [Appendix C: Troubleshooting Guide](#appendix-c-troubleshooting-guide)
+### Table of Contents
+1. [Introduction](#introduction)
+   - 1.1 Purpose
+   - 1.2 Scope
+   - 1.3 System Overview
+2. [Deployment Architecture](#deployment-architecture)
+   - 2.1 Cloud Environment
+   - 2.2 Microservices and Containers
+   - 2.3 Networking and Security
+   - 2.4 Data Storage and Management
+3. [Prerequisites](#prerequisites)
+   - 3.1 Software and Tools
+   - 3.2 Hardware Requirements
+   - 3.3 Access and Permissions
+4. [Environment Setup](#environment-setup)
+   - 4.1 Development Environment
+   - 4.2 Staging Environment
+   - 4.3 Production Environment
+5. [Configuration Management](#configuration-management)
+   - 5.1 Environment Variables
+   - 5.2 Secrets Management
+   - 5.3 Configuration Files
+6. [Deployment Process](#deployment-process)
+   - 6.1 Build and Packaging
+   - 6.2 Containerization
+   - 6.3 Orchestration with Kubernetes
+   - 6.4 CI/CD Pipeline
+7. [Post-Deployment Tasks](#post-deployment-tasks)
+   - 7.1 Verification and Testing
+   - 7.2 Monitoring and Logging
+   - 7.3 Backup and Recovery
+8. [Troubleshooting](#troubleshooting)
+   - 8.1 Common Issues
+   - 8.2 Debugging Tools
+9. [Appendices](#appendices)
+   - 9.1 Glossary
+   - 9.2 References
 
 ---
 
-## Introduction
-This Deployment Guide provides comprehensive, step-by-step instructions for deploying the Algorithmic Trading System in a production environment. The system is designed to automate trading strategies using advanced AI and machine learning capabilities, and this guide ensures its successful setup and operation. It is intended for system administrators, DevOps engineers, and technical personnel with familiarity in cloud infrastructure, containerization, and networking concepts. By following this guide, you can deploy the system efficiently, ensuring reliability, scalability, and security.
+### 1. Introduction
+
+#### 1.1 Purpose
+This Deployment Guide provides detailed instructions for deploying the Algorithmic Trading System (ATS) across development, staging, and production environments. It is intended for DevOps engineers, system administrators, and developers to ensure a consistent, reliable, and secure deployment process that aligns with the business objectives outlined in the Business Requirements Document (BRD). The guide aims to minimize risks, ensure high availability, and support the system's scalability and performance requirements.
+
+#### 1.2 Scope
+The guide encompasses:
+- **Environment Setup**: Instructions for configuring development, staging, and production environments.
+- **Configuration Management**: Handling environment variables, secrets, and configuration files.
+- **Deployment Process**: Steps for building, containerizing, and deploying the ATS using modern DevOps practices.
+- **Post-Deployment Tasks**: Verification, monitoring, and recovery procedures.
+- **Troubleshooting**: Strategies for diagnosing and resolving deployment issues.
+
+Out of scope:
+- Detailed development workflows (covered in the SDD and TSD).
+- End-user training (covered in separate documentation).
+
+#### 1.3 System Overview
+The ATS is a modular, scalable trading platform built on a microservices architecture. It leverages:
+- **Apache Kafka**: Event-driven data streaming for real-time market data and trade execution.
+- **NautilusTrader**: Core trading engine for strategy execution and order management.
+- **AI Assistant**: Powered by LangChain and Lobe Chat for natural language interaction and strategy generation.
+- **Frontend**: Next.js with real-time dashboards and no-code tools (Blockly).
+- **Backend**: FastAPI for RESTful APIs and gRPC for internal communication.
+
+The system supports multiple asset classes (stocks, ETFs, futures, options, forex, cryptocurrencies) and features such as no-code strategy building, backtesting, live trading, and advanced analytics.
 
 ---
 
-## Prerequisites
-Before starting the deployment process, ensure the following prerequisites are in place:
+### 2. Deployment Architecture
 
-### Hardware Requirements
-- **Minimum**: 
-  - 16GB RAM
-  - 4-core CPU
-  - 100GB SSD storage
-- **Recommended**: 
-  - 32GB RAM
-  - 8-core CPU
-  - 500GB SSD storage
+#### 2.1 Cloud Environment
+The ATS is deployed on a cloud platform (e.g., AWS, GCP, or Azure) to ensure scalability, resilience, and low-latency performance. Key components include:
+- **Compute**: Kubernetes clusters (e.g., AWS EKS) for managing microservices.
+- **Storage**: Managed database services (e.g., Amazon RDS, ClickHouse on EBS).
+- **Networking**: Virtual Private Cloud (VPC) with private subnets and load balancers.
 
-### Software Requirements
-- **Docker**: Version 20.10 or later
-- **Kubernetes**: Version 1.20 or later
-- **Helm**: Version 3.5 or later
-- **Git**: Version 2.25 or later
+#### 2.2 Microservices and Containers
+The ATS is composed of containerized microservices using Docker:
+- **Trading Engine**: NautilusTrader for trade execution and backtesting.
+- **Data Pipeline**: Kafka with Schema Registry for real-time data streaming.
+- **AI Assistant**: LangChain, Lobe Chat, and RAGFlow for AI-driven features.
+- **API Gateway**: FastAPI for external RESTful APIs, gRPC for internal communication.
+- **Frontend**: Next.js with react-financial-charts and ag-Grid for dashboards.
+- **Databases**: PostgreSQL/pgvector, ClickHouse, Qdrant, DuckDB, Apache Iceberg.
 
-### Cloud Provider Account
-- A cloud provider account with sufficient permissions to create resources:
-  - AWS (recommended)
-  - Azure
-  - Google Cloud
+#### 2.3 Networking and Security
+- **Load Balancer**: AWS ALB or equivalent to distribute traffic to the API Gateway.
+- **Security Groups**: Restrict access to specific ports (e.g., 443 for HTTPS, 9092 for Kafka).
+- **SSL/TLS**: Encrypt all data in transit using certificates from a trusted CA.
+- **Zero-Trust Architecture**: Enforce RBAC and mutual TLS for microservice communication.
 
-### Access Credentials
-- **API Keys**: For market data sources (e.g., Yahoo Finance, Alpha Vantage)
-- **Broker API Credentials**: For trading integrations (e.g., Interactive Brokers)
-- **SSL Certificates**: For securing web traffic
-- **Domain Name**: Registered and configured for the application
+#### 2.4 Data Storage and Management
+- **PostgreSQL/pgvector**: Stores user data, trading strategies, and configurations.
+- **ClickHouse**: Handles high-volume time-series market data.
+- **Qdrant**: Manages vector embeddings for AI-driven features.
+- **Apache Iceberg**: Provides immutable audit logs for compliance.
+- **DuckDB**: Lightweight analytics for backtesting.
 
----
-
-## System Architecture Overview
-The Algorithmic Trading System is built on a microservices architecture, designed for modularity, scalability, and resilience. Key components include:
-
-- **API Gateway**: Routes incoming requests to appropriate services and manages load balancing.
-- **Trading Engine**: Executes trading logic, manages orders, and integrates with brokers.
-- **AI Service**: Powers the AI Assistant and generates trading strategies using machine learning models.
-- **Data Service**: Collects and processes market data, alternative data, and analytics.
-- **Frontend Service**: Delivers the user interface for web and mobile access.
-- **Database**: Stores user profiles, trading strategies, and historical market data.
-
-These components are containerized using Docker and orchestrated with Kubernetes to ensure high availability and efficient resource utilization.
-
----
-
-## Deployment Environment
-The system is optimized for deployment in a cloud environment with the following specifications:
-
-- **Cloud Provider**: AWS (recommended), Azure, or Google Cloud
-- **Region**: Select a region closest to your user base to minimize latency (e.g., us-east-1 for AWS)
-- **VPC Configuration**:
-  - Private subnets for backend services (e.g., Trading Engine, AI Service)
-  - Public subnets for load balancers and API Gateway
-- **Security Groups**:
-  - Allow inbound traffic only on necessary ports:
-    - Port 80 (HTTP)
-    - Port 443 (HTTPS)
+#### Architecture Diagram
+```mermaid
+graph TD
+    A[User] -->|HTTPS| B[Load Balancer]
+    B --> C[API Gateway - FastAPI]
+    C -->|gRPC| D[Trading Engine - NautilusTrader]
+    C -->|gRPC| E[AI Assistant - LangChain]
+    C -->|HTTPS| F[Frontend - Next.js]
+    D --> G[Kafka Data Pipeline]
+    G --> H[PostgreSQL/pgvector]
+    G --> I[ClickHouse]
+    G --> J[Qdrant]
+    G --> K[Apache Iceberg]
+    D --> L[Broker - FIX Gateway]
+```
 
 ---
 
-## Installation and Configuration
+### 3. Prerequisites
 
-### Infrastructure Setup
-1. **Create a Kubernetes Cluster**:
-   - Use a managed Kubernetes service:
-     - AWS: Elastic Kubernetes Service (EKS)
-     - Azure: Azure Kubernetes Service (AKS)
-     - Google Cloud: Google Kubernetes Engine (GKE)
-   - Configure the cluster with at least 3 nodes for high availability.
-   - Example command for AWS EKS:
-     ```bash
-     eksctl create cluster --name trading-system --region us-east-1 --nodegroup-name workers --node-type t3.large --nodes 3
-     ```
-2. **Set Up Networking**:
-   - Create a Virtual Private Cloud (VPC) with private and public subnets.
-   - Configure security groups:
-     - Allow inbound traffic on ports 80 and 443 for public subnets.
-     - Restrict access to private subnets to internal traffic only.
-3. **Install Helm**:
-   - Install Helm on your local machine or CI/CD pipeline:
-     ```bash
-     curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-     chmod +x get_helm.sh
-     ./get_helm.sh
-     ```
-   - Add Helm repositories for third-party charts:
-     ```bash
-     helm repo add stable https://charts.helm.sh/stable
-     helm repo update
-     ```
+#### 3.1 Software and Tools
+- **Docker**: Version 20.10+ for containerization.
+- **Kubernetes**: Version 1.25+ (e.g., AWS EKS, GKE) for orchestration.
+- **Helm**: Version 3.10+ for managing Kubernetes deployments.
+- **Git**: Version 2.30+ for version control.
+- **Jenkins**: Version 2.400+ for CI/CD automation.
+- **Prometheus & Grafana**: For monitoring and visualization.
+- **HashiCorp Vault**: For secrets management.
+- **Python**: Version 3.10+ for backend services.
+- **Node.js**: Version 18+ for frontend development.
 
-### Database Configuration
-1. **Set Up PostgreSQL**:
-   - Use a managed database service:
-     - AWS: Amazon RDS
-     - Azure: Azure Database for PostgreSQL
-     - Google Cloud: Cloud SQL
-   - Enable the `pgvector` extension for vector storage (used by AI embeddings):
-     ```sql
-     CREATE EXTENSION IF NOT EXISTS vector;
-     ```
-   - Configure database credentials and connection strings in environment variables.
-2. **Set Up Qdrant**:
-   - Deploy Qdrant as a vector database for AI embeddings.
-   - Use Helm to install Qdrant in the Kubernetes cluster:
-     ```bash
-     helm install qdrant qdrant/qdrant --namespace trading-system
-     ```
-   - Verify the deployment:
-     ```bash
-     kubectl get pods -n trading-system
-     ```
+#### 3.2 Hardware Requirements
+- **Development**: 8 vCPUs, 16GB RAM, 100GB SSD per node.
+- **Staging**: 16 vCPUs, 32GB RAM, 500GB SSD per node.
+- **Production**: 32 vCPUs, 128GB RAM, 1TB SSD per node, 10Gbps network bandwidth.
 
-### Application Deployment
-1. **Build Docker Images**:
-   - Use the provided Dockerfiles for each microservice (e.g., `Dockerfile.api-gateway`, `Dockerfile.trading-engine`).
-   - Build and push images to a container registry:
-     ```bash
-     docker build -t trading-api-gateway:latest -f Dockerfile.api-gateway .
-     docker tag trading-api-gateway:latest <registry-url>/trading-api-gateway:latest
-     docker push <registry-url>/trading-api-gateway:latest
-     ```
-   - Repeat for all microservices.
-2. **Deploy Microservices**:
-   - Use Helm charts to deploy each microservice:
-     ```bash
-     helm install api-gateway ./helm/api-gateway --namespace trading-system --set image.repository=<registry-url>/trading-api-gateway
-     ```
-   - Configure environment variables (e.g., database URLs, API keys) in Helm values files.
-3. **Set Up API Gateway**:
-   - Deploy the API Gateway service:
-     ```bash
-     helm install api-gateway ./helm/api-gateway --namespace trading-system
-     ```
-   - Configure SSL certificates using a certificate manager (e.g., AWS Certificate Manager):
-     ```bash
-     kubectl apply -f ssl-config.yaml
-     ```
-
-### AI and Machine Learning Models
-1. **Deploy AI Models**:
-   - Use pre-trained models from Ollama or other providers.
-   - Configure LangChain to integrate these models:
-     ```yaml
-     ai_service:
-       model: ollama/llama3
-       endpoint: http://ai-service:8080
-     ```
-   - Deploy the AI Service:
-     ```bash
-     helm install ai-service ./helm/ai-service --namespace trading-system
-     ```
-2. **Set Up RAG Pipeline**:
-   - Configure the document processing pipeline using Unstructured.io.
-   - Store embeddings in Qdrant:
-     ```bash
-     kubectl exec -it qdrant-pod -- qdrant-cli collection create trading-embeddings
-     ```
+#### 3.3 Access and Permissions
+- **Cloud Account**: Admin access to the chosen cloud provider.
+- **Git Repository**: Read/write access to the ATS codebase.
+- **Kubernetes Cluster**: Cluster admin role for deployment and management.
+- **Broker API Keys**: Access to broker APIs (e.g., Interactive Brokers).
 
 ---
 
-## Security Considerations
-- **Authentication**:
-  - Implement JSON Web Tokens (JWT) for user authentication.
-  - Use OAuth 2.0 for broker integrations.
-- **Authorization**:
-  - Enforce Role-Based Access Control (RBAC) to restrict access to sensitive features.
-- **Data Encryption**:
-  - Use TLS 1.3 for data in transit.
-  - Encrypt sensitive data at rest with AES-256.
-- **Container Security**:
-  - Scan containers for vulnerabilities:
-    ```bash
-    docker scan <registry-url>/trading-api-gateway:latest
-    ```
-  - Use Wazuh for runtime protection:
-    ```bash
-    helm install wazuh wazuh/wazuh --namespace security
-    ```
+### 4. Environment Setup
+
+#### 4.1 Development Environment
+- **Purpose**: Local testing and development.
+- **Setup**:
+  1. Install Docker and Docker Compose.
+  2. Clone the ATS repository: `git clone <repository-url>`.
+  3. Start services: `docker-compose up -d`.
+  4. Configure local databases (PostgreSQL, ClickHouse) with sample data.
+- **Data Feeds**: Simulated market data for testing.
+
+#### 4.2 Staging Environment
+- **Purpose**: Pre-production validation of integrations and performance.
+- **Setup**:
+  1. Provision a Kubernetes cluster on the cloud provider.
+  2. Deploy services using Helm charts: `helm install ats-staging ./helm`.
+  3. Load historical data into ClickHouse and PostgreSQL.
+  4. Simulate live data feeds via Kafka producers.
+- **Scale**: Reduced compute resources compared to production.
+
+#### 4.3 Production Environment
+- **Purpose**: Live trading and enterprise use.
+- **Setup**:
+  1. Provision a multi-region Kubernetes cluster with high availability.
+  2. Deploy services: `helm install ats-prod ./helm --namespace production`.
+  3. Connect to real-time market data feeds (e.g., Bloomberg, Reuters).
+  4. Integrate with live broker accounts via FIX Gateway.
+- **Security**: Enforce Zero-Trust policies and RBAC.
+
+#### Environment Setup Flow
+```mermaid
+graph TD
+    A[Plan Environments] --> B[Development]
+    A --> C[Staging]
+    A --> D[Production]
+    B -->|Local Setup| E[Docker Compose]
+    C -->|Cloud Setup| F[Kubernetes + Helm]
+    D -->|High Availability| G[Multi-Region Cluster]
+    E --> H[Simulated Data]
+    F --> I[Historical + Simulated Data]
+    G --> J[Real-Time Data]
+```
 
 ---
 
-## Monitoring and Logging
-- **Monitoring**:
-  - Deploy Prometheus for metrics collection:
-    ```bash
-    helm install prometheus prometheus-community/prometheus --namespace monitoring
-    ```
-  - Set up Grafana dashboards:
-    ```bash
-    helm install grafana grafana/grafana --namespace monitoring
-    ```
-- **Logging**:
-  - Use the ELK stack for centralized logging:
-    ```bash
-    helm install elk elastic/eck-stack --namespace logging
-    ```
-  - Configure log rotation (e.g., retain logs for 30 days).
+### 5. Configuration Management
+
+#### 5.1 Environment Variables
+- Use `.env` files or Kubernetes ConfigMaps:
+  - `BROKER_API_KEY`: API key for broker integration.
+  - `DB_CONNECTION_STRING`: Connection string for PostgreSQL.
+  - `KAFKA_BOOTSTRAP_SERVERS`: List of Kafka broker addresses.
+  - `AI_MODEL_ENDPOINT`: Endpoint for LangChain model.
+
+#### 5.2 Secrets Management
+- **HashiCorp Vault**:
+  1. Store secrets: `vault kv put secret/ats broker_api_key=<key>`.
+  2. Retrieve secrets in Kubernetes via Vault Agent.
+- **Kubernetes Secrets**: Inject into pods at runtime.
+
+#### 5.3 Configuration Files
+- **Helm Charts**: Define Kubernetes resources in `values.yaml`.
+- **Kafka Schemas**: Register schemas in Schema Registry for data consistency.
 
 ---
 
-## Backup and Recovery
-- **Database Backups**:
-  - Schedule daily backups for PostgreSQL and Qdrant:
-    ```bash
-    pg_dump -U postgres trading_db > backup-$(date +%Y%m%d).sql
-    ```
-  - Store backups in a secure, off-site location (e.g., AWS S3).
-- **Disaster Recovery**:
-  - Implement a failover plan to another region (e.g., us-west-2).
-  - Test recovery procedures quarterly.
+### 6. Deployment Process
+
+#### 6.1 Build and Packaging
+- **Steps**:
+  1. Clone repository: `git clone <repository-url>`.
+  2. Build Docker images: `docker build -t ats-<service>:v1.0.0 .`.
+  3. Tag images with version: `docker tag ats-<service>:v1.0.0 <registry>/ats-<service>:v1.0.0`.
+
+#### 6.2 Containerization
+- **Steps**:
+  1. Push images to registry: `docker push <registry>/ats-<service>:v1.0.0`.
+  2. Validate images locally with Docker Compose for development.
+
+#### 6.3 Orchestration with Kubernetes
+- **Steps**:
+  1. Apply Helm charts: `helm upgrade --install ats ./helm --namespace <env>`.
+  2. Use namespaces to isolate environments (e.g., `dev`, `staging`, `prod`).
+  3. Enable rolling updates for zero-downtime deployments.
+
+#### 6.4 CI/CD Pipeline
+- **Tool**: Jenkins.
+- **Pipeline Stages**:
+  1. **Build**: Compile code and build Docker images.
+  2. **Test**: Run unit and integration tests from the Test Plan.
+  3. **Push**: Upload images to the container registry.
+  4. **Deploy to Staging**: Apply Helm charts and run smoke tests.
+  5. **Approval**: Manual approval for production deployment.
+  6. **Deploy to Production**: Roll out updates with validation.
+
+#### Deployment Workflow Diagram
+```mermaid
+graph TD
+    A[Git Commit] --> B[Trigger Jenkins]
+    B --> C[Build Docker Images]
+    C --> D[Run Tests]
+    D -->|Pass| E[Push to Registry]
+    E --> F[Deploy to Staging]
+    F --> G[Smoke Tests]
+    G -->|Pass| H[Manual Approval]
+    H --> I[Deploy to Production]
+    G -->|Fail| J[Notify Team]
+    I --> K[Verify Deployment]
+```
 
 ---
 
-## Troubleshooting
-- **Common Issues**:
-  - **API Gateway Errors**: Check network configurations and security groups:
-    ```bash
-    kubectl logs -l app=api-gateway -n trading-system
-    ```
-  - **Database Connection Failures**: Verify credentials and network access:
-    ```bash
-    psql -h <db-host> -U <user> -d trading_db
-    ```
-  - **AI Model Issues**: Ensure models are deployed and accessible:
-    ```bash
-    curl http://ai-service:8080/health
-    ```
-- **Support Channels**:
-  - Email: support@trading-system.com
-  - Ticketing System: Jira or Zendesk
+### 7. Post-Deployment Tasks
+
+#### 7.1 Verification and Testing
+- **Health Checks**: Query `/health` endpoints for each service.
+- **Data Validation**: Ensure Kafka topics and database records are populated.
+- **End-to-End Tests**: Execute critical workflows (e.g., strategy deployment, trade execution).
+
+#### 7.2 Monitoring and Logging
+- **Prometheus**: Collect metrics (e.g., latency, trade volume).
+- **Grafana**: Create dashboards for real-time monitoring.
+- **ELK Stack**: Aggregate and analyze logs from all services.
+
+#### 7.3 Backup and Recovery
+- **Database Backups**: Daily snapshots of PostgreSQL and ClickHouse.
+- **Kafka**: Configure topic replication and 7-day retention.
+- **Disaster Recovery**: Test failover to a secondary region quarterly.
 
 ---
 
-## FAQs
-- **Q: How do I switch between paper and live trading?**  
-  - A: Navigate to Account Settings in the UI and toggle the mode.
-- **Q: What happens if a data source fails?**  
-  - A: The system switches to an alternative source automatically. Check logs for details.
-- **Q: How can I monitor system performance?**  
-  - A: Access Grafana dashboards at `http://grafana.<domain>/`.
+### 8. Troubleshooting
+
+#### 8.1 Common Issues
+- **Service Downtime**: Check container status with `kubectl get pods`.
+- **Network Latency**: Verify VPC and security group settings.
+- **Data Loss**: Inspect Kafka consumer offsets and replication status.
+
+#### 8.2 Debugging Tools
+- **kubectl**: Inspect Kubernetes resources and logs.
+- **docker logs**: View container output.
+- **Grafana**: Analyze performance anomalies.
 
 ---
 
-## Appendices
+### 9. Appendices
 
-### Appendix A: Configuration Files
-- **Kubernetes Deployment Example**:
-  ```yaml
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: trading-engine
-  spec:
-    replicas: 3
-    selector:
-      matchLabels:
-        app: trading-engine
-    template:
-      metadata:
-        labels:
-          app: trading-engine
-      spec:
-        containers:
-        - name: trading-engine
-          image: <registry-url>/trading-engine:latest
-  ```
+#### 9.1 Glossary
+- **ATS**: Algorithmic Trading System.
+- **CI/CD**: Continuous Integration/Continuous Deployment.
+- **RBAC**: Role-Based Access Control.
 
-### Appendix B: API Endpoints
-- **GET /health**: Check system status
-- **POST /trade**: Submit a trading order
+#### 9.2 References
+- **NautilusTrader**: [https://nautilustrader.io/](https://nautilustrader.io/)
+- **Apache Kafka**: [https://kafka.apache.org/](https://kafka.apache.org/)
+- **Kubernetes**: [https://kubernetes.io/](https://kubernetes.io/)
 
-### Appendix C: Troubleshooting Guide
-- **Step 1**: Check pod status:
-  ```bash
-  kubectl get pods -n trading-system
-  ```
-- **Step 2**: View logs:
-  ```bash
-  kubectl logs <pod-name> -n trading-system
-  ```
-
----
-
-This Deployment Guide ensures a robust and efficient deployment of the Algorithmic Trading System. Follow these steps carefully to achieve a production-ready setup with minimal downtime and maximum reliability.
+This Deployment Guide ensures a robust, scalable, and secure deployment of the ATS, aligning with the business and technical requirements outlined in the BRD and supporting documentation.

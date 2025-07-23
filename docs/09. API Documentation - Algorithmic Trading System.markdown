@@ -1,465 +1,679 @@
-# Algorithmic Trading System API Documentation
+# API Documentation: Algorithmic Trading System (ATS)
 
-## Introduction
+## 1. Introduction
 
-The Algorithmic Trading System API provides a robust interface for interacting with a comprehensive trading platform that supports a wide range of asset classes, including stocks, ETFs, futures, options, forex, commodities, and cryptocurrencies. This API enables users to retrieve market data, place and manage trades, run backtests, and manage trading strategies programmatically. Designed for both paper and live trading, the API abstracts data source complexities, ensuring high availability and seamless integration with Interactive Brokers for live trading and multiple free sources for paper trading.
+### 1.1 Purpose of the API
+The Algorithmic Trading System (ATS) API enables developers to interact programmatically with a comprehensive trading platform. It provides access to features such as strategy management, backtesting, live trading, market data retrieval, AI-driven assistance, analytics, and security controls. Built with FastAPI for RESTful interactions and supplemented with gRPC for low-latency operations, this API serves both novice traders using the no-code interface and professional developers integrating custom solutions.
 
-This documentation outlines the API's endpoints, authentication methods, request and response formats, error handling, and usage guidelines, along with examples to help you get started.
+### 1.2 Overview of ATS Components
+The ATS is a modular system with the following key components:
+- **Core Trading Engine**: Manages trading strategies, backtesting, and real-time order execution.
+- **Data Pipelines**: Processes and stores real-time and historical market data.
+- **AI Assistant**: Offers natural language processing, code generation, and debugging capabilities.
+- **Analytics**: Provides machine learning predictions and portfolio optimization tools.
+- **User Interface Support**: Supplies data for dashboards and the no-code strategy builder.
+- **Security and Compliance**: Ensures secure access, role-based permissions, and audit logging.
 
----
-
-## Authentication
-
-The API uses JSON Web Tokens (JWT) for authentication. To access the API, you must include a valid token in the `Authorization` header of each request.
-
-### Obtaining a Token
-
-1. Log in to the trading system via the web interface or authentication endpoint.
-2. Generate a token from your account settings or use the `/auth/token` endpoint (not documented here as it’s part of the user management system).
-3. Store the token securely for use in API requests.
-
-### Using the Token
-
-Include the token in the `Authorization` header as a Bearer token:
-
-```
-Authorization: Bearer <your_token_here>
-```
-
-### Permissions
-
-Certain endpoints require specific user roles (e.g., Admin, Trader, Quant, Risk Manager). Attempting to access an endpoint without the required permissions will result in a `403 Forbidden` error.
+This documentation outlines the API endpoints, request/response formats, authentication mechanisms, and error handling procedures.
 
 ---
 
-## Endpoints
+## 2. Authentication
 
-All endpoints are prefixed with `/v1/` to indicate the API version. Below are the main categories of endpoints:
+### 2.1 Overview
+All API endpoints require authentication via OAuth2 with JSON Web Tokens (JWT). Tokens must be included in the `Authorization` header of each request.
 
-### Data Endpoints
+### 2.2 Token Generation
+#### Endpoint: Generate Access Token
+**Description**: Authenticates a user and returns an access token.  
+**HTTP Method**: POST  
+**Path**: `/auth/login`  
+**Authentication**: Not Required  
 
-#### Get Market Data
+**Request Body**:
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
 
-- **URL**: `/v1/data`
-- **Method**: `GET`
-- **Description**: Retrieves market data for a specified asset class and symbol. Supports both historical and real-time data.
-- **Parameters**:
-  - `asset_class` (required, string): The asset class (e.g., `stock`, `option`, `future`, `forex`, `commodity`, `crypto`).
-  - `symbol` (required, string): The asset symbol (e.g., `AAPL`, `ESZ23`, `BTCUSD`).
-  - `type` (optional, string): Data type to retrieve (e.g., `price`, `volume`, `open_interest`). Defaults to `price`.
-  - `start` (optional, string): Start date for historical data (ISO 8601, e.g., `2023-01-01`).
-  - `end` (optional, string): End date for historical data (ISO 8601, e.g., `2023-12-31`).
-  - `real_time` (optional, boolean): If `true`, returns the latest data point; ignores `start` and `end`. Defaults to `false`.
-  - Asset-specific parameters:
-    - For `option`: `expiration` (string, e.g., `2024-01-19`), `strike` (number, e.g., `150.0`), `option_type` (string, `call` or `put`).
-    - For `future`: `contract_month` (string, e.g., `Z23` for December 2023).
-- **Response**: 
-  - Historical: JSON array of data points with `timestamp` and requested `type`.
-  - Real-time: JSON object with the latest data point.
-- **Example Request (Historical Stock Data)**:
-  ```
-  GET /v1/data?asset_class=stock&symbol=AAPL&type=price&start=2023-01-01&end=2023-12-31
-  Authorization: Bearer <token>
-  ```
-- **Example Response**:
-  ```json
-  [
-    {"timestamp": "2023-01-01T00:00:00Z", "price": 150.00},
-    {"timestamp": "2023-01-02T00:00:00Z", "price": 152.50}
-  ]
-  ```
-- **Example Request (Real-Time Option Data)**:
-  ```
-  GET /v1/data?asset_class=option&symbol=AAPL&expiration=2024-01-19&strike=150&option_type=call&real_time=true
-  Authorization: Bearer <token>
-  ```
-- **Example Response**:
+**Response**:
+- **Success (200)**:
   ```json
   {
-    "timestamp": "2023-10-15T14:30:00Z",
-    "price": 10.50,
-    "bid": 10.40,
-    "ask": 10.60,
-    "iv": 0.25,
-    "delta": 0.6
+    "access_token": "string",
+    "token_type": "bearer",
+    "expires_in": 3600
+  }
+  ```
+- **Error (401)**:
+  ```json
+  {
+    "error": "Invalid credentials"
   }
   ```
 
-#### Get Options Chain
+**Example**:
+```bash
+curl -X POST '/auth/login' \
+-H 'Content-Type: application/json' \
+-d '{"username": "user@example.com", "password": "securepassword"}'
+```
 
-- **URL**: `/v1/data/options_chain`
-- **Method**: `GET`
-- **Description**: Retrieves the options chain for a specified symbol and date, including prices, greeks, and implied volatility.
-- **Parameters**:
-  - `symbol` (required, string): The underlying symbol (e.g., `AAPL`).
-  - `date` (required, string): The date for the options chain (ISO 8601, e.g., `2023-12-31`).
-- **Response**: JSON object with `calls` and `puts` arrays, each containing option contract details.
-- **Example Request**:
-  ```
-  GET /v1/data/options_chain?symbol=AAPL&date=2023-12-31
-  Authorization: Bearer <token>
-  ```
-- **Example Response**:
+### 2.3 Token Refresh
+#### Endpoint: Refresh Access Token
+**Description**: Refreshes an expired access token using a refresh token.  
+**HTTP Method**: POST  
+**Path**: `/auth/refresh`  
+**Authentication**: Required  
+
+**Request Header**:
+```
+Authorization: Bearer <refresh_token>
+```
+
+**Response**:
+- **Success (200)**:
   ```json
   {
-    "calls": [
+    "access_token": "string",
+    "token_type": "bearer",
+    "expires_in": 3600
+  }
+  ```
+- **Error (401)**:
+  ```json
+  {
+    "error": "Invalid refresh token"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X POST '/auth/refresh' \
+-H 'Authorization: Bearer <refresh_token>'
+```
+
+---
+
+## 3. Core Trading Engine API
+
+### 3.1 Strategy Management
+
+#### 3.1.1 Create Strategy
+**Description**: Creates a new trading strategy with user-defined code and parameters.  
+**HTTP Method**: POST  
+**Path**: `/api/v1/strategies`  
+**Authentication**: Required  
+
+**Request Body**:
+```json
+{
+  "name": "string",
+  "description": "string",
+  "code": "string",  // Python code defining the strategy logic
+  "parameters": {
+    "param1": "value1",
+    "param2": "value2"
+  }
+}
+```
+
+**Response**:
+- **Success (201)**:
+  ```json
+  {
+    "strategy_id": "uuid",
+    "name": "string",
+    "created_at": "timestamp",
+    "status": "active"
+  }
+  ```
+- **Error (400)**:
+  ```json
+  {
+    "error": "Invalid strategy code syntax"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X POST '/api/v1/strategies' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"name": "MACD Strategy", "description": "MACD crossover strategy", "code": "def run(data): pass", "parameters": {"fast_period": 12, "slow_period": 26}}'
+```
+
+#### 3.1.2 List Strategies
+**Description**: Retrieves a paginated list of strategies owned by the authenticated user.  
+**HTTP Method**: GET  
+**Path**: `/api/v1/strategies`  
+**Authentication**: Required  
+
+**Query Parameters**:
+- `page`: integer (default: 1)
+- `per_page`: integer (default: 20)
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "strategies": [
       {
-        "strike": 150.0,
-        "expiration": "2023-12-31",
-        "last_price": 10.50,
-        "bid": 10.40,
-        "ask": 10.60,
-        "volume": 1000,
-        "open_interest": 5000,
-        "iv": 0.25,
-        "delta": 0.6,
-        "gamma": 0.03,
-        "theta": -0.02,
-        "vega": 0.15
+        "strategy_id": "uuid",
+        "name": "string",
+        "created_at": "timestamp",
+        "status": "active"
       }
     ],
-    "puts": [
+    "total": integer,
+    "page": integer,
+    "per_page": integer
+  }
+  ```
+
+**Example**:
+```bash
+curl -X GET '/api/v1/strategies?page=1&per_page=10' \
+-H 'Authorization: Bearer <token>'
+```
+
+### 3.2 Backtesting
+
+#### 3.2.1 Run Backtest
+**Description**: Initiates a backtest for a specified strategy over a historical period.  
+**HTTP Method**: POST  
+**Path**: `/api/v1/backtests`  
+**Authentication**: Required  
+
+**Request Body**:
+```json
+{
+  "strategy_id": "uuid",
+  "start_date": "YYYY-MM-DD",
+  "end_date": "YYYY-MM-DD",
+  "initial_capital": float,
+  "benchmark": "string"  // Optional, e.g., "SP500"
+}
+```
+
+**Response**:
+- **Success (202)**:
+  ```json
+  {
+    "backtest_id": "uuid",
+    "status": "queued",
+    "submitted_at": "timestamp"
+  }
+  ```
+- **Error (404)**:
+  ```json
+  {
+    "error": "Strategy not found"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X POST '/api/v1/backtests' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"strategy_id": "123e4567-e89b-12d3-a456-426614174000", "start_date": "2023-01-01", "end_date": "2023-12-31", "initial_capital": 10000}'
+```
+
+**Diagram**:
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as API Gateway
+    participant T as Trading Engine
+    participant D as Database
+    U->>A: POST /api/v1/backtests
+    A->>T: Validate and queue backtest
+    T->>D: Store backtest request
+    D-->>T: Backtest ID
+    T-->>A: {backtest_id, status}
+    A-->>U: 202 Accepted
+```
+
+#### 3.2.2 Get Backtest Results
+**Description**: Retrieves the results of a completed backtest.  
+**HTTP Method**: GET  
+**Path**: `/api/v1/backtests/{backtest_id}`  
+**Authentication**: Required  
+
+**Path Parameters**:
+- `backtest_id`: uuid
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "backtest_id": "uuid",
+    "status": "completed",
+    "results": {
+      "profit_loss": float,
+      "sharpe_ratio": float,
+      "max_drawdown": float,
+      "returns": [
+        {"date": "YYYY-MM-DD", "value": float}
+      ]
+    },
+    "completed_at": "timestamp"
+  }
+  ```
+- **Error (404)**:
+  ```json
+  {
+    "error": "Backtest not found"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X GET '/api/v1/backtests/123e4567-e89b-12d3-a456-426614174000' \
+-H 'Authorization: Bearer <token>'
+```
+
+### 3.3 Live Trading
+
+#### 3.3.1 Place Order
+**Description**: Places a live trading order based on a strategy or manual input.  
+**HTTP Method**: POST  
+**Path**: `/api/v1/orders`  
+**Authentication**: Required  
+
+**Request Body**:
+```json
+{
+  "strategy_id": "uuid",  // Optional if manual
+  "asset": "string",
+  "quantity": float,
+  "order_type": "market|limit",
+  "price": float,  // Required for limit orders
+  "side": "buy|sell"
+}
+```
+
+**Response**:
+- **Success (201)**:
+  ```json
+  {
+    "order_id": "uuid",
+    "status": "placed",
+    "timestamp": "timestamp"
+  }
+  ```
+- **Error (400)**:
+  ```json
+  {
+    "error": "Insufficient funds"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X POST '/api/v1/orders' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"asset": "AAPL", "quantity": 10, "order_type": "market", "side": "buy"}'
+```
+
+**Diagram**:
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as API Gateway
+    participant T as Trading Engine
+    participant B as Broker
+    U->>A: POST /api/v1/orders
+    A->>T: Validate order
+    T->>B: Submit order to broker
+    B-->>T: Order confirmation
+    T-->>A: {order_id, status}
+    A-->>U: 201 Created
+```
+
+#### 3.3.2 Get Portfolio Status
+**Description**: Retrieves the current portfolio status, including cash and positions.  
+**HTTP Method**: GET  
+**Path**: `/api/v1/portfolio`  
+**Authentication**: Required  
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "cash": float,
+    "positions": [
       {
-        "strike": 150.0,
-        "expiration": "2023-12-31",
-        "last_price": 5.20,
-        "bid": 5.10,
-        "ask": 5.30,
-        "volume": 800,
-        "open_interest": 3000,
-        "iv": 0.30,
-        "delta": -0.4,
-        "gamma": 0.02,
-        "theta": -0.01,
-        "vega": 0.12
+        "asset": "string",
+        "quantity": float,
+        "value": float,
+        "unrealized_pnl": float
+      }
+    ],
+    "total_value": float,
+    "updated_at": "timestamp"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X GET '/api/v1/portfolio' \
+-H 'Authorization: Bearer <token>'
+```
+
+---
+
+## 4. Data Pipelines API
+
+### 4.1 Market Data Ingestion
+**Description**: Initiates ingestion of market data for a specified asset (admin only).  
+**HTTP Method**: POST  
+**Path**: `/api/v1/data/ingest`  
+**Authentication**: Required (Admin role)  
+
+**Request Body**:
+```json
+{
+  "asset": "string",
+  "source": "string",  // e.g., "Yahoo Finance", "Alpha Vantage"
+  "interval": "1m|5m|1h|1d"
+}
+```
+
+**Response**:
+- **Success (202)**:
+  ```json
+  {
+    "message": "Ingestion queued",
+    "job_id": "uuid"
+  }
+  ```
+- **Error (403)**:
+  ```json
+  {
+    "error": "Insufficient permissions"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X POST '/api/v1/data/ingest' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"asset": "BTC/USD", "source": "Binance", "interval": "1h"}'
+```
+
+### 4.2 Historical Data Retrieval
+**Description**: Retrieves historical market data for an asset.  
+**HTTP Method**: GET  
+**Path**: `/api/v1/data/historical/{asset}`  
+**Authentication**: Required  
+
+**Path Parameters**:
+- `asset`: string
+
+**Query Parameters**:
+- `start_date`: string (YYYY-MM-DD)
+- `end_date`: string (YYYY-MM-DD)
+- `interval`: string (default: "1d")
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "asset": "string",
+    "interval": "string",
+    "data": [
+      {
+        "timestamp": "timestamp",
+        "open": float,
+        "high": float,
+        "low": float,
+        "close": float,
+        "volume": integer
       }
     ]
   }
   ```
 
-### Trading Endpoints
+**Example**:
+```bash
+curl -X GET '/api/v1/data/historical/AAPL?start_date=2023-01-01&end_date=2023-12-31' \
+-H 'Authorization: Bearer <token>'
+```
 
-#### Place Order
+---
 
-- **URL**: `/v1/orders`
-- **Method**: `POST`
-- **Description**: Places a new trading order.
-- **Request Body**:
+## 5. AI Assistant API
+
+### 5.1 Submit Natural Language Query
+**Description**: Submits a query to the AI assistant for analysis or advice.  
+**HTTP Method**: POST  
+**Path**: `/api/v1/ai/query`  
+**Authentication**: Required  
+
+**Request Body**:
+```json
+{
+  "query": "string"  // e.g., "Should I invest in TSLA today?"
+}
+```
+
+**Response**:
+- **Success (200)**:
   ```json
   {
-    "asset_class": "stock",
-    "symbol": "AAPL",
-    "type": "market",
-    "side": "buy",
-    "quantity": 10,
-    "price": null
+    "response": "string",
+    "confidence": float  // 0.0 to 1.0
   }
   ```
-  - `asset_class` (required, string): Asset class of the order.
-  - `symbol` (required, string): Asset symbol.
-  - `type` (required, string): Order type (`market`, `limit`).
-  - `side` (required, string): `buy` or `sell`.
-  - `quantity` (required, number): Number of units to trade.
-  - `price` (optional, number): Price for limit orders; `null` for market orders.
-- **Response**: JSON object with order details.
-- **Example Response**:
+- **Error (400)**:
   ```json
   {
-    "order_id": "12345",
-    "status": "submitted"
-  }
-  ```
-
-#### Cancel Order
-
-- **URL**: `/v1/orders/cancel`
-- **Method**: `POST`
-- **Description**: Cancels an existing order.
-- **Request Body**:
-  ```json
-  {
-    "order_id": "12345"
-  }
-  ```
-- **Response**: JSON object confirming cancellation.
-- **Example Response**:
-  ```json
-  {
-    "order_id": "12345",
-    "status": "cancelled"
+    "error": "Query too vague"
   }
   ```
 
-#### Get Order Status
+**Example**:
+```bash
+curl -X POST '/api/v1/ai/query' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"query": "Should I invest in TSLA today?"}'
+```
 
-- **URL**: `/v1/orders/{order_id}`
-- **Method**: `GET`
-- **Description**: Retrieves the status of a specific order.
-- **Path Parameters**:
-  - `order_id` (required, string): The ID of the order.
-- **Response**: JSON object with order details.
-- **Example Request**:
-  ```
-  GET /v1/orders/12345
-  Authorization: Bearer <token>
-  ```
-- **Example Response**:
+**Diagram**:
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as API Gateway
+    participant AI as AI Assistant
+    participant D as Data Store
+    U->>A: POST /api/v1/ai/query
+    A->>AI: Process query
+    AI->>D: Fetch relevant data
+    D-->>AI: Data response
+    AI-->>A: Generated response
+    A-->>U: 200 OK
+```
+
+### 5.2 Generate Strategy Code
+**Description**: Requests Python code generation for a trading strategy.  
+**HTTP Method**: POST  
+**Path**: `/api/v1/ai/generate_code`  
+**Authentication**: Required  
+
+**Request Body**:
+```json
+{
+  "description": "string"  // e.g., "Buy when 50-day SMA crosses above 200-day SMA"
+}
+```
+
+**Response**:
+- **Success (200)**:
   ```json
   {
-    "order_id": "12345",
-    "status": "filled",
-    "symbol": "AAPL",
-    "quantity": 10,
-    "filled_quantity": 10,
-    "avg_fill_price": 152.50
+    "code": "string",  // Python code
+    "explanation": "string"
   }
   ```
 
-#### Get Portfolio
+**Example**:
+```bash
+curl -X POST '/api/v1/ai/generate_code' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"description": "Buy when 50-day SMA crosses above 200-day SMA"}'
+```
 
-- **URL**: `/v1/portfolio`
-- **Method**: `GET`
-- **Description**: Retrieves the current portfolio holdings and values.
-- **Response**: JSON object with cash balance and positions.
-- **Example Request**:
-  ```
-  GET /v1/portfolio
-  Authorization: Bearer <token>
-  ```
-- **Example Response**:
+---
+
+## 6. Analytics API
+
+### 6.1 Run ML Prediction
+**Description**: Generates a price prediction for an asset using a specified model.  
+**HTTP Method**: POST  
+**Path**: `/api/v1/analytics/predict`  
+**Authentication**: Required  
+
+**Request Body**:
+```json
+{
+  "asset": "string",
+  "model": "string",  // e.g., "LSTM", "ARIMA"
+  "horizon": integer  // Prediction period in days
+}
+```
+
+**Response**:
+- **Success (200)**:
   ```json
   {
-    "cash": 10000.00,
-    "positions": [
+    "asset": "string",
+    "prediction": float,
+    "confidence_interval": [float, float]
+  }
+  ```
+
+**Example**:
+```bash
+curl -X POST '/api/v1/analytics/predict' \
+-H 'Authorization: Bearer <token>' \
+-H 'Content-Type: application/json' \
+-d '{"asset": "ETH/USD", "model": "LSTM", "horizon": 7}'
+```
+
+---
+
+## 7. User Interface API
+
+### 7.1 Get Dashboard Data
+**Description**: Retrieves data for the user dashboard.  
+**HTTP Method**: GET  
+**Path**: `/api/v1/ui/dashboard`  
+**Authentication**: Required  
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "portfolio_value": float,
+    "recent_trades": [
       {
-        "symbol": "AAPL",
-        "quantity": 10,
-        "avg_price": 150.00,
-        "market_value": 1520.00
+        "order_id": "uuid",
+        "asset": "string",
+        "quantity": float,
+        "price": float
       }
     ],
-    "total_value": 11520.00
+    "performance": {
+      "daily_pnl": float,
+      "monthly_pnl": float
+    }
   }
   ```
 
-### Strategy Endpoints
+**Example**:
+```bash
+curl -X GET '/api/v1/ui/dashboard' \
+-H 'Authorization: Bearer <token>'
+```
 
-#### Run Backtest
+---
 
-- **URL**: `/v1/backtest`
-- **Method**: `POST`
-- **Description**: Runs a backtest for a specified strategy.
-- **Request Body**:
+## 8. Security and Compliance API
+
+### 8.1 Retrieve Audit Logs
+**Description**: Fetches audit logs for monitoring and compliance (admin only).  
+**HTTP Method**: GET  
+**Path**: `/api/v1/security/audit_logs`  
+**Authentication**: Required (Admin role)  
+
+**Query Parameters**:
+- `start_date`: string (YYYY-MM-DD)
+- `end_date`: string (YYYY-MM-DD)
+- `user_id`: uuid (optional)
+
+**Response**:
+- **Success (200)**:
   ```json
   {
-    "strategy_id": "my_strategy",
-    "start_date": "2023-01-01",
-    "end_date": "2023-12-31",
-    "initial_capital": 100000.00
-  }
-  ```
-- **Response**: JSON object with backtest performance metrics.
-- **Example Response**:
-  ```json
-  {
-    "sharpe_ratio": 1.5,
-    "max_drawdown": 0.10,
-    "total_return": 0.20
+    "logs": [
+      {
+        "timestamp": "timestamp",
+        "user_id": "uuid",
+        "action": "string",
+        "details": "string"
+      }
+    ]
   }
   ```
 
+**Example**:
+```bash
+curl -X GET '/api/v1/security/audit_logs?start_date=2023-01-01&end_date=2023-12-31' \
+-H 'Authorization: Bearer <token>'
+```
+
 ---
 
-## Error Handling
+## 9. Error Handling
 
-The API uses standard HTTP status codes and includes detailed error messages in the response body.
-
-### Common Error Codes
-
-- `400 Bad Request`: Invalid parameters or malformed request.
-- `401 Unauthorized`: Missing or invalid authentication token.
-- `403 Forbidden`: Insufficient permissions for the requested action.
-- `404 Not Found`: Resource (e.g., order, symbol) not found.
-- `429 Too Many Requests`: Rate limit exceeded.
-- `500 Internal Server Error`: Unexpected server issue.
-
-### Example Error Response
-
+### 9.1 Standard Error Response Format
 ```json
 {
-  "error": {
-    "code": 401,
-    "message": "Invalid or expired token"
-  }
+  "error": "string",
+  "details": "string",  // Optional
+  "timestamp": "timestamp"
 }
 ```
 
----
+### 9.2 Common Error Codes
+- **400 Bad Request**: Invalid or missing parameters.
+- **401 Unauthorized**: Missing or invalid token.
+- **403 Forbidden**: Insufficient permissions.
+- **404 Not Found**: Resource not found.
+- **429 Too Many Requests**: Rate limit exceeded.
+- **500 Internal Server Error**: System failure.
 
-## Data Reliability and Fallback Mechanism
-
-The system ensures high data availability through a sophisticated fallback mechanism for paper trading and direct integration with Interactive Brokers for live trading.
-
-### Paper Trading Data Sources
-
-For paper trading, the system uses free data sources with a fallback mechanism. If a primary source fails, it switches to the next source in the list:
-
-- **Stocks & ETFs**: Interactive Brokers → Yahoo Finance → Alpha Vantage → Finnhub → Twelve Data → Polygon.io
-- **Stock Futures & Index Futures**: Interactive Brokers → Yahoo Finance → Investing.com → CME Group → Barchart
-- **Stock Options & Index Options**: Interactive Brokers → Yahoo Finance → Cboe Daily Market Statistics → SpiderRock
-- **Forex, Forex Futures, & Forex Options**: Interactive Brokers → Yahoo Finance → Oanda → CME Group FX Data → dxFeed
-- **Commodities, Commodity Futures, & Commodity Options**: Interactive Brokers → Yahoo Finance → TradingCharts → CME Group
-- **Cryptocurrencies**: Interactive Brokers → Alpha Vantage → Coinbase → Binance India
-
-### Live Trading Data Sources
-
-For live trading, the system subscribes to Interactive Brokers’ real-time market data, providing low-latency and accurate data.
-
-### Options Data Features
-
-- **Historical Options Chain Data**: Minimum depth of 5 years.
-- **Real-Time Implied Volatility Surfaces**: Available via the `/v1/data` endpoint with appropriate parameters.
-- **Dividend Forecast Integration**: Incorporated into options pricing and analytics.
-
-The API abstracts these details, providing a consistent interface regardless of the underlying source or trading mode (paper or live).
+### 9.3 Rate Limiting
+- **Limit**: 100 requests per minute per user.
+- **Header**: `X-Rate-Limit-Remaining` indicates remaining requests.
 
 ---
 
-## Rate Limiting
+## 10. Appendices
 
-To ensure fair usage and compliance with external data provider limits, the API enforces the following rate limits:
+### 10.1 Glossary
+- **Backtest**: Simulation of a trading strategy using historical data.
+- **JWT**: JSON Web Token used for authentication.
+- **Strategy**: A codified set of trading rules.
 
-- **100 requests per minute per user**
-- **10,000 requests per day per user**
-
-### Monitoring Usage
-
-Response headers include:
-
-- `X-RateLimit-Limit`: Maximum requests allowed in the current window.
-- `X-RateLimit-Remaining`: Remaining requests in the current window.
-- `X-RateLimit-Reset`: Timestamp when the window resets (Unix epoch).
-
-Exceeding the limit returns a `429 Too Many Requests` error. Contact support for higher limits.
-
----
-
-## Versioning
-
-The API uses a version prefix (e.g., `/v1/`) in the URL. Future updates will increment the version (e.g., `/v2/`) to avoid breaking existing integrations.
-
----
-
-## Changelog
-
-### Version 1.0 (Current)
-
-- Initial release with trading, data, and strategy endpoints.
-- Support for all asset classes and paper/live trading modes.
-
----
-
-## Getting Started
-
-### Making Your First API Call
-
-1. **Obtain a Token**: Log in and generate a token from your account settings.
-2. **Set Up Headers**: Include the token in the `Authorization` header.
-3. **Make a Request**: Use a simple GET request to retrieve data.
-
-#### Example (Python)
-
-```python
-import requests
-
-token = "your_token_here"
-headers = {"Authorization": f"Bearer {token}"}
-params = {"asset_class": "stock", "symbol": "AAPL", "real_time": "true"}
-response = requests.get("https://api.trading-system.com/v1/data", headers=headers, params=params)
-print(response.json())
-```
-
-**Expected Output**:
-```json
-{
-  "timestamp": "2023-10-15T14:30:00Z",
-  "price": 152.50
-}
-```
-
----
-
-## Examples
-
-### Retrieve Historical Options Data (JavaScript)
-
-```javascript
-const fetch = require('node-fetch');
-
-const token = 'your_token_here';
-const headers = { 'Authorization': `Bearer ${token}` };
-const url = 'https://api.trading-system.com/v1/data?asset_class=option&symbol=AAPL&expiration=2024-01-19&strike=150&option_type=call&start=2023-01-01&end=2023-12-31';
-
-fetch(url, { headers })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error(error));
-```
-
-### Place a Market Order (Python)
-
-```python
-import requests
-
-token = "your_token_here"
-headers = {"Authorization": f"Bearer {token}"}
-data = {
-  "asset_class": "stock",
-  "symbol": "AAPL",
-  "type": "market",
-  "side": "buy",
-  "quantity": 10,
-  "price": None
-}
-response = requests.post("https://api.trading-system.com/v1/orders", headers=headers, json=data)
-print(response.json())
-```
-
----
-
-## Supported Asset Classes
-
-- **Stocks & ETFs**: `asset_class=stock`, e.g., `AAPL`.
-- **Futures**: `asset_class=future`, e.g., `ESZ23` (E-mini S&P 500 Dec 2023).
-- **Options**: `asset_class=option`, requires `expiration`, `strike`, `option_type`.
-- **Forex**: `asset_class=forex`, e.g., `EURUSD`.
-- **Commodities**: `asset_class=commodity`, e.g., `CL` (crude oil).
-- **Cryptocurrencies**: `asset_class=crypto`, e.g., `BTCUSD`.
-
----
-
-## Data Formats and Conventions
-
-- **Dates**: ISO 8601 format (e.g., `2023-12-31T00:00:00Z`).
-- **Numbers**: Prices and quantities use up to 2 decimal places unless specified otherwise (e.g., `150.50`).
-- **Option Greeks**: Provided with 3 decimal places (e.g., `0.600`).
-
----
-
-## FAQ
-
-### How do I switch between paper and live trading?
-
-The system determines the trading mode based on your account settings. No additional parameters are needed in API requests.
-
-### What happens if a data source fails?
-
-For paper trading, the fallback mechanism automatically switches to the next available source. For live trading, Interactive Brokers’ data is used exclusively.
-
-### Can I stream real-time data?
-
-Currently, the API supports polling via the `real_time` parameter. WebSocket streaming may be added in future versions.
-
----
-
-This documentation provides a complete guide to using the Algorithmic Trading System API. For further assistance, contact support.
+### 10.2 References
+- FastAPI Swagger UI: Accessible at `/docs` when running the server.
+- OAuth2 Specification: [https://oauth.net/2/](https://oauth.net/2/)

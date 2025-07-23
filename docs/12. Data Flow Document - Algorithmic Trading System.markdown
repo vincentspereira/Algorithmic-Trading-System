@@ -1,226 +1,309 @@
-# Data Flow Document (DFD)
-## Algorithmic Trading System
+# Data Flow Document
+## Algorithmic Trading System (ATS)
 
 ---
 
 ### Table of Contents
-- [Data Flow Document (DFD)](#data-flow-document-dfd)
-  - [Algorithmic Trading System](#algorithmic-trading-system)
-    - [Table of Contents](#table-of-contents)
-    - [Introduction](#introduction)
-    - [Context Diagram (Level 0 DFD)](#context-diagram-level-0-dfd)
-      - [External Entities](#external-entities)
-      - [Data Flows](#data-flows)
-      - [Visual Representation](#visual-representation)
-    - [Level 1 DFD: Major Processes and Data Flows](#level-1-dfd-major-processes-and-data-flows)
-      - [Processes](#processes)
-      - [Data Stores](#data-stores)
-      - [Data Flows](#data-flows-1)
-    - [Level 2 DFD: Detailed Processes](#level-2-dfd-detailed-processes)
-      - [Trading Infrastructure](#trading-infrastructure)
-        - [Sub-Processes](#sub-processes)
-        - [Data Flows](#data-flows-2)
-      - [Data Management](#data-management)
-        - [Sub-Processes](#sub-processes-1)
-        - [Data Flows](#data-flows-3)
-      - [AI Assistant](#ai-assistant)
-        - [Sub-Processes](#sub-processes-2)
-        - [Data Flows](#data-flows-4)
-    - [Data Formats, Volumes, and Frequencies](#data-formats-volumes-and-frequencies)
-    - [Security and Error Handling](#security-and-error-handling)
-    - [Conclusion](#conclusion)
+1. [Introduction](#introduction)
+   - 1.1 Purpose
+   - 1.2 Scope
+   - 1.3 System Overview
+2. [System Architecture](#system-architecture)
+   - 2.1 External Data Sources
+   - 2.2 Internal Components
+   - 2.3 Data Storage Systems
+   - 2.4 Outputs and Interfaces
+3. [High-Level Data Flow Diagram](#high-level-data-flow-diagram)
+4. [Detailed Data Flows](#detailed-data-flows)
+   - 4.1 Market Data Flow
+   - 4.2 User Interaction Flow
+   - 4.3 AI Assistant Flow
+   - 4.4 Strategy Execution Flow
+   - 4.5 Analytics and Reporting Flow
+   - 4.6 Security and Compliance Flow
+5. [Data Formats and Specifications](#data-formats-and-specifications)
+   - 5.1 Market Data
+   - 5.2 User Data
+   - 5.3 System-Generated Data
+6. [Error Handling and Data Integrity](#error-handling-and-data-integrity)
+   - 6.1 Error Handling Mechanisms
+   - 6.2 Data Integrity Measures
+7. [Performance and Scalability](#performance-and-scalability)
+   - 7.1 Throughput Requirements
+   - 7.2 Latency Goals
+   - 7.3 Scalability Considerations
+8. [Appendices](#appendices)
+   - 8.1 Glossary
+   - 8.2 References
 
 ---
 
-### Introduction
-This Data Flow Document (DFD) provides a comprehensive graphical representation of data movement within the Algorithmic Trading System. The DFD illustrates how data flows from external entities into the system, how it is processed, stored, and transformed, and where it is directed. It serves as a critical tool for understanding the system's functionality, ensuring all data interactions are well-defined, and verifying alignment with architectural and operational requirements.
+### 1. Introduction
 
-The DFD is organized into multiple levels:
-- **Level 0 (Context Diagram)**: Depicts the system as a single entity interacting with external entities.
-- **Level 1**: Breaks down the system into major processes, data stores, and their interconnections.
-- **Level 2**: Offers detailed breakdowns of key processes, providing granularity for complex operations.
+#### 1.1 Purpose
+This Data Flow Document (DFD) outlines the movement of data within the Algorithmic Trading System (ATS), detailing how data is ingested, processed, stored, and outputted. It serves as a critical reference for developers, architects, and stakeholders to understand the system's data architecture, ensuring alignment with business requirements, functional specifications, and technical design.
 
-This document aims to be thorough, detailing each component with examples, descriptions, and considerations for data formats, security, and error handling.
+#### 1.2 Scope
+The DFD encompasses all primary data flows in the ATS, including:
+- **Market Data**: Real-time and historical financial data ingestion and processing.
+- **User Interactions**: Inputs from users via the frontend or APIs.
+- **AI Assistant**: Natural language processing and response generation.
+- **Strategy Execution**: Automated trading strategy execution and broker interactions.
+- **Analytics and Reporting**: Data analysis, forecasting, and visualization.
+- **Security and Compliance**: Audit trails and regulatory logging.
+
+#### 1.3 System Overview
+The ATS is an advanced, event-driven, microservices-based platform designed for algorithmic trading. It integrates real-time market data, user-defined trading strategies, AI-driven insights, and robust analytics. Key technologies include Apache Kafka for data streaming, NautilusTrader for trading execution, LangChain for AI capabilities, and multiple databases for storage (ClickHouse, PostgreSQL, Qdrant, Apache Iceberg).
 
 ---
 
-### Context Diagram (Level 0 DFD)
-The context diagram represents the Algorithmic Trading System as a single process interacting with external entities, highlighting primary data flows.
+### 2. System Architecture
 
-#### External Entities
-- **Users**: Individuals (e.g., traders, portfolio managers) who manage accounts, place orders, develop strategies, and interact with the AI Assistant.
-- **Brokers**: External financial institutions (e.g., Interactive Brokers, Alpaca) responsible for executing trades and providing account data.
-- **Data Sources**: Providers of market data (e.g., Yahoo Finance, Alpha Vantage) and alternative data (e.g., news feeds).
-- **Regulatory Bodies**: Entities requiring compliance reports and audit logs to ensure regulatory adherence.
+#### 2.1 External Data Sources
+- **Market Data Providers**: Yahoo Finance, Alpha Vantage, Interactive Brokers (real-time prices, historical data).
+- **Brokerage Services**: Interactive Brokers for trade execution.
+- **User Inputs**: Via Next.js frontend or RESTful API endpoints.
 
-#### Data Flows
-- **Users to System**:
-  - Registration data (e.g., username, email, password)
-  - Login credentials
-  - Strategy inputs (e.g., trading rules, parameters)
-  - Order requests (e.g., buy/sell orders)
-  - AI Assistant queries (e.g., "What’s my portfolio value?")
-- **System to Users**:
-  - Authentication responses (e.g., login success/failure)
-  - Strategy outputs (e.g., backtest results)
-  - Order confirmations and status updates
-  - AI Assistant responses
-- **Brokers to System**:
-  - Execution confirmations (e.g., trade filled at $150)
-  - Account data (e.g., balances, positions)
-- **System to Brokers**:
-  - Order submissions (e.g., limit order for 10 shares)
-- **Data Sources to System**:
-  - Market data (e.g., real-time prices, historical OHLC)
-  - Alternative data (e.g., sentiment-analyzed news)
-- **System to Regulatory Bodies**:
-  - Compliance reports
-  - Audit logs
+#### 2.2 Internal Components
+- **Data Pipeline Service**: Ingests and preprocesses market data.
+- **Trading Engine (NautilusTrader)**: Executes trading strategies and manages orders.
+- **AI Assistant Service (LangChain, LangGraph)**: Processes queries and generates responses.
+- **Analytics Service**: Runs machine learning models and generates reports.
+- **FastAPI Gateway**: Orchestrates API requests and routes data.
+- **Kafka Data Bus**: Facilitates real-time data streaming between components.
 
-#### Visual Representation
+#### 2.3 Data Storage Systems
+- **ClickHouse**: Time-series database for high-speed market data storage and retrieval.
+- **PostgreSQL**: Relational database for user profiles, strategies, and configurations.
+- **Qdrant**: Vector database for storing AI embeddings.
+- **Apache Iceberg**: Immutable storage for audit trails and compliance data.
+
+#### 2.4 Outputs and Interfaces
+- **User Interface**: Next.js-based dashboards, strategy builder, and AI chat.
+- **API Outputs**: RESTful endpoints for external system integration.
+- **Reports**: Performance metrics, compliance logs, and analytics insights.
+
+---
+
+### 3. High-Level Data Flow Diagram
+
+The following Mermaid diagram provides a high-level overview of data movement within the ATS:
+
 ```mermaid
 graph TD
-    U[Users] -->|Registration, Login, Inputs, Queries| S[Algorithmic Trading System]
-    S -->|Responses, Confirmations, AI Outputs| U
-    B[Brokers] -->|Executions, Account Data| S
-    S -->|Orders| B
-    D[Data Sources] -->|Market Data, Alternative Data| S
-    S -->|Compliance Reports, Audit Logs| R[Regulatory Bodies]
-    R -->|Compliance Requests| S
+    A[Market Data Sources] -->|Real-Time/Historical| B[Data Pipeline Service]
+    B -->|Processed Data| C[Kafka Data Bus]
+    C -->|Market Data| D[Trading Engine]
+    C -->|Data Queries| E[AI Assistant Service]
+    C -->|Analytics Input| F[Analytics Service]
+    G[User] -->|Inputs| H[Next.js Frontend]
+    H -->|API Requests| I[FastAPI Gateway]
+    I -->|Routed Data| C
+    D -->|Orders| J[Interactive Brokers]
+    D -->|Historical Data| K[ClickHouse]
+    E -->|Embeddings| L[Qdrant]
+    E -->|User Data| M[PostgreSQL]
+    F -->|Insights| N[User Dashboard]
+    C -->|Events| O[Apache Iceberg]
+    J -->|Confirmations| D
+    N -->|Reports| G
 ```
 
 ---
 
-### Level 1 DFD: Major Processes and Data Flows
-The Level 1 DFD decomposes the system into major processes, data stores, and their data flows, providing a high-level view of internal operations.
+### 4. Detailed Data Flows
 
-#### Processes
-1. **User Management**: Manages user registration, authentication, and profile updates.
-2. **Trading Infrastructure**: Oversees order placement, validation, submission, and execution monitoring.
-3. **Data Management**: Collects, processes, stores, and retrieves market and alternative data.
-4. **Strategy Development**: Facilitates creation, backtesting, and optimization of trading strategies.
-5. **AI Assistant**: Interprets natural language queries and executes user commands.
-6. **User Interface**: Provides web and mobile access to system features.
-7. **Security and Compliance**: Ensures data protection and regulatory compliance.
-8. **Options Trading**: Offers tools for options-specific strategies and analysis.
+#### 4.1 Market Data Flow
+**Description**: This flow handles the ingestion, processing, and distribution of market data.
 
-#### Data Stores
-- **D1: User Database**: Stores user profiles, encrypted credentials, and preferences.
-- **D2: Strategy Database**: Contains trading strategies, parameters, and backtest results.
-- **D3: Order Logs**: Records order placements, executions, and statuses.
-- **D4: Market Data Archive**: Holds historical and real-time market data.
-- **D5: Compliance Logs**: Maintains audit trails and compliance data.
+```mermaid
+graph TD
+    A[Market Data Sources: Yahoo Finance, Alpha Vantage] -->|Raw Data| B[Data Pipeline Service]
+    B -->|Normalization, Enrichment| C[Kafka Topic: market_data]
+    C -->|Real-Time Feed| D[Trading Engine]
+    C -->|Analytics Input| E[Analytics Service]
+    C -->|AI Queries| F[AI Assistant Service]
+    D -->|Historical Storage| G[ClickHouse]
+```
 
-#### Data Flows
-- **Users → User Interface**: Inputs (e.g., registration, orders, queries).
-- **User Interface → User Management**: Registration/login data.
-- **User Management ↔ User Database**: Store/retrieve user data.
-- **User Interface → Strategy Development**: Strategy inputs.
-- **Strategy Development ↔ Strategy Database**: Store/retrieve strategies.
-- **Strategy Development → Data Management**: Historical data requests.
-- **Data Management ↔ Market Data Archive**: Store/retrieve data.
-- **User Interface → Trading Infrastructure**: Order requests.
-- **Trading Infrastructure → Brokers**: Order submissions.
-- **Brokers → Trading Infrastructure**: Execution confirmations.
-- **Trading Infrastructure ↔ Order Logs**: Log orders/executions.
-- **User Interface → AI Assistant**: Queries/commands.
-- **AI Assistant → Trading Infrastructure**: Order commands.
-- **AI Assistant → Data Management**: Data requests.
-- **AI Assistant → Strategy Development**: Strategy queries.
-- **Security and Compliance ↔ All Processes**: Monitor/enforce policies.
-- **Security and Compliance ↔ Compliance Logs**: Store audit data.
-- **Options Trading → Data Management**: Options data requests.
-- **Options Trading → Strategy Development**: Options strategy tools.
+- **Input**: Raw market data (e.g., OHLCV - Open, High, Low, Close, Volume).
+- **Processes**:
+  - **Normalization**: Standardizes timestamps and formats.
+  - **Enrichment**: Calculates technical indicators (e.g., SMA, RSI).
+- **Output**: Processed data published to Kafka topics.
+- **Storage**: Archived in ClickHouse for historical analysis.
 
----
+#### 4.2 User Interaction Flow
+**Description**: This flow manages user inputs and system responses.
 
-### Level 2 DFD: Detailed Processes
-This section details critical processes with sub-processes and specific data flows.
+```mermaid
+graph TD
+    A[User] -->|Strategy Config, Queries| B[Next.js Frontend]
+    B -->|HTTP Requests| C[FastAPI Gateway]
+    C -->|Validated Data| D[Kafka Topic: user_requests]
+    D -->|Routing| E[Trading Engine]
+    D -->|Routing| F[AI Assistant Service]
+    E -->|Response| G[FastAPI Gateway]
+    F -->|Response| G
+    G -->|UI Updates| B
+```
 
-#### Trading Infrastructure
-Handles the lifecycle of trading operations.
+- **Input**: User commands (e.g., strategy creation, AI queries).
+- **Processes**:
+  - **Validation**: Role-Based Access Control (RBAC) checks.
+  - **Routing**: Directs requests to appropriate services.
+- **Output**: Responses (e.g., strategy IDs, query results).
+- **Storage**: User actions logged in Apache Iceberg.
 
-##### Sub-Processes
-- **2.1 Order Placement**: Receives order requests.
-- **2.2 Order Validation**: Validates orders against rules/limits.
-- **2.3 Order Submission**: Sends orders to brokers.
-- **2.4 Execution Monitoring**: Tracks and logs execution.
+#### 4.3 AI Assistant Flow
+**Description**: This flow processes natural language queries and generates responses.
 
-##### Data Flows
-- **User Interface → 2.1**: Order requests (e.g., {symbol: "AAPL", qty: 10, type: "limit", price: 150}).
-- **AI Assistant → 2.1**: AI-generated orders.
-- **2.1 → 2.2**: Orders for validation.
-- **2.2 → 2.3**: Validated orders.
-- **2.2 → User Interface**: Errors (e.g., "Insufficient funds").
-- **2.3 → Brokers**: Order submissions.
-- **Brokers → 2.4**: Confirmations (e.g., {order_id: "123", status: "filled"}).
-- **2.4 → Order Logs**: Log details.
-- **2.4 → User Interface**: Status updates.
+```mermaid
+graph TD
+    A[User Query] -->|Text Input| B[AI Assistant Service]
+    B -->|NLP Processing| C[LangChain]
+    C -->|Context Retrieval| D[Qdrant: Embeddings]
+    C -->|User Data| E[PostgreSQL]
+    D -->|Vector Search| C
+    E -->|Structured Data| C
+    C -->|Response Generation| F[Output Response]
+    F -->|Text| A
+```
 
-#### Data Management
-Manages data collection and provision.
+- **Input**: Natural language query (e.g., "Analyze AAPL trends").
+- **Processes**:
+  - **NLP**: LangChain interprets intent and context.
+  - **Retrieval-Augmented Generation (RAG)**: Fetches relevant data from Qdrant and PostgreSQL.
+- **Output**: Context-aware text response or actionable code.
+- **Storage**: Query logs stored in PostgreSQL.
 
-##### Sub-Processes
-- **3.1 Data Collection**: Fetches raw data from sources.
-- **3.2 Data Cleaning**: Normalizes data.
-- **3.3 Data Storage**: Archives data.
-- **3.4 Data Retrieval**: Provides data to processes.
+#### 4.4 Strategy Execution Flow
+**Description**: This flow executes trading strategies and interacts with brokers.
 
-##### Data Flows
-- **Data Sources → 3.1**: Raw data (e.g., JSON prices).
-- **3.1 → 3.2**: Data to clean.
-- **3.2 → 3.3**: Cleaned data.
-- **3.3 → Market Data Archive**: Store data.
-- **Strategy Development → 3.4**: Data requests.
-- **AI Assistant → 3.4**: Data requests.
-- **Options Trading → 3.4**: Options data requests.
-- **3.4 → Market Data Archive**: Retrieve data.
-- **3.4 → Requesting Process**: Deliver data.
+```mermaid
+graph TD
+    A[User Strategy Config] -->|Parameters| B[Trading Engine]
+    B -->|Market Data| C[Kafka Topic: market_data]
+    C -->|Real-Time| B
+    B -->|Strategy Logic| D[Order Generation]
+    D -->|Order| E[Interactive Brokers]
+    E -->|Confirmation| F[Trading Engine]
+    F -->|Portfolio Update| G[ClickHouse]
+    F -->|Notification| H[User]
+```
 
-#### AI Assistant
-Processes natural language interactions.
+- **Input**: Strategy parameters and real-time market data.
+- **Processes**:
+  - **Execution Logic**: Evaluates buy/sell conditions.
+  - **Order Placement**: Submits orders via broker API.
+- **Output**: Trade confirmations and updated portfolio.
+- **Storage**: Trade records in ClickHouse and Iceberg.
 
-##### Sub-Processes
-- **5.1 Query Processing**: Interprets queries.
-- **5.2 Task Delegation**: Assigns tasks to agents.
-- **5.3 Data Retrieval**: Fetches required data.
-- **5.4 Response Generation**: Formulates responses.
-- **5.5 Command Execution**: Executes actions.
+#### 4.5 Analytics and Reporting Flow
+**Description**: This flow generates insights and visualizations.
 
-##### Data Flows
-- **User Interface → 5.1**: Queries (e.g., "Current BTC price?").
-- **5.1 → 5.2**: Parsed intent.
-- **5.2 → 5.3**: Data requests.
-- **5.3 → Data Management**: Fetch data.
-- **Data Management → 5.3**: Data provided.
-- **5.3 → 5.4**: Data for response.
-- **5.4 → User Interface**: Response (e.g., "BTC: $60,000").
-- **5.2 → 5.5**: Action commands.
-- **5.5 → Trading Infrastructure**: Order requests.
-- **Trading Infrastructure → 5.5**: Confirmation.
-- **5.5 → User Interface**: Relay confirmation.
+```mermaid
+graph TD
+    A[ClickHouse: Historical Data] -->|Time-Series| B[Analytics Service]
+    B -->|ML Processing| C[ML Models: LSTM, PyPortfolioOpt]
+    C -->|Predictions| D[Insights Generation]
+    D -->|Formatted Data| E[PostgreSQL]
+    D -->|Visualizations| F[Next.js Dashboard]
+    F -->|Reports| G[User]
+```
 
----
+- **Input**: Historical and real-time data.
+- **Processes**:
+  - **Forecasting**: LSTM models predict price movements.
+  - **Optimization**: PyPortfolioOpt adjusts portfolio allocations.
+- **Output**: Insights and visualizations (e.g., charts, metrics).
+- **Storage**: Results stored in PostgreSQL.
 
-### Data Formats, Volumes, and Frequencies
-- **Market Data**: JSON/CSV, high-volume (thousands/sec), real-time/batch.
-- **Order Requests**: JSON, variable volume, asynchronous.
-- **AI Queries**: Text, moderate volume, on-demand.
-- **Compliance Logs**: Structured logs, event-driven, continuous.
+#### 4.6 Security and Compliance Flow
+**Description**: This flow ensures auditability and regulatory compliance.
 
----
+```mermaid
+graph TD
+    A[System Events: Trades, Logins] -->|Event Data| B[Kafka Topic: audit_logs]
+    B -->|Immutable Write| C[Apache Iceberg]
+    C -->|Query| D[Compliance Service]
+    D -->|PDF Reports| E[User/Admin]
+```
 
-### Security and Error Handling
-- **Security**:
-  - Credentials encrypted (AES-256).
-  - Sensitive data over TLS 1.3.
-  - All actions logged for audit.
-- **Error Handling**:
-  - Fallback data sources on failure.
-  - Validation errors returned to users.
-  - AI clarification requests for ambiguous queries.
+- **Input**: System events (e.g., trade executions, user logins).
+- **Processes**:
+  - **Logging**: Events captured and streamed via Kafka.
+  - **Storage**: Immutable records written to Iceberg.
+- **Output**: Compliance reports generated on demand.
+- **Storage**: Permanent storage in Apache Iceberg.
 
 ---
 
-### Conclusion
-This DFD comprehensively maps data flows in the Algorithmic Trading System, ensuring clarity and alignment with system requirements. It supports development, maintenance, and compliance efforts.
+### 5. Data Formats and Specifications
+
+#### 5.1 Market Data
+- **Format**: JSON (e.g., `{"symbol": "AAPL", "price": 150.25, "timestamp": "2023-10-15T12:00:00Z"}`).
+- **Volume**: ~10,000 messages/second during peak hours.
+- **Retention**: 5 years in ClickHouse.
+
+#### 5.2 User Data
+- **Format**: Structured SQL tables (e.g., `users`, `strategies`) and JSON for configurations.
+- **Volume**: Moderate (e.g., 1,000 active users, 10 strategies each).
+- **Retention**: Indefinite, with archival after 2 years of inactivity.
+
+#### 5.3 System-Generated Data
+- **Format**: JSON logs (e.g., `{"event": "trade", "timestamp": "2023-10-15T12:00:00Z", "details": {...}}`).
+- **Volume**: High (e.g., millions of events/day).
+- **Retention**: 30 days for debug logs, 7 years for compliance logs.
+
+---
+
+### 6. Error Handling and Data Integrity
+
+#### 6.1 Error Handling Mechanisms
+- **Data Ingestion**: Retry logic for transient failures (e.g., 3 retries with exponential backoff).
+- **User Inputs**: Validation errors returned with HTTP 400 status.
+- **AI Queries**: Fallback to generic responses for unparseable inputs.
+- **Trading**: Circuit breakers halt execution on broker failures.
+
+#### 6.2 Data Integrity Measures
+- **Checksums**: Validate data during ingestion and transmission.
+- **Idempotency**: Kafka ensures duplicate messages are handled safely.
+- **Backups**: Hourly snapshots of ClickHouse and PostgreSQL (RTO: 1 hour, RPO: 5 minutes).
+
+---
+
+### 7. Performance and Scalability
+
+#### 7.1 Throughput Requirements
+- **Market Data**: Handle 10,000 messages/second.
+- **User Requests**: Support 1,000 concurrent users.
+- **Analytics**: Process 1 TB of historical data daily.
+
+#### 7.2 Latency Goals
+- **Market Data Processing**: < 10ms from ingestion to Kafka.
+- **Trade Execution**: < 50ms end-to-end.
+- **AI Response**: < 2 seconds for query processing.
+
+#### 7.3 Scalability Considerations
+- **Horizontal Scaling**: Kafka partitions and microservices replication.
+- **Load Balancing**: FastAPI Gateway distributes requests.
+- **Database Sharding**: ClickHouse for market data, PostgreSQL for user data.
+
+---
+
+### 8. Appendices
+
+#### 8.1 Glossary
+- **Event-Driven**: System reacts to real-time events (e.g., price changes).
+- **Microservices**: Modular, independently deployable components.
+- **RAG**: Retrieval-Augmented Generation for AI responses.
+
+#### 8.2 References
+- **NautilusTrader**: [https://nautilustrader.io/](https://nautilustrader.io/)
+- **Kafka**: [https://kafka.apache.org/](https://kafka.apache.org/)
+- **LangChain**: [https://langchain.com/](https://langchain.com/)
+
+---
+
+This Data Flow Document provides a comprehensive, detailed, and visual representation of data movement within the ATS, ensuring all stakeholders have a clear understanding of its architecture and operations.

@@ -1,409 +1,366 @@
-# User Documentation
-## Algorithmic Trading System
+# User Documentation for Algorithmic Trading System (ATS)
 
-**Table of Contents**
+## 1. Introduction
 
-- [Introduction](#introduction)
-- [Getting Started](#getting-started)
-- [User Interface](#user-interface)
-- [Trading Strategies](#trading-strategies)
-- [Order Management](#order-management)
-- [AI Assistant](#ai-assistant)
-- [Analytics and Reports](#analytics-and-reports)
-- [Options Trading](#options-trading)
-- [Security and Compliance](#security-and-compliance)
-- [Troubleshooting](#troubleshooting)
-- [FAQs](#faqs)
-- [Glossary](#glossary)
-- [Contact Information](#contact-information)
+Welcome to the **Algorithmic Trading System (ATS)**, a state-of-the-art platform designed to empower traders of all experience levels to develop, test, and execute trading strategies across multiple asset classes. Whether you're a novice trader seeking an intuitive, no-code solution or a seasoned professional requiring advanced tools for high-frequency trading, ATS offers a comprehensive, secure, and scalable environment to meet your needs.
 
----
+### 1.1 Overview of ATS
 
-## Introduction
+ATS is an enterprise-grade trading platform built with a "Best-of-Breed" integration strategy, combining leading open-source technologies such as **NautilusTrader**, **Apache Kafka**, **LangChain**, and **Next.js**. It supports trading in stocks, ETFs, futures, options, forex, and cryptocurrencies, providing real-time data processing, AI-driven insights, and robust analytics. The system is designed with a microservices architecture to ensure modularity, scalability, and high performance, making it suitable for both individual traders and institutional users.
 
-Welcome to the Algorithmic Trading System, a cutting-edge platform designed to empower traders by automating and optimizing trading strategies across various financial markets. This documentation serves as your comprehensive guide to understanding and utilizing the system effectively, whether you're a beginner or an experienced quant.
+### 1.2 Key Features
 
-### What is the Algorithmic Trading System?
+- **Multi-Asset Trading**: Execute strategies across diverse asset classes from a single platform.
+- **AI-Powered Assistant**: Interact with the system using natural language, generate code, and receive market insights.
+- **Real-Time Analytics**: Access live data feeds, advanced forecasting, and portfolio optimization tools.
+- **No-Code Strategy Builder**: Create and deploy strategies using a visual drag-and-drop interface.
+- **High-Performance Execution**: Benefit from low-latency trade execution (<100ms) and real-time monitoring.
+- **Enterprise-Grade Security**: Protect your data and strategies with AES-256 encryption, Zero-Trust architecture, and Role-Based Access Control (RBAC).
 
-The Algorithmic Trading System is an enterprise-grade platform that provides tools to automate trading strategies for multiple asset classes, including stocks, ETFs, futures, options, forex, and cryptocurrencies. It integrates advanced artificial intelligence (AI) and machine learning capabilities to assist with strategy development, backtesting, and execution. Key features include:
+### 1.3 Target Audience
 
-- A no-code strategy builder for users without programming experience.
-- A Python studio for advanced users to code custom strategies.
-- An AI Assistant for natural language interaction and task automation.
-- Multi-platform access via web and mobile devices.
-- Robust security and compliance features to protect your data and transactions.
-
-### Key Benefits
-
-- **User-Friendly**: Intuitive interface with customizable dashboards.
-- **AI-Enhanced**: Leverage AI for strategy generation, market analysis, and decision-making.
-- **Flexible**: Supports both novice traders and advanced quants with no-code and code-based options.
-- **Secure**: Built on a zero-trust architecture with enterprise-grade security measures.
-
-This documentation will guide you through every step of using the system, from setup to advanced trading techniques.
+- **Non-technical Traders**: Retail investors with basic market knowledge who prefer an accessible, no-code interface.
+- **Professional Traders/Analysts**: Experienced users requiring high-performance tools, low-latency execution, and customization options.
 
 ---
 
-## Getting Started
+## 2. Getting Started
 
-Before diving into trading, ensure you have the necessary setup and account configuration completed.
+This section guides you through the initial steps to set up and start using ATS effectively.
 
-### System Requirements
+### 2.1 System Requirements
 
-To ensure optimal performance, your device should meet the following specifications:
+To ensure optimal performance, your system should meet the following minimum requirements:
 
-| Requirement       | Minimum             | Recommended         |
-|-------------------|---------------------|---------------------|
-| Browser           | Chrome 90+, Firefox 85+ | Latest versions    |
-| Internet Speed    | 10 Mbps             | 50 Mbps             |
-| RAM               | 8 GB                | 16 GB               |
+- **Operating System**: Windows 10+, macOS 10.14+, or Linux (Ubuntu 18.04+)
+- **Processor**: Intel Core i5 or equivalent
+- **Memory**: 8GB RAM (16GB recommended)
+- **Storage**: 10GB free disk space
+- **Internet**: Stable broadband connection (10Mbps+)
 
-### Registering for an Account
+### 2.2 Account Setup
 
-1. Visit the system’s website at [insert system URL].
-2. Click the **"Register"** button on the homepage.
-3. Fill in your personal details, including name, email, and a secure password.
-4. Submit the form and check your email for a verification link.
-5. Click the link to verify your account.
+1. **Visit the ATS Website**: Go to the official ATS website and click "Sign Up."
+2. **Enter Details**: Provide your email address and create a strong password.
+3. **Verify Email**: Check your inbox for a confirmation link and click it to verify your email.
+4. **Complete Profile**: Log in and fill in required details (e.g., name, trading experience).
 
-### Logging In
+### 2.3 Initial Configuration
 
-1. Go to the login page at [insert system URL]/login.
-2. Enter your registered email and password.
-3. If multi-factor authentication (MFA) is enabled, input the code from your authenticator app.
-4. Click **"Log In"** to access the dashboard.
+After logging in, configure your account to personalize your trading experience:
 
-**Note**: We strongly recommend enabling MFA for enhanced security.
+1. **Connect Data Sources**:
+   - Navigate to "Settings" > "Data Sources."
+   - Link to market data providers such as Yahoo Finance or Alpha Vantage by entering API keys if required.
+2. **Set Up Broker Accounts**:
+   - Go to "Settings" > "Broker Connections."
+   - Select a broker (e.g., Interactive Brokers) and input your credentials to enable live trading.
+3. **Configure Preferences**:
+   - Set your timezone, default currency, and notification preferences under "Settings" > "Preferences."
 
-### Initial Configuration
+### 2.4 Quick Start Guide
 
-After logging in, configure your account to start trading:
+1. **Log In**: Use your credentials to access the ATS dashboard.
+2. **Explore the Dashboard**: View your portfolio summary and real-time market data.
+3. **Create a Strategy**: Use the no-code builder or Python Studio to design your first strategy.
+4. **Run a Backtest**: Test your strategy with historical data to evaluate performance.
+5. **Deploy to Live Trading**: Activate your strategy to start trading with real-time data.
 
-1. **Connect to a Broker**:
-   - Navigate to **"Settings" > "Brokers"**.
-   - Select your preferred broker from the list (e.g., Interactive Brokers, Alpaca).
-   - Enter your broker’s API keys or login credentials as prompted.
-   - Save the connection.
+The following diagram illustrates the quick start process:
 
-2. **Set Up Data Sources**:
-   - Go to **"Settings" > "Data Sources"**.
-   - Choose data providers for paper and live trading (e.g., Yahoo Finance, Alpha Vantage).
-   - Test the connection to ensure data feeds are active.
-
-Once configured, you’re ready to explore the system!
-
----
-
-## User Interface
-
-The user interface is designed to be intuitive and customizable, providing quick access to all features.
-
-### Dashboard
-
-The dashboard is your central hub, displaying key information at a glance:
-
-- **Portfolio Summary**: Current balance, gains/losses, and asset allocation.
-- **Recent Trades**: A log of your latest transactions.
-- **Market News**: Real-time updates from integrated feeds.
-- **Custom Widgets**: Add watchlists, charts, or performance metrics.
-
-### Navigation Menu
-
-The left sidebar provides access to core features:
-
-- **Home**: Return to the dashboard.
-- **Strategies**: Create and manage trading strategies.
-- **Orders**: View and manage active and historical orders.
-- **Analytics**: Access market data and performance reports.
-- **AI Assistant**: Open the AI interaction panel.
-- **Settings**: Adjust account preferences and configurations.
-
-### Customizing the Dashboard
-
-Personalize your workspace:
-
-1. Click **"Edit Dashboard"** in the top-right corner.
-2. Drag and drop widgets (e.g., charts, news feeds) to your desired layout.
-3. Resize or remove widgets as needed.
-4. Click **"Save"** to preserve your layout for future sessions.
-
-### Chatbot Interface
-
-The AI Assistant’s chatbot is located in the bottom-right corner of the screen. Click the icon to open a text or voice input field for interacting with the AI.
-
----
-
-## Trading Strategies
-
-The system supports creating, testing, and deploying trading strategies using both no-code and code-based tools.
-
-### No-Code Strategy Builder
-
-Perfect for users without coding experience:
-
-1. Go to **"Strategies" > "New Strategy" > "No-Code Builder"**.
-2. Drag indicators (e.g., Moving Average, RSI) from the left panel to the canvas.
-3. Set parameters (e.g., period = 50 for a moving average).
-4. Define conditions and actions (e.g., "Buy when 50-day MA crosses above 200-day MA").
-5. Click **"Save"** and name your strategy.
-
-**[Insert screenshot of no-code builder interface]**
-
-### Python Studio
-
-For advanced users who prefer coding:
-
-1. Navigate to **"Strategies" > "New Strategy" > "Python Studio"**.
-2. Access a cloud-hosted Jupyter notebook environment.
-3. Write your strategy using Python and pre-installed libraries (e.g., TA-Lib, pandas-ta).
-4. Test your code with sample data.
-
-**Example: Simple Moving Average Crossover Strategy**
-
-```python
-import pandas as pd
-from quantconnect.algorithm import QCAlgorithm
-
-class SMACrossover(QCAlgorithm):
-    def Initialize(self):
-        self.SetStartDate(2020, 1, 1)
-        self.SetEndDate(2021, 1, 1)
-        self.SetCash(100000)
-        self.AddEquity("SPY", Resolution.Daily)
-        self.fast = self.SMA("SPY", 50)
-        self.slow = self.SMA("SPY", 200)
-
-    def OnData(self, data):
-        if self.fast.Current.Value > self.slow.Current.Value:
-            self.SetHoldings("SPY", 1.0)
-        else:
-            self.SetHoldings("SPY", 0.0)
+```mermaid
+graph TD
+    A[Visit Website] --> B[Sign Up]
+    B --> C[Verify Email]
+    C --> D[Log In]
+    D --> E[Configure Settings]
+    E --> F[Explore Dashboard]
+    F --> G[Create Strategy]
+    G --> H[Run Backtest]
+    H --> I[Deploy Strategy]
 ```
 
-### Backtesting
+---
 
-Evaluate your strategy’s performance:
+## 3. System Overview
 
-1. Select a strategy from the **"Strategies"** menu.
-2. Click **"Backtest"**.
-3. Set the date range, initial capital, and trading mode (paper or live).
-4. Run the simulation.
-5. Review results, including:
-   - Equity curve
-   - Sharpe Ratio
-   - Maximum drawdown
-   - Total return
+ATS is built with a modular architecture to deliver flexibility and performance. Below is a high-level view of its main components and their interactions.
 
-**Tip**: Optimize your strategy by adjusting parameters based on backtest results (see [Analytics and Reports](#analytics-and-reports)).
+### 3.1 Architecture Diagram
 
-### Strategy Marketplace
+```mermaid
+graph TD
+    A[User Interface] --> B[API Gateway]
+    B --> C[Trading Engine]
+    B --> D[Data Pipelines]
+    B --> E[AI Assistant]
+    B --> F[Analytics]
+    C --> G[Broker Integration]
+    D --> H[Market Data Sources]
+    E --> I[AI Models]
+    F --> J[Databases]
+```
 
-Explore and share strategies:
+- **User Interface**: The Next.js-based frontend where you interact with the system.
+- **API Gateway**: Routes requests to appropriate services using FastAPI.
+- **Trading Engine**: Executes strategies and manages orders with NautilusTrader.
+- **Data Pipelines**: Processes real-time market data via Apache Kafka.
+- **AI Assistant**: Provides natural language support using LangChain and OpenHands.
+- **Analytics**: Generates forecasts and insights with machine learning models.
+- **Databases**: Store data in PostgreSQL, ClickHouse, Qdrant, and Apache Iceberg.
 
-- **Browse**: View community-shared strategies under **"Strategy Marketplace"**.
-- **Download**: Select a strategy and click **"Add to My Strategies"**.
-- **Upload**: Share your own strategies by uploading them to the marketplace.
+### 3.2 Component Roles
+
+- **Trading Engine**: Handles backtesting and live trading across all asset classes.
+- **Data Pipelines**: Ensures seamless data flow from external sources to the system.
+- **AI Assistant**: Enhances usability with conversational AI and code generation.
+- **Analytics**: Offers predictive tools and portfolio management capabilities.
 
 ---
 
-## Order Management
+## 4. User Interface Guide
 
-Efficiently manage your trades within the system.
+The ATS user interface is designed for ease of use and efficiency. Below is an overview of the main dashboard and its components.
 
-### Placing Orders
+### 4.1 Dashboard Overview
 
-1. Go to **"Orders" > "New Order"**.
-2. Select the asset (e.g., "AAPL" for Apple stock).
-3. Choose the order type:
-   - Market: Execute at the current price.
-   - Limit: Set a specific price.
-   - Stop: Trigger at a predefined price.
-4. Enter the quantity and review the order.
-5. Click **"Submit"**.
+```mermaid
+graph LR
+    A[Dashboard] --> B[Portfolio Summary]
+    A --> C[Market Data]
+    A --> D[Strategy Builder]
+    A --> E[Backtesting]
+    A --> F[AI Chat]
+    A --> G[Settings]
+```
 
-### Monitoring Orders
+- **Portfolio Summary**: Displays your current portfolio value, cash balance, and open positions.
+- **Market Data**: Shows real-time price feeds and interactive charts for selected assets.
+- **Strategy Builder**: Access the no-code builder or Python Studio to create strategies.
+- **Backtesting**: Run simulations on historical data to test your strategies.
+- **AI Chat**: Interact with the AI assistant for insights and assistance.
+- **Settings**: Configure account preferences, data sources, and broker connections.
 
-- View all orders under **"Orders" > "Active Orders"**.
-- Filter by status (pending, executed, canceled), date, or asset.
+### 4.2 Navigation
 
-### Canceling or Modifying Orders
-
-1. Select an active order from the list.
-2. Click **"Cancel"** to stop it or **"Modify"** to adjust price/quantity.
-3. Confirm the changes.
-
-### Order History
-
-- Access past orders under **"Orders" > "History"**.
-- Export logs as CSV for external analysis.
+- **Top Navigation Bar**: Access main sections (Dashboard, Strategies, Analytics, Settings).
+- **Sidebar**: Quick links to portfolio details and recent activities.
+- **Main Panel**: Displays the selected section’s content (e.g., charts, strategy editor).
 
 ---
 
-## AI Assistant
+## 5. Features and Functionalities
 
-The AI Assistant enhances your experience with natural language interaction.
+This section provides detailed instructions on using ATS’s core features, complete with step-by-step guides and examples.
 
-### How to Use
+### 5.1 Strategy Creation
 
-- Open the chatbot in the bottom-right corner.
-- Type or speak queries/commands, such as:
-  - **Query**: "What’s the current price of Bitcoin?"
-  - **Command**: "Place a market order to buy 100 shares of AAPL."
-  - **Analysis**: "Summarize this earnings report."
+ATS offers two methods to create trading strategies: a no-code builder for beginners and a Python Studio for advanced users.
 
-### Uploading Documents
+#### 5.1.1 No-Code Builder (Blockly)
 
-Analyze documents with the AI:
+The no-code builder uses a visual, drag-and-drop interface powered by Blockly.
 
-1. Click **"Upload Document"** in the chatbot panel.
-2. Select a file (PDF, DOCX, etc.) from your device.
-3. Once uploaded, ask questions like:
-   - "What are the key points in this report?"
-   - "Extract financial data from this document."
+1. **Access the Builder**:
+   - From the dashboard, click "Strategy Builder" > "No-Code."
+2. **Select Blocks**:
+   - Browse categories like "Indicators" (e.g., SMA), "Conditions" (e.g., greater than), and "Actions" (e.g., Buy).
+3. **Build Logic**:
+   - Drag blocks onto the canvas and connect them to define your strategy.
+   - Example: Connect "SMA (50 days)" and "SMA (200 days)" to an "If" block with "SMA50 > SMA200" condition, then add a "Buy" action.
+4. **Configure Parameters**:
+   - Set values (e.g., SMA period) and select assets (e.g., AAPL) via dropdowns or inputs.
+5. **Save and Name**:
+   - Enter a name (e.g., "Golden Cross") and description, then click "Save."
 
-**Best Practices**:
-- Use specific queries for accurate responses.
-- Ensure files are in supported formats (PDF, DOCX, TXT).
+**Flowchart**:
+```mermaid
+graph TD
+    A[Access No-Code Builder] --> B[Select Blocks]
+    B --> C[Connect Blocks]
+    C --> D[Set Parameters]
+    D --> E[Save Strategy]
+```
 
----
+#### 5.1.2 Python Studio
 
-## Analytics and Reports
+For advanced users, Python Studio allows custom coding with full flexibility.
 
-Gain actionable insights with advanced analytics tools.
+1. **Access the Studio**:
+   - From the dashboard, click "Strategy Builder" > "Python Studio."
+2. **Write Code**:
+   - Use the integrated editor to write Python code, leveraging libraries like TA-Lib.
+3. **Test Syntax**:
+   - Click "Check Syntax" to validate your code.
+4. **Save and Deploy**:
+   - Name your strategy and save it for backtesting or live trading.
 
-### Market Data
+**Example Code**:
+```python
+import talib
 
-- Access real-time and historical data under **"Analytics" > "Market Data"**.
-- Visualize trends with customizable charts and technical indicators.
+def run(data):
+    sma50 = talib.SMA(data['close'], timeperiod=50)
+    sma200 = talib.SMA(data['close'], timeperiod=200)
+    if sma50[-1] > sma200[-1] and sma50[-2] <= sma200[-2]:
+        return 'buy'
+    elif sma50[-1] < sma200[-1] and sma50[-2] >= sma200[-2]:
+        return 'sell'
+    return 'hold'
+```
 
-### Market Screener
+### 5.2 Backtesting
 
-Filter assets dynamically:
+Backtesting evaluates your strategy’s performance using historical data.
 
-- Go to **"Analytics" > "Market Screener"**.
-- Use natural language filters, e.g., "Show tech stocks with P/E ratio < 20 and market cap > $10B."
-- Save filters for reuse.
+1. **Select Strategy**:
+   - Go to "Backtesting" and choose a saved strategy from your library.
+2. **Set Parameters**:
+   - Define the date range (e.g., 2022-01-01 to 2023-01-01), initial capital (e.g., $10,000), and asset (e.g., BTC/USD).
+3. **Run Backtest**:
+   - Click "Run" to start the simulation.
+4. **Analyze Results**:
+   - Review metrics (e.g., total return, Sharpe ratio) and charts (e.g., equity curve).
 
-### Opportunity Detection
+**Process Diagram**:
+```mermaid
+graph TD
+    A[Select Strategy] --> B[Set Parameters]
+    B --> C[Run Backtest]
+    C --> D[View Results]
+    D --> E[Optimize or Deploy]
+```
 
-- View AI-generated alerts under **"Analytics" > "Opportunities"**.
-- Customize alert criteria (e.g., price spikes, volume surges).
+### 5.3 Live Trading
 
-### Performance Reports
+Deploy your strategy to execute trades in real-time.
 
-- Generate reports under **"Analytics" > "Reports"**.
-- Metrics include:
-  - Total return
-  - Volatility
-  - Sharpe Ratio
-  - Win/loss ratio
-- Export reports as PDF or CSV.
+1. **Deploy Strategy**:
+   - From the strategy details page, click "Deploy to Live."
+2. **Configure Settings**:
+   - Set risk parameters (e.g., max position size, stop-loss) and confirm broker connection.
+3. **Monitor Trades**:
+   - Watch executions and portfolio updates on the dashboard’s order blotter.
+4. **Manage Orders**:
+   - View, modify, or cancel orders from the "Orders" tab.
 
----
+**Note**: Ensure your broker account is funded and configured before enabling live trading.
 
-## Options Trading
+### 5.4 AI Assistant
 
-Trade options with specialized tools and features.
+The AI Assistant enhances your trading experience with conversational support.
 
-### Overview
+1. **Open Chat**:
+   - Click the "AI Chat" icon on the dashboard.
+2. **Ask Questions**:
+   - Type queries like "What’s the trend for ETH/USD?" or "Generate a momentum strategy."
+3. **Receive Responses**:
+   - Get answers, code snippets, or suggestions in real-time.
+4. **Debug Code**:
+   - Paste your strategy code and ask for optimization tips (e.g., "Improve this RSI strategy").
 
-Options are contracts giving the right, but not the obligation, to buy or sell an asset at a set price before an expiration date. The system supports both basic and complex options strategies.
+**Example Interaction**:
+- **User**: "Is it a good time to buy gold?"
+- **Assistant**: "Gold shows a bullish trend with a 3% increase this week and RSI at 58. Consider buying if it breaks $1,900."
 
-### Creating Strategies
+### 5.5 Analytics
 
-1. Navigate to **"Strategies" > "New Strategy" > "Options Strategy"**.
-2. Choose a template (e.g., covered call, iron condor).
-3. Customize legs, strike prices, and expiration dates.
-4. Save your strategy.
+Access advanced tools for forecasting and portfolio management.
 
-### Tools
-
-- **Greeks Calculator**: Assess risk with Delta, Gamma, Theta, and Vega.
-- **Payoff Diagrams**: Visualize potential profit/loss scenarios.
-- **Volatility Suite**: Analyze implied and historical volatility surfaces.
-
-**Tutorial: Setting Up a Covered Call**
-
-1. Select a stock you own (e.g., "AAPL").
-2. Choose an expiration date and strike price for the call option.
-3. Use the payoff diagram to evaluate outcomes.
-4. Place the order to sell the call.
-
-**[Insert screenshot of options strategy builder]**
-
----
-
-## Security and Compliance
-
-Protect your account and adhere to regulations.
-
-### Best Practices
-
-- **Enable MFA**: Go to **"Settings" > "Security"** and activate multi-factor authentication.
-- **Strong Passwords**: Use unique, complex passwords and update them regularly.
-- **Monitor Activity**: Review audit logs under **"Settings" > "Activity"**.
-
-### Compliance
-
-- **Automated Reports**: Generate compliance documentation under **"Reports" > "Compliance"**.
-- **Regulatory Adherence**: Ensure strategies comply with local financial laws.
-
-**Warning**: Always consult a financial advisor or compliance officer if unsure about regulations.
-
----
-
-## Troubleshooting
-
-Resolve common issues with these solutions.
-
-### Login Problems
-
-- **Issue**: Can’t log in.
-- **Solution**: Verify credentials, reset password, or check MFA setup.
-
-### Data Feed Issues
-
-- **Issue**: Market data not updating.
-- **Solution**: Check internet connection or switch data sources in **"Settings"**.
-
-### Order Delays
-
-- **Issue**: Orders not executing promptly.
-- **Solution**: Verify broker connectivity or check system alerts.
-
-### Reporting Issues
-
-- Submit a ticket via **"Help" > "Contact Support"** if problems persist.
+- **Forecasting**:
+  1. Go to "Analytics" > "Forecasting."
+  2. Select an asset (e.g., SPY) and model (e.g., LSTM).
+  3. View predicted price trends and confidence intervals.
+- **Portfolio Optimization**:
+  1. Go to "Analytics" > "Portfolio Optimization."
+  2. Input risk tolerance and goals.
+  3. Receive suggested asset allocations.
+- **Risk Management**:
+  1. Monitor real-time metrics like Value at Risk (VaR) on the dashboard.
+  2. Set alerts for exposure thresholds.
 
 ---
 
-## FAQs
+## 6. Tutorials and Examples
 
-- **How do I switch between paper and live trading?**
-  - Go to **"Settings" > "Trading Mode"** and toggle the option.
-- **Can I use the AI Assistant on mobile?**
-  - Yes, the web app is fully responsive on mobile devices.
-- **What data sources are available?**
-  - Yahoo Finance, Alpha Vantage, Interactive Brokers, and more.
+These hands-on tutorials demonstrate how to use ATS effectively.
+
+### 6.1 Tutorial 1: Creating a Moving Average Crossover Strategy
+
+**Objective**: Build a simple strategy using the no-code builder.
+
+**Steps**:
+1. Navigate to "Strategy Builder" > "No-Code."
+2. Drag an "SMA" block (set to 50 days) and another (set to 200 days) from "Indicators."
+3. Add an "If" block from "Conditions" and set "SMA50 > SMA200."
+4. Connect a "Buy" action to the "If" block.
+5. Save as "Golden Cross" and select "AAPL" as the asset.
+6. Run a backtest over the past year and review results.
+
+**Outcome**: A strategy that buys when the 50-day SMA crosses above the 200-day SMA.
+
+### 6.2 Tutorial 2: Using the AI Assistant for Market Analysis
+
+**Objective**: Gain insights into market trends.
+
+**Steps**:
+1. Open "AI Chat" from the dashboard.
+2. Type "Analyze recent trends in the Nasdaq 100."
+3. Review the assistant’s response (e.g., trend direction, key indicators).
+4. Ask "What sectors are performing best?" for deeper analysis.
+
+**Outcome**: Actionable insights to inform your trading decisions.
+
+### 6.3 Tutorial 3: Setting Up Live Trading
+
+**Objective**: Deploy a strategy for real-time trading.
+
+**Steps**:
+1. Go to "Settings" > "Broker Connections" and connect Interactive Brokers.
+2. Select a tested strategy (e.g., "Golden Cross").
+3. Click "Deploy to Live" and set a $5,000 position limit.
+4. Monitor trades on the dashboard’s order blotter.
+
+**Outcome**: Your strategy executes trades automatically based on market conditions.
 
 ---
 
-## Glossary
+## 7. Troubleshooting and FAQs
 
-- **Agentic RAG**: A retrieval-augmented generation system enhancing AI responses.
-- **Zero-Trust Architecture**: A security model requiring continuous verification.
-- **Greeks**: Options metrics (e.g., Delta, Gamma) for risk assessment.
+### 7.1 Common Issues
+
+- **Issue**: Unable to connect to data source.
+  - **Solution**: Verify your internet connection and check API keys in "Settings" > "Data Sources."
+- **Issue**: Strategy code has errors.
+  - **Solution**: Use the Python Studio’s syntax checker or ask the AI Assistant for debugging help.
+- **Issue**: Slow trade execution.
+  - **Solution**: Ensure a stable, high-speed internet connection and contact support if persistent.
+
+### 7.2 FAQs
+
+- **Q**: Can I connect multiple brokers?
+  - **A**: Yes, configure each broker in "Settings" > "Broker Connections."
+- **Q**: How do I edit a live strategy?
+  - **A**: Pause the strategy in "Strategies," edit in Python Studio or the no-code builder, and redeploy.
+- **Q**: Is my data secure?
+  - **A**: Yes, ATS uses AES-256 encryption, Zero-Trust architecture, and immutable audit trails.
 
 ---
 
-## Contact Information
+## 8. Glossary and References
 
-For assistance, reach out to our support team:
+### 8.1 Glossary
 
-- **Email**: support@trading-system.com
-- **Phone**: 123-456-7890
-- **Ticket System**: [Insert link to ticketing system]
+- **Backtesting**: Simulating a strategy with historical data to assess performance.
+- **Slippage**: Difference between expected and actual trade prices.
+- **Order Types**: Instructions for trade execution (e.g., Market, Limit).
+
+### 8.2 References
+
+- **NautilusTrader Documentation**: [https://nautilustrader.io/](https://nautilustrader.io/)
+- **Apache Kafka Documentation**: [https://kafka.apache.org/](https://kafka.apache.org/)
+- **LangChain Documentation**: [https://langchain.com/](https://langchain.com/)
 
 ---
 
-This User Documentation is your complete resource for mastering the Algorithmic Trading System. For further help, contact our support team anytime.
+This User Documentation provides a detailed guide to mastering the Algorithmic Trading System (ATS). For additional support, contact our help center or explore the community forums. Happy trading!

@@ -1,240 +1,376 @@
 # Business Requirements Document (BRD)
-## Algorithmic Trading System
+
+## Algorithmic Trading System (ATS)
 
 ---
 
-### Table of Contents
-- [Business Requirements Document (BRD)](#business-requirements-document-brd)
-  - [Algorithmic Trading System](#algorithmic-trading-system)
-    - [Table of Contents](#table-of-contents)
-    - [Executive Summary](#executive-summary)
-    - [Introduction](#introduction)
-    - [Business Objectives](#business-objectives)
-    - [Scope](#scope)
-    - [Stakeholders](#stakeholders)
-    - [Functional Requirements](#functional-requirements)
-      - [User Management](#user-management)
-      - [Core Trading Infrastructure](#core-trading-infrastructure)
-      - [Data Management and Analytics](#data-management-and-analytics)
-      - [AI-Powered Strategy Development and Backtesting](#ai-powered-strategy-development-and-backtesting)
-      - [Agentic AI Assistant](#agentic-ai-assistant)
-      - [User Experience and Multi-Platform Accessibility](#user-experience-and-multi-platform-accessibility)
-      - [Enterprise-Grade Security, Compliance, and Operations](#enterprise-grade-security-compliance-and-operations)
-      - [Options Trading](#options-trading)
-    - [Non-Functional Requirements](#non-functional-requirements)
-    - [Constraints](#constraints)
-    - [Assumptions](#assumptions)
-    - [Risks](#risks)
-    - [Glossary](#glossary)
+### 1. Introduction
+
+#### 1.1 Purpose of the Document
+
+This Business Requirements Document (BRD) outlines the business needs, objectives, and expectations for the development of the Algorithmic Trading System (ATS).  The document serves as a comprehensive guide for stakeholders—including business owners, project sponsors, developers, and end-users—to understand the business needs, objectives, and scope of the project, ensuring alignment on the project’s vision, scope, and deliverables. It ensures that the system aligns with organizational goals and provides a clear roadmap for successful implementation, bridging the gap between business expectations and technical execution. The ATS is designed to be an enterprise-grade platform that automates trading strategies across multiple asset classes, leveraging a "Best-of-Breed" integration strategy with leading open-source technologies and advanced AI-driven capabilities.
+
+#### 1.2 Project Overview
+
+The ATS aims to create a modular, scalable, and user-friendly trading platform catering to both non-technical traders and professional analysts. It incorporates a microservices architecture with Apache Kafka as the central event bus, NautilusTrader as the core trading engine, and an Agentic AI Assistant as the system’s "brain" for natural language interaction, strategy development, and decision-making. The platform supports trading across stocks, ETFs, futures, options, forex, and cryptocurrencies, with features including no-code strategy building, backtesting, live trading, real-time analytics, and enterprise-grade security.
+
+#### 1.3 Scope of the Project
+
+The scope of the ATS includes:  
+
+- Development of a comprehensive trading platform with no-code and code-based strategy development tools.  
+- Integration of real-time data feeds, backtesting engines, and live trading capabilities.  
+- Deployment of an AI Assistant for natural language queries, code generation, and predictive analytics.  
+- Support for multiple asset classes and compliance with financial regulations (e.g., SEC, GDPR).  
+- Implementation of a 5-phase development roadmap to ensure incremental delivery and enterprise readiness.  
+
+Out of Scope:  
+
+- Proprietary hardware development.  
+- Direct management of third-party broker platforms beyond API integrations.  
+
+#### 1.4 Definitions, Acronyms, and Abbreviations
+
+| Term | Definition                         |
+| ---- | ---------------------------------- |
+| ATS  | Algorithmic Trading System         |
+| BRD  | Business Requirements Document     |
+| AI   | Artificial Intelligence            |
+| ML   | Machine Learning                   |
+| API  | Application Programming Interface  |
+| UI   | User Interface                     |
+| RBAC | Role-Based Access Control          |
+| SEC  | Securities and Exchange Commission |
+| GDPR | General Data Protection Regulation |
+| FIX  | Financial Information eXchange     |
+| RAG  | Retrieval-Augmented Generation     |
+| MVP  | Minimum Viable Product             |
+
+#### 1.5. Project Background
+
+##### 1.5.1 Business Drivers
+The development of the Algorithmic Trading System is motivated by several key business drivers:
+- **Market Demand**: Growing interest in algorithmic trading among retail and professional traders necessitates a platform that balances accessibility and advanced functionality.
+- **Technological Advancements**: Advances in artificial intelligence, real-time data processing, and open-source frameworks provide an opportunity to create a competitive, cutting-edge trading solution.
+- **User Empowerment**: Enabling a diverse user base—ranging from novices to experts—to participate in algorithmic trading through tailored tools and interfaces.
+- **Competitive Edge**: Offering a unique combination of AI-driven insights, high performance, and enterprise-grade features to differentiate from existing solutions.
+
+##### 1.5.2 Current State
+The current landscape of trading platforms presents several challenges:
+- Many platforms are either overly simplistic, lacking the depth required by professional traders, or excessively complex, alienating non-technical users.
+- Integration of AI-driven tools for strategy development and decision-making is limited or absent in most solutions.
+- Real-time data processing capabilities are often inadequate for high-frequency trading, resulting in missed opportunities.
+- Security and compliance features in existing systems frequently fail to meet enterprise standards, limiting adoption by institutional users.
+
+### 1.5.3 Future State
+The Algorithmic Trading System aims to address these gaps by delivering:
+- A unified platform that supports both no-code and advanced technical workflows, catering to a broad user base.
+- An AI-driven assistant that provides natural language interaction, strategy generation, and actionable insights.
+- High-performance, low-latency execution and data processing to support real-time trading.
+- A secure, compliant, and scalable system suitable for enterprise adoption, with features like Zero-Trust architecture and audit trails.
 
 ---
 
-### Executive Summary
-The Algorithmic Trading System is an innovative, enterprise-grade platform designed to revolutionize the trading landscape by democratizing access to advanced trading tools and strategies. This system integrates a sophisticated core trading engine, AI-powered tools, an Agentic AI Assistant, and a unified user interface to empower traders of all experience levels—from novices to professionals—to navigate financial markets with precision and confidence. By leveraging a "Best-of-Breed" integration strategy with leading open-source technologies, the platform ensures modularity, scalability, and cutting-edge functionality.
+### 2. Business Objectives
 
-This Business Requirements Document (BRD) outlines the business objectives, scope, stakeholders, and detailed functional and non-functional requirements necessary to develop this transformative system. The primary goals include democratizing trading tools, driving innovation through artificial intelligence, ensuring flexibility and scalability, and empowering users with actionable insights and automation. The scope encompasses multi-asset trading capabilities, advanced data analytics, AI-driven strategy development, natural language interaction via the AI Assistant, a responsive multi-platform interface, robust security measures, and comprehensive options trading features.
+#### 2.1 High-Level Goals
 
-Key stakeholders include traders, portfolio managers, compliance officers, developers, project managers, and business analysts, each with distinct roles in ensuring the system's success. This BRD provides a clear roadmap for development, aligning business needs with technical implementation, and is tailored to support the use of Kilo Code, an AI Coding App, to streamline the coding process.
+- **Enhance Trading Efficiency**: Automate trading processes to minimize manual intervention.  
+- **Reduce Operational Costs**: Leverage open-source technologies and AI to optimize resource use.  
+- **Increase Profitability**: Provide AI-driven insights and advanced analytics for better decision-making.  
+- **Improve Risk Management**: Implement real-time monitoring and pre-trade risk controls.  
+- **Democratize Access**: Enable non-technical users to participate in algorithmic trading.  
+- **Ensure Compliance**: Meet regulatory and data security standards across jurisdictions.  
 
----
+#### 2.2 Specific Outcomes
 
-### Introduction
-The Algorithmic Trading System is a next-generation platform engineered to bridge the gap between sophisticated financial technologies and practical trading applications. By integrating advanced trading tools, artificial intelligence, and an intuitive interface, the system aims to make complex trading strategies accessible to a diverse user base. The platform adopts a microservices architecture, leveraging best-in-class open-source technologies to deliver a modular, scalable, and high-performance solution.
-
-This BRD serves as the cornerstone for defining the business needs and requirements, providing a comprehensive guide for stakeholders and developers. It is designed to work in tandem with supporting documents like the Product Requirements Document (PRD), Technical Specification Document (TSD), API Documentation, Test Plan, and Features & Phases, ensuring a holistic approach to system development.
-
----
-
-### Business Objectives
-The Algorithmic Trading System is driven by the following business objectives:
-
-- **Democratization of Trading Tools**: Provide access to advanced trading strategies and technologies traditionally reserved for institutional investors, leveling the playing field for retail and professional traders alike.
-- **Innovation through AI**: Harness artificial intelligence and machine learning to deliver intuitive, powerful, and user-friendly trading capabilities, enhancing decision-making and automation.
-- **Flexibility and Scalability**: Create a platform that adapts to the evolving financial landscape, supports a growing user base, and accommodates new features and asset classes over time.
-- **User Empowerment**: Bridge cutting-edge technology with practical trading applications, equipping users with the tools and insights needed to succeed in dynamic markets.
-
-These objectives align with the vision of transforming algorithmic trading and setting new industry standards for accessibility, performance, and innovation.
+- A fully functional platform with no-code (Blockly) and code-based (Python) strategy development tools.  
+- Real-time data processing and trade execution with latency under 100ms.  
+- An AI Assistant capable of natural language interaction, code generation, and predictive analytics.  
+- Advanced portfolio optimization and risk management tools.  
+- A secure, scalable system compliant with financial regulations (e.g., GDPR, CCPA).  
 
 ---
 
-### Scope
-The Algorithmic Trading System encompasses the following components and capabilities:
+### 3. Stakeholders
 
-- **Core Trading Engine**: Supports trading across multiple asset classes (stocks, ETFs, futures, options, forex, cryptocurrencies) with integrations to various brokers.
-- **Data Management and Analytics**: Provides real-time and historical market data, alternative data integration, and advanced analytics for informed decision-making.
-- **AI-Powered Tools**: Enables strategy creation, backtesting, and optimization through no-code and code-based interfaces, enhanced by generative AI.
-- **Agentic AI Assistant**: Offers natural language interaction for trading commands, portfolio insights, and document-based queries, powered by a collaborative agent network.
-- **Unified User Interface**: Delivers a responsive, multi-platform experience (web and mobile) with personalized dashboards and institutional-grade charting.
-- **Enterprise-Grade Security and Compliance**: Ensures robust security, regulatory compliance, and risk management features suitable for enterprise use.
-- **Options Trading**: Provides comprehensive tools for pricing, analyzing, and trading options, including complex strategies and risk analytics.
+#### 3.1 Key Stakeholders
 
-**Out of Scope**:
-- Development of third-party broker systems beyond defined integration points.
-- Management of external data sources beyond fallback mechanisms and specified integrations.
-- Hardware infrastructure provisioning, which is assumed to be handled by deployment teams.
+| Stakeholder        | Role                                     | Interest                              |
+| ------------------ | ---------------------------------------- | ------------------------------------- |
+| Management         | Project oversight and funding            | Aligns with business strategy and ROI |
+| Development Team   | System design and implementation         | Technical feasibility and delivery    |
+| Compliance Officer | Regulatory adherence                     | Ensures legal and ethical compliance  |
+| Traders            | Primary end-users                        | Ease of use and trading performance   |
+| Analysts           | Market insights and strategy development | Advanced analytics and data access    |
 
----
+The following stakeholders are involved in the project:
 
-### Stakeholders
-The following stakeholders are critical to the development and success of the Algorithmic Trading System:
+- **Project Sponsor**: [Name/Title] – Provides funding and strategic oversight, ensuring alignment with organizational priorities.
+- **Business Owner**: [Name/Title] – Defines business goals and ensures the system meets market and user needs.
+- **Development Team**:
+  - **Lead Developer**: Oversees technical implementation and integration.
+  - **AI Specialist**: Designs and implements the AI assistant and predictive models.
+  - **UI/UX Designer**: Creates intuitive interfaces for diverse user personas.
+  - **DevOps Engineer**: Manages deployment, scaling, and infrastructure.
+- **End Users**:
+  - **Non-technical Traders**: Leverage no-code tools and AI assistance for strategy development.
+  - **Professional Traders/Analysts**: Utilize advanced features for high-frequency trading and custom workflows.
+- **Compliance Officer**: [Name/Title] – Ensures regulatory adherence and auditability.
+- **Security Team**: [Name/Title] – Implements and monitors security protocols.
 
-- **Traders**: Primary users, ranging from novices seeking simplicity to professionals requiring advanced tools.
-- **Portfolio Managers**: Users managing multiple accounts or large portfolios, needing real-time insights and risk management.
-- **Compliance Officers**: Ensure the system adheres to regulatory standards and provides audit capabilities.
-- **Developers**: Build and maintain the system, translating requirements into functional code.
-- **Project Managers**: Oversee development timelines, resource allocation, and delivery milestones.
-- **Business Analysts**: Define requirements, validate alignment with business goals, and facilitate stakeholder communication.
+#### 3.2 Stakeholder Relationship Diagram
 
----
-
-### Functional Requirements
-The system must deliver the following functionalities, organized by major components:
-
-#### User Management
-- **FR-UM-01**: The system shall allow users to register, log in, and manage their profiles via a secure interface.
-- **FR-UM-02**: The system shall support multiple user roles (e.g., Admin, Trader, Quant, Risk Manager) with role-based access control (RBAC).
-  - *Acceptance Criteria*: Users can only access features permitted by their role (e.g., Traders can place orders, Admins can manage users).
-- **FR-UM-03**: The system shall authenticate users using JSON Web Tokens (JWT) and support Single Sign-On (SSO) with major identity providers.
-- **FR-UM-04**: The system shall provide user preference settings (e.g., language, dashboard layout) saved to their profile.
-
-#### Core Trading Infrastructure
-- **FR-CTI-01**: The system shall integrate with multiple brokers, including Interactive Brokers, Alpaca, and TD Ameritrade, for trade execution.
-  - *Details*: Initial integration with Interactive Brokers, expandable to others in later phases.
-- **FR-CTI-02**: The system shall support trading across asset classes: stocks, ETFs, futures, options, forex, and cryptocurrencies.
-  - *Acceptance Criteria*: Users can trade any supported asset class via the interface or API.
-- **FR-CTI-03**: The system shall provide an Order Management System (OMS) supporting:
-  - Basic order types: Market, Limit, Stop, Stop-Limit, Trailing Stop.
-  - Advanced order types: Good-Till-Canceled (GTC), Immediate-or-Cancel (IOC), Fill-or-Kill (FOK), Volume-Weighted Average Price (VWAP), Time-Weighted Average Price (TWAP), Iceberg, One-Cancels-the-Other (OCO).
-  - *Acceptance Criteria*: All order types execute correctly under normal market conditions.
-- **FR-CTI-04**: The system shall log all order executions and provide error handling for failed orders (e.g., insufficient funds, connectivity issues).
-- **FR-CTI-05**: The system shall enable seamless switching between paper and live trading modes without requiring manual reconfiguration.
-
-#### Data Management and Analytics
-- **FR-DMA-01**: The system shall integrate with free data sources (e.g., Yahoo Finance, Alpha Vantage) for paper trading and Interactive Brokers for live trading.
-- **FR-DMA-02**: The system shall implement a fallback mechanism for data sources, switching to alternatives if the primary source fails.
-  - *Details*: Order of fallback per asset class as specified in API Documentation (e.g., Stocks: IB → Yahoo → Alpha Vantage).
-- **FR-DMA-03**: The system shall store and provide access to historical market data with a minimum depth of 5 years for backtesting and analysis.
-- **FR-DMA-04**: The system shall integrate alternative data sources, including real-time news feeds with sentiment analysis, fundamental data, and economic indicators.
-- **FR-DMA-05**: The system shall offer market analytics, including:
-  - Advanced market screener with natural language filters.
-  - AI-powered opportunity detection across asset classes.
-  - Market microstructure analysis (e.g., order book dynamics).
-- **FR-DMA-06**: The system shall provide post-trade analytics, including Transaction Cost Analysis (TCA), fill rate analysis, and broker performance evaluation.
-
-#### AI-Powered Strategy Development and Backtesting
-- **FR-AIS-01**: The system shall provide a no-code strategy builder with a drag-and-drop interface for creating trading strategies.
-  - *User Story*: As a novice trader, I want to build a moving average crossover strategy without coding.
-- **FR-AIS-02**: The system shall include a generative AI tool to convert natural language prompts into executable strategy code.
-  - *Example*: "Create a strategy that buys when the 50-day SMA crosses above the 200-day SMA."
-- **FR-AIS-03**: The system shall offer a Python-based studio with cloud-hosted Jupyter notebooks for advanced strategy development.
-- **FR-AIS-04**: The system shall provide an enterprise-grade backtesting engine with:
-  - Realistic modeling (slippage, commissions, market impact).
-  - Advanced analytics (Monte Carlo stress testing, walk-forward optimization).
-  - AI-assisted optimization and overfitting detection.
-- **FR-AIS-05**: The system shall include a strategy marketplace for users to share and license trading strategies.
-
-#### Agentic AI Assistant
-- **FR-AIA-01**: The system shall provide an AI Assistant capable of understanding and responding to natural language queries related to trading and portfolio management.
-  - *Examples*: "What’s my portfolio value?" or "Place a limit order for 10 shares of AAPL at $150."
-- **FR-AIA-02**: The AI Assistant shall execute trading commands based on user instructions, integrating with the OMS.
-- **FR-AIA-03**: The AI Assistant shall process user-uploaded documents (e.g., PDFs, spreadsheets) and answer questions based on their content using Agentic Retrieval-Augmented Generation (RAG).
-- **FR-AIA-04**: The system shall implement a collaborative agent network with specialized roles (e.g., Analyst, Researcher, Risk Manager, Compliance) to delegate tasks.
-- **FR-AIA-05**: The AI Assistant shall support continuous learning, incorporating user feedback to improve accuracy over time.
-
-#### User Experience and Multi-Platform Accessibility
-- **FR-UE-01**: The system shall provide a unified, responsive web interface with personalized dashboards and drag-and-drop widgets.
-- **FR-UE-02**: The interface shall integrate institutional-grade charting (e.g., TradingView) for real-time and historical data visualization.
-- **FR-UE-03**: The system shall include a conversational chatbot interface for interacting with the AI Assistant, supporting text, file uploads, and voice commands.
-- **FR-UE-04**: The system shall support multi-platform access:
-  - Web application built with Next.js, responsive across devices.
-  - Progressive Web App (PWA) with offline capabilities.
-  - Future native mobile apps for iOS and Android using React Native.
-- **FR-UE-05**: The system shall comply with WCAG 2.1 accessibility standards and support multi-language interfaces with real-time translation.
-
-#### Enterprise-Grade Security, Compliance, and Operations
-- **FR-SEC-01**: The system shall implement a Zero-Trust Architecture with continuous verification of all requests.
-- **FR-SEC-02**: The system shall comply with regulatory standards (e.g., GDPR, HIPAA, financial regulations) and provide automated compliance reporting and immutable audit trails.
-- **FR-SEC-03**: The system shall include a real-time risk management hub with:
-  - Pre-trade risk checks (e.g., concentration risk, margin limits).
-  - Circuit breakers to halt trading under predefined conditions.
-  - Advanced risk analytics (e.g., Value at Risk, correlation analysis).
-- **FR-SEC-04**: The system shall support operational monitoring with Prometheus and Grafana for metrics visualization and alerting.
-- **FR-SEC-05**: The system shall provide user management features, including RBAC and SSO integration.
-
-#### Options Trading
-- **FR-OPT-01**: The system shall support trading of basic, complex, and exotic options strategies (e.g., Iron Condors, Butterflies).
-- **FR-OPT-02**: The system shall provide tools for:
-  - Calculating Greeks (Delta, Gamma, Theta, Vega).
-  - Generating payoff diagrams and pricing models (e.g., Heston, Monte Carlo).
-- **FR-OPT-03**: The system shall include a volatility suite with surface constructors and skew arbitrage detectors.
-- **FR-OPT-04**: The system shall offer risk management tools specific to options, such as Greek exposure analysis and margin forecasting.
+```mermaid
+graph TD
+    A[Stakeholders] --> B[Internal]
+    A --> C[External]
+    B --> D[Management]
+    B --> E[Development Team]
+    B --> F[Compliance Officer]
+    C --> G[Traders]
+    C --> H[Analysts]
+    D -->|Approves| E
+    F -->|Advises| E
+    G -->|Uses| E
+    H -->|Uses| E
+```
 
 ---
 
-### Non-Functional Requirements
-The system must meet the following non-functional standards:
+### 4. Functional Requirements
 
-- **NFR-PERF-01**: **Performance**
-  - Order execution latency shall be under 100ms under normal conditions.
-  - API response times shall be below 100ms for critical operations.
-- **NFR-SCALE-02**: **Scalability**
-  - The system shall support horizontal scaling to handle a growing user base and data volume.
-  - Independent scaling of components (e.g., trading engine, AI service) shall be possible.
-- **NFR-SEC-03**: **Security**
-  - The system shall comply with OWASP Top 10 security standards.
-  - Regular security audits and penetration testing shall be conducted.
-- **NFR-REL-04**: **Reliability**
-  - The system shall achieve 99.99% uptime with robust failover mechanisms.
-  - Automated backups and disaster recovery plans shall be implemented.
-- **NFR-USAB-05**: **Usability**
-  - The interface shall be intuitive with a minimal learning curve for new users.
-  - Comprehensive documentation and user guides shall be provided.
-- **NFR-COMP-06**: **Compliance**
-  - The system shall adhere to financial regulations and data protection laws (e.g., GDPR).
-  - Tools for automated compliance reporting shall be available.
+#### 4.1 Core Functionalities
+
+- **Strategy Development**:  
+  - No-code builder with drag-and-drop interface (Blockly).  
+  - Python-based environment for advanced users (Python Studio).  
+- **Backtesting**:  
+  - Historical data simulation with performance metrics (Sharpe Ratio, Max Drawdown).  
+  - GPU-accelerated backtesting with VectorBT.  
+- **Live Trading**:  
+  - Real-time data integration and order execution via NautilusTrader.  
+  - Support for multiple brokers (e.g., Interactive Brokers) and order types (Market, Limit, VWAP, TWAP).  
+- **AI Assistant**:  
+  - Natural language query processing via Lobe Chat and LangChain.  
+  - Automated code generation and debugging with OpenHands.  
+- **Analytics**:  
+  - ML-based forecasting (LSTM, Stock Prediction Models).  
+  - Portfolio optimization (PyPortfolioOpt, Riskfolio-Lib).  
+  - Options analytics (QuantLib).  
+- **User Interface**:  
+  - Next.js frontend with real-time dashboards (react-financial-charts, Plotly Dash).  
+  - Real-time risk metrics and trade blotter (ag-Grid).  
+- **APIs**:  
+  - RESTful endpoints via FastAPI for external integrations.  
+  - gRPC for low-latency internal communications.  
+
+#### 4.2 Use Case Example: Non-Technical Trader Creates a Strategy
+
+- **Actor**: Sarah, a retail investor.  
+- **Preconditions**: Sarah is logged into the ATS with a verified account.  
+- **Steps**:  
+  1. Sarah accesses the no-code strategy builder.  
+  2. She uses drag-and-drop blocks to create a moving average crossover strategy.  
+  3. She configures parameters (e.g., 50-day SMA, 200-day SMA) and selects an asset (AAPL).  
+  4. She runs a backtest and reviews performance metrics.  
+  5. She deploys the strategy for live trading.  
+- **Postconditions**: The strategy executes trades automatically, with results visible on the dashboard.  
+
+#### 4.3 Use Case 2: Professional Trader Executes a Trade
+
+* **Actor**: Michael, a quant analyst.
+* **Scenario**: Michael uses the API to execute a high-frequency trade and reviews post-trade analytics.
+* **Outcome**: Trade completes with minimal latency, and analytics inform future strategies.
+
+#### 4.4 Use Case 3: User Queries AI Assistant
+
+* **Actor**: Trader.
+* **Scenario**: Trader asks the AI assistant for stock trend insights.
+* **Outcome**: AI provides a data-driven summary based on real-time and historical data.
+
+#### 4.5 Trading Process Flow Diagram
+
+```mermaid
+graph TD
+    A[Trader] -->|Creates Strategy| B[Strategy Builder]
+    B -->|Backtests| C[Backtesting Engine]
+    C -->|Reviews Results| A
+    A -->|Deploys Strategy| D[Live Trading Engine]
+    D -->|Executes Trades| E[Broker]
+    E -->|Confirms Execution| D
+    D -->|Updates Metrics| F[Dashboard]
+    A -->|Monitors| F
+```
 
 ---
 
-### Constraints
-- **CON-01**: The system must leverage specified open-source technologies (e.g., QuantConnect LEAN, LangChain, Next.js, QuantLib) as outlined in the TSD and Features & Phases.
-- **CON-02**: Development must adhere to the 5-phase roadmap detailed in the Features & Phases document.
-- **CON-03**: The system must comply with all relevant financial regulations and data protection laws, as specified in the PRD and Test Plan.
+### 5. Non-Functional Requirements
+
+#### 5.1 Performance
+
+- Process high-frequency data with latency under 100ms.  
+- Support 1,000 concurrent users without performance degradation.  
+
+#### 5.2 Security
+
+- Implement Zero-Trust architecture with RBAC.  
+- Encrypt data with AES-256; comply with GDPR, CCPA, and SEC regulations.  
+- Use Static Application Security Testing (SAST) with Bandit for code security.  
+
+#### 5.3 Scalability
+
+- Utilize microservices and horizontal scaling to handle increased load.  
+- Leverage Apache Kafka for event-driven scalability.  
+
+#### 5.4 Usability
+
+- Ensure intuitive design for novice and expert users via Next.js UI.  
+- Provide accessibility features (e.g., screen reader support).  
+
+#### 5.5 Reliability
+
+- Achieve 99.9% uptime with fallback data feeds (Yahoo Finance, Alpha Vantage, etc.).  
+- Implement observability with Prometheus, Grafana, and Memray for proactive monitoring.  
 
 ---
 
-### Assumptions
-- **ASM-01**: Users possess basic knowledge of trading concepts and financial markets.
-- **ASM-02**: The system will have access to necessary market data feeds and broker APIs as specified in the API Documentation.
-- **ASM-03**: Sufficient and relevant data will be available to train AI models for accurate performance.
-- **ASM-04**: Infrastructure (e.g., cloud hosting, network connectivity) will be provided to support deployment.
+### 6. Project Phases and Milestones
+
+The ATS will be developed in five phases, each building on the previous to deliver incremental value.  
+
+#### 6.1 Phase 1: Foundational Setup
+
+- **Objective**: Establish core infrastructure with Kafka as the backbone.  
+- **Deliverables**:  
+  - NautilusTrader engine with Kafka integration.  
+  - Databases: PostgreSQL/pgvector, ClickHouse, DuckDB.  
+  - Initial backtesting with Backtrader and TradingGym.  
+  - Observability with Prometheus and Grafana.  
+- **Duration**: 60 days (2023-10-01 to 2023-11-30).  
+
+#### 6.2 Phase 2: API Bridge & Initial Analytics
+
+- **Objective**: Build the API layer and enable programmatic backtesting.  
+- **Deliverables**:  
+  - FastAPI bridge with endpoints (e.g., /backtest, /optimise).  
+  - VectorBT for GPU-accelerated backtesting.  
+  - Optuna for hyperparameter tuning.  
+  - gRPC for low-latency data streaming.  
+- **Duration**: 60 days (2023-12-01 to 2024-01-30).  
+
+#### 6.3 Phase 3: AI Assistant MVP
+
+- **Objective**: Connect the AI Assistant to the trading engine.  
+- **Deliverables**:  
+  - AI Assistant service with LangChain, Lobe Chat, and RAGFlow.  
+  - Tools: run_backtest_tool, query_documents_tool.  
+  - Forecasting with LSTM and Stock Prediction Models.  
+- **Duration**: 60 days (2024-02-01 to 2024-03-31).  
+
+#### 6.4 Phase 4: Full User Experience & Live Trading
+
+- **Objective**: Develop the frontend and enable live trading.  
+- **Deliverables**:  
+  - Next.js frontend with dashboards and risk metrics.  
+  - Live trading with Interactive Brokers via FIX Gateway.  
+  - Expanded API for portfolio and order management.  
+- **Duration**: 60 days (2024-04-01 to 2024-05-31).  
+
+#### 6.5 Phase 5: Advanced Features & Enterprise Readiness
+
+- **Objective**: Add advanced analytics and security for enterprise use.  
+- **Deliverables**:  
+  - QuantLib for options analytics.  
+  - No-code strategy builder with Blockly.  
+  - Zero-Trust security, RBAC, and Apache Iceberg audit trails.  
+  - Full observability stack (Prometheus, Grafana, Memray).  
+- **Duration**: 60 days (2024-06-01 to 2024-07-31).  
+
+#### 6.6 Gantt Chart for Project Phases
+
+```mermaid
+gantt
+    title ATS Development Phases
+    dateFormat  YYYY-MM-DD
+    section Phase 1
+    Foundational Setup :2023-10-01, 60d
+    section Phase 2
+    API Bridge & Analytics :2023-12-01, 60d
+    section Phase 3
+    AI Assistant MVP :2024-02-01, 60d
+    section Phase 4
+    Full UX & Live Trading :2024-04-01, 60d
+    section Phase 5
+    Advanced Features :2024-06-01, 60d
+```
 
 ---
 
-### Risks
-The following risks and mitigation strategies are identified:
+### 7. Risks and Mitigation Strategies
 
-- **RSK-01**: **Data Source Failures**
-  - *Impact*: Disruption of market data availability.
-  - *Mitigation*: Implement fallback mechanisms as per the API Documentation (e.g., switching to alternative sources).
-- **RSK-02**: **Performance Bottlenecks**
-  - *Impact*: Slow order execution or system lag.
-  - *Mitigation*: Conduct early load testing and optimize critical paths (e.g., caching, asynchronous processing).
-- **RSK-03**: **Security Vulnerabilities**
-  - *Impact*: Unauthorized access or data breaches.
-  - *Mitigation*: Perform regular security audits, adhere to Zero-Trust principles, and use encryption standards.
-- **RSK-04**: **AI Misinterpretations**
-  - *Impact*: Incorrect trading actions or responses.
-  - *Mitigation*: Use diverse test cases, incorporate user feedback, and refine AI models continuously.
+| Risk                          | Description                              | Mitigation Strategy                            |
+| ----------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| **Integration Complexity**    | Challenges integrating open-source tools | Allocate buffer time, conduct thorough testing |
+| **Performance Bottlenecks**   | High-frequency trading latency issues    | Optimize pipelines, use low-latency tech       |
+| **Security Vulnerabilities**  | Exposure of sensitive financial data     | Implement Zero-Trust, regular audits           |
+| **Regulatory Non-Compliance** | Failure to meet legal standards          | Involve compliance team, ensure audit trails   |
 
 ---
 
-### Glossary
-- **Agentic RAG**: Retrieval-Augmented Generation system with AI agents for enhanced information processing and task delegation.
-- **Zero-Trust Architecture**: Security model requiring continuous verification of all requests, assuming no inherent trust.
-- **OMS**: Order Management System for placing, tracking, and managing trading orders.
-- **Greeks**: Metrics (e.g., Delta, Gamma) used to assess options risk and pricing.
-- **LEAN**: QuantConnect’s algorithmic trading engine, forming the core trading infrastructure.
+### 8. Context Diagram
+```mermaid
+graph TD
+    A[Algorithmic Trading System] -->|Fetches Market Data| B[Data Providers]
+    A -->|Executes Trades| C[Brokers]
+    A -->|Interacts| D[Traders]
+    A -->|Provides Insights| E[Analysts]
+    A -->|Ensures Compliance| F[Regulators]
+```
+---
+
+### 9. Technical Approach (High-Level)
+The ATS will leverage a microservices architecture with event-driven data streaming (Apache Kafka). The core trading engine (NautilusTrader) will ensure high performance, while the frontend (Next.js) will provide a responsive user experience. APIs (FastAPI, gRPC) will facilitate communication, and security will be enforced via a Zero-Trust model.
 
 ---
 
-This Business Requirements Document (BRD) provides a detailed and elaborate specification for the Algorithmic Trading System, capturing all essential business needs and requirements. It is structured to support development with Kilo Code, ensuring clarity and precision for AI-assisted coding. By integrating insights from the provided documents, this BRD ensures alignment between business goals and technical implementation, paving the way for a robust, innovative trading platform.
+### 10. Approval and Sign-off
+
+#### 10.1 Approval Process
+
+The BRD requires formal approval from the following stakeholders:  
+
+- **Project Sponsor**: [Name]  
+- **Business Owner**: [Name]  
+- **Lead Developer**: [Name]  
+- **Compliance Officer**: [Name]  
+
+#### 10.2 Sign-off
+
+Approval signifies agreement on the scope, objectives, and requirements outlined in this document. Signed copies will be maintained for reference throughout the project lifecycle.
+
+---
+
+### 11. Appendices
+
+#### 11.1 Core Technology Stack
+
+- **Trading Engine**: NautilusTrader  
+- **Data Pipeline**: Apache Kafka, Schema Registry  
+- **AI Assistant**: LangChain, LangGraph, TradingAgents, OpenBB, OpenHands  
+- **Backtesting**: VectorBT, Backtrader, TradingGym  
+- **Databases**: PostgreSQL/pgvector, ClickHouse, DuckDB, Qdrant, Apache Iceberg  
+- **UI**: Next.js, react-financial-charts, Plotly Dash, ag-Grid  
+- **APIs**: FastAPI, gRPC  
+- **Security**: Zero-Trust, RBAC, Bandit  
+
+#### 11.2 Supported Asset Classes
+
+- Stocks & ETFs  
+- Futures (Stock, Index)  
+- Options (Stock, Index)  
+- Forex & Forex Futures  
+- Commodities & Commodity Futures  
+- Cryptocurrencies  
+
+This BRD provides a detailed foundation for the ATS, ensuring alignment between business goals and technical implementation across all phases.
