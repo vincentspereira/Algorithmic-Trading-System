@@ -1,0 +1,38 @@
+# AI Assistant Service Dependencies
+# This is a placeholder file for future development
+
+# Core AI/ML Libraries
+openai>=1.0.0
+anthropic>=0.7.0
+langchain>=0.1.0
+transformers>=4.30.0
+torch>=2.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# API and Web Framework
+fastapi>=0.100.0
+uvicorn>=0.22.0
+pydantic>=2.0.0
+httpx>=0.24.0
+
+# Database and Caching
+redis>=4.5.0
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+
+# Monitoring and Logging
+prometheus-client>=0.16.0
+structlog>=23.1.0
+
+# Environment and Configuration
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Testing (Development)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Note: Versions are placeholders and should be reviewed during implementation
+# All dependencies will be installed in isolated Docker containers

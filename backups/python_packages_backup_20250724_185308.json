@@ -1,0 +1,705 @@
+{
+  "system_info": {
+    "platform": "Windows",
+    "python_version": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+    "python_executable": "C:\\Program Files\\Python313\\python.exe",
+    "timestamp": "2025-07-24T18:53:08.398893"
+  },
+  "packages": [
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.6.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.12.14",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "alpha_vantage",
+      "version": "3.0.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "attrs",
+      "version": "25.3.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "bandit",
+      "version": "1.8.6",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "beautifulsoup4",
+      "version": "4.13.4",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "blinker",
+      "version": "1.9.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "certifi",
+      "version": "2025.1.31",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "cffi",
+      "version": "1.17.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "cfgv",
+      "version": "3.4.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "click",
+      "version": "8.1.8",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "curl_cffi",
+      "version": "0.12.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "dash",
+      "version": "3.0.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "dash-bootstrap-components",
+      "version": "2.0.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "distlib",
+      "version": "0.4.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "duckdb",
+      "version": "1.2.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "eventkit",
+      "version": "1.0.3",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "filelock",
+      "version": "3.18.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "Flask",
+      "version": "3.0.3",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "frozendict",
+      "version": "2.4.6",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.7.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "ib-insync",
+      "version": "0.9.86",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "identify",
+      "version": "2.6.12",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "idna",
+      "version": "3.10",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "importlib_metadata",
+      "version": "8.6.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.1.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "itsdangerous",
+      "version": "2.2.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "3.0.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "multidict",
+      "version": "6.6.3",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "multitasking",
+      "version": "0.0.12",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "narwhals",
+      "version": "1.34.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "nest-asyncio",
+      "version": "1.6.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "nodeenv",
+      "version": "1.9.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "numpy",
+      "version": "2.2.4",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "packaging",
+      "version": "24.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "pandas",
+      "version": "2.2.3",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pandas_ta",
+      "version": "0.3.14b0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pbr",
+      "version": "6.1.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "peewee",
+      "version": "3.18.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pip",
+      "version": "25.1.1",
+      "location": "c:\\program files\\python313\\lib\\site-packages",
+      "is_user_installed": false,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.3.8",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "plotly",
+      "version": "6.0.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pluggy",
+      "version": "1.5.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "polars",
+      "version": "1.27.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pre_commit",
+      "version": "4.2.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "propcache",
+      "version": "0.3.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "protobuf",
+      "version": "6.31.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pycparser",
+      "version": "2.22",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "Pygments",
+      "version": "2.19.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "pytest",
+      "version": "8.3.5",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": false,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "pywin32",
+      "version": "310",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "requests",
+      "version": "2.32.3",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "retrying",
+      "version": "1.3.4",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "rich",
+      "version": "14.0.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "setuptools",
+      "version": "78.1.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "soupsieve",
+      "version": "2.7",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "stevedore",
+      "version": "5.4.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "structlog",
+      "version": "25.4.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.13.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "tzdata",
+      "version": "2025.2",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "urllib3",
+      "version": "2.4.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": true,
+      "is_editable": false
+    },
+    {
+      "name": "virtualenv",
+      "version": "20.32.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "websockets",
+      "version": "15.0.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "Werkzeug",
+      "version": "3.0.6",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "yarl",
+      "version": "1.20.1",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "yfinance",
+      "version": "0.2.65",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    },
+    {
+      "name": "zipp",
+      "version": "3.21.0",
+      "location": "c:\\users\\vincent_pereira\\appdata\\roaming\\python\\python313\\site-packages",
+      "is_user_installed": true,
+      "is_critical": false,
+      "is_editable": false
+    }
+  ],
+  "requirements_format": [
+    "aiohappyeyeballs==2.6.1",
+    "aiohttp==3.12.14",
+    "aiosignal==1.4.0",
+    "alpha_vantage==3.0.0",
+    "attrs==25.3.0",
+    "bandit==1.8.6",
+    "beautifulsoup4==4.13.4",
+    "blinker==1.9.0",
+    "certifi==2025.1.31",
+    "cffi==1.17.1",
+    "cfgv==3.4.0",
+    "charset-normalizer==3.4.1",
+    "click==8.1.8",
+    "colorama==0.4.6",
+    "curl_cffi==0.12.0",
+    "dash==3.0.2",
+    "dash-bootstrap-components==2.0.1",
+    "distlib==0.4.0",
+    "duckdb==1.2.2",
+    "eventkit==1.0.3",
+    "filelock==3.18.0",
+    "Flask==3.0.3",
+    "frozendict==2.4.6",
+    "frozenlist==1.7.0",
+    "ib-insync==0.9.86",
+    "identify==2.6.12",
+    "idna==3.10",
+    "importlib_metadata==8.6.1",
+    "iniconfig==2.1.0",
+    "itsdangerous==2.2.0",
+    "Jinja2==3.1.6",
+    "markdown-it-py==3.0.0",
+    "MarkupSafe==3.0.2",
+    "mdurl==0.1.2",
+    "multidict==6.6.3",
+    "multitasking==0.0.12",
+    "narwhals==1.34.1",
+    "nest-asyncio==1.6.0",
+    "nodeenv==1.9.1",
+    "numpy==2.2.4",
+    "packaging==24.2",
+    "pandas==2.2.3",
+    "pandas_ta==0.3.14b0",
+    "pbr==6.1.1",
+    "peewee==3.18.2",
+    "pip==25.1.1",
+    "platformdirs==4.3.8",
+    "plotly==6.0.1",
+    "pluggy==1.5.0",
+    "polars==1.27.1",
+    "pre_commit==4.2.0",
+    "propcache==0.3.2",
+    "protobuf==6.31.1",
+    "pycparser==2.22",
+    "Pygments==2.19.2",
+    "pytest==8.3.5",
+    "python-dateutil==2.9.0.post0",
+    "pytz==2025.2",
+    "pywin32==310",
+    "PyYAML==6.0.2",
+    "requests==2.32.3",
+    "retrying==1.3.4",
+    "rich==14.0.0",
+    "setuptools==78.1.0",
+    "six==1.17.0",
+    "soupsieve==2.7",
+    "stevedore==5.4.1",
+    "structlog==25.4.0",
+    "typing_extensions==4.13.2",
+    "tzdata==2025.2",
+    "urllib3==2.4.0",
+    "virtualenv==20.32.0",
+    "websockets==15.0.1",
+    "Werkzeug==3.0.6",
+    "yarl==1.20.1",
+    "yfinance==0.2.65",
+    "zipp==3.21.0"
+  ]
+}

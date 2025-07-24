@@ -1,0 +1,84 @@
+# Core NautilusTrader and trading dependencies
+nautilus_trader
+kafka-python
+psycopg2-binary
+clickhouse-driver
+duckdb
+pandas
+numpy
+scipy
+scikit-learn
+# ta-lib  # COMMENTED OUT: Requires TA-Lib C library installation on Windows
+          # See TALIB_INSTALLATION.md for installation instructions
+          # Alternative: Use 'ta' library below for basic technical indicators
+ta
+yfinance
+backtrader
+vectorbt[numba]
+optuna
+trading-gym
+
+# Web framework and API dependencies
+fastapi
+uvicorn
+pydantic
+python-multipart
+aiofiles
+
+# Database and async dependencies
+asyncpg
+sqlalchemy
+alembic
+redis
+celery
+
+# Monitoring and logging
+prometheus-client
+structlog
+python-json-logger
+psutil
+
+# Additional trading and analysis libraries
+pyportfolioopt
+riskfolio-lib
+quantlib
+arch
+statsmodels
+matplotlib
+seaborn
+plotly
+dash
+jupyter
+ipykernel
+
+# Security and development tools
+bandit
+pre-commit
+
+# JWT Authentication dependencies (Phase 2)
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+# Data feed dependencies
+alpha_vantage
+
+# gRPC dependencies (Phase 2)
+grpcio
+grpcio-tools
+protobuf
+
+# Feature Store dependencies (Phase 2)
+feast
+pyarrow
+s3fs
+
+# Enhanced Technical Indicators (Phase 2)
+# ta-lib  # COMMENTED OUT: Requires TA-Lib C library installation on Windows
+           # See TALIB_INSTALLATION.md for installation instructions
+           # Alternative: Use 'ta' library below for basic technical indicators
+# Note: ta library already included above
+
+# Additional dependencies for Phase 2
+asyncio-mqtt
+aioredis
