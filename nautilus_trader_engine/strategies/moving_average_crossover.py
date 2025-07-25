@@ -7,7 +7,7 @@ This strategy implements a simple moving average crossover system:
 
 The strategy can be used with both backtrader and TradingGym engines.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

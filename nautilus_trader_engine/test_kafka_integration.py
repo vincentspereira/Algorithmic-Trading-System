@@ -4,7 +4,7 @@ Kafka Integration Test Script
 This script demonstrates and tests the Kafka integration functionality
 for the algorithmic trading system.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

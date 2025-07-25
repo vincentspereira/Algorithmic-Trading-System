@@ -4,7 +4,7 @@ Generate Sample Market Data for AI Assistant Feature Store
 This script generates sample market data in Parquet format for testing
 the Feast feature store integration.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

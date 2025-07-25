@@ -347,9 +347,9 @@ Each service uses environment variables for configuration:
 
 ```bash
 # .env file (not committed to version control)
-POSTGRES_USER=trading_user
-POSTGRES_PASSWORD=secure_password
-OPENAI_API_KEY=your_api_key
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+OPENAI_API_KEY=${OPENAI_API_KEY}
 ```
 
 ### Docker Compose Integration

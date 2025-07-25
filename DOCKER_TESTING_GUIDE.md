@@ -65,8 +65,8 @@ type .env
 
 Expected `.env` content:
 ```
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=Atsokapor@1
+POSTGRES_USER=your_postgres_user
+POSTGRES_PASSWORD=your_postgres_password
 ```
 
 ### 2. Build Docker Images

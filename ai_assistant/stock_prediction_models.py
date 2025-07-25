@@ -5,7 +5,7 @@ Multiple forecasting algorithms for stock price prediction
 This module implements various machine learning and statistical models for stock price
 forecasting including ARIMA, Random Forest, XGBoost, Prophet, and ensemble methods.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

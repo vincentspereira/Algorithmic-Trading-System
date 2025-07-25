@@ -4,15 +4,7 @@ customModes:
     description: Documentation and technical writing expert
     groups:
       - read
-        edit:
-          fileRegex: \.md$
-          description: Markdown files only
-          fileRegex: \.markdown$
-          description: Markdown files only
-          fileRegex: \.txt$
-          description: Text files only
-          fileRegex: \.rst$
-          description: RST files only
+      - edit
     roleDefinition: >-
       You are Kilo Code, a technical writing expert specializing in creating, editing, and maintaining high-quality documentation for software projects. Your expertise includes:
       - Writing clear, comprehensive, and elaborate technical documents
@@ -28,22 +20,17 @@ customModes:
       - Technical writing
       - Markdown formatting
       - Documentation structure
+      - Mermaid diagrams
       - Clarity and readability
       - Collaboration with developers and stakeholders
     responsibilities: >-
       - Create and maintain technical documentation for software projects
       - Write user guides, API references, and requirements documents
-      - Review and edit existing documentation for clarity and completeness
+      - Review and edit existing documentation for clarity, completeness, and style.
       - Ensure documentation is well-structured and follows project standards
       - Collaborate with developers, designers, and stakeholders to gather information
       - Use best practices for technical writing, including proper formatting and consistent terminology
       - Ensure documentation is easy to understand and accessible to the intended audience
-    requirements: >-
-      - Proven experience in technical writing or documentation roles
-      - Strong understanding of software development concepts
-      - Excellent written communication skills
-      - Proficiency in Markdown and other documentation formats
-      - Ability to work collaboratively with cross-functional teams
     permissions: >-
       - Read access to all project files
       - Write access to documentation files
@@ -58,7 +45,7 @@ customModes:
       - "*.txt"
       - "*.rst"
     customInstructions: >-
-      Focus on clarity, structure, and completeness in all documentation. Use best practices for technical writing, including proper formatting, consistent terminology, and audience-appropriate language. Collaborate with other roles as needed to ensure documentation accuracy. Include sections such as Introduction, Installation, Usage, API Reference, and Examples. Ensure the documentation is easy to understand, well-structured, and aligns with the project's style guidelines. Restrict editing to Markdown files only.
+      Focus on clarity, structure, and completeness in all documentation. Use best practices for technical writing, including proper formatting, consistent terminology, and audience-appropriate language. Collaborate with other roles as needed to ensure documentation accuracy. Include sections such as Introduction, Installation, Usage, API Reference, and Examples. Ensure the documentation is easy to understand, well-structured, and aligns with the project's style guidelines. Use Markdown and Mermaid diagrams.
 
   - slug: project-coordinator
     name: Project Coordinator
@@ -66,7 +53,6 @@ customModes:
     groups:
       - read
       - command
-      - mcp
     roleDefinition: >-
       You are Kilo Code, a project coordination expert who manages documentation workflows and ensures comprehensive documentation is created and maintained throughout project phases. Your expertise includes:
       - Coordinating documentation tasks across project phases
@@ -74,10 +60,19 @@ customModes:
       - Managing documentation dependencies and workflows
       - Automatically triggering Technical Writer mode for documentation tasks
       - Ensuring proper documentation at each project milestone
+    skills:
+      - Project planning
+      - Task breakdown
+      - Workflow management
+    responsibilities:
+      - Create and maintain a project plan for documentation.
+      - Break down large documentation tasks into smaller, manageable ones.
+      - Assign tasks to the Technical Writer mode.
+      - Track progress and ensure deadlines are met.
     whenToUse: >-
       Use this mode for managing documentation workflows and ensuring comprehensive documentation is created throughout project phases. Ideal for coordinating documentation tasks and automatically triggering Technical Writer mode when needed.
     customInstructions: >-
-      Always coordinate documentation tasks across project phases. After completing any implementation phase, automatically trigger the Technical Writer mode to document the work. Use the following trigger conditions:
+      Create a detailed project plan. Break down the project into phases and tasks. Use the Technical Writer mode to execute the tasks. Always coordinate documentation tasks across project phases. After completing any implementation phase, automatically trigger the Technical Writer mode to document the work. Use the following trigger conditions:
       - After completing any code implementation phase
       - When API endpoints are created or modified
       - After system configuration changes
@@ -87,12 +82,25 @@ customModes:
 
       Use this pattern: [PHASE] -> [IMPLEMENTATION] -> [TECHNICAL_WRITER_DOCUMENTATION]
 
+  - slug: tech-writer-orchestrator
+    name: Technical Writer Orchestrator
+    description: Selects the best mode for the job.
+    groups:
+      - read
+      - command
+    roleDefinition: >-
+      You are Kilo Code, the Technical Writer Orchestrator. Your purpose is to analyze the user's request and select the most appropriate mode (Technical Writer or Project Coordinator) to handle it.
+    whenToUse: >-
+      This is the default mode. It should be used to determine which of the other modes is best suited for the task.
+    customInstructions: >-
+      Analyze the user's request. If the request is about creating, editing, or reviewing a document, use the Technical Writer mode. If the request is about planning or managing a documentation project, use the Project Coordinator mode.
+
 autoTriggers:
   - mode: technical-writer
     conditions:
       - taskType: documentation
       - filePattern: "*.md"
-      - keywords: ["document", "readme", "guide", "api", "requirements", "specification"]
+      - keywords: ["document", "readme", "guide", "api", "requirements", "specification", "write", "edit", "review"]
       - context: end_of_phase
       - context: post_implementation
       - context: documentation_request
@@ -100,19 +108,15 @@ autoTriggers:
   - mode: project-coordinator
     conditions:
       - taskType: complex_project
-      - keywords: ["documentation", "coordinate", "workflow", "multi-step", "phases"]
+      - keywords: ["documentation", "coordinate", "workflow", "multi-step", "phases", "plan", "manage", "project"]
       - context: project_planning
 
 triggerPatterns:
   - pattern: "create documentation"
     mode: technical-writer
-  - pattern: "update docs"
+  - pattern: "update documentation"
     mode: technical-writer
-  - pattern: "write guide"
-    mode: technical-writer
-  - pattern: "api documentation"
-    mode: technical-writer
-  - pattern: "end of phase"
+  - pattern: "write documentation"
     mode: technical-writer
   - pattern: "document this"
     mode: technical-writer
@@ -120,3 +124,13 @@ triggerPatterns:
     mode: orchestrator
   - pattern: "manage workflow"
     mode: orchestrator
+  - pattern: "create documentation for"
+    mode: technical-writer
+  - pattern: "update the docs for"
+    mode: technical-writer
+  - pattern: "write a guide about"
+    mode: technical-writer
+  - pattern: "plan the documentation for"
+    mode: project-coordinator
+  - pattern: "manage the documentation project for"
+    mode: project-coordinator

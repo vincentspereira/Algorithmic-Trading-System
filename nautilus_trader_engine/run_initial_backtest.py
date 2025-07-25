@@ -11,7 +11,7 @@ Features:
 - Outputs comprehensive performance metrics
 - Includes proper error handling and logging
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

@@ -42,11 +42,11 @@ class EmbeddingConfig:
     normalize_embeddings: bool = True
     
     # OpenAI specific settings
-    openai_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
     openai_model: str = "text-embedding-3-small"
     
     # HuggingFace specific settings
-    hf_token: Optional[str] = None
+    hf_token: Optional[str] = os.getenv("HUGGINGFACE_TOKEN")
     device: str = "cpu"  # or "cuda" if GPU available
 
 
@@ -70,8 +70,8 @@ class ChunkingConfig:
 @dataclass
 class QdrantConfig:
     """Configuration for Qdrant vector database"""
-    url: str = "http://localhost:6333"
-    api_key: Optional[str] = None
+    url: str = os.getenv("QDRANT_URL", "http://localhost:6333")
+    api_key: Optional[str] = os.getenv("QDRANT_API_KEY")
     collection_name: str = "trading_documents"
     vector_size: int = 384
     distance_metric: str = "Cosine"
@@ -99,8 +99,8 @@ class PostgreSQLConfig:
     host: str = "localhost"
     port: int = 5432
     database: str = "trading_system"
-    username: str = "postgres"
-    password: str = "postgres"
+    username: str = os.getenv("POSTGRES_USER", "postgres")
+    password: str = os.getenv("POSTGRES_PASSWORD", "postgres")
     table_name: str = "document_embeddings"
     vector_column: str = "embedding"
     dimension: int = 384
@@ -119,8 +119,8 @@ class DocumentProcessingConfig:
     ])
     
     # Unstructured.io settings
-    unstructured_api_key: Optional[str] = None
-    unstructured_url: Optional[str] = None
+    unstructured_api_key: Optional[str] = os.getenv("UNSTRUCTURED_API_KEY")
+    unstructured_url: Optional[str] = os.getenv("UNSTRUCTURED_API_URL")
     
     # Processing options
     extract_images: bool = False
@@ -169,7 +169,7 @@ class CacheConfig:
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_db: int = 1
-    redis_password: Optional[str] = None
+    redis_password: Optional[str] = os.getenv("REDIS_PASSWORD")
     
     # Cache TTL settings (in seconds)
     embedding_cache_ttl: int = 86400  # 24 hours

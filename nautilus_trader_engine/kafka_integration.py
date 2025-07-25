@@ -11,7 +11,7 @@ Features:
 - Error handling and retry logic
 - Monitoring and metrics integration
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

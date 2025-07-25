@@ -9,7 +9,7 @@ This test suite verifies:
 4. Error handling and graceful degradation
 5. Performance and scalability
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

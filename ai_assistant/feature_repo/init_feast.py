@@ -4,7 +4,7 @@ Initialize Feast Feature Store for AI Assistant
 This script initializes the Feast feature store, applies feature definitions,
 and sets up the repository for the AI Assistant.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

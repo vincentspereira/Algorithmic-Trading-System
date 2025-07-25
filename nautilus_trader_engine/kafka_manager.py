@@ -4,7 +4,7 @@ Kafka Management Service
 This module provides high-level management functionality for Kafka integration
 in the trading system, including API endpoints and background services.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

@@ -8,7 +8,7 @@ This simplified test verifies:
 3. Configuration loading
 4. Tool integration basics
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

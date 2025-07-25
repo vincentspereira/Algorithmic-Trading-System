@@ -10,7 +10,7 @@ Features:
 - Performance comparison with traditional backtesting
 - GPU acceleration support (when available)
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

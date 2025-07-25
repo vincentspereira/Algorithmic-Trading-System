@@ -5,7 +5,7 @@ Provides base classes and utilities for stock price prediction models
 This module serves as the foundation for all forecasting models in the AI Assistant,
 providing common interfaces, data preprocessing, and integration with the Feast feature store.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

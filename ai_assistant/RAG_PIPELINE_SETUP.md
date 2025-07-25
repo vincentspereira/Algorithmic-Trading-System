@@ -89,11 +89,11 @@ RAGFLOW_TOP_K=10
 RAGFLOW_SIMILARITY_THRESHOLD=0.7
 
 # Optional: OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=${OPENAI_API_KEY}
 
 # Optional: Unstructured.io Configuration
-UNSTRUCTURED_API_KEY=your_unstructured_api_key_here
-UNSTRUCTURED_API_URL=https://api.unstructured.io
+UNSTRUCTURED_API_KEY=${UNSTRUCTURED_API_KEY}
+UNSTRUCTURED_API_URL=${UNSTRUCTURED_API_URL}
 ```
 
 ### 2. Docker Services
@@ -158,7 +158,7 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2  # Fast, good quality
 #### OpenAI Embeddings
 ```python
 EMBEDDING_PROVIDER=openai
-OPENAI_API_KEY=your_api_key
+OPENAI_API_KEY=${OPENAI_API_KEY}
 EMBEDDING_MODEL=text-embedding-3-small  # Cost-effective
 # EMBEDDING_MODEL=text-embedding-3-large  # Higher quality
 ```
@@ -167,7 +167,7 @@ EMBEDDING_MODEL=text-embedding-3-small  # Cost-effective
 ```python
 EMBEDDING_PROVIDER=huggingface
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-HUGGINGFACE_TOKEN=your_hf_token  # Optional for private models
+HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}  # Optional for private models
 ```
 
 ### Vector Storage Options
@@ -175,8 +175,8 @@ HUGGINGFACE_TOKEN=your_hf_token  # Optional for private models
 #### Qdrant (Recommended)
 ```python
 VECTOR_STORE=qdrant
-QDRANT_URL=http://localhost:6333
-QDRANT_API_KEY=your_api_key  # Optional
+QDRANT_URL=${QDRANT_URL}
+QDRANT_API_KEY=${QDRANT_API_KEY}  # Optional
 ```
 
 #### PostgreSQL with pgvector
@@ -185,8 +185,8 @@ VECTOR_STORE=postgresql_pgvector
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=trading_system
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_password
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 ```
 
 ### Chunking Strategies

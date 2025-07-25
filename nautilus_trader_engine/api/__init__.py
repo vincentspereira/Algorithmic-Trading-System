@@ -4,5 +4,5 @@ Enhanced FastAPI application with OAuth2/JWT authentication and backtesting capa
 """
 
 __version__ = "2.0.0"
-__author__ = "Kilo Code"
+__author__ = "Vincent S. Pereira"
 __description__ = "Enhanced API with OAuth2/JWT authentication and backtesting capabilities"

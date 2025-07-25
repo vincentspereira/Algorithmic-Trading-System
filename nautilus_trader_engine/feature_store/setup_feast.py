@@ -13,7 +13,7 @@ Features:
 - Feature materialization
 - Validation and testing
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

@@ -4,7 +4,7 @@ AI Assistant Feature Definitions for Market Data
 This module defines features specifically for the AI Assistant to enhance
 decision making with market data insights.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

@@ -4,7 +4,7 @@ Prometheus Metrics Module for Nautilus Trader Engine
 This module defines and manages all Prometheus metrics for monitoring
 the trading system's performance, data feeds, backtesting, and system health.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

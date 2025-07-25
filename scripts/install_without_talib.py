@@ -5,7 +5,7 @@ Install Dependencies Without TA-Lib Script
 This script installs all required dependencies except TA-Lib, allowing users
 to proceed with testing while addressing the TA-Lib installation issue separately.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

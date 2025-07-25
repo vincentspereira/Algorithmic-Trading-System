@@ -12,7 +12,7 @@ Features:
 - Integration with NautilusTrader data structures
 - Performance monitoring and benchmarking
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

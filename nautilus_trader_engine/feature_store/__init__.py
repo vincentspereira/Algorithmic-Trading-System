@@ -9,7 +9,7 @@ Modules:
 - feature_definitions: Feature definitions for market data, indicators, and signals
 - setup_feast: Setup script for initializing the feature store
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

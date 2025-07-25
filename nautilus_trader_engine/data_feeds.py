@@ -18,7 +18,7 @@ Data Source Priority Order:
 10. TradingCharts
 11. Oanda
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

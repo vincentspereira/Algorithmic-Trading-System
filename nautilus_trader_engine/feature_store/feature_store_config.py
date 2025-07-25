@@ -12,7 +12,7 @@ Features:
 - Feature view definitions
 - Data source configurations
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 
@@ -63,16 +63,16 @@ class FeatureStoreConfig:
     online_store_path: str = "data/online_store.db"
     
     # PostgreSQL configuration (if using postgres offline store)
-    postgres_host: str = "localhost"
-    postgres_port: int = 5432
-    postgres_database: str = "nautilus_features"
-    postgres_user: str = "postgres"
-    postgres_password: str = "password"
+    postgres_host: str = os.getenv("POSTGRES_HOST", "localhost")
+    postgres_port: int = int(os.getenv("POSTGRES_PORT", "5432"))
+    postgres_database: str = os.getenv("POSTGRES_DATABASE", "nautilus_features")
+    postgres_user: str = os.getenv("POSTGRES_USER", "postgres")
+    postgres_password: str = os.getenv("POSTGRES_PASSWORD")
     
     # Redis configuration (if using redis online store)
-    redis_host: str = "localhost"
-    redis_port: int = 6379
-    redis_db: int = 0
+    redis_host: str = os.getenv("REDIS_HOST", "localhost")
+    redis_port: int = int(os.getenv("REDIS_PORT", "6379"))
+    redis_db: int = int(os.getenv("REDIS_DB", "0"))
     
     # Feature freshness settings
     default_ttl: timedelta = timedelta(days=1)

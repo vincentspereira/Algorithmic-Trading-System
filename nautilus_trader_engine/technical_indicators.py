@@ -14,7 +14,7 @@ Features:
 - Performance comparisons
 - Graceful fallback between libraries
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 2.0.0
 """
 

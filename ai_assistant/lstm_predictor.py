@@ -6,7 +6,7 @@ This module implements LSTM (Long Short-Term Memory) neural networks for stock p
 prediction with support for univariate and multivariate time series, configurable
 architectures, and advanced features like attention mechanisms and dropout.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

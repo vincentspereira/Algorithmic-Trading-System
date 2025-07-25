@@ -6,7 +6,7 @@ This module provides a complete training pipeline for all forecasting models inc
 hyperparameter optimization using Optuna, time series cross-validation, performance
 monitoring, and model versioning.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

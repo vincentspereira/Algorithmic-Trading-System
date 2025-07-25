@@ -18,7 +18,7 @@ Best Practices Implemented:
 - Defensive programming patterns
 - Performance monitoring
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 Date: 2025-01-24
 """

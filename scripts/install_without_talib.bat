@@ -4,7 +4,7 @@ REM
 REM This batch file runs the Python installation script for Windows users.
 REM It installs all required dependencies except TA-Lib.
 REM
-REM Author: Kilo Code
+REM Author: Vincent S. Pereira
 REM Version: 1.0.0
 
 echo ======================================================================

@@ -4,7 +4,7 @@ Technical Indicators Fallback Module
 This module provides fallback implementations for common TA-Lib indicators
 using the 'ta' library and pandas/numpy when TA-Lib is not available.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

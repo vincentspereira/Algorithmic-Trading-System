@@ -7,7 +7,7 @@ This module defines all features for the Feast feature store including:
 - Custom trading features
 - Feature views and entities
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

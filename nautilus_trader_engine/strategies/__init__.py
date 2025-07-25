@@ -4,7 +4,7 @@ Trading Strategies Module
 This module contains various trading strategy implementations
 that can be used with different backtesting engines.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 

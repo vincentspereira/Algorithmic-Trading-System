@@ -5,7 +5,7 @@ This module provides backtesting utilities and infrastructure for testing
 trading strategies using multiple backtesting frameworks including backtrader
 and TradingGym.
 
-Author: Kilo Code
+Author: Vincent S. Pereira
 Version: 1.0.0
 """
 
