@@ -1,0 +1,95 @@
+{
+  "model_type": "xgboost",
+  "description": "XGBoost Configuration for Stock Price Prediction",
+  "default_config": {
+    "prediction_horizon": 7,
+    "lookback_window": 60,
+    "features": [
+      "closing_price",
+      "daily_volume",
+      "daily_high",
+      "daily_low",
+      "sma_20",
+      "sma_50",
+      "rsi_14",
+      "macd_line",
+      "volatility_20d",
+      "sentiment_score",
+      "price_momentum_1d",
+      "analyst_rating"
+    ],
+    "scaling_method": "standard",
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": 6,
+      "learning_rate": 0.1,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "reg_alpha": 0.1,
+      "reg_lambda": 1.0,
+      "random_state": 42,
+      "n_jobs": -1,
+      "early_stopping_rounds": 10,
+      "eval_metric": "rmse"
+    }
+  },
+  "optimization_space": {
+    "n_estimators": {
+      "type": "int",
+      "low": 50,
+      "high": 300
+    },
+    "max_depth": {
+      "type": "int",
+      "low": 3,
+      "high": 12
+    },
+    "learning_rate": {
+      "type": "float",
+      "low": 0.01,
+      "high": 0.3
+    },
+    "subsample": {
+      "type": "float",
+      "low": 0.6,
+      "high": 1.0
+    },
+    "colsample_bytree": {
+      "type": "float",
+      "low": 0.6,
+      "high": 1.0
+    },
+    "reg_alpha": {
+      "type": "loguniform",
+      "low": 1e-3,
+      "high": 10.0
+    },
+    "reg_lambda": {
+      "type": "loguniform",
+      "low": 1e-3,
+      "high": 10.0
+    }
+  },
+  "training_config": {
+    "train_test_split": 0.8,
+    "validation_split": 0.2,
+    "cv_folds": 5,
+    "optimize_hyperparams": true,
+    "n_trials": 100,
+    "optimization_timeout": 1800,
+    "optimization_metric": "rmse"
+  },
+  "performance_expectations": {
+    "rmse_range": [2.2, 3.8],
+    "mae_range": [1.6, 2.8],
+    "directional_accuracy_range": [0.60, 0.75],
+    "training_time_range": [60, 300]
+  },
+  "notes": [
+    "XGBoost excels with structured/tabular data and feature interactions",
+    "Early stopping prevents overfitting - use validation set",
+    "Regularization (alpha, lambda) helps control model complexity",
+    "Feature importance provides good interpretability",
+    "Works well with mixed data types and missing values"
+  ]
+}

@@ -1,14 +1,41 @@
 # AI Assistant Service Dependencies
-# This is a placeholder file for future development
+# RAG Pipeline Implementation with Unstructured.io, embeddings, and vector storage
 
 # Core AI/ML Libraries
 openai>=1.0.0
 anthropic>=0.7.0
 langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-community>=0.0.20
+langchain-experimental>=0.0.50
 transformers>=4.30.0
 torch>=2.0.0
 numpy>=1.24.0
 pandas>=2.0.0
+
+# RAG Pipeline Dependencies
+# Document Processing
+unstructured[all-docs]>=0.10.0
+unstructured-client>=0.15.0
+
+# Embedding Models
+sentence-transformers>=2.2.0
+huggingface-hub>=0.16.0
+
+# Vector Databases
+qdrant-client>=1.6.0
+psycopg2-binary>=2.9.0
+pgvector>=0.2.0
+
+# Text Processing and Chunking
+langchain-text-splitters>=0.0.1
+tiktoken>=0.5.0
+
+# Reranking
+cross-encoder>=1.2.0
+
+# Additional LangChain dependencies for ReAct agent
+requests>=2.31.0
 
 # API and Web Framework
 fastapi>=0.100.0
@@ -29,10 +56,48 @@ structlog>=23.1.0
 python-dotenv>=1.0.0
 pyyaml>=6.0
 
+# File Processing
+python-magic>=0.4.27
+python-docx>=0.8.11
+PyPDF2>=3.0.0
+openpyxl>=3.1.0
+
+# Machine Learning and Forecasting Libraries
+scikit-learn>=1.3.0
+xgboost>=1.7.0
+lightgbm>=4.0.0
+catboost>=1.2.0
+prophet>=1.1.4
+statsmodels>=0.14.0
+optuna>=3.3.0
+joblib>=1.3.0
+scipy>=1.11.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# Time Series Analysis
+arch>=6.2.0
+pmdarima>=2.0.3
+sktime>=0.21.0
+
+# Feature Engineering
+ta>=0.10.2
+yfinance>=0.2.18
+alpha-vantage>=2.3.1
+
+# Model Persistence and Versioning
+mlflow>=2.5.0
+dill>=0.3.7
+
+# Feast Feature Store Integration
+feast>=0.32.0
+
 # Testing (Development)
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
 
-# Note: Versions are placeholders and should be reviewed during implementation
-# All dependencies will be installed in isolated Docker containers
+# Note: All dependencies will be installed in isolated Docker containers
+# RAG pipeline supports multiple embedding providers and vector stores
+# ML forecasting models support LSTM, ARIMA, Random Forest, XGBoost, and Prophet

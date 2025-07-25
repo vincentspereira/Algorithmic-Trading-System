@@ -5,8 +5,10 @@ and serve as the backend for the AI assistant functionality.
 """
 
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from contextlib import asynccontextmanager
+import uuid
+from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +18,17 @@ import uvicorn
 from dotenv import load_dotenv
 import requests
 import logging
+
+# LangChain imports for ReAct agent
+from langchain.agents import create_react_agent, AgentExecutor
+from langchain.memory import ConversationBufferWindowMemory
+from langchain_openai import ChatOpenAI
+from langchain_community.llms import Ollama
+from langchain.prompts import PromptTemplate
+from langchain.schema import BaseMessage, HumanMessage, AIMessage
+
+# Import tools from tools.py
+from tools import run_backtest_tool, query_documents_tool, get_trading_system_status, code_development_tool
 
 # Load environment variables
 load_dotenv()
@@ -38,13 +51,25 @@ class AppConfig:
         self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.langchain_api_key = os.getenv("LANGCHAIN_API_KEY", "")
         
+        # LLM Configuration
+        self.llm_provider = os.getenv("LLM_PROVIDER", "openai").lower()  # "openai" or "ollama"
+        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+        self.ollama_model = os.getenv("OLLAMA_MODEL", "llama2")
+        self.max_tokens = int(os.getenv("MAX_TOKENS", "2000"))
+        self.temperature = float(os.getenv("TEMPERATURE", "0.7"))
+        
+        # Memory Configuration
+        self.memory_window_size = int(os.getenv("MEMORY_WINDOW_SIZE", "10"))
+        self.max_iterations = int(os.getenv("MAX_ITERATIONS", "15"))
+        self.max_execution_time = int(os.getenv("MAX_EXECUTION_TIME", "60"))
+        
         # Service Configuration
         self.service_port = int(os.getenv("AI_ASSISTANT_PORT", "8002"))
         self.service_host = os.getenv("AI_ASSISTANT_HOST", "0.0.0.0")
         self.debug_mode = os.getenv("DEBUG", "false").lower() == "true"
         
         # CORS Configuration
-        self.allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+        self.allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080,http://localhost:3210").split(",")
         
     def get_phase2_headers(self) -> Dict[str, str]:
         """Get headers for Phase 2 API requests"""
@@ -56,6 +81,123 @@ class AppConfig:
 
 # Initialize configuration
 config = AppConfig()
+
+
+# Global variables for agent and memory
+agent_executor = None
+session_memories = {}
+
+
+def get_llm():
+    """Initialize and return the appropriate LLM based on configuration"""
+    try:
+        if config.llm_provider == "openai":
+            if not config.openai_api_key:
+                raise ValueError("OpenAI API key not provided")
+            return ChatOpenAI(
+                model=config.openai_model,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                openai_api_key=config.openai_api_key
+            )
+        elif config.llm_provider == "ollama":
+            return Ollama(
+                base_url=config.ollama_base_url,
+                model=config.ollama_model,
+                temperature=config.temperature
+            )
+        else:
+            raise ValueError(f"Unsupported LLM provider: {config.llm_provider}")
+    except Exception as e:
+        logger.error(f"Error initializing LLM: {e}")
+        raise
+
+
+def create_react_prompt():
+    """Create the ReAct prompt template for the trading assistant"""
+    template = """You are an AI assistant specialized in algorithmic trading and financial analysis. You have access to tools that can help you run backtests, query trading documents, and check system status.
+
+Your role is to:
+1. Help users understand trading strategies and concepts
+2. Run backtests using the available trading system
+3. Provide insights on trading performance and risk management
+4. Answer questions about algorithmic trading using relevant documents
+5. Assist with trading system operations
+6. Develop and modify code using OpenHands-powered development capabilities
+
+You should always think step by step and use the available tools when appropriate. Be precise, informative, and focus on providing actionable trading insights.
+
+TOOLS:
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Previous conversation:
+{chat_history}
+
+Question: {input}
+{agent_scratchpad}"""
+
+    return PromptTemplate(
+        template=template,
+        input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names"]
+    )
+
+
+def initialize_agent():
+    """Initialize the ReAct agent with tools and memory"""
+    global agent_executor
+    
+    try:
+        # Get LLM
+        llm = get_llm()
+        
+        # Define tools
+        tools = [run_backtest_tool, query_documents_tool, get_trading_system_status, code_development_tool]
+        
+        # Create prompt
+        prompt = create_react_prompt()
+        
+        # Create ReAct agent
+        agent = create_react_agent(llm, tools, prompt)
+        
+        # Create agent executor
+        agent_executor = AgentExecutor(
+            agent=agent,
+            tools=tools,
+            verbose=config.debug_mode,
+            max_iterations=config.max_iterations,
+            max_execution_time=config.max_execution_time,
+            handle_parsing_errors=True,
+            return_intermediate_steps=True
+        )
+        
+        logger.info(f"ReAct agent initialized successfully with {config.llm_provider} LLM")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize ReAct agent: {e}")
+        return False
+
+
+def get_or_create_memory(session_id: str) -> ConversationBufferWindowMemory:
+    """Get or create memory for a session"""
+    if session_id not in session_memories:
+        session_memories[session_id] = ConversationBufferWindowMemory(
+            k=config.memory_window_size,
+            return_messages=True,
+            memory_key="chat_history"
+        )
+    return session_memories[session_id]
 
 
 @asynccontextmanager
@@ -78,10 +220,22 @@ async def lifespan(app: FastAPI):
     except requests.RequestException as e:
         logger.warning(f"Could not connect to Phase 2 API: {e}")
     
+    # Initialize ReAct agent
+    try:
+        if initialize_agent():
+            logger.info("ReAct agent initialized successfully")
+        else:
+            logger.error("Failed to initialize ReAct agent - chat functionality will be limited")
+    except Exception as e:
+        logger.error(f"Error during agent initialization: {e}")
+    
     yield
     
     # Shutdown logic
     logger.info("AI Assistant Service shutting down...")
+    # Clear session memories
+    global session_memories
+    session_memories.clear()
 
 
 # Initialize FastAPI app
@@ -130,10 +284,12 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """Chat response model for future AI interactions"""
+    """Chat response model for AI interactions"""
     response: str = Field(..., description="AI assistant response")
     session_id: str = Field(..., description="Session ID")
     timestamp: str = Field(..., description="Response timestamp")
+    reasoning: Optional[List[Dict[str, Any]]] = Field(None, description="Agent's reasoning process (intermediate steps)")
+    tools_used: Optional[List[str]] = Field(None, description="List of tools that were invoked")
 
 
 # Health check endpoint
@@ -178,41 +334,130 @@ async def get_service_info():
         supported_features=[
             "Health monitoring",
             "Phase 2 API integration",
-            "LangChain framework support",
-            "Local LLM support (Ollama)",
-            "Chat interface (coming soon)",
-            "Trading strategy assistance (coming soon)",
-            "Backtesting analysis (coming soon)"
+            "ReAct (Reasoning and Acting) agent framework",
+            "LangChain integration with tool usage",
+            "OpenAI GPT and local LLM support (Ollama)",
+            "Conversational memory with session management",
+            "Natural language backtesting via Phase 2 API",
+            "Trading document query and search",
+            "System status monitoring and diagnostics",
+            "Reasoning trace transparency",
+            "Multi-tool orchestration for complex queries",
+            "OpenHands-powered code development and modification",
+            "AI-assisted endpoint creation and feature implementation",
+            "Automated code generation with safety checks and rollback"
         ]
     )
 
 
-# Placeholder chat endpoint for future AI interactions
+# ReAct Agent Chat endpoint
 @app.post("/api/v1/chat", response_model=ChatResponse, tags=["AI Chat"])
 async def chat_with_assistant(request: ChatRequest):
     """
-    Placeholder endpoint for AI chat functionality
-    This will be implemented in future iterations with LangChain integration
-    """
-    from datetime import datetime
-    import uuid
+    Chat with the AI assistant using ReAct (Reasoning and Acting) framework.
     
+    The agent can:
+    - Run backtests using natural language queries
+    - Query trading documents and research
+    - Check trading system status
+    - Provide trading insights and analysis
+    
+    The agent uses reasoning traces to show its thought process and tool usage.
+    """
     # Generate session ID if not provided
     session_id = request.session_id or str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
     
-    # Placeholder response - will be replaced with actual AI logic
-    placeholder_response = (
-        f"Thank you for your message: '{request.message}'. "
-        "The AI assistant is currently in development. "
-        "Future capabilities will include trading strategy advice, "
-        "backtesting analysis, and market insights powered by LangChain."
-    )
+    # Check if agent is initialized
+    if agent_executor is None:
+        logger.error("ReAct agent not initialized")
+        return ChatResponse(
+            response="❌ AI Assistant is currently unavailable. The ReAct agent failed to initialize. Please check the configuration and try again later.",
+            session_id=session_id,
+            timestamp=timestamp,
+            reasoning=None,
+            tools_used=None
+        )
     
-    return ChatResponse(
-        response=placeholder_response,
-        session_id=session_id,
-        timestamp=datetime.utcnow().isoformat()
-    )
+    try:
+        # Get or create memory for this session
+        memory = get_or_create_memory(session_id)
+        
+        # Prepare input for the agent
+        agent_input = {
+            "input": request.message,
+            "chat_history": memory.chat_memory.messages if memory.chat_memory.messages else []
+        }
+        
+        # Add context if provided
+        if request.context:
+            context_str = f"Additional context: {request.context}"
+            agent_input["input"] = f"{context_str}\n\nUser message: {request.message}"
+        
+        logger.info(f"Processing chat request for session {session_id}: {request.message}")
+        
+        # Execute the agent
+        result = agent_executor.invoke(agent_input)
+        
+        # Extract response and intermediate steps
+        response_text = result.get("output", "I apologize, but I couldn't generate a proper response.")
+        intermediate_steps = result.get("intermediate_steps", [])
+        
+        # Process reasoning traces
+        reasoning = []
+        tools_used = []
+        
+        for step in intermediate_steps:
+            if len(step) >= 2:
+                action, observation = step[0], step[1]
+                
+                # Extract tool name
+                tool_name = getattr(action, 'tool', 'unknown')
+                if tool_name not in tools_used:
+                    tools_used.append(tool_name)
+                
+                # Format reasoning step
+                reasoning_step = {
+                    "thought": getattr(action, 'log', ''),
+                    "action": tool_name,
+                    "action_input": getattr(action, 'tool_input', ''),
+                    "observation": str(observation)[:500] + "..." if len(str(observation)) > 500 else str(observation)
+                }
+                reasoning.append(reasoning_step)
+        
+        # Update memory with the conversation
+        memory.chat_memory.add_user_message(request.message)
+        memory.chat_memory.add_ai_message(response_text)
+        
+        logger.info(f"Successfully processed chat request for session {session_id}")
+        
+        return ChatResponse(
+            response=response_text,
+            session_id=session_id,
+            timestamp=timestamp,
+            reasoning=reasoning if reasoning else None,
+            tools_used=tools_used if tools_used else None
+        )
+        
+    except Exception as e:
+        error_msg = f"Error processing chat request: {str(e)}"
+        logger.error(f"Chat error for session {session_id}: {error_msg}")
+        
+        # Determine if it's an LLM API error
+        if "openai" in str(e).lower() or "api" in str(e).lower():
+            response_text = "❌ I'm experiencing issues connecting to the AI service. Please check your API configuration and try again."
+        elif "timeout" in str(e).lower():
+            response_text = "⏱️ The request timed out. Please try a simpler query or check the system status."
+        else:
+            response_text = f"❌ I encountered an error while processing your request: {str(e)}"
+        
+        return ChatResponse(
+            response=response_text,
+            session_id=session_id,
+            timestamp=timestamp,
+            reasoning=[{"error": error_msg}],
+            tools_used=None
+        )
 
 
 # Phase 2 API proxy endpoints (for future integration)

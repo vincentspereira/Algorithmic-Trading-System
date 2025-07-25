@@ -1,0 +1,44 @@
+{
+  "name": "Algorithmic Trading AI Assistant",
+  "description": "AI Assistant for Algorithmic Trading System with ReAct Agent capabilities",
+  "version": "1.0.0",
+  "api": {
+    "baseUrl": "http://localhost:8003",
+    "endpoint": "/v1/chat/completions",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  },
+  "models": [
+    {
+      "id": "trading-assistant",
+      "name": "Trading Assistant (ReAct Agent)",
+      "description": "Specialized AI assistant for algorithmic trading with reasoning capabilities",
+      "maxTokens": 4000,
+      "temperature": 0.7,
+      "topP": 1.0,
+      "frequencyPenalty": 0.0,
+      "presencePenalty": 0.0
+    }
+  ],
+  "features": {
+    "streaming": true,
+    "reasoning": true,
+    "tools": true,
+    "memory": true
+  },
+  "ui": {
+    "theme": "dark",
+    "primaryColor": "#1890ff",
+    "title": "Trading AI Assistant",
+    "subtitle": "Powered by ReAct Agent Framework",
+    "logo": "/logo.png",
+    "favicon": "/favicon.ico"
+  },
+  "system": {
+    "defaultPrompt": "You are an AI assistant specialized in algorithmic trading and financial analysis. You have access to tools for running backtests, querying documents, and checking system status. Always think step by step and provide actionable trading insights.",
+    "maxHistory": 50,
+    "enableContext": true,
+    "enableTools": true
+  }
+}

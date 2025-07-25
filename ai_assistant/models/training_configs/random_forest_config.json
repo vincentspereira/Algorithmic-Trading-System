@@ -1,0 +1,73 @@
+{
+  "model_type": "random_forest",
+  "description": "Random Forest model configuration for stock price prediction",
+  "default_config": {
+    "prediction_horizon": 7,
+    "lookback_window": 30,
+    "features": [
+      "closing_price",
+      "daily_volume",
+      "sma_20",
+      "sma_50",
+      "rsi_14",
+      "macd",
+      "bollinger_upper",
+      "bollinger_lower"
+    ],
+    "hyperparameters": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "min_samples_split": 5,
+      "min_samples_leaf": 2,
+      "random_state": 42
+    },
+    "validation": {
+      "method": "time_series_split",
+      "n_splits": 5,
+      "test_size": 0.2
+    }
+  },
+  "optimization_space": {
+    "n_estimators": {
+      "type": "int",
+      "low": 50,
+      "high": 300,
+      "step": 25
+    },
+    "max_depth": {
+      "type": "int",
+      "low": 5,
+      "high": 20
+    },
+    "min_samples_split": {
+      "type": "int",
+      "low": 2,
+      "high": 10
+    },
+    "min_samples_leaf": {
+      "type": "int",
+      "low": 1,
+      "high": 5
+    },
+    "max_features": {
+      "type": "categorical",
+      "choices": ["sqrt", "log2", null]
+    }
+  },
+  "training_config": {
+    "optimize_hyperparams": true,
+    "n_trials": 50,
+    "cv_folds": 5,
+    "scoring": "neg_mean_absolute_error",
+    "early_stopping": {
+      "patience": 10,
+      "min_improvement": 0.001
+    }
+  },
+  "feature_engineering": {
+    "technical_indicators": true,
+    "lag_features": [1, 2, 3, 5, 10],
+    "rolling_statistics": [5, 10, 20],
+    "volatility_features": true
+  }
+}

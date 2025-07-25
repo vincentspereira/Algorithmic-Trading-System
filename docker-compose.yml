@@ -209,39 +209,128 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  # AI Assistant Service (PLACEHOLDER - NOT IMPLEMENTED YET)
-  # Uncomment when ready to implement AI assistant functionality
-  # ai_assistant:
-  #   build:
-  #     context: ./ai_assistant
-  #     dockerfile: Dockerfile
-  #   container_name: ai_assistant
-  #   ports:
-  #     - "8001:8001"
-  #   volumes:
-  #     - ./ai_assistant:/app
-  #     - ./config:/app/config:ro
-  #   working_dir: /app
-  #   environment:
-  #     PYTHONPATH: /app
-  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-  #     POSTGRES_HOST: postgres
-  #     POSTGRES_PORT: 5432
-  #     POSTGRES_DB: trading_system
-  #     REDIS_HOST: redis
-  #     REDIS_PORT: 6379
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - trading-net
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     kafka:
-  #       condition: service_started
-  #     # redis:
-  #     #   condition: service_started
-  #   restart: unless-stopped
+  # AI Assistant Service - Phase 3 Implementation
+  ai_assistant:
+    build:
+      context: ./ai_assistant
+      dockerfile: Dockerfile
+    container_name: ai_assistant
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./ai_assistant:/app
+      - ./config:/app/config:ro
+    working_dir: /app
+    environment:
+      PYTHONPATH: /app
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: trading_system
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FEAST_FEATURE_SERVER_URL: http://feast:6566
+      AI_ASSISTANT_PORT: 8002
+      AI_ASSISTANT_HOST: 0.0.0.0
+      PHASE2_API_BASE_URL: http://nautilus_trader_engine:8000
+      ALLOWED_ORIGINS: "http://localhost:3210,http://localhost:3000,http://localhost:8080"
+      # RAG Pipeline Configuration
+      QDRANT_URL: http://qdrant:6333
+      VECTOR_STORE: qdrant
+      EMBEDDING_PROVIDER: sentence_transformers
+      EMBEDDING_MODEL: all-MiniLM-L6-v2
+      EMBEDDING_DIMENSION: 384
+      CHUNK_SIZE: 1000
+      CHUNK_OVERLAP: 200
+      RAGFLOW_TOP_K: 10
+      RAGFLOW_SIMILARITY_THRESHOLD: 0.7
+    env_file:
+      - .env
+    networks:
+      - trading-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      feast:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Lobe Chat Adapter - OpenAI-compatible API bridge
+  lobe_chat_adapter:
+    build:
+      context: ./ai_assistant
+      dockerfile: Dockerfile
+    container_name: lobe_chat_adapter
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./ai_assistant:/app
+    working_dir: /app
+    environment:
+      PYTHONPATH: /app
+      AI_ASSISTANT_URL: http://ai_assistant:8002
+      LOBE_ADAPTER_PORT: 8003
+      LOBE_ADAPTER_HOST: 0.0.0.0
+      LOBE_ALLOWED_ORIGINS: "http://localhost:3210,http://localhost:3000"
+    env_file:
+      - .env
+    networks:
+      - trading-net
+    depends_on:
+      - ai_assistant
+    restart: unless-stopped
+    command: ["python", "lobe_chat_adapter.py"]
+
+  # Lobe Chat Frontend - Modern Chat Interface
+  lobe_chat:
+    image: lobehub/lobe-chat:latest
+    container_name: lobe_chat
+    ports:
+      - "3210:3210"
+    environment:
+      # Basic Configuration
+      PORT: 3210
+      HOSTNAME: 0.0.0.0
+      
+      # API Configuration - Point to our adapter
+      OPENAI_API_KEY: "dummy-key-for-local-adapter"
+      API_KEY_SELECT_MODE: "manual"
+      
+      # Custom API Endpoint
+      OPENAI_PROXY_URL: "http://localhost:8003/v1"
+      
+      # UI Configuration
+      APP_NAME: "Trading AI Assistant"
+      APP_DESCRIPTION: "AI Assistant for Algorithmic Trading System"
+      
+      # Feature Flags
+      ENABLE_OAUTH_SSO: "false"
+      ENABLE_NEXT_AUTH: "false"
+      SHOW_ACCESS_CODE_CONFIG: "false"
+      
+      # Model Configuration
+      CUSTOM_MODELS: '{"trading-assistant":{"displayName":"Trading Assistant","description":"Specialized AI assistant for algorithmic trading with reasoning capabilities","maxTokens":4000,"temperature":0.7}}'
+      
+      # Security
+      ACCESS_CODE: ""
+      
+      # Analytics (disabled for local development)
+      ENABLE_LANGFUSE: "false"
+      ENABLE_ANALYTICS: "false"
+      
+      # Development
+      NODE_ENV: "production"
+    networks:
+      - trading-net
+    depends_on:
+      - lobe_chat_adapter
+    restart: unless-stopped
 
   # Frontend Service (PLACEHOLDER - NOT IMPLEMENTED YET)
   # Uncomment when ready to implement frontend application
@@ -268,23 +357,79 @@ services:
   #     # - ai_assistant
   #   restart: unless-stopped
 
-  # Redis for caching and session management (PLACEHOLDER)
-  # Uncomment when AI assistant or frontend services are implemented
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: redis
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis_data:/data
-  #   networks:
-  #     - trading-net
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #   restart: unless-stopped
+  # Qdrant Vector Database for RAG Pipeline
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__LOG_LEVEL: INFO
+    networks:
+      - trading-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - trading-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Feast Feature Store
+  feast:
+    image: feastdev/feature-server:latest
+    container_name: feast
+    ports:
+      - "6566:6566"
+    volumes:
+      - ./ai_assistant/feature_repo:/feature_repo
+      - feast_data:/data
+    working_dir: /feature_repo
+    environment:
+      FEAST_USAGE: "False"
+      PYTHONPATH: /feature_repo
+    networks:
+      - trading-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6566/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    command: >
+      sh -c "
+        if [ ! -f feature_store.yaml ]; then
+          echo 'Feature store configuration not found. Please initialize the repository first.'
+          exit 1
+        fi &&
+        feast serve --host 0.0.0.0 --port 6566
+      "
 
 volumes:
   postgres_data:
@@ -299,8 +444,12 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-  # redis_data:  # Uncomment when Redis service is enabled
-  #   driver: local
+  redis_data:
+    driver: local
+  feast_data:
+    driver: local
+  qdrant_data:
+    driver: local
 
 networks:
   trading-net:

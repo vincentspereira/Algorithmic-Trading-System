@@ -1,0 +1,252 @@
+{
+  "registry_version": "1.0.0",
+  "last_updated": "2024-01-25T00:00:00Z",
+  "models": {
+    "lstm_AAPL_7d_sample": {
+      "model_id": "lstm_AAPL_7d_sample",
+      "model_type": "lstm",
+      "ticker": "AAPL",
+      "prediction_horizon": 7,
+      "file_path": "sample_models/lstm_AAPL_7d_sample.pkl",
+      "metadata_path": "sample_models/lstm_AAPL_7d_sample_metadata.json",
+      "created_at": "2024-01-25T00:00:00Z",
+      "model_version": "1.0.0",
+      "status": "active",
+      "performance": {
+        "rmse": 2.45,
+        "mae": 1.82,
+        "mape": 3.21,
+        "directional_accuracy": 0.65,
+        "r2_score": 0.78,
+        "sharpe_ratio": 1.23
+      },
+      "training_info": {
+        "training_samples": 1200,
+        "validation_samples": 300,
+        "features_count": 9,
+        "training_time_seconds": 450,
+        "hyperparameters": {
+          "hidden_size": 128,
+          "num_layers": 2,
+          "dropout": 0.2,
+          "learning_rate": 0.001,
+          "batch_size": 32,
+          "epochs": 100
+        }
+      },
+      "data_info": {
+        "start_date": "2022-01-01",
+        "end_date": "2023-12-31",
+        "features": [
+          "closing_price",
+          "daily_volume",
+          "daily_high",
+          "daily_low",
+          "sma_20",
+          "sma_50",
+          "rsi_14",
+          "macd_line",
+          "volatility_20d"
+        ]
+      }
+    },
+    "random_forest_GOOGL_7d_sample": {
+      "model_id": "random_forest_GOOGL_7d_sample",
+      "model_type": "random_forest",
+      "ticker": "GOOGL",
+      "prediction_horizon": 7,
+      "file_path": "sample_models/random_forest_GOOGL_7d_sample.pkl",
+      "metadata_path": "sample_models/random_forest_GOOGL_7d_sample_metadata.json",
+      "created_at": "2024-01-25T00:00:00Z",
+      "model_version": "1.0.0",
+      "status": "active",
+      "performance": {
+        "rmse": 3.18,
+        "mae": 2.14,
+        "mape": 4.12,
+        "directional_accuracy": 0.62,
+        "r2_score": 0.71,
+        "sharpe_ratio": 1.05
+      },
+      "training_info": {
+        "training_samples": 1200,
+        "validation_samples": 300,
+        "features_count": 9,
+        "training_time_seconds": 85,
+        "hyperparameters": {
+          "n_estimators": 100,
+          "max_depth": 10,
+          "min_samples_split": 5,
+          "min_samples_leaf": 2,
+          "max_features": "sqrt"
+        }
+      },
+      "data_info": {
+        "start_date": "2022-01-01",
+        "end_date": "2023-12-31",
+        "features": [
+          "closing_price",
+          "daily_volume",
+          "daily_high",
+          "daily_low",
+          "sma_20",
+          "sma_50",
+          "rsi_14",
+          "macd_line",
+          "volatility_20d"
+        ]
+      }
+    },
+    "xgboost_MSFT_7d_sample": {
+      "model_id": "xgboost_MSFT_7d_sample",
+      "model_type": "xgboost",
+      "ticker": "MSFT",
+      "prediction_horizon": 7,
+      "file_path": "sample_models/xgboost_MSFT_7d_sample.pkl",
+      "metadata_path": "sample_models/xgboost_MSFT_7d_sample_metadata.json",
+      "created_at": "2024-01-25T00:00:00Z",
+      "model_version": "1.0.0",
+      "status": "active",
+      "performance": {
+        "rmse": 2.78,
+        "mae": 1.95,
+        "mape": 3.45,
+        "directional_accuracy": 0.68,
+        "r2_score": 0.75,
+        "sharpe_ratio": 1.18
+      },
+      "training_info": {
+        "training_samples": 1200,
+        "validation_samples": 300,
+        "features_count": 12,
+        "training_time_seconds": 120,
+        "hyperparameters": {
+          "n_estimators": 100,
+          "max_depth": 6,
+          "learning_rate": 0.1,
+          "subsample": 0.8,
+          "colsample_bytree": 0.8,
+          "reg_alpha": 0.1,
+          "reg_lambda": 1.0
+        }
+      },
+      "data_info": {
+        "start_date": "2022-01-01",
+        "end_date": "2023-12-31",
+        "features": [
+          "closing_price",
+          "daily_volume",
+          "daily_high",
+          "daily_low",
+          "sma_20",
+          "sma_50",
+          "rsi_14",
+          "macd_line",
+          "volatility_20d",
+          "sentiment_score",
+          "price_momentum_1d",
+          "analyst_rating"
+        ]
+      }
+    }
+  },
+  "model_types": {
+    "lstm": {
+      "description": "Long Short-Term Memory neural network for time series prediction",
+      "suitable_for": ["complex patterns", "long sequences", "non-linear relationships"],
+      "typical_performance": {
+        "rmse_range": [2.0, 4.0],
+        "training_time": "medium to high",
+        "interpretability": "low"
+      }
+    },
+    "random_forest": {
+      "description": "Ensemble of decision trees for robust predictions",
+      "suitable_for": ["feature-based prediction", "non-linear relationships", "interpretability"],
+      "typical_performance": {
+        "rmse_range": [2.5, 4.5],
+        "training_time": "low to medium",
+        "interpretability": "high"
+      }
+    },
+    "xgboost": {
+      "description": "Gradient boosting framework optimized for performance",
+      "suitable_for": ["structured data", "feature interactions", "competitive performance"],
+      "typical_performance": {
+        "rmse_range": [2.2, 3.8],
+        "training_time": "medium",
+        "interpretability": "medium"
+      }
+    },
+    "arima": {
+      "description": "AutoRegressive Integrated Moving Average for time series",
+      "suitable_for": ["trend analysis", "seasonal patterns", "statistical modeling"],
+      "typical_performance": {
+        "rmse_range": [3.0, 5.0],
+        "training_time": "low",
+        "interpretability": "high"
+      }
+    },
+    "prophet": {
+      "description": "Facebook's time series forecasting tool",
+      "suitable_for": ["trend and seasonality", "holiday effects", "missing data"],
+      "typical_performance": {
+        "rmse_range": [2.8, 4.2],
+        "training_time": "medium",
+        "interpretability": "high"
+      }
+    }
+  },
+  "prediction_horizons": {
+    "1": {
+      "description": "1-day ahead prediction",
+      "use_cases": ["day trading", "short-term signals", "risk management"],
+      "typical_accuracy": "highest"
+    },
+    "7": {
+      "description": "7-day ahead prediction",
+      "use_cases": ["swing trading", "weekly planning", "portfolio rebalancing"],
+      "typical_accuracy": "medium"
+    },
+    "30": {
+      "description": "30-day ahead prediction",
+      "use_cases": ["monthly planning", "long-term trends", "strategic decisions"],
+      "typical_accuracy": "lowest"
+    }
+  },
+  "feature_categories": {
+    "price_data": [
+      "closing_price",
+      "opening_price",
+      "daily_high",
+      "daily_low"
+    ],
+    "volume_data": [
+      "daily_volume",
+      "volume_momentum"
+    ],
+    "technical_indicators": [
+      "sma_20",
+      "sma_50",
+      "rsi_14",
+      "macd_line",
+      "macd_signal",
+      "bollinger_upper",
+      "bollinger_lower",
+      "atr_14"
+    ],
+    "volatility_measures": [
+      "volatility_20d"
+    ],
+    "sentiment_indicators": [
+      "sentiment_score",
+      "news_sentiment",
+      "social_sentiment",
+      "analyst_rating"
+    ],
+    "momentum_indicators": [
+      "price_momentum_1d",
+      "price_momentum_7d"
+    ]
+  }
+}
