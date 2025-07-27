@@ -28,6 +28,7 @@ from kafka.errors import KafkaError, KafkaTimeoutError
 import structlog
 
 from data_feeds import DataFeedManager, DataResponse, AssetClass, DataSource
+from nautilus_trader_engine.services.prediction_service import PredictionService
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)
@@ -342,6 +343,7 @@ class MarketDataStreamer:
         self.producer = KafkaProducerService(kafka_config)
         self.consumer = KafkaConsumerService(kafka_config)
         self.data_feed_manager = DataFeedManager()
+        self.prediction_service = PredictionService()
         self.streaming_symbols: Dict[str, Dict] = {}
         self.is_streaming = False
         
@@ -397,20 +399,33 @@ class MarketDataStreamer:
             self._handle_trading_signal
         )
     
+    async def _handle_market_data(self, message_data: Dict[str, Any], asset_class: str):
+        """Generic handler for market data."""
+        symbol = message_data.get('symbol')
+        logger.debug(f"Received {asset_class} data", symbol=symbol)
+        try:
+            prediction = self.prediction_service.predict(message_data)
+            signal = {
+                "type": "prediction",
+                "symbol": symbol,
+                "asset_class": asset_class,
+                "prediction": prediction.to_dict(),
+            }
+            await self.producer.publish_trading_signal(signal)
+        except Exception as e:
+            logger.error(f"Error processing {asset_class} data for {symbol}", error=e)
+
     async def _handle_stock_data(self, message_data: Dict[str, Any]):
         """Handle incoming stock price data"""
-        logger.debug("Received stock data", symbol=message_data.get('symbol'))
-        # TODO: Process stock data for trading engine
-    
+        await self._handle_market_data(message_data, "stock")
+
     async def _handle_forex_data(self, message_data: Dict[str, Any]):
         """Handle incoming forex rate data"""
-        logger.debug("Received forex data", symbol=message_data.get('symbol'))
-        # TODO: Process forex data for trading engine
-    
+        await self._handle_market_data(message_data, "forex")
+
     async def _handle_crypto_data(self, message_data: Dict[str, Any]):
         """Handle incoming crypto price data"""
-        logger.debug("Received crypto data", symbol=message_data.get('symbol'))
-        # TODO: Process crypto data for trading engine
+        await self._handle_market_data(message_data, "crypto")
     
     async def _handle_trading_signal(self, message_data: Dict[str, Any]):
         """Handle incoming trading signals"""

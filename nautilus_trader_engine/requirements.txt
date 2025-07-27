@@ -82,3 +82,12 @@ s3fs
 # Additional dependencies for Phase 2
 asyncio-mqtt
 aioredis
+# Interactive Brokers
+ib_insync
+# FIX Protocol Support (Phase 4)
+quickfix
+# FinRL and RL dependencies (Phase 4)
+finrl&gt;=0.3.6
+stable-baselines3&gt;=2.0.0
+gymnasium&gt;=0.28.0
+optuna&gt;=3.0.0

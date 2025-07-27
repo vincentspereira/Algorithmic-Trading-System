@@ -11,6 +11,7 @@ import logging
 import asyncio
 import time
 import psutil
+import argparse
 from typing import Dict, Any
 from datetime import datetime
 
@@ -21,12 +22,18 @@ import uvicorn
 
 from metrics import get_metrics, initialize_metrics, time_api_request
 from kafka_manager import get_kafka_manager, initialize_kafka_manager, close_kafka_manager
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from nautilus_trader_engine.adapters.interactive_brokers import InteractiveBrokersAdapter
+from nautilus_trader_engine.config.ib_config import get_ib_trading_node_config
+from nautilus_trader_engine.api.routers import trading
+from nautilus_trader_engine.utils.logging_config import setup_logging
+from nautilus_trader_engine.config.database_config import (
+    get_postgres_config,
+    get_clickhouse_config,
+    get_duckdb_config,
 )
+
+# Configure structured logging
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI application
@@ -54,8 +61,10 @@ service_status = {
     "postgres_connected": False,
     "clickhouse_connected": False,
     "duckdb_connected": False,
+    "ib_connected": False,
     "last_health_check": None
 }
+ib_adapter: Optional[InteractiveBrokersAdapter] = None
 
 # Initialize metrics
 metrics = initialize_metrics()
@@ -91,6 +100,18 @@ async def startup_event():
     # Initialize connections (placeholder for Phase 1)
     await initialize_connections()
     
+    # Initialize IB Adapter
+    global ib_adapter
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", type=str, default="paper", choices=["paper", "live"])
+    args, _ = parser.parse_known_args()
+
+    loop = asyncio.get_running_loop()
+    ib_config = get_ib_trading_node_config(args.mode).connection_config
+    ib_adapter = InteractiveBrokersAdapter(loop, ib_config)
+    await ib_adapter.start()
+    service_status["ib_connected"] = ib_adapter._is_connected
+
     # Initialize Kafka manager
     kafka_initialized = await initialize_kafka_manager()
     service_status["kafka_connected"] = kafka_initialized
@@ -119,7 +140,12 @@ async def startup_event():
 async def shutdown_event():
     """Cleanup on shutdown"""
     logger.info("Shutting down Nautilus Trader Engine...")
-    
+
+    # Stop IB Adapter
+    if ib_adapter:
+        await ib_adapter.stop()
+        logger.info("IB Adapter stopped")
+
     # Close Kafka connections
     try:
         await close_kafka_manager()
@@ -132,36 +158,35 @@ async def shutdown_event():
 async def initialize_connections():
     """Initialize database and service connections"""
     try:
-        # Placeholder for connection initialization
-        # These will be implemented in Phase 2
-        
         # Kafka connection check
         kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
         logger.info(f"Kafka servers configured: {kafka_servers}")
         service_status["kafka_connected"] = True
         metrics.update_db_connection_status("kafka", True)
-        
-        # PostgreSQL connection check
-        postgres_host = os.getenv("POSTGRES_HOST", "postgres")
-        postgres_db = os.getenv("POSTGRES_DB", "trading_system")
-        logger.info(f"PostgreSQL configured: {postgres_host}/{postgres_db}")
+
+        # Get database configurations
+        postgres_config = get_postgres_config()
+        clickhouse_config = get_clickhouse_config()
+        duckdb_config = get_duckdb_config()
+
+        # Log PostgreSQL configuration
+        logger.info(f"PostgreSQL configured: {postgres_config['host']}/{postgres_config['db']} "
+                    f"with pool size {postgres_config['pool_size']}")
         service_status["postgres_connected"] = True
         metrics.update_db_connection_status("postgres", True)
-        
-        # ClickHouse connection check
-        clickhouse_host = os.getenv("CLICKHOUSE_HOST", "clickhouse")
-        logger.info(f"ClickHouse configured: {clickhouse_host}")
+
+        # Log ClickHouse configuration
+        logger.info(f"ClickHouse configured: {clickhouse_config['host']}")
         service_status["clickhouse_connected"] = True
         metrics.update_db_connection_status("clickhouse", True)
-        
-        # DuckDB connection check
-        duckdb_path = os.getenv("DUCKDB_DATABASE_PATH", "/app/data/duckdb/trading_research.duckdb")
-        logger.info(f"DuckDB configured: {duckdb_path}")
+
+        # Log DuckDB configuration
+        logger.info(f"DuckDB configured: {duckdb_config['path']}")
         service_status["duckdb_connected"] = True
         metrics.update_db_connection_status("duckdb", True)
-        
+
         service_status["last_health_check"] = datetime.utcnow().isoformat()
-        
+
     except Exception as e:
         logger.error(f"Failed to initialize connections: {e}")
         raise
@@ -179,6 +204,7 @@ async def update_system_metrics():
         metrics.update_system_health("postgres", service_status["postgres_connected"])
         metrics.update_system_health("clickhouse", service_status["clickhouse_connected"])
         metrics.update_system_health("duckdb", service_status["duckdb_connected"])
+        metrics.update_system_health("ib", service_status["ib_connected"])
         
         # Update resource usage
         process = psutil.Process()
@@ -214,7 +240,8 @@ async def health_check():
             service_status["kafka_connected"],
             service_status["postgres_connected"],
             service_status["clickhouse_connected"],
-            service_status["duckdb_connected"]
+            service_status["duckdb_connected"],
+            service_status["ib_connected"]
         ])
         
         if all_connected:
@@ -285,6 +312,12 @@ async def prometheus_metrics():
             media_type="text/plain; version=0.0.4; charset=utf-8",
             status_code=500
         )
+
+# Include the trading router
+app.include_router(trading.router, prefix="/api/v1/trading", tags=["Trading"])
+
+# Include the trading router
+app.include_router(trading.router, prefix="/api/v1/trading", tags=["Trading"])
 
 # Phase 1 placeholder endpoints (will be expanded in Phase 2)
 @app.get("/api/v1/info")
@@ -613,17 +646,30 @@ async def publish_trading_signal(signal: Dict[str, Any]):
         logger.error(f"Error publishing trading signal: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":
-    # Get configuration from environment variables
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
-    reload = os.getenv("RELOAD", "true").lower() == "true"
+def main():
+    """Main function to run the application."""
+    parser = argparse.ArgumentParser(description="Nautilus Trader Engine")
+    parser.add_argument(
+        "--mode",
+        type=str,
+        default="paper",
+        choices=["paper", "live"],
+        help="Trading mode: 'paper' or 'live'",
+    )
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
     
+    args = parser.parse_args()
+
     # Run the application
     uvicorn.run(
         "main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        log_level="info"
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
+        log_level="info",
     )
+
+if __name__ == "__main__":
+    main()

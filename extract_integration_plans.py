@@ -13,10 +13,11 @@ def extract_sections(doc_path):
         phase_patterns = {
             "Phase 1": re.compile(r"Integration\s+Plan\s*&\s*Actions\s+for\s+Phase\s+1", re.IGNORECASE),
             "Phase 2": re.compile(r"Integration\s+Plan\s*&\s*Actions\s+for\s+Phase\s+2", re.IGNORECASE),
-            "Phase 3": re.compile(r"Integration\s+Plan\s*&\s*Actions\s+for\s+Phase\s+3", re.IGNORECASE)
+            "Phase 3": re.compile(r"Integration\s+Plan\s*&\s*Actions\s+for\s+Phase\s+3", re.IGNORECASE),
+            "Phase 4": re.compile(r"Integration\s+Plan\s*&\s*Actions\s+for\s+Phase\s+4", re.IGNORECASE)
         }
         
-        extracted_content = { "Phase 1": "", "Phase 2": "", "Phase 3": "" }
+        extracted_content = { "Phase 1": "", "Phase 2": "", "Phase 3": "", "Phase 4": "" }
         current_phase = None
 
         for para in document.paragraphs:

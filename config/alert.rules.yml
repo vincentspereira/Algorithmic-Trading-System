@@ -1,0 +1,47 @@
+groups:
+  - name: trading_system_alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} at {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighCpuUsage
+        expr: 100 * (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[1m]))) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage on {{ $labels.instance }} is over 80% for more than 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage on {{ $labels.instance }} is over 85% for more than 5 minutes."
+
+      - alert: KafkaConsumerGroupLag
+        expr: kafka_consumergroup_lag > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Kafka consumer group lag for {{ $labels.consumergroup }}"
+          description: "Kafka consumer group {{ $labels.consumergroup }} on topic {{ $labels.topic }} has a lag of {{ $value }}."
+
+      - alert: TradingStrategyError
+        expr: increase(trading_strategy_errors_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Trading strategy {{ $labels.strategy_name }} has errors"
+          description: "Trading strategy {{ $labels.strategy_name }} has encountered errors in the last 5 minutes."
