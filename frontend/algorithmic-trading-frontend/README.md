@@ -4,7 +4,7 @@ This is the Next.js frontend for the enterprise-grade algorithmic trading system
 
 ## Project Overview
 
-The frontend is a professional trading platform that will integrate with the existing backend services, which include the NautilusTrader trading engine, FastAPI, and various databases. The application will feature advanced charting, real-time dashboards, and trading interfaces.
+The frontend is a professional trading platform that integrates seamlessly with the backend services, including the NautilusTrader trading engine, FastAPI, and various databases. It now features robust user authentication and management capabilities, allowing users to securely register, log in, and manage their profiles. The application provides advanced charting, real-time dashboards, and intuitive trading interfaces, with enhanced frontend-backend integration for displaying AI-driven predictions.
 
 ## Getting Started
 

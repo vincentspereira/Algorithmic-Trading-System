@@ -59,7 +59,7 @@ This SDD details the system’s architecture, components, design considerations,
 
 ### 2.1 Overview
 
-The ATS adopts a microservices architecture to ensure modularity, scalability, and fault tolerance. Apache Kafka acts as the central event bus, facilitating real-time data streaming and loose coupling between services. The system integrates a trading engine, AI assistant, data pipelines, and a user interface, all deployed in a cloud-native environment (e.g., AWS, GCP, or Azure). This design supports high-frequency trading, extensibility, and resilience.
+The ATS adopts a microservices architecture to ensure modularity, scalability, and fault tolerance. Apache Kafka acts as the central event bus, facilitating real-time data streaming and loose coupling between services. The system integrates a trading engine, AI assistant, data pipelines, and a user interface, all deployed in a cloud-native environment (e.g., AWS, GCP, or Azure). This design supports high-frequency trading, extensibility, and resilience, with newly implemented robust user authentication and management, seamless frontend-backend integration for predictive analytics, and comprehensive production-ready monitoring and alerting systems.
 
 ### 2.2 Architecture Diagram
 
@@ -67,7 +67,7 @@ The following Mermaid diagram provides a high-level view of the ATS architecture
 
 ```mermaid
 graph TD
-    A[Next.js Frontend] -->|REST API| B[FastAPI Gateway]
+    A[Next.js Frontend] -->|User Auth & API Calls| B[FastAPI Gateway]
     B -->|gRPC| C[Kafka Data Bus]
     C -->|Pub/Sub| D[NautilusTrader Engine]
     C -->|Pub/Sub| E[AI Assistant Service]
@@ -79,21 +79,36 @@ graph TD
     L[ClickHouse] -->|Analyze| M[Time-Series Data]
     N[Qdrant] -->|Vector Search| O[AI Embeddings]
     P[Apache Iceberg] -->|Audit Trails| Q[Compliance Logs]
+    B -->|Auth & User Mgmt| R[User Authentication Service]
+    R -->|Store| J
+    S[Prometheus] -->|Scrape Metrics| B
+    S -->|Scrape Metrics| D
+    S -->|Scrape Metrics| E
+    S -->|Scrape Metrics| F
+    S -->|Alerts| T[Alertmanager]
+    T -->|Notifications| U[Ops Team]
+    S -->|Visualize| V[Grafana]
+    V -->|Dashboards| U
 ```
 
 ### 2.3 Components and Modules
 
-- **Next.js Frontend**: A React-based UI providing real-time dashboards, strategy creation tools, and AI interaction.
-- **FastAPI Gateway**: A high-performance API layer serving as the entry point for frontend and external requests.
-- **Kafka Data Bus**: A distributed streaming platform for real-time event handling and service communication.
-- **NautilusTrader Engine**: The core trading engine for strategy execution, backtesting, and live trading.
-- **AI Assistant Service**: An NLP-powered service for user queries, strategy generation, and system assistance.
-- **Data Pipeline Service**: Ingests, processes, and distributes market data from external sources.
+- **Next.js Frontend**: A React-based UI providing real-time dashboards, strategy creation tools, and AI interaction, now with integrated user authentication flows.
+- **FastAPI Gateway**: A high-performance API layer serving as the entry point for frontend and external requests, handling API routing, authentication, and authorization.
+- **User Authentication Service**: A dedicated microservice responsible for user registration, login, password hashing (using bcrypt), JWT token generation, and user profile management. It integrates with PostgreSQL for secure user data storage.
+- **Kafka Data Bus**: A distributed streaming platform for real-time event handling and service communication, ensuring loose coupling and high throughput across all microservices.
+- **NautilusTrader Engine**: The core trading engine responsible for executing trading strategies, performing backtesting, and managing live trading operations.
+- **AI Assistant Service**: An NLP-powered service that processes user queries, generates trading strategy code, and provides system assistance, leveraging RAG for enhanced context.
+- **Data Pipeline Service**: Ingests, processes, and distributes real-time and historical market data from various external sources into the Kafka Data Bus and relevant databases.
 - **Databases**:
-  - **PostgreSQL with pgvector**: Stores user profiles, trading strategies, and vector embeddings for AI.
-  - **ClickHouse**: Manages high-volume time-series data for analytics and reporting.
-  - **Qdrant**: Provides vector search capabilities for RAG-based AI insights.
-  - **Apache Iceberg**: Ensures immutable storage of audit trails and compliance logs.
+  - **PostgreSQL with pgvector**: Serves as the primary relational database, storing user profiles, trading strategies, and vector embeddings for AI functionalities.
+  - **ClickHouse**: A columnar database optimized for high-volume time-series data, used for storing and analyzing market data and backtesting results.
+  - **Qdrant**: A vector similarity search engine, providing efficient retrieval of AI-driven insights and supporting RAG-based operations.
+  - **Apache Iceberg**: A high-performance format for large analytic tables, used for maintaining immutable audit trails and compliance logs.
+- **Monitoring and Alerting Systems**:
+  - **Prometheus**: A robust monitoring system that collects metrics from all services (FastAPI Gateway, NautilusTrader Engine, AI Assistant, Data Pipeline) to track performance, resource utilization, and error rates.
+  - **Grafana**: A powerful visualization tool that creates interactive dashboards from Prometheus metrics, providing real-time insights into the system's operational health.
+  - **Alertmanager**: Handles alerts generated by Prometheus, deduplicating, grouping, and routing them to appropriate notification channels (e.g., Slack, email) to ensure timely incident response.
 
 ---
 
@@ -130,10 +145,13 @@ The system ensures uninterrupted operation through:
 
 Robust security measures protect sensitive data and ensure compliance:
 
-- **Zero-Trust Architecture**: All requests require authentication and authorization.
-- **Encryption**: AES-256 for data at rest and TLS 1.3 for data in transit.
-- **RBAC**: Role-based access controls restrict functionality by user type.
-- **Audit Trails**: Apache Iceberg provides tamper-proof logging for regulatory compliance.
+- **Zero-Trust Architecture**: All requests, both internal and external, are subject to strict authentication and authorization checks.
+- **User Authentication and Authorization**:
+    - **JWT (JSON Web Tokens)**: Used for stateless authentication. Upon successful login, users receive an access token (short-lived) and a refresh token (long-lived). Access tokens are included in the `Authorization` header for subsequent API calls.
+    - **Password Hashing**: User passwords are never stored in plain text. Instead, they are securely hashed using a strong, adaptive hashing algorithm (e.g., bcrypt) before being stored in the PostgreSQL database.
+    - **Role-Based Access Control (RBAC)**: Granular permissions are enforced based on user roles, restricting access to sensitive functionalities and data.
+- **Encryption**: AES-256 encryption is applied to data at rest, and TLS 1.3 is used for all data in transit, ensuring confidentiality and integrity.
+- **Audit Trails**: Apache Iceberg provides tamper-proof and immutable logging of all significant system events and user actions, crucial for security auditing and regulatory compliance.
 
 ### 3.5 Extensibility
 
@@ -153,16 +171,44 @@ The following Mermaid diagram illustrates the data flow within the ATS:
 
 ```mermaid
 graph LR
-    A[Market Data Sources] -->|REST API/WebSocket| B[Data Pipeline Service]
-    B -->|Kafka Topics| C[Kafka Data Bus]
-    C -->|Pub/Sub| D[NautilusTrader Engine]
-    C -->|Pub/Sub| E[AI Assistant Service]
-    D -->|Store| F[ClickHouse]
-    E -->|Query| G[Qdrant]
-    D -->|Execute| H[Interactive Brokers]
-    I[User] -->|Interact| J[Next.js Frontend]
-    J -->|API Calls| K[FastAPI Gateway]
-    K -->|Internal Requests| L[Services]
+    subgraph User Interaction
+        U[User] -->|Register/Login| F[Next.js Frontend]
+        F -->|API Calls| G[FastAPI Gateway]
+    end
+
+    subgraph Backend Services
+        G -->|Auth & User Mgmt| H[User Authentication Service]
+        H -->|Store User Data| I[PostgreSQL]
+        G -->|Internal Requests| J[Core Trading Engine]
+        G -->|Internal Requests| K[AI Assistant Service]
+        G -->|Internal Requests| L[Data Pipeline Service]
+    end
+
+    subgraph Data Flow
+        M[Market Data Sources] -->|REST API/WebSocket| L
+        L -->|Kafka Topics| N[Kafka Data Bus]
+        N -->|Pub/Sub| J
+        N -->|Pub/Sub| K
+        J -->|Store Trading Data| O[ClickHouse]
+        K -->|Query Embeddings| P[Qdrant]
+        J -->|Execute Trades| Q[Interactive Brokers]
+    end
+
+    subgraph Monitoring & Logging
+        J -->|Metrics| R[Prometheus]
+        K -->|Metrics| R
+        L -->|Metrics| R
+        G -->|Metrics| R
+        R -->|Alerts| S[Alertmanager]
+        S -->|Notifications| T[Ops Team]
+        R -->|Visualize| U[Grafana]
+        U -->|Dashboards| T
+        J -->|Logs| V[ELK Stack]
+        K -->|Logs| V
+        L -->|Logs| V
+        G -->|Logs| V
+        V -->|Analyze Logs| T
+    end
 ```
 
 ### 4.2 Class Diagrams
@@ -234,7 +280,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, -- Stores bcrypt hashed passwords
     role VARCHAR(20) DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

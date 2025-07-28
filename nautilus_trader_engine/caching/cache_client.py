@@ -4,7 +4,7 @@ Cache Client for Redis Integration
 This module provides a client for interacting with a Redis server,
 including connection management and caching operations.
 
-Author: Kilo Code
+Author: Vincent Pereira
 Version: 1.0.0
 """
 

@@ -97,9 +97,143 @@ curl -X POST '/auth/refresh' \
 
 ---
 
-## 3. Core Trading Engine API
+## 3. User Management API
 
-### 3.1 Strategy Management
+### 3.1 Get Current User
+**Description**: Retrieves the profile of the authenticated user.
+**HTTP Method**: GET
+**Path**: `/users/me`
+**Authentication**: Required
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "user_id": "uuid",
+    "username": "string",
+    "email": "string",
+    "created_at": "timestamp",
+    "is_active": true,
+    "roles": ["user"]
+  }
+  ```
+- **Error (401)**:
+  ```json
+  {
+    "error": "Unauthorized"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X GET '/users/me' \
+-H 'Authorization: Bearer <token>'
+```
+
+### 3.2 Get User by ID
+**Description**: Retrieves a user's profile by their ID (admin only).
+**HTTP Method**: GET
+**Path**: `/users/{user_id}`
+**Authentication**: Required (Admin role)
+
+**Path Parameters**:
+- `user_id`: uuid
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "user_id": "uuid",
+    "username": "string",
+    "email": "string",
+    "created_at": "timestamp",
+    "is_active": true,
+    "roles": ["user"]
+  }
+  ```
+- **Error (404)**:
+  ```json
+  {
+    "error": "User not found"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X GET '/users/123e4567-e89b-12d3-a456-426614174000' \
+-H 'Authorization: Bearer <token>'
+```
+
+### 3.3 Get User by Username
+**Description**: Retrieves a user's profile by their username (admin only).
+**HTTP Method**: GET
+**Path**: `/users/username/{username}`
+**Authentication**: Required (Admin role)
+
+**Path Parameters**:
+- `username`: string
+
+**Response**:
+- **Success (200)**:
+  ```json
+  {
+    "user_id": "uuid",
+    "username": "string",
+    "email": "string",
+    "created_at": "timestamp",
+    "is_active": true,
+    "roles": ["user"]
+  }
+  ```
+- **Error (404)**:
+  ```json
+  {
+    "error": "User not found"
+  }
+  ```
+
+**Example**:
+```bash
+curl -X GET '/users/username/johndoe' \
+-H 'Authorization: Bearer <token>'
+```
+
+### 3.4 List All Users
+**Description**: Retrieves a paginated list of all registered users (admin only).
+**HTTP Method**: GET
+**Path**: `/users/`
+**Authentication**: Required (Admin role)
+
+**Query Parameters**:
+- `skip`: integer (default: 0)
+- `limit`: integer (default: 100)
+
+**Response**:
+- **Success (200)**:
+  ```json
+  [
+    {
+      "user_id": "uuid",
+      "username": "string",
+      "email": "string",
+      "created_at": "timestamp",
+      "is_active": true,
+      "roles": ["user"]
+    }
+  ]
+  ```
+
+**Example**:
+```bash
+curl -X GET '/users/?skip=0&limit=10' \
+-H 'Authorization: Bearer <token>'
+```
+
+---
+
+## 4. Core Trading Engine API
+
+### 4.1 Strategy Management
 
 #### 3.1.1 Create Strategy
 **Description**: Creates a new trading strategy with user-defined code and parameters.  
@@ -179,7 +313,7 @@ curl -X GET '/api/v1/strategies?page=1&per_page=10' \
 -H 'Authorization: Bearer <token>'
 ```
 
-### 3.2 Backtesting
+### 4.2 Backtesting
 
 #### 3.2.1 Run Backtest
 **Description**: Initiates a backtest for a specified strategy over a historical period.  
@@ -276,7 +410,7 @@ curl -X GET '/api/v1/backtests/123e4567-e89b-12d3-a456-426614174000' \
 -H 'Authorization: Bearer <token>'
 ```
 
-### 3.3 Live Trading
+### 4.3 Live Trading
 
 #### 3.3.1 Place Order
 **Description**: Places a live trading order based on a strategy or manual input.  
@@ -367,9 +501,9 @@ curl -X GET '/api/v1/portfolio' \
 
 ---
 
-## 4. Data Pipelines API
+## 5. Data Pipelines API
 
-### 4.1 Market Data Ingestion
+### 5.1 Market Data Ingestion
 **Description**: Initiates ingestion of market data for a specified asset (admin only).  
 **HTTP Method**: POST  
 **Path**: `/api/v1/data/ingest`  
@@ -407,7 +541,7 @@ curl -X POST '/api/v1/data/ingest' \
 -d '{"asset": "BTC/USD", "source": "Binance", "interval": "1h"}'
 ```
 
-### 4.2 Historical Data Retrieval
+### 5.2 Historical Data Retrieval
 **Description**: Retrieves historical market data for an asset.  
 **HTTP Method**: GET  
 **Path**: `/api/v1/data/historical/{asset}`  
@@ -448,9 +582,9 @@ curl -X GET '/api/v1/data/historical/AAPL?start_date=2023-01-01&end_date=2023-12
 
 ---
 
-## 5. AI Assistant API
+## 6. AI Assistant API
 
-### 5.1 Submit Natural Language Query
+### 6.1 Submit Natural Language Query
 **Description**: Submits a query to the AI assistant for analysis or advice.  
 **HTTP Method**: POST  
 **Path**: `/api/v1/ai/query`  
@@ -501,7 +635,7 @@ sequenceDiagram
     A-->>U: 200 OK
 ```
 
-### 5.2 Generate Strategy Code
+### 6.2 Generate Strategy Code
 **Description**: Requests Python code generation for a trading strategy.  
 **HTTP Method**: POST  
 **Path**: `/api/v1/ai/generate_code`  
@@ -533,9 +667,9 @@ curl -X POST '/api/v1/ai/generate_code' \
 
 ---
 
-## 6. Analytics API
+## 7. Analytics API
 
-### 6.1 Run ML Prediction
+### 7.1 Run ML Prediction
 **Description**: Generates a price prediction for an asset using a specified model.  
 **HTTP Method**: POST  
 **Path**: `/api/v1/analytics/predict`  
@@ -570,9 +704,9 @@ curl -X POST '/api/v1/analytics/predict' \
 
 ---
 
-## 7. User Interface API
+## 8. User Interface API
 
-### 7.1 Get Dashboard Data
+### 8.1 Get Dashboard Data
 **Description**: Retrieves data for the user dashboard.  
 **HTTP Method**: GET  
 **Path**: `/api/v1/ui/dashboard`  
@@ -606,9 +740,9 @@ curl -X GET '/api/v1/ui/dashboard' \
 
 ---
 
-## 8. Security and Compliance API
+## 9. Security and Compliance API
 
-### 8.1 Retrieve Audit Logs
+### 9.1 Retrieve Audit Logs
 **Description**: Fetches audit logs for monitoring and compliance (admin only).  
 **HTTP Method**: GET  
 **Path**: `/api/v1/security/audit_logs`  
@@ -642,9 +776,9 @@ curl -X GET '/api/v1/security/audit_logs?start_date=2023-01-01&end_date=2023-12-
 
 ---
 
-## 9. Error Handling
+## 10. Error Handling
 
-### 9.1 Standard Error Response Format
+### 10.1 Standard Error Response Format
 ```json
 {
   "error": "string",
@@ -653,7 +787,7 @@ curl -X GET '/api/v1/security/audit_logs?start_date=2023-01-01&end_date=2023-12-
 }
 ```
 
-### 9.2 Common Error Codes
+### 10.2 Common Error Codes
 - **400 Bad Request**: Invalid or missing parameters.
 - **401 Unauthorized**: Missing or invalid token.
 - **403 Forbidden**: Insufficient permissions.
@@ -661,19 +795,19 @@ curl -X GET '/api/v1/security/audit_logs?start_date=2023-01-01&end_date=2023-12-
 - **429 Too Many Requests**: Rate limit exceeded.
 - **500 Internal Server Error**: System failure.
 
-### 9.3 Rate Limiting
+### 10.3 Rate Limiting
 - **Limit**: 100 requests per minute per user.
 - **Header**: `X-Rate-Limit-Remaining` indicates remaining requests.
 
 ---
 
-## 10. Appendices
+## 11. Appendices
 
-### 10.1 Glossary
+### 11.1 Glossary
 - **Backtest**: Simulation of a trading strategy using historical data.
 - **JWT**: JSON Web Token used for authentication.
 - **Strategy**: A codified set of trading rules.
 
-### 10.2 References
+### 11.2 References
 - FastAPI Swagger UI: Accessible at `/docs` when running the server.
 - OAuth2 Specification: [https://oauth.net/2/](https://oauth.net/2/)

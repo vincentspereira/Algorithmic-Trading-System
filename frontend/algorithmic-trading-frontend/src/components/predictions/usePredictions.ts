@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 export interface Prediction {
   ticker: string;
   model_type: string;
-  prediction_horizon: number;
-  predictions: number[];
+  prediction_horizon: number; // This is a single value, not an array of horizons
+  predictions: number[]; // This array contains predictions for various horizons
   confidence_intervals?: {
     lower: number[];
     upper: number[];
@@ -22,12 +22,41 @@ export interface HistoricalPrediction {
   actualPrice?: number;
 }
 
+// Define the structure expected by PredictionWidget
+export interface WidgetPrediction {
+  prediction: number;
+  confidence: number;
+}
+
+export interface PredictionsData {
+  '1min'?: WidgetPrediction;
+  '5min'?: WidgetPrediction;
+  '15min'?: WidgetPrediction;
+  // Add other horizons if needed based on backend configuration
+}
+
 // --- WebSocket and API Configuration ---
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'ws://localhost:8000/api/predictions/ws/predictions';
 
+// Helper function to transform backend Prediction to frontend PredictionsData
+const transformPredictionToWidgetData = (prediction: Prediction): PredictionsData => {
+  const horizons = prediction.metadata?.prediction_horizons || [1, 5, 15]; // Default horizons if not in metadata
+  const transformed: PredictionsData = {};
+
+  horizons.forEach((horizon, index) => {
+    if (prediction.predictions && prediction.predictions[index] !== undefined) {
+      transformed[`${horizon}min` as keyof PredictionsData] = {
+        prediction: prediction.predictions[index],
+        confidence: prediction.model_confidence, // Assuming overall model confidence applies to all horizons
+      };
+    }
+  });
+  return transformed;
+};
+
 export const usePredictions = (symbols: string[]) => {
-  const [realtimeData, setRealtimeData] = useState<Record<string, Prediction>>({});
+  const [realtimeData, setRealtimeData] = useState<Record<string, { predictions: PredictionsData, lastUpdated: string }>>({});
   const [historicalData, setHistoricalData] = useState<Record<string, HistoricalPrediction[]>>({});
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +80,14 @@ export const usePredictions = (symbols: string[]) => {
       try {
         const message: Prediction = JSON.parse(event.data);
         if (symbols.includes(message.ticker)) {
-          setRealtimeData(prev => ({ ...prev, [message.ticker]: message }));
+          const transformedData = transformPredictionToWidgetData(message);
+          setRealtimeData(prev => ({
+            ...prev,
+            [message.ticker]: {
+              predictions: transformedData,
+              lastUpdated: new Date().toISOString()
+            }
+          }));
         }
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);

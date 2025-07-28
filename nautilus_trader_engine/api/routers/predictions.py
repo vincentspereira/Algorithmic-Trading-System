@@ -10,7 +10,7 @@ Features:
 - Prediction caching and performance optimization.
 - Prediction confidence scoring and validation.
 
-Author: Kilo Code
+Author: Vincent Pereira
 Version: 2.0.0
 """
 

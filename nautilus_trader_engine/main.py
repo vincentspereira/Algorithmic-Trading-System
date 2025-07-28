@@ -22,9 +22,23 @@ import uvicorn
 
 from metrics import get_metrics, initialize_metrics, time_api_request
 from kafka_manager import get_kafka_manager, initialize_kafka_manager, close_kafka_manager
-from nautilus_trader_engine.adapters.interactive_brokers import InteractiveBrokersAdapter
-from nautilus_trader_engine.config.ib_config import get_ib_trading_node_config
-from nautilus_trader_engine.api.routers import trading
+import os
+import logging
+import asyncio
+import time
+import psutil
+import argparse
+from typing import Dict, Any, Optional
+from datetime import datetime
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, Response
+import uvicorn
+
+from metrics import get_metrics, initialize_metrics, time_api_request
+from kafka_manager import get_kafka_manager, initialize_kafka_manager, close_kafka_manager
+from nautilus_trader_engine.api.routers import trading, strategy_management
 from nautilus_trader_engine.utils.logging_config import setup_logging
 from nautilus_trader_engine.config.database_config import (
     get_postgres_config,
@@ -61,10 +75,8 @@ service_status = {
     "postgres_connected": False,
     "clickhouse_connected": False,
     "duckdb_connected": False,
-    "ib_connected": False,
     "last_health_check": None
 }
-ib_adapter: Optional[InteractiveBrokersAdapter] = None
 
 # Initialize metrics
 metrics = initialize_metrics()
@@ -100,18 +112,6 @@ async def startup_event():
     # Initialize connections (placeholder for Phase 1)
     await initialize_connections()
     
-    # Initialize IB Adapter
-    global ib_adapter
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", type=str, default="paper", choices=["paper", "live"])
-    args, _ = parser.parse_known_args()
-
-    loop = asyncio.get_running_loop()
-    ib_config = get_ib_trading_node_config(args.mode).connection_config
-    ib_adapter = InteractiveBrokersAdapter(loop, ib_config)
-    await ib_adapter.start()
-    service_status["ib_connected"] = ib_adapter._is_connected
-
     # Initialize Kafka manager
     kafka_initialized = await initialize_kafka_manager()
     service_status["kafka_connected"] = kafka_initialized
@@ -140,11 +140,6 @@ async def startup_event():
 async def shutdown_event():
     """Cleanup on shutdown"""
     logger.info("Shutting down Nautilus Trader Engine...")
-
-    # Stop IB Adapter
-    if ib_adapter:
-        await ib_adapter.stop()
-        logger.info("IB Adapter stopped")
 
     # Close Kafka connections
     try:
@@ -315,9 +310,7 @@ async def prometheus_metrics():
 
 # Include the trading router
 app.include_router(trading.router, prefix="/api/v1/trading", tags=["Trading"])
-
-# Include the trading router
-app.include_router(trading.router, prefix="/api/v1/trading", tags=["Trading"])
+app.include_router(strategy_management.router, prefix="/api/v1/strategies", tags=["Strategies"])
 
 # Phase 1 placeholder endpoints (will be expanded in Phase 2)
 @app.get("/api/v1/info")

@@ -36,7 +36,7 @@ RUN cd /tmp && \
     wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     tar -xzf ta-lib-0.4.0-src.tar.gz && \
     cd ta-lib/ && \
-    ./configure --prefix=/usr && \
+    ./configure --prefix=/usr --libdir=/usr/lib --includedir=/usr/include && \
     make && \
     make install && \
     cd / && \
@@ -45,52 +45,15 @@ RUN cd /tmp && \
 # Upgrade pip and install wheel
 RUN pip install --upgrade pip setuptools wheel
 
-# Install core Python dependencies
-RUN pip install \
-    nautilus_trader \
-    kafka-python \
-    psycopg2-binary \
-    clickhouse-driver \
-    duckdb \
-    pandas \
-    numpy \
-    scipy \
-    scikit-learn \
-    ta-lib \
-    ta \
-    yfinance \
-    backtrader \
-    vectorbt[numba] \
-    optuna \
-    numba \
-    llvmlite \
-    fastapi \
-    uvicorn \
-    pydantic \
-    python-multipart \
-    aiofiles \
-    asyncpg \
-    sqlalchemy \
-    alembic \
-    redis \
-    celery \
-    prometheus-client \
-    structlog \
-    python-json-logger
+# Set environment variables for TA-Lib
+ENV TA_INCLUDE_PATH="/usr/include"
+ENV TA_LIBRARY_PATH="/usr/lib"
 
-# Install additional trading and analysis libraries
-RUN pip install \
-    pyportfolioopt \
-    riskfolio-lib \
-    quantlib \
-    arch \
-    statsmodels \
-    matplotlib \
-    seaborn \
-    plotly \
-    dash \
-    jupyter \
-    ipykernel
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Create necessary directories
 RUN mkdir -p /app/config /app/data /app/logs

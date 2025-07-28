@@ -5,11 +5,17 @@ Authentication router for login and token management
 import logging
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.security import HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
-from ..models.auth import LoginRequest, TokenResponse, RefreshTokenRequest, UserInfo, AuthStatus
-from ..core.security import verify_password, get_password_hash, create_token_response
+from ..models.auth import TokenResponse, RefreshTokenRequest, UserInfo, AuthStatus
+from ..models.user import UserCreate, UserResponse
+from ..core.security import create_token_response
 from ..auth.dependencies import get_current_user, verify_refresh_token, security
+from ..auth.utils import hash_password, verify_password, create_access_token
+from ...database.database import get_db
+from ...database.models import User as DBUser
 
 logger = logging.getLogger(__name__)
 
@@ -23,51 +29,112 @@ router = APIRouter(
     }
 )
 
-# Simple in-memory user store for demo purposes
-# In production, this would be replaced with a proper database
-DEMO_USERS = {
-    "demo": {
-        "user_id": "demo_user_001",
-        "username": "demo",
-        "hashed_password": get_password_hash("demo123"),  # Password: demo123
-        "is_active": True,
-        "created_at": "2024-01-01T00:00:00Z"
-    },
-    "admin": {
-        "user_id": "admin_user_001", 
-        "username": "admin",
-        "hashed_password": get_password_hash("admin123"),  # Password: admin123
-        "is_active": True,
-        "created_at": "2024-01-01T00:00:00Z"
+
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="User Registration",
+    description="Register a new user with a unique username and email",
+    responses={
+        201: {
+            "description": "User successfully registered",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": "some_uuid",
+                        "username": "newuser",
+                        "email": "newuser@example.com",
+                        "is_active": True,
+                        "created_at": "2024-07-28T10:00:00Z"
+                    }
+                }
+            }
+        },
+        409: {
+            "description": "Conflict: Username or email already exists",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Username or email already registered"
+                    }
+                }
+            }
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": [
+                            {
+                                "loc": ["body", "username"],
+                                "msg": "field required",
+                                "type": "value_error.missing"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
     }
-}
+)
+async def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    """
+    **Register New User Endpoint**
 
+    Allows new users to register by providing a username, email, and password.
+    """
+    db_user = db.query(DBUser).filter(
+        (DBUser.username == user.username) | (DBUser.email == user.email)
+    ).first()
 
-def authenticate_user(username: str, password: str) -> dict:
-    """Authenticate user with username and password"""
-    user = DEMO_USERS.get(username)
-    if not user:
-        return None
-    if not verify_password(password, user["hashed_password"]):
-        return None
-    if not user["is_active"]:
-        return None
-    return user
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username or email already registered"
+        )
+
+    hashed_password = hash_password(user.password)
+    new_user = DBUser(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password,
+        created_at=datetime.utcnow()
+    )
+
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        logger.info(f"New user registered: {new_user.username}")
+        return UserResponse.from_orm(new_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username or email already registered (database constraint violation)"
+        )
+    except Exception as e:
+        logger.error(f"User registration error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during registration"
+        )
 
 
 @router.post(
-    "/login",
+    "/token",
     response_model=TokenResponse,
-    summary="User Login",
-    description="Authenticate user credentials and return JWT access and refresh tokens",
+    summary="User Login and Token Generation",
+    description="Authenticate user credentials and generate JWT access token",
     responses={
         200: {
-            "description": "Login successful",
+            "description": "Login successful, access token generated",
             "content": {
                 "application/json": {
                     "example": {
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "token_type": "bearer",
                         "expires_in": 1800
                     }
@@ -102,61 +169,187 @@ def authenticate_user(username: str, password: str) -> dict:
         }
     }
 )
-async def login(login_request: LoginRequest):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
-    **User Authentication Endpoint**
+    **User Login Endpoint**
+
+    Authenticates user credentials and returns a JWT access token.
+    """
+    user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
+
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token = create_access_token(data={"sub": user.id})
+    logger.info(f"Successful login for user: {user.username}")
+    return TokenResponse(access_token=access_token, token_type="bearer", expires_in=3600) # Assuming 1 hour expiration for access token
+
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    summary="Refresh Access Token",
+    description="Exchange a valid refresh token for a new access token",
+    responses={
+        200: {
+            "description": "Token refresh successful",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "token_type": "bearer",
+                        "expires_in": 1800
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "Invalid or expired refresh token",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Invalid refresh token"
+                    }
+                }
+            }
+        }
+    }
+)
+async def refresh_token(refresh_request: RefreshTokenRequest):
+    """
+    **Token Refresh Endpoint**
     
-    Authenticates user credentials and returns JWT tokens for API access.
+    Exchanges a valid refresh token for a new access token, extending the user's session.
     
-    ### Authentication Flow
-    1. Submit username and password
-    2. Server validates credentials against user database
-    3. If valid, server generates access and refresh tokens
-    4. Client uses access token for subsequent API requests
-    5. Client can use refresh token to obtain new access tokens
+    ### When to Use
+    - When your access token expires (after 30 minutes)
+    - To maintain continuous API access without re-authentication
+    - As part of automatic token refresh in client applications
     
-    ### Token Usage
-    - **Access Token**: Include in Authorization header as `Bearer <token>`
-    - **Refresh Token**: Use with `/auth/refresh` endpoint to get new access tokens
-    - **Expiration**: Access tokens expire in 30 minutes, refresh tokens in 7 days
+    ### Process
+    1. Submit your current refresh token
+    2. Server validates the refresh token
+    3. If valid, server generates new access and refresh tokens
+    4. Use the new access token for subsequent API requests
     
-    ### Demo Credentials
-    For testing purposes, use these demo accounts:
-    - **Demo User**: Username `demo`, Password `demo123`
-    - **Admin User**: Username `admin`, Password `admin123`
+    ### Security Features
+    - Refresh tokens are single-use (new refresh token provided each time)
+    - Refresh tokens expire after 7 days
+    - Invalid refresh attempts are logged for security monitoring
     
-    ### Security Notes
-    - Passwords are hashed using bcrypt
-    - Tokens are signed with HMAC SHA-256
-    - Failed login attempts are logged for security monitoring
+    ### Error Handling
+    - If refresh token is invalid or expired, client must re-authenticate via `/auth/login`
+    - Failed refresh attempts may indicate token compromise
     """
     try:
-        # Authenticate user
-        user = authenticate_user(login_request.username, login_request.password)
+        # Verify refresh token and get user ID
+        user_id = verify_refresh_token(refresh_request.refresh_token)
         
-        if not user:
-            logger.warning(f"Failed login attempt for username: {login_request.username}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+        # Create new token response
+        token_response = create_token_response(user_id)
         
-        # Create token response
-        token_response = create_token_response(user["user_id"])
-        
-        logger.info(f"Successful login for user: {login_request.username}")
+        logger.info(f"Token refreshed for user: {user_id}")
         
         return TokenResponse(**token_response)
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Login error: {e}")
+        logger.error(f"Token refresh error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during login"
+            detail="Internal server error during token refresh"
         )
+
+
+@router.get(
+    "/me",
+    response_model=UserInfo,
+    summary="Get User Information",
+    description="Retrieve information about the currently authenticated user",
+    responses={
+        200: {
+            "description": "User information retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "user_id": "demo_user_001",
+                        "username": "demo",
+                        "is_active": True,
+                        "created_at": "2024-01-01T00:00:00Z"
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "Authentication required",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated"
+                    }
+                }
+            }
+        },
+        404: {
+            "description": "User not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "User not found"
+                    }
+                }
+            }
+        }
+    }
+)
+async def get_current_user_info(current_user_id: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    **Get Current User Information**
+    
+    Retrieves detailed information about the currently authenticated user.
+    
+    ### Authentication Required
+    This endpoint requires a valid access token in the Authorization header:
+    ```
+    Authorization: Bearer <your_access_token>
+    ```
+    
+    ### Returned Information
+    - **User ID**: Unique identifier for the user account
+    - **Username**: The user's login name
+    - **Active Status**: Whether the account is currently active
+    - **Creation Date**: When the user account was created
+    
+    ### Use Cases
+    - Profile management interfaces
+    - User account verification
+    - Audit logging and user tracking
+    - Personalized application features
+    
+    ### Security Notes
+    - Only returns information for the authenticated user
+    - User cannot access other users' information through this endpoint
+    - All user data access is logged for security purposes
+    """
+    user = db.query(DBUser).filter(DBUser.id == current_user_id).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    return UserInfo(
+        user_id=str(user.id),
+        username=user.username,
+        is_active=user.is_active,
+        created_at=user.created_at.isoformat() + "Z"
+    )
 
 
 @router.post(

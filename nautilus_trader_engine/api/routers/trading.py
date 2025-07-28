@@ -1,122 +1,127 @@
-# nautilus_trader_engine/api/routers/trading.py
+import asyncio
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
 
-"""
-API endpoints for handling trading operations such as placing, modifying, and canceling orders.
-This router integrates with the TradingGateway to execute trades and manage order lifecycle.
-"""
+from nautilus_trader.model.enums import OrderSide, OrderType, TimeInForce
+from nautilus_trader.model.identifiers import InstrumentId, ClientOrderId
+from nautilus_trader.model.objects import Price, Quantity
+from nautilus_trader.model.orders.market import MarketOrder
+from nautilus_trader.model.orders.limit import LimitOrder
 
-from fastapi import APIRouter, Depends, HTTPException
-from nautilus_trader.model.enums import OrderSide, OrderType
-from nautilus_trader.model.identifiers import InstrumentId
-from nautilus_trader.model.objects import Price
 from nautilus_trader_engine.services.trading_gateway import TradingGateway
 from nautilus_trader_engine.services.risk_management_service import RiskManagementService
+from nautilus_trader_engine.config.ib_config import get_ib_config
 
 router = APIRouter()
 
-# In a real application, you would use a dependency injection system
-# to provide these services. For simplicity, we instantiate them here.
-risk_management_service = RiskManagementService()
-trading_gateway = TradingGateway(risk_management_service=risk_management_service)
+# Dependency to get TradingGateway instance
+async def get_trading_gateway():
+    loop = asyncio.get_event_loop()
+    ib_config = get_ib_config()
+    risk_service = RiskManagementService()
+    gateway = TradingGateway(loop=loop, risk_management_service=risk_service, config=ib_config)
+    await gateway.connect()
+    try:
+        yield gateway
+    finally:
+        await gateway.disconnect()
 
-@router.on_event("startup")
-async def startup_event():
-    """
-    Connect to the trading gateway on application startup.
-    """
-    await trading_gateway.connect()
+class PlaceOrderRequest(BaseModel):
+    instrument_id: str
+    order_side: OrderSide
+    quantity: float
+    order_type: OrderType
+    price: Optional[float] = None
+    client_order_id: Optional[str] = None
+    time_in_force: Optional[TimeInForce] = TimeInForce.DAY
 
-@router.on_event("shutdown")
-async def shutdown_event():
-    """
-    Disconnect from the trading gateway on application shutdown.
-    """
-    await trading_gateway.disconnect()
+class OrderResponse(BaseModel):
+    client_order_id: str
+    status: str
+    ib_order_id: Optional[int] = None
+    message: Optional[str] = None
 
-@router.post("/orders/place", status_code=201)
-async def place_order(
-    instrument_id: str,
-    side: OrderSide,
-    quantity: float,
-    price: float,
-    order_type: OrderType,
-):
-    """
-    Places a new trading order.
+class CancelOrderResponse(BaseModel):
+    client_order_id: str
+    success: bool
+    message: Optional[str] = None
 
-    Args:
-        instrument_id (str): The ID of the instrument to trade (e.g., "EUR/USD.FX.IDEALPRO").
-        side (OrderSide): 'BUY' or 'SELL'.
-        quantity (float): The amount of the instrument to trade.
-        price (float): The price at which to place the order.
-        order_type (OrderType): The type of order (e.g., 'LIMIT').
+class OrderStatusResponse(BaseModel):
+    client_order_id: str
+    status: str
+    ib_order_id: Optional[int] = None
 
-    Returns:
-        A confirmation message with the order details.
-    """
-    instrument = InstrumentId.from_str(instrument_id)
-    order_price = Price(price)
+class PortfolioResponse(BaseModel):
+    account_values: Dict[str, Any]
+    positions: list
 
-    order_result = await trading_gateway.place_order(
-        instrument_id=instrument,
-        side=side,
-        quantity=quantity,
-        price=order_price,
-        order_type=order_type,
-    )
+@router.post("/orders/place", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
+async def place_order(request: PlaceOrderRequest, gateway: TradingGateway = Depends(get_trading_gateway)):
+    instrument_id = InstrumentId.from_str(request.instrument_id)
+    quantity = Quantity(request.quantity)
+    client_order_id = ClientOrderId(request.client_order_id) if request.client_order_id else ClientOrderId.random()
 
-    if order_result:
-        return {"message": "Order placed successfully", "order": order_result}
+    if request.order_type == OrderType.MARKET:
+        order = MarketOrder(
+            instrument_id=instrument_id,
+            order_side=request.order_side,
+            quantity=quantity,
+            client_order_id=client_order_id,
+            time_in_force=request.time_in_force
+        )
+    elif request.order_type == OrderType.LIMIT:
+        if request.price is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Limit orders require a price.")
+        order = LimitOrder(
+            instrument_id=instrument_id,
+            order_side=request.order_side,
+            quantity=quantity,
+            price=Price(request.price),
+            client_order_id=client_order_id,
+            time_in_force=request.time_in_force
+        )
     else:
-        raise HTTPException(status_code=400, detail="Order placement failed risk validation or other error.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Order type {request.order_type} not supported.")
 
-@router.post("/orders/cancel/{order_id}", status_code=200)
-async def cancel_order(order_id: str):
-    """
-    Cancels an existing order.
+    trade = await gateway.place_order(order)
+    if trade:
+        return OrderResponse(
+            client_order_id=str(client_order_id),
+            status="PENDING",
+            ib_order_id=trade.order.orderId,
+            message="Order placed successfully."
+        )
+    else:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to place order.")
 
-    Args:
-        order_id (str): The ID of the order to cancel.
-    """
-    await trading_gateway.cancel_order(order_id)
-    return {"message": f"Cancellation request for order {order_id} sent."}
+@router.post("/orders/cancel", response_model=CancelOrderResponse)
+async def cancel_order(client_order_id: str, gateway: TradingGateway = Depends(get_trading_gateway)):
+    success = await gateway.cancel_order(client_order_id)
+    if success:
+        return CancelOrderResponse(client_order_id=client_order_id, success=True, message="Order cancellation requested.")
+    else:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to cancel order.")
 
-@router.get("/orders/status/{order_id}", status_code=200)
-async def get_order_status(order_id: str):
-    """
-    Retrieves the status of a specific order.
+@router.get("/orders/status/{client_order_id}", response_model=OrderStatusResponse)
+async def get_order_status(client_order_id: str, gateway: TradingGateway = Depends(get_trading_gateway)):
+    status_info = await gateway.get_order_status(client_order_id)
+    if status_info:
+        return OrderStatusResponse(
+            client_order_id=status_info["client_order_id"],
+            status=status_info["status"],
+            ib_order_id=status_info["ib_order_id"]
+        )
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found or status unavailable.")
 
-    Args:
-        order_id (str): The ID of the order to check.
-    """
-    status = await trading_gateway.get_order_status(order_id)
-    return status
-
-@router.get("/orders/updates", status_code=200)
-async def get_trade_updates():
-    """
-    Retrieves all trade updates.
-    """
-    updates = await trading_gateway.get_trade_updates()
-    return {"updates": updates}
-
-@router.get("/orders/book/{instrument_id}", status_code=200)
-async def get_order_book(instrument_id: str):
-    """
-    Retrieves the order book for a given instrument.
-
-    Args:
-        instrument_id (str): The ID of the instrument to check.
-    """
-    order_book = await trading_gateway.get_order_book(instrument_id)
-    return {"instrument_id": instrument_id, "order_book": order_book}
-
-@router.get("/positions", status_code=200)
-async def get_positions():
-    """
-    Retrieves the current positions.
-    """
-    positions = await trading_gateway.get_positions()
-    return {"positions": positions}
-
-# Further endpoints for modifying orders would be added here.
+@router.get("/portfolio", response_model=PortfolioResponse)
+async def get_portfolio(gateway: TradingGateway = Depends(get_trading_gateway)):
+    portfolio = await gateway.get_portfolio()
+    if portfolio:
+        return PortfolioResponse(
+            account_values=portfolio.get("account_values", {}),
+            positions=portfolio.get("positions", [])
+        )
+    else:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve portfolio.")

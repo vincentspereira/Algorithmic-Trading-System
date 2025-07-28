@@ -282,8 +282,8 @@ class BacktestRunner:
         print(f"Year: {self.year}")
         print(f"Strategy: Moving Average Crossover ({self.fast_period}/{self.slow_period})")
         print(f"Data Points: {len(self.data) if self.data is not None else 0}")
-        print(f"Backtrader: {'✓' if backtrader_result else '✗'}")
-        print(f"TradingGym: {'✓' if trading_gym_result else '✗'}")
+        print(f"Backtrader: {'OK' if backtrader_result else 'FAIL'}")
+        print(f"TradingGym: {'OK' if trading_gym_result else 'FAIL'}")
         
         if backtrader_result:
             print(f"Best Return: {backtrader_result['total_return']:.2%} (Backtrader)")
@@ -299,19 +299,19 @@ def display_system_info():
     if INDICATORS_AVAILABLE:
         try:
             indicator_info = get_available_indicators()
-            print(f"TA-Lib Available: {'✓' if indicator_info['talib_available'] else '✗'}")
-            print(f"'ta' Library Available: {'✓' if indicator_info['ta_available'] else '✗'}")
+            print(f"TA-Lib Available: {'Yes' if indicator_info['talib_available'] else 'No'}")
+            print(f"'ta' Library Available: {'Yes' if indicator_info['ta_available'] else 'No'}")
             print(f"Fallback Method: {indicator_info['fallback_method']}")
             print(f"Available Indicators: {len(indicator_info['indicators'])}")
             
             if not indicator_info['talib_available']:
-                print("\n⚠️  TA-Lib not installed. Using fallback implementations.")
+                print("\n[!] TA-Lib not installed. Using fallback implementations.")
                 print("   See TALIB_INSTALLATION.md for installation instructions.")
                 
         except Exception as e:
             print(f"Error getting indicator info: {e}")
     else:
-        print("⚠️  Indicators module not available")
+        print("[!] Indicators module not available")
     
     print()
 
@@ -332,9 +332,9 @@ def main():
             print("Testing technical indicators...")
             try:
                 test_indicators()
-                print("✓ All indicators working correctly\n")
+                print("OK: All indicators working correctly\n")
             except Exception as e:
-                print(f"⚠️  Indicator test failed: {e}")
+                print(f"[!] Indicator test failed: {e}")
                 print("Proceeding with basic backtest...\n")
         
         # Initialize and run backtests

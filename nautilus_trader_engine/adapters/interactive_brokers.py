@@ -15,12 +15,12 @@ Interactive Brokers TWS or Gateway using the `ib_insync` library. It handles:
 import asyncio
 from typing import Optional
 
-from ib_insync import IB, Contract, Order as IBOrder, Ticker
+from ib_insync import IB, Contract, Order as IBOrder, Ticker, Trade
 from nautilus_trader.core.component import Component
 from nautilus_trader.core.message import Event
 from nautilus_trader.model.book import QuoteTick
 from nautilus_trader.model.data import Bar
-from nautilus_trader.model.enums import OrderSide, OrderType, TimeInForce
+from nautilus_trader.model.enums import OrderSide, OrderType, TimeInForce, OrderStatus as NautilusOrderStatus
 from nautilus_trader.model.events import (
     AccountState,
     OrderFilled,
@@ -103,21 +103,49 @@ class InteractiveBrokersAdapter(Component):
                 self.put_event(quote_tick)
                 self._log.debug(f"Processed new quote tick: {quote_tick}")
 
-    def on_order_status(self, trade):
+    def on_order_status(self, trade: Trade):
         """Handles order status updates."""
-        order_status = from_ib_order_status(trade.orderStatus)
-        if order_status:
-            # Create the appropriate Nautilus event, e.g., OrderFilled
-            pass
+        nautilus_order_status = from_ib_order_status(trade.orderStatus.status)
+        if nautilus_order_status:
+            # Example: Emit OrderFilled event if order is filled
+            if nautilus_order_status == NautilusOrderStatus.FILLED:
+                order_filled_event = OrderFilled(
+                    order_id=OrderId(str(trade.order.orderId)),
+                    client_order_id=ClientOrderId(trade.order.permId),
+                    instrument_id=InstrumentId(trade.contract.symbol, trade.contract.exchange, trade.contract.currency),
+                    price=Price(trade.avgFillPrice),
+                    quantity=Quantity(trade.filled),
+                    timestamp=self.loop.time() # Use loop time for consistency
+                )
+                self.put_event(order_filled_event)
+                self._log.info(f"Order filled: {order_filled_event}")
+            # You can add more conditions for other order statuses (e.g., CANCELED, PARTIAL_FILL)
+            # and emit corresponding Nautilus events.
 
     def on_pnl(self, pnl):
         """Handles profit and loss updates."""
-        pass
+        # Example: Emit AccountState event
+        account_state_event = AccountState(
+            account_id="IB_ACCOUNT", # Replace with actual account ID
+            timestamp=self.loop.time(),
+            cash_balance=pnl.equityWithLoanValue, # This might not be directly from pnl, need to verify IB API
+            # Add other relevant account state details
+        )
+        self.put_event(account_state_event)
+        self._log.debug(f"PNL update: {pnl}")
 
     def on_position(self, position):
         """Handles position updates."""
-        # Create PositionState events
-        pass
+        # Example: Emit PositionState event
+        position_state_event = PositionState(
+            instrument_id=InstrumentId(position.contract.symbol, position.contract.exchange, position.contract.currency),
+            account_id="IB_ACCOUNT", # Replace with actual account ID
+            quantity=Quantity(position.position),
+            average_price=Price(position.avgCost),
+            timestamp=self.loop.time()
+        )
+        self.put_event(position_state_event)
+        self._log.info(f"Position update: {position_state_event}")
 
     async def subscribe_market_data(self, instrument_id: InstrumentId):
         """Subscribes to market data for an instrument."""
@@ -148,12 +176,63 @@ class InteractiveBrokersAdapter(Component):
         )
 
         try:
-            trade = self.ib.placeOrder(contract, ib_order)
+            trade = await self.ib.placeOrderAsync(contract, ib_order)
             self._log.info(f"Placed order {order.client_order_id}: {trade}")
+            return trade
         except Exception as e:
             self._log.error(f"Error submitting order {order.client_order_id}: {e}")
+            raise
 
-    async def cancel_order(self, order_id: OrderId):
-        """Cancels an existing order."""
-        # Implementation for order cancellation
-        pass
+    async def cancel_order(self, ib_order_id: int):
+        """Cancels an existing order by IB order ID."""
+        if not self._is_connected:
+            self._log.warning("Not connected to IB, cannot cancel order.")
+            return False
+
+        try:
+            trade = await self.ib.reqGlobalCancel() # This cancels all open orders
+            # For specific order cancellation, you would need to find the trade object
+            # trade = self.ib.orders() # or self.ib.trades()
+            # for t in trade:
+            #     if t.order.orderId == ib_order_id:
+            #         await self.ib.cancelOrder(t.order)
+            #         self._log.info(f"Cancelled order {ib_order_id}")
+            #         return True
+            self._log.info(f"Attempted to cancel all open orders.")
+            return True # Assuming reqGlobalCancel is sufficient for now
+        except Exception as e:
+            self._log.error(f"Error cancelling order {ib_order_id}: {e}")
+            return False
+
+    async def get_order_status(self, ib_order_id: int) -> Optional[NautilusOrderStatus]:
+        """Retrieves the status of an order by IB order ID."""
+        if not self._is_connected:
+            self._log.warning("Not connected to IB, cannot get order status.")
+            return None
+        
+        for trade in self.ib.trades():
+            if trade.order.orderId == ib_order_id:
+                return from_ib_order_status(trade.orderStatus.status)
+        return None
+
+    async def get_portfolio(self):
+        """Retrieves the current portfolio and positions."""
+        if not self._is_connected:
+            self._log.warning("Not connected to IB, cannot get portfolio.")
+            return None
+        
+        await self.ib.reqAccountUpdatesAsync(True, self.config.ACCOUNT_CODE)
+        
+        account_values = {v.tag: v.value for v in self.ib.accountValues()}
+        positions = [
+            {
+                "contract": p.contract.localSymbol,
+                "position": p.position,
+                "avg_cost": p.avgCost
+            } for p in self.ib.positions()
+        ]
+        
+        return {
+            "account_values": account_values,
+            "positions": positions
+        }

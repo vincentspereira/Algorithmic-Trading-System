@@ -11,7 +11,8 @@ from fastapi.openapi.utils import get_openapi
 # New imports for Phase 4
 from datetime import datetime
 from .core.config import settings
-from .routers import auth, backtest, optimization, features, strategy_builder, rl_optimization, trading
+from .routers import auth, backtest, optimization, features, strategy_builder, rl_optimization, trading, users
+from nautilus_trader_engine.database.database import Base, engine
 from .models.trading import (
     PortfolioResponse,
     PortfolioPosition,
@@ -58,6 +59,10 @@ async def lifespan(app: FastAPI):
     # Initialize mock data
     generate_mock_orders()
     logger.info("Mock order history initialized.")
+
+    # Create database tables
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database tables created.")
 
     # Connect to trading service
     await trading_gateway.connect()
@@ -280,6 +285,7 @@ def get_risk_snapshot():
 
 # Include existing routers
 app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["Authentication"])
+app.include_router(users.router, prefix=f"{settings.API_V1_STR}/users", tags=["Users"], dependencies=[Depends(get_current_active_user)])
 app.include_router(trading.router, prefix=f"{settings.API_V1_STR}/trading", tags=["Trading"], dependencies=[Depends(get_current_active_user)])
 app.include_router(backtest.router, prefix=f"{settings.API_V1_STR}/backtest", tags=["Backtesting"], dependencies=[Depends(get_current_active_user)])
 app.include_router(optimization.router, prefix=f"{settings.API_V1_STR}/optimise", tags=["Optimization"], dependencies=[Depends(get_current_active_user)])

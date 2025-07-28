@@ -8,9 +8,7 @@ pandas
 numpy
 scipy
 scikit-learn
-# ta-lib  # COMMENTED OUT: Requires TA-Lib C library installation on Windows
-          # See TALIB_INSTALLATION.md for installation instructions
-          # Alternative: Use 'ta' library below for basic technical indicators
+TA-Lib
 ta
 yfinance
 backtrader
@@ -68,15 +66,7 @@ grpcio
 grpcio-tools
 protobuf
 
-# Feature Store dependencies (Phase 2)
-feast
-pyarrow
-s3fs
-
 # Enhanced Technical Indicators (Phase 2)
-# ta-lib  # COMMENTED OUT: Requires TA-Lib C library installation on Windows
-           # See TALIB_INSTALLATION.md for installation instructions
-           # Alternative: Use 'ta' library below for basic technical indicators
 # Note: ta library already included above
 
 # Additional dependencies for Phase 2
@@ -87,7 +77,7 @@ ib_insync
 # FIX Protocol Support (Phase 4)
 quickfix
 # FinRL and RL dependencies (Phase 4)
-finrl&gt;=0.3.6
-stable-baselines3&gt;=2.0.0
-gymnasium&gt;=0.28.0
-optuna&gt;=3.0.0
+finrl>=0.3.6
+stable-baselines3>=2.0.0
+gymnasium>=0.28.0
+optuna>=3.0.0

@@ -4,42 +4,48 @@
 ---
 
 ### Table of Contents
-1. [Introduction](#introduction)
-   - 1.1 Purpose
-   - 1.2 Scope
-   - 1.3 System Overview
-2. [Deployment Architecture](#deployment-architecture)
-   - 2.1 Cloud Environment
-   - 2.2 Microservices and Containers
-   - 2.3 Networking and Security
-   - 2.4 Data Storage and Management
-3. [Prerequisites](#prerequisites)
-   - 3.1 Software and Tools
-   - 3.2 Hardware Requirements
-   - 3.3 Access and Permissions
-4. [Environment Setup](#environment-setup)
-   - 4.1 Development Environment
-   - 4.2 Staging Environment
-   - 4.3 Production Environment
-5. [Configuration Management](#configuration-management)
-   - 5.1 Environment Variables
-   - 5.2 Secrets Management
-   - 5.3 Configuration Files
-6. [Deployment Process](#deployment-process)
-   - 6.1 Build and Packaging
-   - 6.2 Containerization
-   - 6.3 Orchestration with Kubernetes
-   - 6.4 CI/CD Pipeline
-7. [Post-Deployment Tasks](#post-deployment-tasks)
-   - 7.1 Verification and Testing
-   - 7.2 Monitoring and Logging
-   - 7.3 Backup and Recovery
-8. [Troubleshooting](#troubleshooting)
-   - 8.1 Common Issues
-   - 8.2 Debugging Tools
-9. [Appendices](#appendices)
-   - 9.1 Glossary
-   - 9.2 References
+- [Deployment Guide](#deployment-guide)
+  - [Algorithmic Trading System (ATS)](#algorithmic-trading-system-ats)
+    - [Table of Contents](#table-of-contents)
+    - [1. Introduction](#1-introduction)
+      - [1.1 Purpose](#11-purpose)
+      - [1.2 Scope](#12-scope)
+      - [1.3 System Overview](#13-system-overview)
+    - [2. Deployment Architecture](#2-deployment-architecture)
+      - [2.1 Cloud Environment](#21-cloud-environment)
+      - [2.2 Microservices and Containers](#22-microservices-and-containers)
+      - [2.3 Networking and Security](#23-networking-and-security)
+      - [2.4 Data Storage and Management](#24-data-storage-and-management)
+      - [Architecture Diagram](#architecture-diagram)
+    - [3. Prerequisites](#3-prerequisites)
+      - [3.1 Software and Tools](#31-software-and-tools)
+      - [3.2 Hardware Requirements](#32-hardware-requirements)
+      - [3.3 Access and Permissions](#33-access-and-permissions)
+    - [4. Environment Setup](#4-environment-setup)
+      - [4.1 Development Environment](#41-development-environment)
+      - [4.2 Staging Environment](#42-staging-environment)
+      - [4.3 Production Environment](#43-production-environment)
+      - [Environment Setup Flow](#environment-setup-flow)
+    - [5. Configuration Management](#5-configuration-management)
+      - [5.1 Environment Variables](#51-environment-variables)
+      - [5.2 Secrets Management](#52-secrets-management)
+      - [5.3 Configuration Files](#53-configuration-files)
+    - [6. Deployment Process](#6-deployment-process)
+      - [6.1 Build and Packaging](#61-build-and-packaging)
+      - [6.2 Containerization](#62-containerization)
+      - [6.3 Orchestration with Kubernetes](#63-orchestration-with-kubernetes)
+      - [6.4 CI/CD Pipeline](#64-cicd-pipeline)
+      - [Deployment Workflow Diagram](#deployment-workflow-diagram)
+    - [7. Post-Deployment Tasks](#7-post-deployment-tasks)
+      - [7.1 Verification and Testing](#71-verification-and-testing)
+      - [7.2 Monitoring and Logging](#72-monitoring-and-logging)
+      - [7.3 Backup and Recovery](#73-backup-and-recovery)
+    - [8. Troubleshooting](#8-troubleshooting)
+      - [8.1 Common Issues](#81-common-issues)
+      - [8.2 Debugging Tools](#82-debugging-tools)
+    - [9. Appendices](#9-appendices)
+      - [9.1 Glossary](#91-glossary)
+      - [9.2 References](#92-references)
 
 ---
 
@@ -62,13 +68,15 @@ Out of scope:
 
 #### 1.3 System Overview
 The ATS is a modular, scalable trading platform built on a microservices architecture. It leverages:
+- **User Authentication Service**: Handles secure user registration, login, and profile management using JWT.
 - **Apache Kafka**: Event-driven data streaming for real-time market data and trade execution.
 - **NautilusTrader**: Core trading engine for strategy execution and order management.
 - **AI Assistant**: Powered by LangChain and Lobe Chat for natural language interaction and strategy generation.
-- **Frontend**: Next.js with real-time dashboards and no-code tools (Blockly).
+- **Frontend**: Next.js with real-time dashboards and no-code tools (Blockly), integrated with backend for predictions.
 - **Backend**: FastAPI for RESTful APIs and gRPC for internal communication.
+- **Monitoring and Alerting**: Production-ready systems (Prometheus, Grafana, Alertmanager) for system health and performance.
 
-The system supports multiple asset classes (stocks, ETFs, futures, options, forex, cryptocurrencies) and features such as no-code strategy building, backtesting, live trading, and advanced analytics.
+The system supports multiple asset classes (stocks, ETFs, futures, options, forex, cryptocurrencies) and features such as no-code strategy building, backtesting, live trading, advanced analytics, and robust user management.
 
 ---
 
@@ -82,18 +90,23 @@ The ATS is deployed on a cloud platform (e.g., AWS, GCP, or Azure) to ensure sca
 
 #### 2.2 Microservices and Containers
 The ATS is composed of containerized microservices using Docker:
+- **User Authentication Service**: Manages user registration, login, and profile management.
 - **Trading Engine**: NautilusTrader for trade execution and backtesting.
 - **Data Pipeline**: Kafka with Schema Registry for real-time data streaming.
 - **AI Assistant**: LangChain, Lobe Chat, and RAGFlow for AI-driven features.
 - **API Gateway**: FastAPI for external RESTful APIs, gRPC for internal communication.
-- **Frontend**: Next.js with react-financial-charts and ag-Grid for dashboards.
+- **Frontend**: Next.js with react-financial-charts and ag-Grid for dashboards, integrated for predictions.
 - **Databases**: PostgreSQL/pgvector, ClickHouse, Qdrant, DuckDB, Apache Iceberg.
+- **Monitoring**: Prometheus for metrics collection.
+- **Alerting**: Alertmanager for alert routing.
+- **Visualization**: Grafana for dashboards.
 
 #### 2.3 Networking and Security
 - **Load Balancer**: AWS ALB or equivalent to distribute traffic to the API Gateway.
 - **Security Groups**: Restrict access to specific ports (e.g., 443 for HTTPS, 9092 for Kafka).
 - **SSL/TLS**: Encrypt all data in transit using certificates from a trusted CA.
 - **Zero-Trust Architecture**: Enforce RBAC and mutual TLS for microservice communication.
+- **User Authentication**: Implement JWT-based authentication for all API endpoints, with secure password hashing (e.g., bcrypt) for user credentials.
 
 #### 2.4 Data Storage and Management
 - **PostgreSQL/pgvector**: Stores user data, trading strategies, and configurations.
@@ -105,17 +118,38 @@ The ATS is composed of containerized microservices using Docker:
 #### Architecture Diagram
 ```mermaid
 graph TD
-    A[User] -->|HTTPS| B[Load Balancer]
-    B --> C[API Gateway - FastAPI]
-    C -->|gRPC| D[Trading Engine - NautilusTrader]
-    C -->|gRPC| E[AI Assistant - LangChain]
-    C -->|HTTPS| F[Frontend - Next.js]
-    D --> G[Kafka Data Pipeline]
-    G --> H[PostgreSQL/pgvector]
-    G --> I[ClickHouse]
-    G --> J[Qdrant]
-    G --> K[Apache Iceberg]
-    D --> L[Broker - FIX Gateway]
+    subgraph User Access
+        A[User] -->|HTTPS| B[Load Balancer]
+        B --> C[API Gateway - FastAPI]
+        C -->|Auth & User Mgmt| D[User Authentication Service]
+        D -->|Store User Data| E[PostgreSQL/pgvector]
+    end
+
+    subgraph Core Services
+        C -->|gRPC| F[Trading Engine - NautilusTrader]
+        C -->|gRPC| G[AI Assistant - LangChain]
+        C -->|HTTPS| H[Frontend - Next.js]
+    end
+
+    subgraph Data Flow
+        F --> I[Kafka Data Pipeline]
+        G --> I
+        I --> J[ClickHouse]
+        I --> K[Qdrant]
+        I --> L[Apache Iceberg]
+        F --> M[Broker - FIX Gateway]
+    end
+
+    subgraph Monitoring & Alerting
+        F -->|Metrics| N[Prometheus]
+        G -->|Metrics| N
+        I -->|Metrics| N
+        C -->|Metrics| N
+        N -->|Alerts| O[Alertmanager]
+        O -->|Notifications| P[Ops Team]
+        N -->|Visualize| Q[Grafana]
+        Q -->|Dashboards| P
+    end
 ```
 
 ---
@@ -128,7 +162,9 @@ graph TD
 - **Helm**: Version 3.10+ for managing Kubernetes deployments.
 - **Git**: Version 2.30+ for version control.
 - **Jenkins**: Version 2.400+ for CI/CD automation.
-- **Prometheus & Grafana**: For monitoring and visualization.
+- **Prometheus**: Version 2.x+ for metrics collection.
+- **Grafana**: Version 9.x+ for data visualization and dashboards.
+- **Alertmanager**: Version 0.25+ for alert management and routing.
 - **HashiCorp Vault**: For secrets management.
 - **Python**: Version 3.10+ for backend services.
 - **Node.js**: Version 18+ for frontend development.
@@ -199,6 +235,9 @@ graph TD
   - `DB_CONNECTION_STRING`: Connection string for PostgreSQL.
   - `KAFKA_BOOTSTRAP_SERVERS`: List of Kafka broker addresses.
   - `AI_MODEL_ENDPOINT`: Endpoint for LangChain model.
+  - `JWT_SECRET_KEY`: Secret key for signing JWTs (critical for authentication).
+  - `JWT_ALGORITHM`: Algorithm used for JWT signing (e.g., HS256).
+  - `ACCESS_TOKEN_EXPIRE_MINUTES`: Expiration time for access tokens in minutes.
 
 #### 5.2 Secrets Management
 - **HashiCorp Vault**:
@@ -224,6 +263,7 @@ graph TD
 - **Steps**:
   1. Push images to registry: `docker push <registry>/ats-<service>:v1.0.0`.
   2. Validate images locally with Docker Compose for development.
+  3. **Database Initialization**: Ensure the PostgreSQL database is initialized with the necessary user authentication schema. This can be done via a migration tool or by running an `init.sql` script during deployment.
 
 #### 6.3 Orchestration with Kubernetes
 - **Steps**:
@@ -266,9 +306,28 @@ graph TD
 - **End-to-End Tests**: Execute critical workflows (e.g., strategy deployment, trade execution).
 
 #### 7.2 Monitoring and Logging
-- **Prometheus**: Collect metrics (e.g., latency, trade volume).
-- **Grafana**: Create dashboards for real-time monitoring.
-- **ELK Stack**: Aggregate and analyze logs from all services.
+A comprehensive monitoring and logging infrastructure is crucial for maintaining the health and performance of the ATS in production.
+
+- **Prometheus Setup**:
+  - Deploy Prometheus instances within the Kubernetes cluster.
+  - Configure `scrape_configs` to discover and collect metrics from all ATS microservices (FastAPI Gateway, Trading Engine, AI Assistant, Data Pipeline).
+  - Ensure appropriate `relabel_configs` are in place for proper metric labeling.
+- **Grafana Dashboards**:
+  - Deploy Grafana and configure it to use Prometheus as a data source.
+  - Import or create dashboards for key operational metrics:
+    - API latency and error rates.
+    - Service resource utilization (CPU, memory).
+    - Kafka topic throughput and consumer lag.
+    - Trading engine performance (order execution times, strategy PnL).
+    - User authentication metrics (login success/failure rates).
+- **Alertmanager Configuration**:
+  - Deploy Alertmanager and configure alert routing based on severity and service.
+  - Define alert rules in Prometheus (e.g., high error rates, service downtime, low disk space).
+  - Integrate with notification channels (e.g., Slack, PagerDuty, email) for immediate alerts to the operations team.
+- **Centralized Logging (ELK Stack)**:
+  - Deploy Elasticsearch, Logstash, and Kibana (ELK) for centralized log aggregation.
+  - Configure Logstash to ingest logs from all ATS services.
+  - Use Kibana for log analysis, troubleshooting, and creating visualizations of log data.
 
 #### 7.3 Backup and Recovery
 - **Database Backups**: Daily snapshots of PostgreSQL and ClickHouse.
@@ -300,6 +359,10 @@ graph TD
 
 #### 9.2 References
 - **NautilusTrader**: [https://nautilustrader.io/](https://nautilustrader.io/)
+- **Apache Kafka**: [https://kafka.apache.org/](https://kafka.apache.org/)
+- **Kubernetes**: [https://kubernetes.io/](https://kubernetes.io/)
+
+This Deployment Guide ensures a robust, scalable, and secure deployment of the ATS, aligning with the business and technical requirements outlined in the BRD and supporting documentation.- **NautilusTrader**: [https://nautilustrader.io/](https://nautilustrader.io/)
 - **Apache Kafka**: [https://kafka.apache.org/](https://kafka.apache.org/)
 - **Kubernetes**: [https://kubernetes.io/](https://kubernetes.io/)
 

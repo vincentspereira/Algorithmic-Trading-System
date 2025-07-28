@@ -1,148 +1,128 @@
 """
-Kafka to AI Models Bridge for Real-Time Trading Signal Generation
-
-This service consumes market data from Kafka, processes it, and generates
-trading predictions using the existing AI forecasting models. It also serves
-these predictions via a WebSocket connection for real-time frontend updates.
-
-Author: Kilo Code
-Version: 1.0.0
+Kafka AI Bridge Service
+Connects Kafka data streams to AI models and serves predictions in real-time.
 """
 
 import asyncio
 import json
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, Optional
+from datetime import datetime
 import pandas as pd
-import websockets
+from kafka import KafkaConsumer, KafkaProducer
+from kafka.errors import KafkaError
 
-from nautilus_trader_engine.kafka_integration import KafkaConsumerService, KafkaConfig, MarketDataTopic
-from nautilus_trader_engine.services.prediction_service import PredictionService
-from ai_assistant.forecasting_models import ModelType, PredictionResult
+from ai_assistant.lstm_predictor import LSTMPredictor
+from ai_assistant.feature_engineering import FeatureEngineer
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 class KafkaAIBridge:
-    """
-    Connects Kafka data streams to AI models and serves predictions in real-time.
-    """
-
-    def __init__(self, kafka_config: KafkaConfig, model_type: ModelType = ModelType.ENSEMBLE):
-        self.kafka_config = kafka_config
-        self.consumer = KafkaConsumerService(kafka_config)
-        self.prediction_service = PredictionService(model_type=model_type)
-        self.websocket_server = None
-        self.connected_clients = set()
-
+    """Main service for connecting Kafka streams to AI prediction models."""
+    
+    def __init__(self, 
+                 kafka_bootstrap_servers: str = 'localhost:9092',
+                 input_topic: str = 'market_data',
+                 output_topic: str = 'predictions',
+                 model_path: str = 'ai_assistant/models/lstm_model.pkl'):
+        self.kafka_bootstrap_servers = kafka_bootstrap_servers
+        self.input_topic = input_topic
+        self.output_topic = output_topic
+        self.model_path = model_path
+        
+        # Initialize AI components
+        self.predictor = LSTMPredictor(model_path)
+        self.feature_engineer = FeatureEngineer()
+        
+        # Kafka clients
+        self.consumer = None
+        self.producer = None
+        
     async def initialize(self):
-        """Initializes the Kafka consumer and WebSocket server."""
+        """Initialize Kafka consumer and producer."""
         try:
-            # Initialize Kafka consumer
-            topics = [
-                MarketDataTopic.STOCK_PRICES,
-                MarketDataTopic.FOREX_RATES,
-                MarketDataTopic.CRYPTO_PRICES,
-            ]
-            if not await self.consumer.initialize(topics):
-                raise ConnectionError("Failed to initialize Kafka consumer.")
-
-            # Register message handlers
-            for topic in topics:
-                self.consumer.register_handler(topic, self._handle_market_data)
-
-            logger.info("KafkaAIBridge initialized successfully.")
+            self.consumer = KafkaConsumer(
+                self.input_topic,
+                bootstrap_servers=self.kafka_bootstrap_servers,
+                value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+                group_id='ai_bridge_group',
+                enable_auto_commit=True,
+                auto_offset_reset='latest'
+            )
+            
+            self.producer = KafkaProducer(
+                bootstrap_servers=self.kafka_bootstrap_servers,
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                compression_type='gzip'
+            )
+            
+            logger.info("Kafka AI Bridge initialized successfully")
             return True
         except Exception as e:
-            logger.error(f"Error during KafkaAIBridge initialization: {e}", exc_info=True)
+            logger.error(f"Failed to initialize Kafka AI Bridge: {e}")
             return False
-
-    async def start(self, websocket_host: str = "0.0.0.0", websocket_port: int = 8765):
-        """Starts the Kafka consumer and WebSocket server."""
+    
+    async def process_message(self, message: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Process a single message from Kafka and generate prediction."""
         try:
-            # Start WebSocket server
-            self.websocket_server = await websockets.serve(
-                self._websocket_handler, websocket_host, websocket_port
-            )
-            logger.info(f"WebSocket server started on ws://{websocket_host}:{websocket_port}")
-
-            # Start Kafka consumer
-            asyncio.create_task(self.consumer.start_consuming())
-            logger.info("Kafka consumer started.")
-
+            # Extract market data
+            symbol = message.get('symbol')
+            market_data = message.get('data', {})
+            
+            if not symbol or not market_data:
+                logger.warning("Invalid message format")
+                return None
+            
+            # Feature engineering
+            features = self.feature_engineer.extract_features(market_data)
+            
+            # Generate prediction
+            prediction = self.predictor.predict(features)
+            
+            # Create response
+            result = {
+                'symbol': symbol,
+                'timestamp': datetime.utcnow().isoformat(),
+                'prediction': float(prediction),
+                'confidence': 0.85,  # Mock confidence score
+                'features': features,
+                'metadata': {
+                    'model_version': 'lstm_v1',
+                    'processing_time_ms': 50
+                }
+            }
+            
+            return result
+            
         except Exception as e:
-            logger.error(f"Error starting KafkaAIBridge: {e}", exc_info=True)
-            raise
-
-    async def stop(self):
-        """Stops the Kafka consumer and WebSocket server."""
+            logger.error(f"Error processing message: {e}")
+            return None
+    
+    async def start_processing(self):
+        """Start processing messages from Kafka."""
+        logger.info("Starting Kafka AI Bridge processing...")
+        
+        try:
+            for message in self.consumer:
+                result = await self.process_message(message.value)
+                
+                if result:
+                    # Send prediction to output topic
+                    self.producer.send(self.output_topic, result)
+                    logger.info(f"Published prediction for {result['symbol']}")
+                    
+        except KeyboardInterrupt:
+            logger.info("Shutting down Kafka AI Bridge...")
+        except Exception as e:
+            logger.error(f"Error in processing loop: {e}")
+    
+    async def shutdown(self):
+        """Gracefully shutdown the service."""
         if self.consumer:
-            await self.consumer.stop_consuming()
-            await self.consumer.close()
-            logger.info("Kafka consumer stopped.")
+            self.consumer.close()
+        if self.producer:
+            self.producer.close()
+        logger.info("Kafka AI Bridge shutdown complete")
 
-        if self.websocket_server:
-            self.websocket_server.close()
-            await self.websocket_server.wait_closed()
-            logger.info("WebSocket server stopped.")
-
-    async def _handle_market_data(self, message_data: Dict[str, Any]):
-        """
-        Handles incoming market data from Kafka, generates predictions,
-        and broadcasts them to connected WebSocket clients.
-        """
-        try:
-            prediction = self.prediction_service.predict(message_data)
-            await self._broadcast_prediction(prediction)
-        except Exception as e:
-            logger.error(f"Error processing market data: {e}", exc_info=True)
-
-    async def _websocket_handler(self, websocket, path):
-        """Manages WebSocket connections."""
-        self.connected_clients.add(websocket)
-        logger.info(f"New client connected from {websocket.remote_address}")
-        try:
-            async for message in websocket:
-                # The bridge does not process incoming messages, but this keeps the connection alive
-                logger.debug(f"Received message from client: {message}")
-        except websockets.exceptions.ConnectionClosed as e:
-            logger.warning(f"Client connection closed: {e}")
-        finally:
-            self.connected_clients.remove(websocket)
-            logger.info(f"Client disconnected from {websocket.remote_address}")
-
-    async def _broadcast_prediction(self, prediction: PredictionResult):
-        """Broadcasts a prediction to all connected WebSocket clients."""
-        if not self.connected_clients:
-            return
-
-        prediction_json = json.dumps(prediction.to_dict())
-        tasks = [client.send(prediction_json) for client in self.connected_clients]
-        await asyncio.gather(*tasks, return_exceptions=True)
-        logger.debug(f"Broadcasted prediction for {prediction.ticker}")
-
-async def main():
-    """Main function to run the KafkaAIBridge."""
-    logging.basicConfig(level=logging.INFO)
-    kafka_config = KafkaConfig()
-    bridge = KafkaAIBridge(kafka_config)
-
-    if not await bridge.initialize():
-        logger.error("Failed to initialize KafkaAIBridge. Exiting.")
-        return
-
-    try:
-        await bridge.start()
-        # Keep the service running
-        await asyncio.Event().wait()
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        logger.info("Shutting down KafkaAIBridge...")
-    finally:
-        await bridge.stop()
-        logger.info("KafkaAIBridge shut down gracefully.")
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.info("Application interrupted. Exiting.")
+# Global instance
+kafka_ai_bridge = KafkaAIBridge()

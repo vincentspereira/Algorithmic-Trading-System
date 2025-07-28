@@ -10,12 +10,14 @@ ATS is an enterprise-grade trading platform built with a "Best-of-Breed" integra
 
 ### 1.2 Key Features
 
+- **Secure User Authentication and Management**: Register, log in, and manage your profile with robust security measures including JWT and password hashing.
 - **Multi-Asset Trading**: Execute strategies across diverse asset classes from a single platform.
 - **AI-Powered Assistant**: Interact with the system using natural language, generate code, and receive market insights.
-- **Real-Time Analytics**: Access live data feeds, advanced forecasting, and portfolio optimization tools.
+- **Real-Time Analytics**: Access live data feeds, advanced forecasting, and portfolio optimization tools, with seamless frontend-backend integration for predictions.
 - **No-Code Strategy Builder**: Create and deploy strategies using a visual drag-and-drop interface.
 - **High-Performance Execution**: Benefit from low-latency trade execution (<100ms) and real-time monitoring.
 - **Enterprise-Grade Security**: Protect your data and strategies with AES-256 encryption, Zero-Trust architecture, and Role-Based Access Control (RBAC).
+- **Production-Ready Monitoring and Alerting**: Stay informed about system health and critical events through integrated monitoring and alerting systems.
 
 ### 1.3 Target Audience
 
@@ -40,23 +42,55 @@ To ensure optimal performance, your system should meet the following minimum req
 
 ### 2.2 Account Setup
 
-1. **Visit the ATS Website**: Go to the official ATS website and click "Sign Up."
-2. **Enter Details**: Provide your email address and create a strong password.
-3. **Verify Email**: Check your inbox for a confirmation link and click it to verify your email.
-4. **Complete Profile**: Log in and fill in required details (e.g., name, trading experience).
+To begin using the ATS, you'll need to create an account and log in.
+
+#### 2.2.1 Registration
+
+1.  **Access the Registration Page**: Navigate to the official ATS website and click on the "Sign Up" or "Register" button.
+2.  **Provide Account Details**:
+    -   **Username**: Choose a unique username.
+    -   **Email Address**: Enter a valid email address. This will be used for verification and communication.
+    -   **Password**: Create a strong password. It should be at least 8 characters long and include a mix of uppercase and lowercase letters, numbers, and special characters.
+3.  **Review and Agree**: Read the Terms of Service and Privacy Policy, then check the box to agree.
+4.  **Complete Registration**: Click "Register" or "Create Account."
+5.  **Email Verification**: A verification link will be sent to your registered email address. Click this link to activate your account. If you don't receive it, check your spam folder.
+
+#### 2.2.2 Login
+
+1.  **Access the Login Page**: Go to the ATS website and click "Log In."
+2.  **Enter Credentials**: Input your registered username (or email) and password.
+3.  **Secure Login**: Click "Log In." For enhanced security, consider enabling two-factor authentication (2FA) if prompted.
+4.  **Dashboard Access**: Upon successful login, you will be redirected to your personalized ATS dashboard.
 
 ### 2.3 Initial Configuration
 
-After logging in, configure your account to personalize your trading experience:
+After successfully logging in, you can configure your account and manage your profile to personalize your trading experience.
 
-1. **Connect Data Sources**:
-   - Navigate to "Settings" > "Data Sources."
-   - Link to market data providers such as Yahoo Finance or Alpha Vantage by entering API keys if required.
-2. **Set Up Broker Accounts**:
-   - Go to "Settings" > "Broker Connections."
-   - Select a broker (e.g., Interactive Brokers) and input your credentials to enable live trading.
-3. **Configure Preferences**:
-   - Set your timezone, default currency, and notification preferences under "Settings" > "Preferences."
+#### 2.3.1 Profile Management
+
+1.  **Access Profile Settings**: Navigate to "Settings" > "Profile" or click on your username/avatar in the top right corner.
+2.  **Update Personal Information**:
+    -   **Username**: You may be able to change your username (if allowed by system policy).
+    -   **Email Address**: Update your contact email. A re-verification process may be required.
+    -   **Password**: Change your password regularly for security. You will need to enter your current password and then your new password twice.
+3.  **Manage Security Settings**:
+    -   **Two-Factor Authentication (2FA)**: Enable or disable 2FA for an extra layer of security. Follow the on-screen instructions to set up an authenticator app (e.g., Google Authenticator) or SMS verification.
+    -   **Active Sessions**: View and manage your active login sessions. You can log out of other devices from here.
+4.  **Review Activity Log**: Access a log of your recent account activities, including logins, password changes, and key actions.
+
+#### 2.3.2 Connecting Data Sources
+
+1.  **Navigate to Data Sources**: Go to "Settings" > "Data Sources."
+2.  **Link Providers**: Connect to various market data providers (e.g., Yahoo Finance, Alpha Vantage) by entering required API keys or credentials.
+
+#### 2.3.3 Setting Up Broker Accounts
+
+1.  **Access Broker Connections**: Go to "Settings" > "Broker Connections."
+2.  **Add Broker**: Select your preferred broker (e.g., Interactive Brokers) and securely input your API keys or login credentials to enable live trading.
+
+#### 2.3.4 Configuring Preferences
+
+1.  **Adjust Preferences**: Set your timezone, default currency, notification preferences, and other display options under "Settings" > "Preferences."
 
 ### 2.4 Quick Start Guide
 
@@ -70,9 +104,9 @@ The following diagram illustrates the quick start process:
 
 ```mermaid
 graph TD
-    A[Visit Website] --> B[Sign Up]
+    A[Visit Website] --> B{Register Account}
     B --> C[Verify Email]
-    C --> D[Log In]
+    C --> D{Log In}
     D --> E[Configure Settings]
     E --> F[Explore Dashboard]
     F --> G[Create Strategy]
@@ -90,15 +124,36 @@ ATS is built with a modular architecture to deliver flexibility and performance.
 
 ```mermaid
 graph TD
-    A[User Interface] --> B[API Gateway]
-    B --> C[Trading Engine]
-    B --> D[Data Pipelines]
-    B --> E[AI Assistant]
-    B --> F[Analytics]
-    C --> G[Broker Integration]
-    D --> H[Market Data Sources]
-    E --> I[AI Models]
-    F --> J[Databases]
+    subgraph User Access
+        A[User Interface] -->|User Auth & API Calls| B[API Gateway]
+        B -->|Auth & User Mgmt| C[User Authentication Service]
+        C -->|Store User Data| D[Databases]
+    end
+
+    subgraph Core Services
+        B --> E[Trading Engine]
+        B --> F[Data Pipelines]
+        B --> G[AI Assistant]
+        B --> H[Analytics]
+    end
+
+    subgraph Data Flow
+        E --> I[Broker Integration]
+        F --> J[Market Data Sources]
+        G --> K[AI Models]
+        H --> D
+    end
+
+    subgraph Monitoring & Alerting
+        E -->|Metrics| L[Prometheus]
+        F -->|Metrics| L
+        G -->|Metrics| L
+        B -->|Metrics| L
+        L -->|Alerts| M[Alertmanager]
+        M -->|Notifications| N[Ops Team]
+        L -->|Visualize| O[Grafana]
+        O -->|Dashboards| N
+    end
 ```
 
 - **User Interface**: The Next.js-based frontend where you interact with the system.
@@ -111,10 +166,12 @@ graph TD
 
 ### 3.2 Component Roles
 
-- **Trading Engine**: Handles backtesting and live trading across all asset classes.
-- **Data Pipelines**: Ensures seamless data flow from external sources to the system.
-- **AI Assistant**: Enhances usability with conversational AI and code generation.
-- **Analytics**: Offers predictive tools and portfolio management capabilities.
+- **User Authentication Service**: Manages user accounts, including secure registration, login, and profile updates.
+- **Trading Engine**: Handles backtesting and live trading across all asset classes, processing strategies and managing orders.
+- **Data Pipelines**: Ensures seamless and real-time data flow from external market data sources to the system's various components.
+- **AI Assistant**: Enhances usability with conversational AI, strategy code generation, and debugging assistance.
+- **Analytics**: Offers advanced predictive tools (e.g., ML-based forecasting) and portfolio management capabilities, with results integrated into the frontend.
+- **Monitoring and Alerting**: Provides real-time insights into system performance and health, and notifies users or operations teams of critical events.
 
 ---
 
@@ -338,6 +395,14 @@ These hands-on tutorials demonstrate how to use ATS effectively.
 
 ### 7.2 FAQs
 
+- **Q**: How do I register for a new account?
+  - **A**: Visit the ATS website and click "Sign Up." Follow the on-screen instructions to provide your details and verify your email.
+- **Q**: What should I do if I forget my password?
+  - **A**: On the login page, click "Forgot Password." Enter your registered email address, and follow the instructions sent to your inbox to reset your password.
+- **Q**: Can I change my username or email address?
+  - **A**: You can update your email address in "Settings" > "Profile." Username changes may be restricted or require contacting support.
+- **Q**: How can I enhance my account security?
+  - **A**: Enable Two-Factor Authentication (2FA) in "Settings" > "Profile" > "Security Settings." Always use a strong, unique password.
 - **Q**: Can I connect multiple brokers?
   - **A**: Yes, configure each broker in "Settings" > "Broker Connections."
 - **Q**: How do I edit a live strategy?

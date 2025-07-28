@@ -1,71 +1,30 @@
-"""
-Authentication dependencies for FastAPI
-"""
-
-from typing import Optional
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from ..core.security import verify_token
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 
+from nautilus_trader_engine.database.database import get_db
+from nautilus_trader_engine.database.models import User as DBUser
+from nautilus_trader_engine.api.models.user import UserInDB
+from nautilus_trader_engine.api.utils.auth import verify_token
 
-# HTTP Bearer token scheme
-security = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
-    """
-    Dependency to get current authenticated user from JWT token
-    """
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> UserInDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
     try:
-        # Extract token from credentials
-        token = credentials.credentials
-        
-        # Verify token and get user ID
-        user_id = verify_token(token, token_type="access")
-        
-        if user_id is None:
-            raise credentials_exception
-            
-        return user_id
-        
+        username = verify_token(token)
     except Exception:
         raise credentials_exception
 
+    if username is None:
+        raise credentials_exception
 
-async def get_current_user_optional(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
-) -> Optional[str]:
-    """
-    Optional dependency to get current user (returns None if not authenticated)
-    """
-    if not credentials:
-        return None
+    user = db.query(DBUser).filter(DBUser.username == username).first()
+    if user is None or not user.is_active:
+        raise credentials_exception
     
-    try:
-        token = credentials.credentials
-        user_id = verify_token(token, token_type="access")
-        return user_id
-    except Exception:
-        return None
-
-
-def verify_refresh_token(token: str) -> str:
-    """
-    Verify refresh token and return user ID
-    """
-    user_id = verify_token(token, token_type="refresh")
-    
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    return user_id
+    return UserInDB(**user.__dict__)

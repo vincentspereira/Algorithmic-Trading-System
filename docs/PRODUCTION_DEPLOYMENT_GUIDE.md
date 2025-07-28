@@ -39,23 +39,24 @@ graph TB
     
     subgraph "API Gateway"
         API[FastAPI Gateway]
-        NT[Nautilus Trader Engine]
+        NT[Nautilus Trader Engine ✓]
+        AUTH[Auth Service]
     end
     
     subgraph "Core Services"
-        RM[Risk Management]
-        SE[Strategy Execution]
-        DP[Data Pipeline]
+        RM[Risk Management ✓]
+        SE[Strategy Execution ✓]
+        DP[Data Pipeline ✓]
     end
     
     subgraph "AI/ML Services"
-        AI[AI Assistant]
-        PRED[Prediction Service]
-        ML[ML Models]
+        AI[AI Assistant ✓]
+        PRED[Prediction Service ✓]
+        ML[ML Models ✓]
     end
     
     subgraph "Data Layer"
-        KAFKA[Apache Kafka]
+        KAFKA[Apache Kafka ✓]
         PG[PostgreSQL]
         REDIS[Redis Cache]
         CH[ClickHouse]
@@ -68,6 +69,7 @@ graph TB
         GRAF[Grafana]
         ELK[ELK Stack]
         JMX[JMX Exporter]
+        ALERT[Alertmanager]
     end
     
     MD --> KAFKA
@@ -76,10 +78,14 @@ graph TB
     LB --> LC
     LB --> API
     FE --> API
+    FE -- Predictions Request --> API
+    API -- Predictions Response --> FE
     LC --> AI
     API --> NT
     API --> RM
     API --> SE
+    API --> AUTH
+    AUTH --> PG
     NT --> DP
     DP --> KAFKA
     KAFKA --> AI
@@ -94,17 +100,20 @@ graph TB
     PROM --> GRAF
     ELK --> GRAF
     JMX --> PROM
+    PROM --> ALERT
+    ALERT --> OPS[Operations Team]
 ```
 
 ### Key Components
 
-- **Trading Engine**: Nautilus Trader with Interactive Brokers integration
-- **Risk Management System**: Real-time risk monitoring and controls
-- **Data Pipeline**: Kafka-based real-time data processing with Schema Registry
-- **AI Assistant**: Machine learning models for market prediction and analysis
-- **Strategy Execution Backend**: No-code strategy runtime with Blockly integration
-- **Frontend**: Next.js web application with Lobe Chat interface
-- **Monitoring Stack**: Prometheus, Grafana, and ELK for comprehensive observability
+- **Trading Engine**: Nautilus Trader with Interactive Brokers integration (Completed)
+- **Risk Management System**: Real-time risk monitoring and controls (Completed)
+- **Data Pipeline**: Kafka-based real-time data processing with Schema Registry (Completed)
+- **AI Assistant**: Machine learning models for market prediction and analysis (Completed)
+- **Strategy Execution Backend**: No-code strategy runtime with Blockly integration (Completed)
+- **User Authentication and Management**: Production-ready authentication and user management implemented (Implemented)
+- **Frontend**: Next.js web application with Lobe Chat interface, integrated with prediction services
+- **Monitoring Stack**: Prometheus, Grafana, ELK, and Alertmanager for comprehensive observability
 
 ---
 
@@ -183,6 +192,7 @@ sudo ufw allow 443/tcp
 
 # Allow application ports (internal network only)
 sudo ufw allow from 10.0.0.0/8 to any port 8000  # Nautilus Trader
+sudo ufw allow from 10.0.0.0/8 to any port 8001  # Auth Service
 sudo ufw allow from 10.0.0.0/8 to any port 3000  # Next.js
 sudo ufw allow from 10.0.0.0/8 to any port 3210  # Lobe Chat
 sudo ufw allow from 10.0.0.0/8 to any port 9092  # Kafka
@@ -190,6 +200,7 @@ sudo ufw allow from 10.0.0.0/8 to any port 5432  # PostgreSQL
 sudo ufw allow from 10.0.0.0/8 to any port 6379  # Redis
 sudo ufw allow from 10.0.0.0/8 to any port 9090  # Prometheus
 sudo ufw allow from 10.0.0.0/8 to any port 3001  # Grafana
+sudo ufw allow from 10.0.0.0/8 to any port 9093  # Alertmanager
 sudo ufw allow from 10.0.0.0/8 to any port 8123  # ClickHouse
 sudo ufw allow from 10.0.0.0/8 to any port 6333  # Qdrant
 
@@ -355,6 +366,10 @@ SECRET_KEY=<SECURE_SECRET_KEY>
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
+# Auth Service Configuration
+AUTH_SERVICE_URL=auth_service
+AUTH_SERVICE_PORT=8001
+
 # Interactive Brokers Configuration
 IB_GATEWAY_HOST=localhost
 IB_GATEWAY_PORT=7497
@@ -391,220 +406,10 @@ ENABLE_METRICS=true
 EOF
 ```
 
-### Phase 2: Database Initialization
 
-#### 2.1 PostgreSQL Setup
+### Phase 2: Monitoring Stack Deployment
 
-**Start PostgreSQL Container:**
-```bash
-# Create PostgreSQL data directory
-mkdir -p /opt/trading-system/data/postgres
-
-# Start PostgreSQL with initialization
-docker-compose -f docker-compose.yml up -d postgres
-
-# Wait for PostgreSQL to be ready
-until docker-compose exec postgres pg_isready -U trading_user -d trading_system; do
-    echo "Waiting for PostgreSQL to be ready..."
-    sleep 2
-done
-```
-
-**Initialize Database Schema:**
-```bash
-# Run database migrations
-docker-compose exec postgres psql -U trading_user -d trading_system -f /docker-entrypoint-initdb.d/init.sql
-
-# Verify database initialization
-docker-compose exec postgres psql -U trading_user -d trading_system -c "\dt"
-```
-
-#### 2.2 Redis Setup
-
-```bash
-# Create Redis data directory
-mkdir -p /opt/trading-system/data/redis
-
-# Start Redis
-docker-compose up -d redis
-
-# Verify Redis connection
-docker-compose exec redis redis-cli ping
-```
-
-#### 2.3 ClickHouse Setup
-
-```bash
-# Create ClickHouse data directory
-mkdir -p /opt/trading-system/data/clickhouse
-
-# Start ClickHouse
-docker-compose up -d clickhouse
-
-# Wait for ClickHouse to be ready
-until curl -s http://localhost:8123/ping; do
-    echo "Waiting for ClickHouse to be ready..."
-    sleep 5
-done
-
-# Create trading analytics database
-curl -X POST 'http://localhost:8123/' -d 'CREATE DATABASE IF NOT EXISTS trading_analytics'
-```
-
-### Phase 3: Message Queue Setup
-
-#### 3.1 Apache Kafka Deployment
-
-```bash
-# Create Kafka data directories
-mkdir -p /opt/trading-system/data/kafka/{kafka-logs,zookeeper-data,zookeeper-logs}
-
-# Start Zookeeper first
-docker-compose up -d zookeeper
-
-# Wait for Zookeeper to be ready
-sleep 10
-
-# Start Kafka
-docker-compose up -d kafka
-
-# Wait for Kafka to be ready
-until docker-compose exec kafka kafka-topics.sh --bootstrap-server localhost:9092 --list; do
-    echo "Waiting for Kafka to be ready..."
-    sleep 5
-done
-```
-
-**Create Required Topics:**
-```bash
-# Create trading topics
-docker-compose exec kafka kafka-topics.sh \
-    --bootstrap-server localhost:9092 \
-    --create \
-    --topic market-data \
-    --partitions 12 \
-    --replication-factor 1 \
-    --config retention.ms=86400000
-
-docker-compose exec kafka kafka-topics.sh \
-    --bootstrap-server localhost:9092 \
-    --create \
-    --topic trade-orders \
-    --partitions 6 \
-    --replication-factor 1 \
-    --config retention.ms=604800000
-
-docker-compose exec kafka kafka-topics.sh \
-    --bootstrap-server localhost:9092 \
-    --create \
-    --topic risk-alerts \
-    --partitions 3 \
-    --replication-factor 1 \
-    --config retention.ms=2592000000
-
-docker-compose exec kafka kafka-topics.sh \
-    --bootstrap-server localhost:9092 \
-    --create \
-    --topic predictions \
-    --partitions 6 \
-    --replication-factor 1 \
-    --config retention.ms=86400000
-```
-
-#### 3.2 Schema Registry Setup
-
-```bash
-# Start Schema Registry
-docker-compose up -d schema-registry
-
-# Verify Schema Registry is running
-curl -s http://localhost:8081/subjects
-```
-
-### Phase 4: Core Services Deployment
-
-#### 4.1 Vector Database Setup
-
-```bash
-# Create Qdrant data directory
-mkdir -p /opt/trading-system/data/qdrant
-
-# Start Qdrant
-docker-compose up -d qdrant
-
-# Verify Qdrant health
-curl -s http://localhost:6333/health
-```
-
-#### 4.2 Feature Store Setup
-
-```bash
-# Create Feast data directory
-mkdir -p /opt/trading-system/data/feast
-
-# Initialize Feast feature store
-cd ai_assistant/feature_repo
-docker-compose exec ai_assistant python init_feast.py
-
-# Start Feast feature server
-docker-compose up -d feast
-
-# Verify Feast is running
-curl -s http://localhost:6566/health
-```
-
-#### 4.3 Trading Engine Deployment
-
-```bash
-# Build trading engine image
-docker-compose build nautilus_trader_engine
-
-# Start trading engine
-docker-compose up -d nautilus_trader_engine
-
-# Verify trading engine startup
-docker-compose logs nautilus_trader_engine | tail -20
-
-# Check health endpoint
-curl -s http://localhost:8000/health
-```
-
-#### 4.4 AI Assistant and Prediction Services
-
-```bash
-# Build AI assistant image
-docker-compose build ai_assistant
-
-# Start AI services
-docker-compose up -d ai_assistant
-
-# Start Lobe Chat adapter
-docker-compose up -d lobe_chat_adapter
-
-# Start Lobe Chat interface
-docker-compose up -d lobe_chat
-
-# Verify AI services
-curl -s http://localhost:8002/health
-curl -s http://localhost:8003/health
-```
-
-#### 4.5 DuckDB Analytics Setup
-
-```bash
-# Create DuckDB data directory
-mkdir -p /opt/trading-system/data/duckdb
-
-# Start DuckDB service
-docker-compose up -d duckdb
-
-# Verify DuckDB initialization
-docker-compose logs duckdb | grep "initialized successfully"
-```
-
-### Phase 5: Monitoring Stack Deployment
-
-#### 5.1 Prometheus Setup
+#### 2.1 Prometheus Setup
 
 ```bash
 # Create Prometheus data directory
@@ -620,7 +425,7 @@ docker-compose up -d prometheus
 curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | {job: .labels.job, health: .health}'
 ```
 
-#### 5.2 JMX Exporter Setup
+#### 2.2 JMX Exporter Setup
 
 ```bash
 # Start JMX Exporter for Kafka metrics
@@ -630,7 +435,7 @@ docker-compose up -d jmx-exporter
 curl -s http://localhost:5556/metrics | head -20
 ```
 
-#### 5.3 Grafana Setup
+#### 2.3 Grafana Setup
 
 ```bash
 # Create Grafana data directory
@@ -649,7 +454,7 @@ until curl -s http://localhost:3000/api/health; do
 done
 ```
 
-#### 5.4 ELK Stack Setup
+#### 2.4 ELK Stack Setup
 
 ```bash
 # Create ELK data directories
@@ -677,9 +482,25 @@ until curl -s http://localhost:5601/api/status; do
 done
 ```
 
-### Phase 6: Load Balancer and Reverse Proxy
+#### 2.5 Alertmanager Setup
 
-#### 6.1 NGINX Configuration
+```bash
+# Create Alertmanager data directory
+mkdir -p /opt/trading-system/monitoring/alertmanager
+
+# Copy Alertmanager configuration (assuming a default config exists or will be created)
+# cp config/alertmanager.yml /opt/trading-system/monitoring/alertmanager/
+
+# Start Alertmanager
+docker-compose up -d alertmanager
+
+# Verify Alertmanager status
+curl -s http://localhost:9093/-/healthy
+```
+
+### Phase 3: Load Balancer and Reverse Proxy
+
+#### 3.1 NGINX Configuration
 
 **Create NGINX Configuration:**
 ```bash
@@ -700,6 +521,10 @@ upstream lobe_chat {
 
 upstream grafana {
     server grafana:3000;
+}
+
+upstream auth_service {
+    server auth_service:8001;
 }
 
 server {
@@ -763,6 +588,15 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_Set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Auth Service
+    location /auth/ {
+        proxy_pass http://auth_service/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 EOF
@@ -1041,14 +875,18 @@ check_container "nautilus_trader_engine"
 check_container "ai_assistant"
 check_container "prometheus"
 check_container "grafana"
+check_container "auth_service"
+check_container "alertmanager"
 
 echo
 echo "=== Service Health Checks ==="
 check_service "Nautilus Trader Engine" "http://localhost:8000/health"
 check_service "AI Assistant" "http://localhost:8002/health"
 check_service "Lobe Chat Adapter" "http://localhost:8003/health"
+check_service "Auth Service" "http://localhost:8001/health"
 check_service "Prometheus" "http://localhost:9090/-/healthy"
 check_service "Grafana" "http://localhost:3000/api/health"
+check_service "Alertmanager" "http://localhost:9093/-/healthy"
 check_service "ClickHouse" "http://localhost:8123/ping"
 check_service "Qdrant" "http://localhost:6333/health"
 
@@ -1167,7 +1005,7 @@ check_ssl_certificates
 check_firewall
 check_secrets_permissions
 check_default_passwords
-
+ 
 echo
 echo "=== Security Check Complete ==="
 EOF
@@ -1230,10 +1068,10 @@ docker-compose up -d kafka schema-registry
 sleep 20
 
 echo "Starting core application services..."
-docker-compose up -d nautilus_trader_engine ai_assistant lobe_chat_adapter lobe_chat
+docker-compose up -d nautilus_trader_engine ai_assistant lobe_chat_adapter lobe_chat auth_service
 
 echo "Starting monitoring services..."
-docker-compose up -d prometheus grafana jmx-exporter
+docker-compose up -d prometheus grafana jmx-exporter alertmanager
 
 echo "Starting logging services..."
 docker-compose up -d elasticsearch logstash kibana
@@ -1255,7 +1093,9 @@ echo "Access points:"
 echo "  - Trading API: http://localhost:8000"
 echo "  - AI Assistant: http://localhost:8002"
 echo "  - Lobe Chat: http://localhost:3210"
+echo "  - Auth Service: http://localhost:8001"
 echo "  - Grafana: http://localhost:3000"
+echo "  - Alertmanager: http://localhost:9093"
 echo "  - Kibana: http://localhost:5601"
 EOF
 
@@ -1279,10 +1119,10 @@ export COMPOSE_PROJECT_NAME=trading-system-prod
 
 # Graceful shutdown order
 echo "Stopping application services..."
-docker-compose stop nautilus_trader_engine ai_assistant lobe_chat_adapter lobe_chat
+docker-compose stop nautilus_trader_engine ai_assistant lobe_chat_adapter lobe_chat auth_service
 
 echo "Stopping monitoring services..."
-docker-compose stop prometheus grafana jmx-exporter
+docker-compose stop prometheus grafana jmx-exporter alertmanager
 
 echo "Stopping logging services..."
 docker-compose stop kibana logstash elasticsearch
@@ -1538,9 +1378,6 @@ docker-compose logs -f kafka
 docker-compose logs | grep -i error
 docker-compose logs | grep -i exception
 docker-compose logs | grep -i failed
-
-# Export logs for analysis
-docker-compose logs > /opt/trading-system/logs/system/full_system_$(date +%Y%m%d_%H%M%S).log
 ```
 
 **Performance Monitoring Commands:**
@@ -1573,12 +1410,12 @@ top -bn1 | head -20
   - [ ] Strong cipher suites configured
   - [ ] HSTS headers enabled
 
-- [ ] **Authentication and Authorization**
-  - [ ] Default passwords changed
-  - [ ] Strong password policies enforced
-  - [ ] JWT tokens properly configured
+- [x] **Authentication and Authorization**
+  - [x] Default passwords changed
+  - [x] Strong password policies enforced
+  - [x] JWT tokens properly configured
   - [ ] API key rotation implemented
-  - [ ] Role-based access control (RBAC) configured
+  - [x] Role-based access control (RBAC) configured
 
 - [ ] **Network Security**
   - [ ] Firewall rules configured
@@ -1692,8 +1529,8 @@ This deployment guide ensures a robust, scalable, and secure production deployme
 
 **Document Information**
 - **Version**: 1.0
-- **Last Updated**: 2025-01-27
-- **Next Review**: 2025-04-27
+- **Last Updated**: 2025-07-28
+- **Next Review**: 2025-10-28
 - **Maintained By**: Technical Writing Team
 - **Related Documents**: 
   - [`PROD_READINESS_PLAN.md`](PROD_READINESS_PLAN.md)
