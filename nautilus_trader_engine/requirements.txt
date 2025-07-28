@@ -81,3 +81,16 @@ finrl>=0.3.6
 stable-baselines3>=2.0.0
 gymnasium>=0.28.0
 optuna>=3.0.0
+
+# Phase 5 - Enterprise Features
+# QuantLib for options analytics
+QuantLib-Python>=1.31
+# Additional scientific computing
+scipy>=1.11.0
+# Distributed tracing
+opentelemetry-api>=1.20.0
+opentelemetry-sdk>=1.20.0
+opentelemetry-instrumentation-fastapi>=0.41b0
+opentelemetry-exporter-jaeger>=1.20.0
+# Memory profiling
+memray>=1.10.0

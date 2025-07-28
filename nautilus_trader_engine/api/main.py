@@ -13,6 +13,12 @@ from datetime import datetime
 from .core.config import settings
 from .routers import auth, backtest, optimization, features, strategy_builder, rl_optimization, trading, users
 from nautilus_trader_engine.database.database import Base, engine
+
+# Phase 5 - Enterprise Security and Monitoring
+from .middleware.security import (
+    ZeroTrustMiddleware, AuditMiddleware, security_service,
+    require_feature_flag, get_feature_flags
+)
 from .models.trading import (
     PortfolioResponse,
     PortfolioPosition,
@@ -127,6 +133,10 @@ app = FastAPI(
         },
     ]
 )
+
+# Add security middleware (Phase 5 - Enterprise Security)
+app.add_middleware(ZeroTrustMiddleware, security_service=security_service)
+app.add_middleware(AuditMiddleware, security_service=security_service)
 
 # Add CORS middleware
 app.add_middleware(
@@ -292,6 +302,11 @@ app.include_router(optimization.router, prefix=f"{settings.API_V1_STR}/optimise"
 app.include_router(features.router, prefix=f"{settings.API_V1_STR}/features", tags=["Features"], dependencies=[Depends(get_current_active_user)])
 app.include_router(strategy_builder.router, prefix=f"{settings.API_V1_STR}/strategy-builder", tags=["Strategy Builder"], dependencies=[Depends(get_current_active_user)])
 app.include_router(rl_optimization.router, prefix=f"{settings.API_V1_STR}/rl-optimization", tags=["RL Optimization"], dependencies=[Depends(get_current_active_user)])
+
+# Phase 5 - Enterprise Features
+from .routers import options, system_status
+app.include_router(options.router, prefix=f"{settings.API_V1_STR}/options", tags=["Options Analytics"], dependencies=[Depends(get_current_active_user)])
+app.include_router(system_status.router, prefix=f"{settings.API_V1_STR}/system", tags=["System Status"])
 
 # Root endpoint
 @app.get(

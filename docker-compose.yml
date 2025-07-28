@@ -299,6 +299,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./config/grafana/provisioning:/etc/grafana/provisioning
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -307,12 +308,35 @@ services:
       - trading-net
     depends_on:
       - prometheus
+      - tempo
     deploy:
       resources:
         limits:
           memory: 512M
         reservations:
           memory: 256M
+
+  tempo:
+    image: grafana/tempo:2.2.0
+    container_name: tempo
+    profiles: ["monitoring"]
+    ports:
+      - "3200:3200"   # Tempo HTTP
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "14268:14268" # Jaeger HTTP
+    volumes:
+      - ./config/grafana/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/tmp/tempo
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    networks:
+      - trading-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
 
   jmx-exporter:
     image: sscaling/jmx-prometheus-exporter:0.19.0
@@ -484,6 +508,7 @@ volumes:
   duckdb_data:
   prometheus_data:
   grafana_data:
+  tempo_data:
   redis_data:
   es_data:
 

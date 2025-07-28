@@ -45,3 +45,127 @@ groups:
         annotations:
           summary: "Trading strategy {{ $labels.strategy_name }} has errors"
           description: "Trading strategy {{ $labels.strategy_name }} has encountered errors in the last 5 minutes."
+
+      # API Performance Alerts
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency detected"
+          description: "95th percentile latency is {{ $value }}s for {{ $labels.job }}"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.job }}"
+
+      # Trading System Specific Alerts
+      - alert: TradingEngineDown
+        expr: up{job="nautilus-trader-engine"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Trading Engine is down"
+          description: "The main trading engine has been down for more than 30 seconds."
+
+      - alert: AIAssistantDown
+        expr: up{job="ai-assistant"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI Assistant is down"
+          description: "The AI Assistant service has been down for more than 1 minute."
+
+      - alert: DatabaseConnectionFailure
+        expr: database_connections_active < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failure"
+          description: "No active database connections for {{ $labels.database }}"
+
+      # Trading Performance Alerts
+      - alert: HighOrderRejectionRate
+        expr: rate(trading_orders_rejected_total[5m]) / rate(trading_orders_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High order rejection rate"
+          description: "Order rejection rate is {{ $value | humanizePercentage }}"
+
+      - alert: RiskLimitBreach
+        expr: portfolio_risk_exposure > portfolio_risk_limit
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Risk limit breach"
+          description: "Portfolio risk exposure ({{ $value }}) exceeds limit"
+
+      # Data Quality Alerts
+      - alert: StaleMarketData
+        expr: time() - market_data_last_update_timestamp > 300
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Stale market data"
+          description: "Market data hasn't been updated for {{ $value }} seconds"
+
+      - alert: PredictionServiceDown
+        expr: up{job="prediction-service"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prediction service is down"
+          description: "The prediction service has been down for more than 2 minutes"
+
+  - name: infrastructure_alerts
+    rules:
+      # Infrastructure Health
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute"
+
+      - alert: ClickHouseDown
+        expr: up{job="clickhouse"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ClickHouse is down"
+          description: "ClickHouse database has been down for more than 1 minute"
+
+      - alert: KafkaDown
+        expr: up{job="kafka"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kafka is down"
+          description: "Kafka message broker has been down for more than 30 seconds"
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 1 minute"
