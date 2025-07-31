@@ -84,7 +84,7 @@ optuna>=3.0.0
 
 # Phase 5 - Enterprise Features
 # QuantLib for options analytics
-QuantLib-Python>=1.31
+QuantLib-Python>=1.18
 # Additional scientific computing
 scipy>=1.11.0
 # Distributed tracing
@@ -94,3 +94,9 @@ opentelemetry-instrumentation-fastapi>=0.41b0
 opentelemetry-exporter-jaeger>=1.20.0
 # Memory profiling
 memray>=1.10.0
+
+# GraphQL dependencies (Phase 6)
+graphene>=3.3.0
+flask-graphql>=2.0.1
+graphql-core>=3.2.3
+graphql-relay>=3.2.0

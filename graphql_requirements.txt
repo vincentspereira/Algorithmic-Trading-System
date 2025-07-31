@@ -1,0 +1,7 @@
+# GraphQL dependencies only - compatible versions
+graphql-core==2.3.2
+graphene==2.1.9
+flask-graphql==2.0.1
+graphql-relay==2.0.1
+flask>=2.0.0
+redis>=4.0.0
