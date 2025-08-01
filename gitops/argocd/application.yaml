@@ -1,0 +1,192 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nautilus-trader-production
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader
+    app.kubernetes.io/environment: production
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: nautilus-trader
+  source:
+    repoURL: https://github.com/nautilus-trader/nautilus-trader
+    targetRevision: main
+    path: k8s/helm/nautilus-trader
+    helm:
+      valueFiles:
+        - values-production.yaml
+      parameters:
+        - name: image.tag
+          value: "latest"
+        - name: environment
+          value: "production"
+        - name: replicaCount.api
+          value: "5"
+        - name: replicaCount.websocket
+          value: "3"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nautilus-trader
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: ""
+      kind: Service
+      jsonPointers:
+        - /spec/clusterIP
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nautilus-trader-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader
+    app.kubernetes.io/environment: staging
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: nautilus-trader
+  source:
+    repoURL: https://github.com/nautilus-trader/nautilus-trader
+    targetRevision: develop
+    path: k8s/helm/nautilus-trader
+    helm:
+      valueFiles:
+        - values-staging.yaml
+      parameters:
+        - name: image.tag
+          value: "develop"
+        - name: environment
+          value: "staging"
+        - name: replicaCount.api
+          value: "2"
+        - name: replicaCount.websocket
+          value: "1"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nautilus-trader-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 2m
+  revisionHistoryLimit: 5
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nautilus-trader
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader
+spec:
+  description: Nautilus Trader Application Project
+  sourceRepos:
+    - 'https://github.com/nautilus-trader/nautilus-trader'
+    - 'https://charts.helm.sh/stable'
+    - 'https://charts.bitnami.com/bitnami'
+  destinations:
+    - namespace: 'nautilus-trader*'
+      server: https://kubernetes.default.svc
+    - namespace: 'monitoring'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: ConfigMap
+    - group: ''
+      kind: Secret
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: ServiceAccount
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: apps
+      kind: DaemonSet
+    - group: extensions
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+    - group: monitoring.coreos.com
+      kind: PrometheusRule
+  roles:
+    - name: developer
+      description: Developer access to nautilus-trader applications
+      policies:
+        - p, proj:nautilus-trader:developer, applications, get, nautilus-trader/*, allow
+        - p, proj:nautilus-trader:developer, applications, sync, nautilus-trader/*, allow
+        - p, proj:nautilus-trader:developer, applications, action/*, nautilus-trader/*, allow
+        - p, proj:nautilus-trader:developer, repositories, get, *, allow
+      groups:
+        - nautilus-trader:developers
+    - name: admin
+      description: Admin access to nautilus-trader applications
+      policies:
+        - p, proj:nautilus-trader:admin, applications, *, nautilus-trader/*, allow
+        - p, proj:nautilus-trader:admin, repositories, *, *, allow
+        - p, proj:nautilus-trader:admin, clusters, *, *, allow
+      groups:
+        - nautilus-trader:admins
+  syncWindows:
+    - kind: allow
+      schedule: '0 9-17 * * 1-5'
+      duration: 8h
+      applications:
+        - nautilus-trader-production
+      manualSync: true
+    - kind: deny
+      schedule: '0 0-6 * * *'
+      duration: 6h
+      applications:
+        - nautilus-trader-production
+      manualSync: false

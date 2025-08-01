@@ -1,0 +1,172 @@
+---
+# Production environment variables for Nautilus Trader
+
+# Environment Configuration
+environment: prod
+aws_region: us-west-2
+cluster_name: nautilus-trader-prod
+
+# Domain Configuration
+domain_name: nautilus-trader.com
+letsencrypt_email: admin@nautilus-trader.com
+
+# Kubernetes Configuration
+kubernetes_version: "1.27"
+node_instance_types:
+  - m5.large
+  - m5.xlarge
+node_group_min_size: 3
+node_group_max_size: 20
+node_group_desired_size: 5
+
+# Database Configuration
+database_name: nautilus_trader
+database_username: nautilus
+database_password: "{{ vault_database_password }}"
+rds_instance_class: db.r5.large
+rds_allocated_storage: 500
+enable_multi_az: true
+
+# Redis Configuration
+redis_node_type: cache.r5.large
+redis_num_nodes: 2
+
+# Application Configuration
+app_replicas:
+  api: 5
+  websocket: 3
+  worker: 3
+
+# Resource Limits
+resource_limits:
+  api:
+    cpu: "1000m"
+    memory: "2Gi"
+  websocket:
+    cpu: "500m"
+    memory: "1Gi"
+  worker:
+    cpu: "2000m"
+    memory: "4Gi"
+
+resource_requests:
+  api:
+    cpu: "250m"
+    memory: "512Mi"
+  websocket:
+    cpu: "100m"
+    memory: "256Mi"
+  worker:
+    cpu: "500m"
+    memory: "1Gi"
+
+# Auto-scaling Configuration
+hpa_config:
+  api:
+    min_replicas: 5
+    max_replicas: 50
+    target_cpu: 70
+    target_memory: 80
+  websocket:
+    min_replicas: 3
+    max_replicas: 20
+    target_cpu: 70
+    target_memory: 80
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  retention_days: 90
+  prometheus:
+    storage_size: 100Gi
+    retention: 90d
+  grafana:
+    admin_password: "{{ vault_grafana_password }}"
+
+# Logging Configuration
+logging:
+  enabled: true
+  retention_days: 90
+  elasticsearch:
+    storage_size: 200Gi
+    replicas: 3
+
+# Security Configuration
+security:
+  network_policies: true
+  pod_security_policies: true
+  rbac: true
+  service_mesh: true
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  cross_region_backup: true
+
+# Performance Configuration
+performance:
+  enable_spot_instances: true
+  spot_percentage: 30
+  enable_cluster_autoscaler: true
+  enable_vertical_pod_autoscaler: true
+
+# Feature Flags
+features:
+  trading_enabled: true
+  backtesting_enabled: true
+  paper_trading_enabled: true
+  live_trading_enabled: true
+  risk_management_enabled: true
+  market_data_enabled: true
+  webhooks_enabled: true
+  graphql_enabled: true
+  rest_api_enabled: true
+  websocket_enabled: true
+
+# External Services
+external_services:
+  binance:
+    enabled: true
+    api_key: "{{ vault_binance_api_key }}"
+    secret_key: "{{ vault_binance_secret_key }}"
+  coinbase:
+    enabled: true
+    api_key: "{{ vault_coinbase_api_key }}"
+    secret_key: "{{ vault_coinbase_secret_key }}"
+  alpaca:
+    enabled: true
+    api_key: "{{ vault_alpaca_api_key }}"
+    secret_key: "{{ vault_alpaca_secret_key }}"
+
+# IAM Roles
+iam_roles:
+  alb_controller_role_arn: "arn:aws:iam::{{ aws_account_id }}:role/{{ cluster_name }}-alb-controller"
+  cluster_autoscaler_role_arn: "arn:aws:iam::{{ aws_account_id }}:role/{{ cluster_name }}-cluster-autoscaler"
+  external_dns_role_arn: "arn:aws:iam::{{ aws_account_id }}:role/{{ cluster_name }}-external-dns"
+
+# Notification Configuration
+notifications:
+  slack:
+    enabled: true
+    webhook_url: "{{ vault_slack_webhook_url }}"
+    channel: "#nautilus-trader-alerts"
+  email:
+    enabled: true
+    smtp_server: "{{ vault_smtp_server }}"
+    smtp_port: 587
+    smtp_username: "{{ vault_smtp_username }}"
+    smtp_password: "{{ vault_smtp_password }}"
+    from_email: "alerts@nautilus-trader.com"
+    to_emails:
+      - "admin@nautilus-trader.com"
+      - "devops@nautilus-trader.com"
+
+# Maintenance Windows
+maintenance:
+  database:
+    window: "Sun:03:00-Sun:04:00"
+    backup_window: "02:00-03:00"
+  cluster:
+    update_window: "Sun:04:00-Sun:06:00"

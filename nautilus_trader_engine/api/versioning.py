@@ -260,7 +260,7 @@ class DataTransformer:
     def transform_request(self, data: Dict[str, Any], source_version: str, target_version: str) -> Dict[str, Any]:
         """Transform request data between versions"""
         if source_version == target_version:
-            return data
+            return data.copy()  # Return a copy even for same version
         
         compatibility_rule = self._find_compatibility_rule(source_version, target_version)
         if not compatibility_rule:

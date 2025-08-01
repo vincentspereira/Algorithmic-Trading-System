@@ -1,0 +1,229 @@
+---
+# Kubernetes cluster setup and configuration
+- name: Setup Kubernetes Cluster
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "../vars/{{ environment | default('prod') }}.yml"
+    
+  tasks:
+    - name: Update kubeconfig for EKS cluster
+      shell: |
+        aws eks --region {{ aws_region }} update-kubeconfig --name {{ cluster_name }}
+      register: kubeconfig_result
+      changed_when: kubeconfig_result.rc == 0
+      
+    - name: Verify cluster connectivity
+      k8s_info:
+        api_version: v1
+        kind: Node
+      register: cluster_nodes
+      
+    - name: Display cluster information
+      debug:
+        msg: |
+          Cluster Status: Connected
+          Nodes: {{ cluster_nodes.resources | length }}
+          
+    - name: Create namespaces
+      k8s:
+        name: "{{ item }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+      loop:
+        - nautilus-trader
+        - nautilus-trader-staging
+        - nautilus-trader-dev
+        - monitoring
+        - logging
+        
+    - name: Install NGINX Ingress Controller
+      kubernetes.core.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx
+        create_namespace: true
+        values:
+          controller:
+            replicaCount: 2
+            service:
+              type: LoadBalancer
+              annotations:
+                service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+                service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+            metrics:
+              enabled: true
+              serviceMonitor:
+                enabled: true
+            resources:
+              requests:
+                cpu: 100m
+                memory: 90Mi
+              limits:
+                cpu: 500m
+                memory: 500Mi
+                
+    - name: Install Cert-Manager
+      kubernetes.core.helm:
+        name: cert-manager
+        chart_ref: jetstack/cert-manager
+        release_namespace: cert-manager
+        create_namespace: true
+        values:
+          installCRDs: true
+          global:
+            leaderElection:
+              namespace: cert-manager
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+              
+    - name: Create ClusterIssuer for Let's Encrypt
+      k8s:
+        definition:
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: letsencrypt-prod
+          spec:
+            acme:
+              server: https://acme-v02.api.letsencrypt.org/directory
+              email: "{{ letsencrypt_email }}"
+              privateKeySecretRef:
+                name: letsencrypt-prod
+              solvers:
+              - http01:
+                  ingress:
+                    class: nginx
+                    
+    - name: Install AWS Load Balancer Controller
+      kubernetes.core.helm:
+        name: aws-load-balancer-controller
+        chart_ref: eks/aws-load-balancer-controller
+        release_namespace: kube-system
+        values:
+          clusterName: "{{ cluster_name }}"
+          serviceAccount:
+            create: true
+            name: aws-load-balancer-controller
+            annotations:
+              eks.amazonaws.com/role-arn: "{{ alb_controller_role_arn }}"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+              
+    - name: Install Cluster Autoscaler
+      kubernetes.core.helm:
+        name: cluster-autoscaler
+        chart_ref: autoscaler/cluster-autoscaler
+        release_namespace: kube-system
+        values:
+          autoDiscovery:
+            clusterName: "{{ cluster_name }}"
+          awsRegion: "{{ aws_region }}"
+          rbac:
+            serviceAccount:
+              annotations:
+                eks.amazonaws.com/role-arn: "{{ cluster_autoscaler_role_arn }}"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+            limits:
+              cpu: 100m
+              memory: 300Mi
+              
+    - name: Install Metrics Server
+      kubernetes.core.helm:
+        name: metrics-server
+        chart_ref: metrics-server/metrics-server
+        release_namespace: kube-system
+        values:
+          args:
+            - --cert-dir=/tmp
+            - --secure-port=4443
+            - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+            - --kubelet-use-node-status-port
+            - --metric-resolution=15s
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 100m
+              memory: 200Mi
+              
+    - name: Create storage classes
+      k8s:
+        definition:
+          apiVersion: storage.k8s.io/v1
+          kind: StorageClass
+          metadata:
+            name: "{{ item.name }}"
+            annotations:
+              storageclass.kubernetes.io/is-default-class: "{{ item.default | default('false') }}"
+          provisioner: ebs.csi.aws.com
+          parameters:
+            type: "{{ item.type }}"
+            fsType: ext4
+            encrypted: "true"
+          allowVolumeExpansion: true
+          volumeBindingMode: WaitForFirstConsumer
+      loop:
+        - name: gp3
+          type: gp3
+          default: true
+        - name: fast-ssd
+          type: gp3
+        - name: io1
+          type: io1
+          
+    - name: Apply network policies
+      k8s:
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: NetworkPolicy
+          metadata:
+            name: default-deny-all
+            namespace: "{{ item }}"
+          spec:
+            podSelector: {}
+            policyTypes:
+            - Ingress
+            - Egress
+      loop:
+        - nautilus-trader
+        - nautilus-trader-staging
+        - nautilus-trader-dev
+        
+    - name: Create priority classes
+      k8s:
+        definition:
+          apiVersion: scheduling.k8s.io/v1
+          kind: PriorityClass
+          metadata:
+            name: "{{ item.name }}"
+          value: "{{ item.value }}"
+          globalDefault: "{{ item.default | default(false) }}"
+          description: "{{ item.description }}"
+      loop:
+        - name: high-priority
+          value: 1000
+          description: "High priority class for critical workloads"
+        - name: medium-priority
+          value: 500
+          description: "Medium priority class for standard workloads"
+          default: true
+        - name: low-priority
+          value: 100
+          description: "Low priority class for batch workloads"

@@ -1,0 +1,37 @@
+---
+# Main Ansible playbook for Nautilus Trader infrastructure configuration
+- name: Configure Nautilus Trader Infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    project_name: "nautilus-trader"
+    environment: "{{ env | default('prod') }}"
+    aws_region: "{{ region | default('us-west-2') }}"
+    
+  tasks:
+    - name: Include environment-specific variables
+      include_vars: "../vars/{{ environment }}.yml"
+      
+    - name: Display deployment information
+      debug:
+        msg: |
+          Deploying Nautilus Trader to {{ environment }} environment
+          Project: {{ project_name }}
+          Region: {{ aws_region }}
+          Kubernetes Version: {{ kubernetes_version }}
+
+- name: Setup Kubernetes Cluster
+  import_playbook: kubernetes-setup.yml
+  
+- name: Deploy Applications
+  import_playbook: application-deployment.yml
+  
+- name: Configure Monitoring
+  import_playbook: monitoring-setup.yml
+  
+- name: Setup Security
+  import_playbook: security-setup.yml
+  
+- name: Configure Backup and Recovery
+  import_playbook: backup-setup.yml

@@ -1,0 +1,376 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nautilus-trader
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader
+    app.kubernetes.io/part-of: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/nautilus-trader.git
+    targetRevision: HEAD
+    path: k8s/helm/nautilus-trader
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-production.yaml
+      parameters:
+        - name: image.tag
+          value: "1.0.0"
+        - name: replicaCount
+          value: "3"
+        - name: autoscaling.enabled
+          value: "true"
+        - name: monitoring.enabled
+          value: "true"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nautilus-trader
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: ""
+      kind: Service
+      jsonPointers:
+        - /spec/clusterIP
+  info:
+    - name: Description
+      value: Nautilus Trader algorithmic trading platform
+    - name: Environment
+      value: Production
+    - name: Owner
+      value: Trading Team
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nautilus-trader-infrastructure
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader-infrastructure
+    app.kubernetes.io/part-of: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/nautilus-trader.git
+    targetRevision: HEAD
+    path: k8s/infrastructure
+    directory:
+      recurse: true
+      include: "*.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nautilus-trader
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 2m
+  revisionHistoryLimit: 5
+  info:
+    - name: Description
+      value: Infrastructure components for Nautilus Trader
+    - name: Environment
+      value: Production
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nautilus-trader-monitoring
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader-monitoring
+    app.kubernetes.io/part-of: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/nautilus-trader.git
+    targetRevision: HEAD
+    path: k8s/monitoring
+    directory:
+      recurse: true
+      include: "*.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nautilus-trader-monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 2m
+  revisionHistoryLimit: 5
+  info:
+    - name: Description
+      value: Monitoring stack for Nautilus Trader
+    - name: Environment
+      value: Production
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nautilus-trader-project
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader-project
+    app.kubernetes.io/part-of: argocd
+spec:
+  description: Project for Nautilus Trader applications
+  sourceRepos:
+    - https://github.com/your-org/nautilus-trader.git
+    - https://charts.bitnami.com/bitnami
+    - https://prometheus-community.github.io/helm-charts
+    - https://grafana.github.io/helm-charts
+  destinations:
+    - namespace: nautilus-trader
+      server: https://kubernetes.default.svc
+    - namespace: nautilus-trader-staging
+      server: https://kubernetes.default.svc
+    - namespace: nautilus-trader-dev
+      server: https://kubernetes.default.svc
+    - namespace: nautilus-trader-monitoring
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: ""
+      kind: PersistentVolume
+    - group: storage.k8s.io
+      kind: StorageClass
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: extensions
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: autoscaling
+      kind: "*"
+    - group: batch
+      kind: "*"
+    - group: policy
+      kind: "*"
+    - group: monitoring.coreos.com
+      kind: "*"
+    - group: istio.io
+      kind: "*"
+  roles:
+    - name: admin
+      description: Admin access to Nautilus Trader project
+      policies:
+        - p, proj:nautilus-trader-project:admin, applications, *, nautilus-trader-project/*, allow
+        - p, proj:nautilus-trader-project:admin, repositories, *, *, allow
+        - p, proj:nautilus-trader-project:admin, clusters, *, *, allow
+      groups:
+        - nautilus-trader:admins
+    - name: developer
+      description: Developer access to Nautilus Trader project
+      policies:
+        - p, proj:nautilus-trader-project:developer, applications, get, nautilus-trader-project/*, allow
+        - p, proj:nautilus-trader-project:developer, applications, sync, nautilus-trader-project/*, allow
+        - p, proj:nautilus-trader-project:developer, applications, action/*, nautilus-trader-project/*, allow
+        - p, proj:nautilus-trader-project:developer, repositories, get, *, allow
+      groups:
+        - nautilus-trader:developers
+    - name: readonly
+      description: Read-only access to Nautilus Trader project
+      policies:
+        - p, proj:nautilus-trader-project:readonly, applications, get, nautilus-trader-project/*, allow
+        - p, proj:nautilus-trader-project:readonly, repositories, get, *, allow
+      groups:
+        - nautilus-trader:viewers
+  syncWindows:
+    - kind: allow
+      schedule: "0 2 * * *"
+      duration: 2h
+      applications:
+        - nautilus-trader-infrastructure
+      manualSync: true
+    - kind: deny
+      schedule: "0 9-17 * * 1-5"
+      duration: 8h
+      applications:
+        - nautilus-trader
+      manualSync: false
+      timeZone: "America/New_York"
+  signatureKeys:
+    - keyID: "4AEE18F83AFDEB23"
+  orphanedResources:
+    warn: true
+    ignore:
+      - group: ""
+        kind: Secret
+        name: "*-token-*"
+      - group: ""
+        kind: ConfigMap
+        name: "*-leader-election"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nautilus-trader-environments
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: nautilus-trader-environments
+    app.kubernetes.io/part-of: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - environment: development
+            namespace: nautilus-trader-dev
+            replicaCount: "1"
+            autoscaling: "false"
+            monitoring: "false"
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "1Gi"
+                cpu: "500m"
+          - environment: staging
+            namespace: nautilus-trader-staging
+            replicaCount: "2"
+            autoscaling: "true"
+            monitoring: "true"
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "250m"
+              limits:
+                memory: "2Gi"
+                cpu: "1000m"
+          - environment: production
+            namespace: nautilus-trader
+            replicaCount: "3"
+            autoscaling: "true"
+            monitoring: "true"
+            resources:
+              requests:
+                memory: "1Gi"
+                cpu: "500m"
+              limits:
+                memory: "4Gi"
+                cpu: "2000m"
+  template:
+    metadata:
+      name: "nautilus-trader-{{environment}}"
+      labels:
+        environment: "{{environment}}"
+        app.kubernetes.io/name: nautilus-trader
+        app.kubernetes.io/part-of: argocd
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: nautilus-trader-project
+      source:
+        repoURL: https://github.com/your-org/nautilus-trader.git
+        targetRevision: "{{environment}}"
+        path: k8s/helm/nautilus-trader
+        helm:
+          valueFiles:
+            - values.yaml
+            - "values-{{environment}}.yaml"
+          parameters:
+            - name: environment
+              value: "{{environment}}"
+            - name: replicaCount
+              value: "{{replicaCount}}"
+            - name: autoscaling.enabled
+              value: "{{autoscaling}}"
+            - name: monitoring.enabled
+              value: "{{monitoring}}"
+            - name: resources.requests.memory
+              value: "{{resources.requests.memory}}"
+            - name: resources.requests.cpu
+              value: "{{resources.requests.cpu}}"
+            - name: resources.limits.memory
+              value: "{{resources.limits.memory}}"
+            - name: resources.limits.cpu
+              value: "{{resources.limits.cpu}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      revisionHistoryLimit: 10
+      info:
+        - name: Environment
+          value: "{{environment}}"
+        - name: Namespace
+          value: "{{namespace}}"

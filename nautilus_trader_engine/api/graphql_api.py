@@ -1065,8 +1065,10 @@ subscription MarketDataUpdates {
     
     def get_schema_sdl(self) -> str:
         """Get GraphQL Schema Definition Language"""
-        from graphql import build_schema, print_schema
-        return print_schema(self.schema.graphql_schema)
+        from graphql import print_schema
+        # Convert Graphene schema to GraphQL schema
+        graphql_schema = self.schema.graphql_schema if hasattr(self.schema, 'graphql_schema') else self.schema
+        return print_schema(graphql_schema)
     
     def get_metrics_summary(self, hours: int = 24) -> Dict[str, Any]:
         """Get GraphQL metrics summary"""

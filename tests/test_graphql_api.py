@@ -401,8 +401,7 @@ class TestGraphQLQueries:
         
         return Schema(query=Query, mutation=Mutation, subscription=Subscription)
     
-    @pytest.mark.asyncio
-    async def test_orders_query(self, schema):
+    def test_orders_query(self, schema):
         """Test orders query execution"""
         query = """
         query {
@@ -416,7 +415,7 @@ class TestGraphQLQueries:
         }
         """
         
-        result = await schema.execute_async(query)
+        result = schema.execute(query)
         
         assert result.errors is None
         assert result.data is not None
@@ -431,8 +430,7 @@ class TestGraphQLQueries:
         assert 'quantity' in order
         assert 'status' in order
     
-    @pytest.mark.asyncio
-    async def test_portfolio_query(self, schema):
+    def test_portfolio_query(self, schema):
         """Test portfolio query execution"""
         query = """
         query {
@@ -451,7 +449,7 @@ class TestGraphQLQueries:
         }
         """
         
-        result = await schema.execute_async(query)
+        result = schema.execute(query)
         
         assert result.errors is None
         assert result.data is not None
@@ -465,8 +463,7 @@ class TestGraphQLQueries:
         assert 'positions' in portfolio
         assert isinstance(portfolio['positions'], list)
     
-    @pytest.mark.asyncio
-    async def test_market_data_query(self, schema):
+    def test_market_data_query(self, schema):
         """Test market data query execution"""
         query = """
         query {
@@ -482,7 +479,7 @@ class TestGraphQLQueries:
         }
         """
         
-        result = await schema.execute_async(query)
+        result = schema.execute(query)
         
         assert result.errors is None
         assert result.data is not None
@@ -495,8 +492,7 @@ class TestGraphQLQueries:
         assert 'ask' in market_data
         assert 'volume' in market_data
     
-    @pytest.mark.asyncio
-    async def test_create_order_mutation(self, schema):
+    def test_create_order_mutation(self, schema):
         """Test create order mutation"""
         mutation = """
         mutation {
@@ -521,7 +517,7 @@ class TestGraphQLQueries:
         }
         """
         
-        result = await schema.execute_async(mutation)
+        result = schema.execute(mutation)
         
         assert result.errors is None
         assert result.data is not None
@@ -538,8 +534,7 @@ class TestGraphQLQueries:
         assert order['quantity'] == 100
         assert order['price'] == 150.25
     
-    @pytest.mark.asyncio
-    async def test_create_order_validation(self, schema):
+    def test_create_order_validation(self, schema):
         """Test create order mutation validation"""
         mutation = """
         mutation {
@@ -555,7 +550,7 @@ class TestGraphQLQueries:
         }
         """
         
-        result = await schema.execute_async(mutation)
+        result = schema.execute(mutation)
         
         assert result.errors is None
         assert result.data is not None

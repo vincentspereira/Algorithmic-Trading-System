@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nautilus-trader
+  labels:
+    name: nautilus-trader
+    environment: production
+    app.kubernetes.io/name: nautilus-trader
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: namespace
+    app.kubernetes.io/part-of: nautilus-trader-platform
+    app.kubernetes.io/managed-by: helm
+  annotations:
+    description: "Nautilus Trader Engine - Cloud-Native Algorithmic Trading Platform"
+    contact: "support@nautilus-trader.com"
+    documentation: "https://docs.nautilus-trader.com"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: nautilus-trader-quota
+  namespace: nautilus-trader
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+    persistentvolumeclaims: "10"
+    services: "20"
+    secrets: "50"
+    configmaps: "50"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: nautilus-trader-limits
+  namespace: nautilus-trader
+spec:
+  limits:
+  - default:
+      cpu: "1"
+      memory: "2Gi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "256Mi"
+    type: Container
+  - default:
+      storage: "10Gi"
+    type: PersistentVolumeClaim

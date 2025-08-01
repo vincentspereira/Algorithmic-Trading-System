@@ -1,0 +1,34 @@
+{
+  "api_performance_test": {
+    "test_name": "api_performance_test",
+    "baseline_date": "2025-08-01T03:21:37.897202",
+    "response_time_ms": 150.0,
+    "throughput_rps": 1000.0,
+    "error_rate": 0.01,
+    "cpu_usage": 45.0,
+    "memory_usage": 60.0,
+    "confidence_interval": {
+      "response_time_ms": [
+        150.0,
+        150.0
+      ],
+      "throughput_rps": [
+        1000.0,
+        1000.0
+      ],
+      "error_rate": [
+        0.01,
+        0.01
+      ],
+      "cpu_usage": [
+        45.0,
+        45.0
+      ],
+      "memory_usage": [
+        60.0,
+        60.0
+      ]
+    },
+    "sample_size": 10
+  }
+}

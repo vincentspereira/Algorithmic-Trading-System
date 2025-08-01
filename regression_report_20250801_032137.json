@@ -1,0 +1,100 @@
+{
+  "report_date": "2025-08-01T03:21:37.904646",
+  "baselines_count": 1,
+  "test_history_count": 1,
+  "active_alerts": 0,
+  "baselines": {
+    "api_performance_test": {
+      "test_name": "api_performance_test",
+      "baseline_date": "2025-08-01T03:21:37.897202",
+      "response_time_ms": 150.0,
+      "throughput_rps": 1000.0,
+      "error_rate": 0.01,
+      "cpu_usage": 45.0,
+      "memory_usage": 60.0,
+      "confidence_interval": {
+        "response_time_ms": [
+          150.0,
+          150.0
+        ],
+        "throughput_rps": [
+          1000.0,
+          1000.0
+        ],
+        "error_rate": [
+          0.01,
+          0.01
+        ],
+        "cpu_usage": [
+          45.0,
+          45.0
+        ],
+        "memory_usage": [
+          60.0,
+          60.0
+        ]
+      },
+      "sample_size": 10
+    }
+  },
+  "recent_regressions": [
+    {
+      "test_name": "api_performance_test",
+      "test_date": "2025-08-01T03:21:37.903712",
+      "severity": "major",
+      "affected_metrics": [
+        "response_time_ms",
+        "throughput_rps",
+        "error_rate",
+        "cpu_usage"
+      ],
+      "performance_change": {
+        "response_time_ms": 20.0,
+        "throughput_rps": 15.0,
+        "error_rate": 49.999999999999986,
+        "cpu_usage": 22.22222222222222,
+        "memory_usage": 8.333333333333332
+      }
+    }
+  ],
+  "performance_trends": {},
+  "alert_summary": {
+    "total_alerts": 5,
+    "triggered_alerts": 0,
+    "alert_levels": {
+      "critical": 0,
+      "warning": 0,
+      "info": 0
+    },
+    "active_alerts": []
+  },
+  "optimization_tracking": {
+    "error": "Insufficient data for optimization tracking"
+  },
+  "recommendations": [
+    {
+      "category": "regression",
+      "priority": "high",
+      "recommendation": "Address 1 recent performance regressions",
+      "details": "Investigate and fix performance degradations in affected components"
+    },
+    {
+      "category": "monitoring",
+      "priority": "medium",
+      "recommendation": "Implement continuous performance monitoring",
+      "details": "Set up automated performance testing in CI/CD pipeline"
+    },
+    {
+      "category": "baselines",
+      "priority": "low",
+      "recommendation": "Update performance baselines regularly",
+      "details": "Refresh baselines after major optimizations or infrastructure changes"
+    },
+    {
+      "category": "alerting",
+      "priority": "medium",
+      "recommendation": "Fine-tune alert thresholds based on historical data",
+      "details": "Adjust alert thresholds to reduce false positives while maintaining sensitivity"
+    }
+  ]
+}

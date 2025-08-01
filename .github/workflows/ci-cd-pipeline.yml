@@ -1,0 +1,506 @@
+name: Nautilus Trader CI/CD Pipeline
+
+on:
+  push:
+ kflowf,worntName,reion,eveactmit,author,ssage,comepo,melds: r
+        fieWEBHOOK }}rets.SLACK_ sec ${{rl:k_u  webhoo
+      yments'plo: '#denel     chan
+   .status }}: ${{ jobatus      stwith:
+  
+      ack@v3/action-sl8a7ses: 839      uck
+ SlaNotify name: eps:
+    -k]
+    strollbacent, loymy-depction, canarloy-produ: [dep needss()
+    if: alway
+   buntu-latest runs-on: ums
+   : Notify Tea:
+    nameon
+  notifyicatiNotif # 
+ roduction
+ronment=pk.py --envihecon_health_ce/productioktests/smhon      pyt run: |
+   
+     ckify rollba name: Vers
+
+    -eout=300rader --timautilus-t-n nilus-trader o/name=nautubernetes.iod -l app.k=ready ponditionr=ctl wait --fo   kubec    er
+ autilus-tradrader -n nautilus-tk nelm rollbac|
+        h run: on
+     versis eviou to prRollback name: fig
+
+    -=kubeconFIGort KUBECON    exp  ig
+  ubeconf64 -d > kbase" | ROD }}UBE_CONFIG_Pts.K{{ secre"$   echo un: |
+          rbectl
+ ure ku: Configname
+
+    -  'v1.28.0'   version:
+        with:tl@v3
+   kubecp-azure/setu    uses: ctl
+  be ku: Set up    - name
+
+v4out@ctions/check: a     useskout code
+  Checme: na
+    -  steps:back
+  n-rollproductioe:   nament:
+      environment]
+  loymry-depnation, caploy-producneeds: [dee')
+    eas= 'relvent_name =.eithubin' || gs/ma 'refs/head ==ithub.ref& (gailure() &f: f
+    ituntu-latesns-on: ubment
+    ruloy Depckame: Rollba n  back:
+ ll  ropability
+back call # Roout=15m
+
+ t --timewai      --aml \
+    n.yproductiovalues-trader/ilus-m/naut/k8s/hels .   --value      lling \
+ ent.type=ro deploym   --set\
+       }} tag e-utputs.imagges.ouild-imads.bee.tag=${{ nge--set ima     
+     -trader \ace nautilus  --namesp    der \
+    tilus-trak8s/helm/naur ./us-tradeade nautilupgrm     helun: |
+       rt
+   enFull deploym:  name005
+
+    -d=0.0 --thresholion=60y.py --duratarnitor_cants/mohon scrippyt     |
+    run:     s (25%)
+ etric m canarytorme: Moni
+    - nalues
+euse-va  --r
+        =25 \ary.weight.can deployment     --seter \
+     tilus-tradmespace nau   --na\
+       -trader nautilus ./k8s/helm/er-canaryutilus-tradade nagr    helm upn: |
+    ru5%)
+      fic (2canary traf: Increase 
+    - named=0.01
+esholn=300 --thrduratiopy --_canary.nitorripts/mohon sc  pyt  run: |
+    rics
+      nary metr ca: Monito   - nameout=10m
+
+ imet --t      --wail \
+    n.yamproductioes-aluus-trader/v/helm/nautilalues ./k8s     --v\
+     ight=5 canary.weployment.  --set de     \
+    ryanant.type=ceployme --set d      n \
+   ductionment=proet enviro  --s\
+        } image-tag }uts.tpmages.oubuild-ieeds.{{ nge.tag=$t ima        --se \
+  erilus-tradmespace naut        --narader \
+  /nautilus-t/k8s/helmry .der-cananautilus-tral stal-inupgrade -      helm |
+       run: raffic)
+  (5% t canaryame: Deploy n
+
+    -gfieconCONFIG=kubort KUBE  exp    fig
+  d > kubecon4 -e6bas" |  }}RODE_CONFIG_Pts.KUB{ secreecho "${  |
+      un:    rubectl
+    Configure k   - name:
+  'v1.28.0'
+rsion:
+        ve      with:ubectl@v3
+e/setup-k: azur uses    kubectl
+ : Set up    - name@v4
+
+ /checkout actions      uses:e
+codkout Chec    - name: eps:
+ stom
+   rader.cutilus-thttps://na  url: y
+    on-canar: producti     namet:
+ ronmen    envirelease'
+ame == 'ub.event_nf: gith   i]
+ build-images needs: [atest
+   untu-l runs-on: ubnt
+   oymeanary Deplame: Ct:
+    ny-deploymencanarses)
+  for releament (oyplnary De# Ca
+  
+| truee |ader-blu nautilus-tr-nder-blue -trautilusstall nalm unin  he|
+       run: nment
+     lue environup blea  - name: Cuction
+
+  t=prodenvironmen_check.py --healthction_produtests/smoke/ python 
+       ep 30      sle: |
+    runcheck
+    inal health - name: F}}}'
+
+    reen"r":"gt.colo{"deploymenelector":c":{"s -p '{"spe
+         r \utilus-trade-n naservice er-adlus-trvice nautil patch serkubect        run: |
+n
+      c to greetraffi Switch me:nan
+
+    - =greevironmenten--eck.py _health_che/productionokests/smython ts
+        peout=300--timen -greraderus-tutilder -n na-trame=nautilusnetes.io/naapp.kuber pod -l eadyion=rconditr=l wait --foubect  k|
+            run: vironment
+k green enlth chec: Hea
+    - name
+meout=15mt --ti --wai      yaml \
+   ction.alues-produtrader/vlm/nautilus-./k8s/hes    --value\
+       green olor=yment.cset deplo --        \
+ roduction nvironment=p e    --set     }} \
+ age-tag puts.imimages.outeds.build-tag=${{ net image.     --see \
+     mespac--create-na          \
+ rader-greenautilus-t namespace       --nader \
+   -trusutil/na ./k8s/helmreenus-trader-gnautile --install  helm upgrad       nment
+roenvireen loy to g      # Depn: |
+     ruloyment
+    Depen: Blue-Gre- nameig
+
+    onfecNFIG=kubBECO  export KU
+      figcon > kubese64 -dOD }}" | baCONFIG_PR.KUBE_ secrets"${{o 
+        ech     run: |kubectl
+ gure e: Confiam
+
+    - n.28.0': 'v1ion      versith:
+       wctl@v3
+ tup-kube/ses: azure     usetl
+ p kubec uame: Set    - nt@v4
+
+checkouctions/   uses: ade
+   eckout coame: Ch
+    - n   steps:der.com
+ ratilus-t/nauttps:/  url: htion
+    produc name: ment:
+     
+    environn'/heads/mairefs.ref == 'if: github
+    s]nce-testng, performa-stagiploy-images, deds: [buildeet
+    nesbuntu-lat uon: runs-   tion
+ to Producname: Deployction:
+    produy-
+  deplo(Blue-Green)n o Productioeploy t
+  # Dtests.py
+e_taging_smokts/smoke/sn tespytho
+        300sout=ing --time-staglus-tradern nautider -us-trautilnaname=.io/rnetes-l app.kubeeady pod ion=r-for=conditit - kubectl wa |
+       un:sts
+      run smoke teme: R
+    - na
+ut=10m--timeo    --wait  \
+      mlng.yaagi-stluesvader/autilus-tram/n ./k8s/hel   --values     \
+  taging =s environment      --set} \
+    .image-tag }ges.outputs.build-ima needsge.tag=${{ima-set    -       
+ \spacereate-name     --c \
+     stagingder-lus-traspace nautiame        --n  -trader \
+utilus/k8s/helm/nataging .-trader-silusnstall naut--ide lm upgra    he
+    : |
+      runh Helmeploy wit D - name:g
+
+   G=kubeconfiUBECONFI K     exportfig
+   ubeconase64 -d > k b }}" |NGONFIG_STAGI_Cts.KUBE secre{{   echo "$     run: |
+      tl
+ubecnfigure kme: Co
+
+    - nan: 'v1.28.0'sio    ver   
+ th:
+      wikubectl@v3p-azure/setus:  use
+      kubectlupt  - name: Se
+   ckout@v4
+ actions/che uses:
+     codeeckout - name: Ch:
+      stepsader.com
+  utilus-tr.naagingsts://ttp url: hg
+     : stagin     name:
+ ment
+    environdevelop's/= 'refs/headhub.ref =  if: gittests]
+  s, e2e-ld-image [bui needs:latest
+   on: ubuntu-runs-   ing
+  Stagploy toame: Deng:
+    nstagi
+  deploy-agingo St# Deploy t
+  lts.sarif'
+resuvy-file: 'tri      sarif_  with:
+  rif@v2
+    d-saloa/upodeql-actions: github/c
+      usen resultsd Trivy sca Uploa  - name:
+  s.sarif'
+-resultvyput: 'tri  out'
+      rif format: 'sa
+       apiag }}-mage-tes.outputs.ibuild-imag ${{ needs. image-ref:    th:
+      wi@master
+   y-actioncurity/trivquase    uses: a
+  erlity scannlnerabivuRun Trivy  name:   -teps:
+  s]
+    smage [build-ieds:t
+    netesn: ubuntu-laruns-on
+    ca Surity name: Secy-scan:
+   securitanning
+  urity Sc
+
+  # Secx/arm64md64,linunux/ams: li     platforx
+   gha,mode=mahe-to: type=cacha
+        type=gche-from:       caels }}
+  aboutputs.lta..me{ stepsabels: ${    l
+    s }}-workerts.tagutpups.meta.o{ stetags: ${ue
+            push: tr   le.worker
+ Dockerficker/le: ./do        fi: .
+    context
+    th:    wi@v5
+  ush-actionr/build-pockeuses: d
+      ger imash Workeuild and pume: B
+    - na4
+/arm6ux/amd64,linlinuxorms: tfla p    
+   axa,mode=m-to: type=gh   cache    
+ am: type=ghro     cache-f
+   abels }}s.loutputps.meta.s: ${{ ste   label
+     socket}-webtags }outputs.eta. ${{ steps.mgs:    ta
+    ue   push: tr   socket
+  file.webker/Dockerle: ./doc      fi
+  ext: .  cont   with:
+   @v5
+      h-actionpusuild-: docker/b
+      usesocket imagebS Weushuild and p Bname:- 4
+
+    x/arm6,linuux/amd64atforms: lin        pl,mode=max
+pe=ghahe-to: ty       cac type=gha
+ m:cache-fro    }
+    ls }puts.labeta.outps.mels: ${{ stelabe      }-api
+  ts.tags }a.outpus.metgs: ${{ stepta    ue
+     trsh:   pu.api
+     le/Dockerficker/do  file: .t: .
+           contex
+       with:tion@v5
+  ld-push-acocker/bui   uses: dild
+   id: bu     image
+  APIpush nd : Build a  - name
+  anch}}
+t_brefaul={{is_dest,enableue=latype=raw,val
+          t}}-ix={{branch,pref    type=shar
+      =ref,event=p       typebranch
+   ref,event=    type=     
+ |gs: ta}
+        GE_NAME }IMA}}/${{ env.epository  github.rTRY }}/${{env.REGISages: ${{ im   with:
+        
+   a-action@v5cker/metadates: do      useta
+     id: mdata
+  metaxtract name: E   -EN }}
+
+ HUB_TOKts.GIT{{ secressword: $        paactor }}
+thub.${{ gime: serna
+        uTRY }}REGISenv.: ${{    registry   th:
+       wion@v3
+ /login-actiuses: docker     y
+ gistrr Re Containe toame: Log in- n   @v3
+
+ on-buildx-actitup/seocker   uses: d    Buildx
+Dockerame: Set up 
+
+    - nut@v4heckoions/c uses: act     e
+od: Checkout c- names:
+    
+    stepest }}s.digld.output{{ steps.buiigest: $ge-dma
+      iuts.tags }}s.meta.outpep: ${{ stage-t   imag
+   uts:
+    outppush'== '_name ub.eventgith if: 
+   sts]egration-tes, inty, unit-testde-qualit needs: [co
+   ntu-latest: ubuuns-on   rmages
+ ild & Push Iame: Bu    nd-images:
+ges
+  builsh Ima Puild andBu # rk.json
+
+ ath: benchma     ps
+   ltesunchmark-r name: be
+       h: wit    ifact@v3
+ -artons/uploades: acti   usts
+    resulrkoad benchmame: Upl  - na
+
+  chmark.jsonrk-json=benchmace/ --benanformests/perpytest tm    python -un: |
+          r
+ ance testsorm perfme: Run  - nat
+
+  s.txequirementl -r rtal   pip ins  hmark
+   -bencytestlocust pip install     pde pip
+    gra --upinstallpip n -m ho   pyt       run: |
+ cies
+   penden de: Install  - nameION }}
+
+  _VERSHONnv.PYT ${{ eon-version:      pyth
+     with:hon@v4
+   ytsetup-ptions/ses: acn
+      u Pythoame: Set up    - nv4
+
+checkout@tions/s: ac  uset code
+    ame: Checkous:
+    - n
+    stepds/main'fs/hea == 'reub.ref&& githpush' me == 'nt_na: github.eve
+    iflatestntu-ubuon: uns-  re Tests
+  ncPerforma: me  na
+  sts:-tenceformaperce Tests
+  rforman Pev
+
+  #ml down -ose.test.y docker-compompose -f-c docker       |
+      run: ()
+ always
+      if:: Cleanup   - name2e/ -v
+
+ t tests/e pytesxec -T apil est.yme.teer-compose -f dockker-compos     doc run: |
+        E2E tests
+me: Run 
+    - nap 60
+lee  sd
+      yml up -ose.test.ker-compoce -f dcomposocker-|
+        d    run: t
+  vironmenld test en: Buiname  -   ction@v3
+
+ildx-aup-bucker/setuses: do     Buildx
+   Dockerame: Set up  - n@v4
+
+  kout/checctions   uses: acode
+   ckout me: Che:
+    - naeps statest
+   ubuntu-l   runs-on: Tests
+ -to-End  End name:ests:
+   2e-t e
+ sd Test-Ento  # End-=short
+
+tbtion/ -v --graests/inteest t        pyt|
+n:      ru72/
+ lhost:56:guest@locaguestmqp://ITMQ_URL: a  RABB9/0
+      637/localhost:edis:/URL: r REDIS_t
+       _tes32/nautiluscalhost:54gres@lostgres:postposql://: postgreE_URLDATABAS     
+       env:ts
+  tesn tioegran inte: Ru   - namep 30
+
+         sle |
+un:
+      r servicesor Wait fe:
+    - namt
+ments.txr requirell -staip inn
+        pegrationtst-isyncio pytet pytest-anstall pytespip i
+        ppiade ll --upgrtainshon -m pip  pyt: |
+       run
+      enciesl depend: Instal- name}
+
+    N }ON_VERSIOv.PYTHsion: ${{ enon-ver  pyth
+          with:4
+  tup-python@vs/se actions:     usen
+ hoyt P: Set up - name
+
+   kout@v4hecs/conses: acti     uout code
+ eck- name: Ch:
+    
+
+    steps:15672    - 156722
+        - 5672:567        rts:
+
+        po-retries 5alth       --he   out 5s
+th-timeheal --s
+         -interval 10 --health       ping"
+   sticsbitmq-diagnoh-cmd "rab   --healt   
+    ns: >-optio   guest
+     ULT_PASS: ITMQ_DEFA    RABBt
+       guesAULT_USER:DEF   RABBITMQ_       nv:
+t
+        eemennagitmq:3.12-maimage: rabb
+        bbitmq:ra     379
+
+ :6     - 6379orts:
+     5
+        ptries health-re          --imeout 5s
+alth-t        --he10s
+  th-interval   --heal   ing"
+     redis-cli p "cmd   --health->-
+       ns:  optio   s:7
+     redi    image:  dis:
+        re32:5432
+
+   - 54s:
+          port     retries 5
+health-       --
+   imeout 5sh-talt     --he     10s
+rval health-inte --
+         pg_isreadyalth-cmd --he          
+ options: >-     est
+  : nautilus_tRES_DBOSTG         Pgres
+ RD: postSWOES_PAS   POSTGRnv:
+        e
+       stgres:15mage: po
+        i  postgres:    ices:
+   servt
+ ubuntu-latesuns-on: sts
+    rion Teegrat name: Ints:
+   estn-tegratiosts
+  inttion Te# Integralla
+
+  v-umbrename: codecos
+        ttestgs: unila        frage.xml
+/covefile: .    
+          with:-action@v3
+odecovcov/ces: code     us reports
+ ad coverageplo Ue:nam
+    - t=html
+-repor--covml eport=xer --cov-rtradus_cov=nautil -v --t/nit tests/u  pytes
+      un: | r   it tests
+  Run un  - name: 
+
+  ements.txtr requirinstall -        pip mock
+est-yto pasynciytest-cov pst- pytest pyteip install       pade pip
+ all --upgr-m pip inst python 
+       n: | rues
+     l dependencistal - name: In
+   }}
+ersion hon-vatrix.pyton: ${{ mon-versiyth
+        p      with:python@v4
+up-/setactionsuses: 
+      ersion }}x.python-v matriPython ${{et up name: S4
+
+    - kout@vec actions/ches:      usde
+ckout cohee: Cam
+    - nteps:']
+    s10', '3.11'3.9', '3.rsion: [ve  python-   trix:
+       mategy:
+  st
+    strantu-latebu uruns-on:   Tests
+  me: Unit    na-tests:
+it Tests
+  uniton
+
+  # Unreport.jssafety-      json
+    ort. bandit-rep         path: |
+        orts
+security-rep     name:  with:
+        rtifact@v3
+s/upload-aes: action us     reports
+ity  secur: Uploadamen
+
+    - n-report.jsoafety--output sjson k --afety chec      st.json
+  t-repor -o bandi. -f jsonandit -r  b |
+             run:n
+cay securit  - name: Ss
+
+  -import-missingrey . --ignorun: myp
+      ingpe check- name: Tys
+
+    tatistic=127 --s-lengthmax-linexity=10 --compleero --max-t --exit-zke8 . --coun    fla   tatistics
+ ource --s82 --show-s9,F63,F7,Flect=Et --see8 . --coun    flak
+     |un: r
+     me: Linting - na  -diff .
+
+ ck-only -ort --cheis
+        iff .--check --dk lac      b run: |
+  heck
+     ting c format: Code - namet
+
+   s.txirementr requll -p insta
+        piit safetymypy band8 keort flall black ispip insta      pip
+    --upgradell-m pip insta     python  |
+    run:     encies
+stall depend In   - name:ON }}
+
+ ON_VERSInv.PYTHon: ${{ ethon-versi     pyh:
+        wit
+ @v4thonns/setup-pyios: actse  uon
+    p Pythet u - name: S: 0
+
+   depth fetch-    
+     with:   
+ 4ut@vons/checkocti    uses: a  ode
+ Checkout c  - name:ps:
+  te  s
+  atestbuntu-lruns-on: u   ecurity
+ Quality & S: Code y:
+    namealit
+  code-quy Checksnd Securituality ade Q  # Co
+jobs:ON: '17'
+
+VERSIAVA_
+  JN: '18'_VERSIO NODE
+ : '3.11'ERSIONN_VPYTHOader
+  s-trtiluGE_NAME: nauo
+  IMAhcr.iTRY: gGIS
+env:
+  REblished]
+s: [pu    typeelease:
+lop]
+  rdeve[main, ches: 
+    branuest:ll_req]
+  pu, 'hotfix/*''release/*'n, develop, nches: [mai   bra

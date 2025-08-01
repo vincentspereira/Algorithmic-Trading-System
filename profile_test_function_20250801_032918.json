@@ -1,0 +1,99 @@
+{
+  "profiling_duration": 0.0,
+  "resource_summary": {
+    "cpu_usage": {
+      "mean": 58.91131974742058,
+      "min": 58.91131974742058,
+      "max": 58.91131974742058,
+      "current": 58.91131974742058
+    },
+    "memory_usage": {
+      "mean": 58.73146647473308,
+      "min": 58.73146647473308,
+      "max": 58.73146647473308,
+      "current": 58.73146647473308
+    },
+    "gc_objects": {
+      "current": 19189,
+      "peak": 19189
+    }
+  },
+  "memory_analysis": {
+    "tracking_active": false,
+    "current_memory": {
+      "error": "Memory tracing not active"
+    },
+    "top_allocations": [],
+    "memory_growth": {
+      "growth_rate_mb_per_minute": 0.5,
+      "is_growing": true,
+      "growth_trend": "linear"
+    }
+  },
+  "cpu_analysis": {
+    "error": "No CPU profiling data available"
+  },
+  "gc_analysis": {
+    "monitoring_active": false,
+    "current_objects": {
+      "generation_0": 30,
+      "generation_1": 5,
+      "generation_2": 1
+    },
+    "gc_stats": [
+      {
+        "collections": 16,
+        "collected": 295,
+        "uncollectable": 0
+      },
+      {
+        "collections": 1,
+        "collected": 0,
+        "uncollectable": 0
+      },
+      {
+        "collections": 0,
+        "collected": 0,
+        "uncollectable": 0
+      }
+    ],
+    "recommendations": [
+      "Minimize object creation in hot code paths",
+      "Use object pooling for frequently used objects",
+      "Avoid circular references that prevent garbage collection",
+      "Consider manual GC tuning for performance-critical applications",
+      "Use weak references where appropriate to avoid retention"
+    ],
+    "object_growth": {
+      "generation_0": -3,
+      "generation_1": 0,
+      "generation_2": 0
+    }
+  },
+  "optimization_recommendations": [
+    {
+      "category": "memory",
+      "recommendation": "Use object pooling for frequently created/destroyed objects",
+      "impact": "medium"
+    },
+    {
+      "category": "cpu",
+      "recommendation": "Profile CPU-intensive functions and optimize algorithms",
+      "impact": "high"
+    },
+    {
+      "category": "gc",
+      "recommendation": "Minimize object allocations in hot code paths",
+      "impact": "medium"
+    },
+    {
+      "category": "io",
+      "recommendation": "Use async I/O for network and file operations",
+      "impact": "high"
+    }
+  ],
+  "resource_trends": {
+    "error": "Insufficient data for trend analysis"
+  },
+  "potential_issues": []
+}

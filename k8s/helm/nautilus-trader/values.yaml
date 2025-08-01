@@ -1,0 +1,295 @@
+# Default values for nautilus-trader
+# This is a YAML-formatted file.
+
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Application configuration
+app:
+  name: nautilus-trader
+  version: "1.0.0"
+  environment: production
+
+# Image configuration
+image:
+  registry: docker.io
+  repository: nautilus-trader
+  tag: "1.0.0"
+  pullPolicy: Always
+  pullSecrets: []
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# RBAC
+rbac:
+  create: true
+
+# API Service Configuration
+api:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: nautilus-trader/api
+    tag: "1.0.0"
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# WebSocket Service Configuration
+websocket:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nautilus-trader/websocket
+    tag: "1.0.0"
+  service:
+    type: ClusterIP
+    port: 8001
+    targetPort: 8001
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Database Configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "securePassword123"
+    username: "nautilus"
+    password: "securePassword123"
+    database: "nautilus_trader"
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "fast-ssd"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+
+# Redis Configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "redisPassword123"
+  master:
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+
+# RabbitMQ Configuration
+rabbitmq:
+  enabled: true
+  auth:
+    username: "nautilus"
+    password: "rabbitPassword123"
+    erlangCookie: "nautilus-trader-cookie"
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "fast-ssd"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api.nautilus-trader.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+    - host: ws.nautilus-trader.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: websocket
+  tls:
+    - secretName: nautilus-trader-tls
+      hosts:
+        - api.nautilus-trader.com
+        - ws.nautilus-trader.com
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    server:
+      persistentVolume:
+        enabled: false
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "250m"
+        limits:
+          memory: "2Gi"
+          cpu: "1000m"
+  grafana:
+    enabled: true
+    adminPassword: "admin123"
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+
+# Security Configuration
+security:
+  podSecurityPolicy:
+    enabled: false
+  networkPolicy:
+    enabled: true
+  secrets:
+    create: true
+    jwt:
+      secret: "superSecureJWTSecret123"
+    encryption:
+      key: "encryptionKey1234567890"
+    apiKeys:
+      binance:
+        apiKey: "binanceAPIKey"
+        secretKey: "binanceSecretKey"
+      coinbase:
+        apiKey: "coinbaseAPIKey"
+        secretKey: "coinbaseSecretKey"
+      alpaca:
+        apiKey: "alpacaAPIKey"
+        secretKey: "alpacaSecretKey"
+
+# Configuration
+config:
+  # Application settings
+  app:
+    name: "nautilus-trader"
+    version: "1.0.0"
+    environment: "production"
+  
+  # API settings
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    workers: 4
+    timeout: 30
+    maxConnections: 1000
+  
+  # WebSocket settings
+  websocket:
+    enabled: true
+    maxConnections: 10000
+  
+  # GraphQL settings
+  graphql:
+    enabled: true
+    playground: true
+    introspection: true
+  
+  # Trading settings
+  trading:
+    enabled: true
+    riskManagement: true
+    backtesting: true
+  
+  # Market data settings
+  marketData:
+    enabled: true
+    providers: "binance,coinbase,alpaca"
+  
+  # Logging settings
+  logging:
+    level: "INFO"
+    format: "json"
+    output: "stdout"
+  
+  # Metrics settings
+  metrics:
+    enabled: true
+    port: 9090
+  
+  # Tracing settings
+  tracing:
+    enabled: true
+    jaegerEndpoint: "http://jaeger-collector:14268/api/traces"
+
+# Resource quotas and limits
+resourceQuota:
+  enabled: false
+  hard:
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    persistentvolumeclaims: "10"
+
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+    enabled: true
+  egress:
+    enabled: true
