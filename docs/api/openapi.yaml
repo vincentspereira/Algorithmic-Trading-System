@@ -1,0 +1,1243 @@
+openapi: 3.0.3
+info:
+  title: Algorithmic Trading System API
+  description: |
+    Comprehensive API for the Algorithmic Trading System providing access to strategy management,
+    backtesting, market data, and trading operations.
+  version: 2.1.0
+  contact:
+    name: API Support
+    email: api-support@trading-system.com
+    url: https://docs.trading-system.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.trading-system.com
+    description: Production server
+  - url: https://sandbox-api.trading-system.com
+    description: Sandbox server for testing
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and obtain access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              basic_login:
+                summary: Basic login
+                value:
+                  username: "trader@example.com"
+                  password: "secure_password"
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Refresh an expired access token using a refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /strategies:
+    get:
+      tags:
+        - Strategy Management
+      summary: List strategies
+      description: Retrieve all trading strategies for the authenticated user
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of strategies per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          description: Filter by strategy status
+          schema:
+            type: string
+            enum: [active, inactive, draft]
+        - name: asset_class
+          in: query
+          description: Filter by asset class
+          schema:
+            type: string
+            enum: [stocks, forex, crypto, commodities, bonds]
+      responses:
+        '200':
+          description: Strategies retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategiesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+    post:
+      tags:
+        - Strategy Management
+      summary: Create strategy
+      description: Create a new trading strategy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStrategyRequest'
+            examples:
+              momentum_strategy:
+                summary: Momentum strategy
+                value:
+                  name: "Momentum Strategy"
+                  description: "A momentum-based trading strategy"
+                  asset_class: "stocks"
+                  strategy_type: "momentum"
+                  parameters:
+                    lookback_period: 20
+                    threshold: 0.02
+                    stop_loss: 0.05
+                    take_profit: 0.10
+      responses:
+        '201':
+          description: Strategy created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Strategy'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /strategies/{strategy_id}:
+    get:
+      tags:
+        - Strategy Management
+      summary: Get strategy
+      description: Retrieve a specific strategy by ID
+      parameters:
+        - name: strategy_id
+          in: path
+          required: true
+          description: Strategy ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Strategy retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Strategy'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Strategy Management
+      summary: Update strategy
+      description: Update an existing strategy
+      parameters:
+        - name: strategy_id
+          in: path
+          required: true
+          description: Strategy ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStrategyRequest'
+      responses:
+        '200':
+          description: Strategy updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Strategy'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags:
+        - Strategy Management
+      summary: Delete strategy
+      description: Delete a strategy
+      parameters:
+        - name: strategy_id
+          in: path
+          required: true
+          description: Strategy ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Strategy deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /market-data/quotes/{symbol}:
+    get:
+      tags:
+        - Market Data
+      summary: Get quote
+      description: Get real-time quote for a specific symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Trading symbol
+          schema:
+            type: string
+            example: "AAPL"
+        - name: fields
+          in: query
+          description: Comma-separated list of fields to return
+          schema:
+            type: string
+            example: "bid,ask,last"
+      responses:
+        '200':
+          description: Quote retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /market-data/historical/{symbol}:
+    get:
+      tags:
+        - Market Data
+      summary: Get historical data
+      description: Get historical price data for a symbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Trading symbol
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: true
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: interval
+          in: query
+          description: Data interval
+          schema:
+            type: string
+            enum: [1m, 5m, 15m, 1h, 1d]
+            default: 1d
+      responses:
+        '200':
+          description: Historical data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalData'
+
+  /backtesting/run:
+    post:
+      tags:
+        - Backtesting
+      summary: Run backtest
+      description: Run a backtest for a strategy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BacktestRequest'
+            examples:
+              basic_backtest:
+                summary: Basic backtest
+                value:
+                  strategy_id: "123e4567-e89b-12d3-a456-426614174000"
+                  start_date: "2023-01-01"
+                  end_date: "2023-12-31"
+                  initial_capital: 100000
+                  benchmark: "SPY"
+      responses:
+        '202':
+          description: Backtest started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacktestResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /backtesting/{backtest_id}:
+    get:
+      tags:
+        - Backtesting
+      summary: Get backtest results
+      description: Retrieve backtest results by ID
+      parameters:
+        - name: backtest_id
+          in: path
+          required: true
+          description: Backtest ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Backtest results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacktestResults'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /orders:
+    get:
+      tags:
+        - Trading
+      summary: List orders
+      description: Retrieve trading orders
+      parameters:
+        - name: status
+          in: query
+          description: Filter by order status
+          schema:
+            type: string
+            enum: [pending, filled, cancelled, rejected]
+        - name: symbol
+          in: query
+          description: Filter by symbol
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of orders per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersResponse'
+
+    post:
+      tags:
+        - Trading
+      summary: Place order
+      description: Place a new trading order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+            examples:
+              market_order:
+                summary: Market order
+                value:
+                  symbol: "AAPL"
+                  side: "buy"
+                  order_type: "market"
+                  quantity: 100
+              limit_order:
+                summary: Limit order
+                value:
+                  symbol: "AAPL"
+                  side: "sell"
+                  order_type: "limit"
+                  quantity: 100
+                  price: 150.00
+      responses:
+        '201':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /orders/{order_id}:
+    get:
+      tags:
+        - Trading
+      summary: Get order
+      description: Retrieve a specific order by ID
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Trading
+      summary: Modify order
+      description: Modify an existing order
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyOrderRequest'
+      responses:
+        '200':
+          description: Order modified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Trading
+      summary: Cancel order
+      description: Cancel an existing order
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /risk/limits:
+    get:
+      tags:
+        - Risk Management
+      summary: Get risk limits
+      description: Retrieve current risk limits and usage
+      responses:
+        '200':
+          description: Risk limits retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskLimits'
+
+    post:
+      tags:
+        - Risk Management
+      summary: Update risk limits
+      description: Update risk management limits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskLimitsRequest'
+      responses:
+        '200':
+          description: Risk limits updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskLimits'
+
+  /portfolio:
+    get:
+      tags:
+        - Portfolio Management
+      summary: Get portfolio
+      description: Retrieve current portfolio status
+      responses:
+        '200':
+          description: Portfolio retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+
+  /portfolio/performance:
+    get:
+      tags:
+        - Portfolio Management
+      summary: Get portfolio performance
+      description: Retrieve portfolio performance metrics
+      parameters:
+        - name: period
+          in: query
+          description: Time period for performance calculation
+          schema:
+            type: string
+            enum: [1d, 1w, 1m, 3m, 1y, all]
+            default: 1m
+      responses:
+        '200':
+          description: Portfolio performance retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioPerformance'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "trader@example.com"
+        password:
+          type: string
+          format: password
+          example: "secure_password"
+        remember_me:
+          type: boolean
+          default: false
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type:
+          type: string
+          example: "bearer"
+        expires_in:
+          type: integer
+          example: 3600
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    Strategy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "Momentum Strategy"
+        description:
+          type: string
+          example: "A momentum-based trading strategy"
+        status:
+          type: string
+          enum: [active, inactive, draft]
+          example: "active"
+        asset_class:
+          type: string
+          enum: [stocks, forex, crypto, commodities, bonds]
+          example: "stocks"
+        strategy_type:
+          type: string
+          example: "momentum"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        parameters:
+          type: object
+          additionalProperties: true
+        performance:
+          $ref: '#/components/schemas/PerformanceMetrics'
+
+    CreateStrategyRequest:
+      type: object
+      required:
+        - name
+        - asset_class
+        - strategy_type
+      properties:
+        name:
+          type: string
+          example: "My Strategy"
+        description:
+          type: string
+          example: "Strategy description"
+        asset_class:
+          type: string
+          enum: [stocks, forex, crypto, commodities, bonds]
+        strategy_type:
+          type: string
+          example: "momentum"
+        parameters:
+          type: object
+          additionalProperties: true
+        risk_management:
+          type: object
+          additionalProperties: true
+
+    UpdateStrategyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, draft]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    StrategiesResponse:
+      type: object
+      properties:
+        strategies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Strategy'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PerformanceMetrics:
+      type: object
+      properties:
+        total_return:
+          type: number
+          format: float
+          example: 15.5
+        sharpe_ratio:
+          type: number
+          format: float
+          example: 1.2
+        max_drawdown:
+          type: number
+          format: float
+          example: -5.3
+        win_rate:
+          type: number
+          format: float
+          example: 0.65
+
+    Quote:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "AAPL"
+        bid:
+          type: number
+          format: float
+          example: 150.25
+        ask:
+          type: number
+          format: float
+          example: 150.27
+        last:
+          type: number
+          format: float
+          example: 150.26
+        volume:
+          type: integer
+          example: 1000000
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-01T15:30:00Z"
+        change:
+          type: number
+          format: float
+          example: 2.15
+        change_percent:
+          type: number
+          format: float
+          example: 1.45
+
+    HistoricalData:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "AAPL"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OHLCV'
+
+    OHLCV:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        open:
+          type: number
+          format: float
+        high:
+          type: number
+          format: float
+        low:
+          type: number
+          format: float
+        close:
+          type: number
+          format: float
+        volume:
+          type: integer
+
+    BacktestRequest:
+      type: object
+      required:
+        - strategy_id
+        - start_date
+        - end_date
+        - initial_capital
+      properties:
+        strategy_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        initial_capital:
+          type: number
+          format: float
+        benchmark:
+          type: string
+          example: "SPY"
+        parameters:
+          type: object
+          additionalProperties: true
+
+    BacktestResponse:
+      type: object
+      properties:
+        backtest_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [running, completed, failed]
+        estimated_completion:
+          type: string
+          format: date-time
+
+    BacktestResults:
+      type: object
+      properties:
+        backtest_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [running, completed, failed]
+        performance:
+          $ref: '#/components/schemas/PerformanceMetrics'
+        trades:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trade'
+        equity_curve:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              value:
+                type: number
+                format: float
+
+    Trade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [buy, sell]
+        quantity:
+          type: integer
+        price:
+          type: number
+          format: float
+        timestamp:
+          type: string
+          format: date-time
+        pnl:
+          type: number
+          format: float
+
+    OrderRequest:
+      type: object
+      required:
+        - symbol
+        - side
+        - order_type
+        - quantity
+      properties:
+        symbol:
+          type: string
+          example: "AAPL"
+        side:
+          type: string
+          enum: [buy, sell]
+        order_type:
+          type: string
+          enum: [market, limit, stop, stop_limit]
+        quantity:
+          type: integer
+          minimum: 1
+        price:
+          type: number
+          format: float
+        stop_price:
+          type: number
+          format: float
+        time_in_force:
+          type: string
+          enum: [day, gtc, ioc, fok]
+          default: day
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [buy, sell]
+        order_type:
+          type: string
+          enum: [market, limit, stop, stop_limit]
+        quantity:
+          type: integer
+        filled_quantity:
+          type: integer
+        price:
+          type: number
+          format: float
+        average_fill_price:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [pending, filled, cancelled, rejected]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    OrdersResponse:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ModifyOrderRequest:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+        price:
+          type: number
+          format: float
+        stop_price:
+          type: number
+          format: float
+
+    RiskLimits:
+      type: object
+      properties:
+        daily_loss_limit:
+          type: number
+          format: float
+          example: 0.02
+        daily_loss_current:
+          type: number
+          format: float
+          example: 0.005
+        position_size_limit:
+          type: number
+          format: float
+          example: 0.05
+        max_positions:
+          type: integer
+          example: 10
+        current_positions:
+          type: integer
+          example: 3
+        correlation_limit:
+          type: number
+          format: float
+          example: 0.7
+        leverage_limit:
+          type: number
+          format: float
+          example: 2.0
+        current_leverage:
+          type: number
+          format: float
+          example: 1.2
+
+    UpdateRiskLimitsRequest:
+      type: object
+      properties:
+        daily_loss_limit:
+          type: number
+          format: float
+        position_size_limit:
+          type: number
+          format: float
+        max_positions:
+          type: integer
+        correlation_limit:
+          type: number
+          format: float
+        leverage_limit:
+          type: number
+          format: float
+
+    Portfolio:
+      type: object
+      properties:
+        total_value:
+          type: number
+          format: float
+          example: 125000.00
+        cash:
+          type: number
+          format: float
+          example: 25000.00
+        positions_value:
+          type: number
+          format: float
+          example: 100000.00
+        daily_pnl:
+          type: number
+          format: float
+          example: 2500.00
+        total_pnl:
+          type: number
+          format: float
+          example: 25000.00
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+
+    Position:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "AAPL"
+        quantity:
+          type: integer
+          example: 100
+        avg_price:
+          type: number
+          format: float
+          example: 145.00
+        current_price:
+          type: number
+          format: float
+          example: 150.00
+        market_value:
+          type: number
+          format: float
+          example: 15000.00
+        unrealized_pnl:
+          type: number
+          format: float
+          example: 500.00
+        weight:
+          type: number
+          format: float
+          example: 0.12
+
+    PortfolioPerformance:
+      type: object
+      properties:
+        period:
+          type: string
+          example: "1m"
+        total_return:
+          type: number
+          format: float
+          example: 0.08
+        annualized_return:
+          type: number
+          format: float
+          example: 0.12
+        volatility:
+          type: number
+          format: float
+          example: 0.15
+        sharpe_ratio:
+          type: number
+          format: float
+          example: 1.2
+        max_drawdown:
+          type: number
+          format: float
+          example: -0.05
+        win_rate:
+          type: number
+          format: float
+          example: 0.65
+        profit_factor:
+          type: number
+          format: float
+          example: 1.8
+        benchmark_return:
+          type: number
+          format: float
+          example: 0.06
+        alpha:
+          type: number
+          format: float
+          example: 0.02
+        beta:
+          type: number
+          format: float
+          example: 0.9
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 100
+        pages:
+          type: integer
+          example: 5
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "INVALID_REQUEST"
+            message:
+              type: string
+              example: "The request is invalid"
+            details:
+              type: object
+              additionalProperties: true
+            request_id:
+              type: string
+              format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Number of seconds to wait before retrying
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Authentication
+    description: User authentication and token management
+  - name: Strategy Management
+    description: Trading strategy CRUD operations
+  - name: Market Data
+    description: Real-time and historical market data
+  - name: Backtesting
+    description: Strategy backtesting and analysis
+  - name: Trading
+    description: Order management and execution
+  - name: Risk Management
+    description: Risk limits and controls
+  - name: Portfolio Management
+    description: Portfolio status and performance
