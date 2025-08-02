@@ -1,0 +1,184 @@
+{
+  "test_report_id": "prod_readiness_test_1754153069",
+  "timestamp": "2025-08-02T17:44:05.526524",
+  "execution_time": 23.890839,
+  "overall_status": "passed",
+  "summary": {
+    "total_tests": 5,
+    "passed_tests": 5,
+    "warning_tests": 0,
+    "failed_tests": 0,
+    "total_sub_tests": 17,
+    "passed_sub_tests": 17,
+    "success_rate": 100.0,
+    "sub_test_success_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test_name": "Framework Validation",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Security Validation",
+          "passed": true,
+          "total_checks": 5,
+          "passed_checks": 5,
+          "failed_checks": 0
+        },
+        {
+          "name": "Performance Validation",
+          "passed": true,
+          "total_checks": 4,
+          "passed_checks": 4,
+          "failed_checks": 0
+        },
+        {
+          "name": "Scalability Validation",
+          "passed": true,
+          "total_checks": 3,
+          "passed_checks": 3,
+          "failed_checks": 0
+        },
+        {
+          "name": "Compliance Validation",
+          "passed": true,
+          "total_checks": 3,
+          "passed_checks": 3,
+          "failed_checks": 0
+        },
+        {
+          "name": "Comprehensive Validation",
+          "passed": true,
+          "total_checks": 21,
+          "passed_checks": 21,
+          "failed_checks": 0,
+          "go_live_approved": true
+        }
+      ],
+      "execution_time": 4.259571313858032,
+      "issues": []
+    },
+    {
+      "test_name": "Automation Validation",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Automated Validation",
+          "passed": true,
+          "total_checks": 21,
+          "passed_checks": 21,
+          "failed_checks": 0,
+          "reports_generated": true
+        },
+        {
+          "name": "Deployment Checklist",
+          "passed": true,
+          "total_items": 24,
+          "completed_items": 22,
+          "completion_rate": 0.9166666666666666
+        },
+        {
+          "name": "Go-Live Assessment",
+          "passed": true,
+          "readiness_status": "ready",
+          "blocking_issues": 0,
+          "criteria_met": 3
+        }
+      ],
+      "execution_time": 4.774463891983032,
+      "issues": []
+    },
+    {
+      "test_name": "Multi-Environment Validation",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Development Environment",
+          "passed": true,
+          "environment": "development",
+          "total_checks": 21,
+          "passed_checks": 21,
+          "failed_checks": 0,
+          "go_live_approved": true
+        },
+        {
+          "name": "Staging Environment",
+          "passed": true,
+          "environment": "staging",
+          "total_checks": 21,
+          "passed_checks": 21,
+          "failed_checks": 0,
+          "go_live_approved": true
+        },
+        {
+          "name": "Production Environment",
+          "passed": true,
+          "environment": "production",
+          "total_checks": 21,
+          "passed_checks": 21,
+          "failed_checks": 0,
+          "go_live_approved": true
+        }
+      ],
+      "execution_time": 6.402040004730225,
+      "issues": []
+    },
+    {
+      "test_name": "Error Handling and Recovery",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Invalid Configuration Handling",
+          "passed": true,
+          "handled_gracefully": true
+        },
+        {
+          "name": "Validation Timeout Handling",
+          "passed": true,
+          "timeout_handled": true
+        },
+        {
+          "name": "Retry Mechanism",
+          "passed": true,
+          "retry_attempts": 3,
+          "retry_handled": true
+        }
+      ],
+      "execution_time": 0.035797834396362305,
+      "issues": []
+    },
+    {
+      "test_name": "Performance and Scalability",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Validation Execution Time",
+          "passed": true,
+          "execution_time": 2.1471738815307617,
+          "threshold": 60,
+          "total_checks": 21
+        },
+        {
+          "name": "Concurrent Validation",
+          "passed": true,
+          "execution_time": 4.1550586223602295,
+          "concurrent_validations": 3,
+          "successful_validations": 3
+        },
+        {
+          "name": "Memory Usage",
+          "passed": true,
+          "memory_before_mb": 38.73828125,
+          "memory_after_mb": 38.73828125,
+          "memory_increase_mb": 0.0,
+          "threshold_mb": 100
+        }
+      ],
+      "execution_time": 8.416036367416382,
+      "issues": []
+    }
+  ],
+  "recommendations": [
+    "All tests passed successfully - system is ready for production"
+  ]
+}

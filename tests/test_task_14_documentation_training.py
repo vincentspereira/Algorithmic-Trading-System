@@ -657,8 +657,15 @@ class TestTask14Accessibility:
             
             # Test heading hierarchy
             heading_levels = []
+            in_code_block = False
             for line in lines:
-                if line.startswith('#'):
+                # Track code block boundaries
+                if line.strip().startswith('```'):
+                    in_code_block = not in_code_block
+                    continue
+                
+                # Only count headings outside of code blocks
+                if line.startswith('#') and not in_code_block:
                     level = len(line) - len(line.lstrip('#'))
                     heading_levels.append(level)
             

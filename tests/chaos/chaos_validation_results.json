@@ -1,0 +1,84 @@
+{
+  "summary": {
+    "overall_status": "WARN",
+    "total_steps": 7,
+    "passed_steps": 6,
+    "warned_steps": 0,
+    "failed_steps": 1,
+    "duration": 3.459437370300293,
+    "timestamp": "2025-08-02T15:12:56.029288"
+  },
+  "results": {
+    "File Syntax Validation": {
+      "status": "PASS",
+      "message": "Syntax validation: 3/3 files passed",
+      "files_checked": 3,
+      "files_passed": 3,
+      "issues": []
+    },
+    "Import Validation": {
+      "status": "PASS",
+      "message": "Import validation: 2/2 files passed",
+      "files_checked": 2,
+      "files_passed": 2,
+      "issues": []
+    },
+    "Pytest Test Execution": {
+      "status": "FAIL",
+      "message": "Pytest completed with return code 4",
+      "return_code": 4,
+      "stdout": "",
+      "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=test_results.json\n  inifile: None\n  rootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\chaos\n\n",
+      "json_results": null,
+      "test_stats": {}
+    },
+    "Framework Functionality": {
+      "status": "PASS",
+      "message": "Framework functionality validation completed",
+      "issues": [],
+      "components_tested": [
+        "ChaosExperiment",
+        "ChaosExperimentRunner",
+        "FailureInjector",
+        "SystemMonitor",
+        "ResilienceValidator"
+      ]
+    },
+    "Automation Functionality": {
+      "status": "PASS",
+      "message": "Automation functionality validation completed",
+      "issues": [],
+      "components_tested": [
+        "ChaosAutomation",
+        "ChaosSchedule",
+        "ChaosGameDay"
+      ]
+    },
+    "Configuration Files": {
+      "status": "PASS",
+      "message": "Configuration validation completed",
+      "issues": [],
+      "validated_files": [
+        "chaos_config.yaml"
+      ]
+    },
+    "Test Coverage Analysis": {
+      "status": "PASS",
+      "message": "Test coverage analysis completed: 100.0%",
+      "coverage_percentage": 100.0,
+      "covered_areas": 8,
+      "total_areas": 8,
+      "missing_areas": [],
+      "coverage_details": {
+        "failure_injection": true,
+        "system_monitoring": true,
+        "resilience_validation": true,
+        "experiment_execution": true,
+        "automation": true,
+        "integration_testing": true,
+        "configuration": true,
+        "performance": true
+      }
+    }
+  }
+}

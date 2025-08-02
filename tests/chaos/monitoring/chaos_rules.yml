@@ -1,0 +1,65 @@
+# Prometheus recording and alerting rules for chaos engineering
+
+groups:
+  - name: chaos_engineering_rules
+    rules:
+      # Recording rules for chaos experiments
+      - record: chaos:experiment_success_rate
+        expr: |
+          (
+            sum(rate(chaos_experiments_completed_total[5m])) /
+            sum(rate(chaos_experiments_started_total[5m]))
+          ) * 100
+
+      - record: chaos:average_experiment_duration
+        expr: |
+          avg(chaos_experiment_duration_seconds)
+
+      - record: chaos:system_resilience_score
+        expr: |
+          (
+            sum(chaos_resilience_rules_passed_total) /
+            sum(chaos_resilience_rules_total)
+          ) * 100
+
+  - name: chaos_engineering_alerts
+    rules:
+      # Alert when experiment success rate is low
+      - alert: ChaosExperimentHighFailureRate
+        expr: chaos:experiment_success_rate < 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High chaos experiment failure rate"
+          description: "Chaos experiment success rate is {{ $value }}% which is below 80%"
+
+      # Alert when system resilience is compromised
+      - alert: SystemResilienceCompromised
+        expr: chaos:system_resilience_score < 70
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "System resilience compromised during chaos testing"
+          description: "System resilience score is {{ $value }}% which indicates potential issues"
+
+      # Alert when experiments are taking too long
+      - alert: ChaosExperimentLongDuration
+        expr: chaos:average_experiment_duration > 1800  # 30 minutes
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Chaos experiments taking too long"
+          description: "Average experiment duration is {{ $value }} seconds"
+
+      # Alert when too many concurrent experiments
+      - alert: TooManyConcurrentExperiments
+        expr: chaos_active_experiments_count > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too many concurrent chaos experiments"
+          description: "{{ $value }} chaos experiments are running concurrently"

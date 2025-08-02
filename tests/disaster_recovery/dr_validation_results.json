@@ -1,0 +1,85 @@
+{
+  "summary": {
+    "overall_status": "PASS",
+    "total_steps": 7,
+    "passed_steps": 7,
+    "warned_steps": 0,
+    "failed_steps": 0,
+    "duration": 46.99482989311218,
+    "timestamp": "2025-08-02T16:44:45.134428"
+  },
+  "results": {
+    "File Syntax Validation": {
+      "status": "PASS",
+      "message": "Syntax validation: 3/3 files passed",
+      "files_checked": 3,
+      "files_passed": 3,
+      "issues": []
+    },
+    "Import Validation": {
+      "status": "PASS",
+      "message": "Import validation: 2/2 files passed",
+      "files_checked": 2,
+      "files_passed": 2,
+      "issues": []
+    },
+    "Pytest Test Execution": {
+      "status": "PASS",
+      "message": "Pytest completed with return code 0",
+      "return_code": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0 -- C:\\Program Files\\Python313\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\disaster_recovery\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 28 items\n\ntest_disaster_recovery.py::TestBackupManager::test_create_backup PASSED  [  3%]\ntest_disaster_recovery.py::TestBackupManager::test_backup_registry PASSED [  7%]\ntest_disaster_recovery.py::TestBackupManager::test_restore_backup PASSED [ 10%]\ntest_disaster_recovery.py::TestBackupManager::test_restore_nonexistent_backup PASSED [ 14%]\ntest_disaster_recovery.py::TestBackupManager::test_backup_checksum_validation PASSED [ 17%]\ntest_disaster_recovery.py::TestBackupManager::test_cleanup_old_backups PASSED [ 21%]\ntest_disaster_recovery.py::TestFailoverManager::test_initiate_failover PASSED [ 25%]\ntest_disaster_recovery.py::TestFailoverManager::test_initiate_failback PASSED [ 28%]\ntest_disaster_recovery.py::TestFailoverManager::test_multiple_failovers PASSED [ 32%]\ntest_disaster_recovery.py::TestDataRecoveryValidator::test_validate_data_consistency_perfect_match PASSED [ 35%]\ntest_disaster_recovery.py::TestDataRecoveryValidator::test_validate_data_consistency_with_issues PASSED [ 39%]\ntest_disaster_recovery.py::TestDataRecoveryValidator::test_validate_recovery_time PASSED [ 42%]\ntest_disaster_recovery.py::TestDataRecoveryValidator::test_validate_recovery_time_exceeded PASSED [ 46%]\ntest_disaster_recovery.py::TestDataRecoveryValidator::test_validate_data_loss PASSED [ 50%]\ntest_disaster_recovery.py::TestDisasterRecoveryTestRunner::test_run_disaster_scenario PASSED [ 53%]\ntest_disaster_recovery.py::TestDisasterRecoveryTestRunner::test_disaster_scenario_with_data_recovery PASSED [ 57%]\ntest_disaster_recovery.py::TestDisasterRecoveryTestRunner::test_disaster_scenario_with_failover PASSED [ 60%]\ntest_disaster_recovery.py::TestDisasterRecoveryTestRunner::test_generate_disaster_recovery_report PASSED [ 64%]\ntest_disaster_recovery.py::TestDisasterRecoveryAutomation::test_automation_initialization PASSED [ 67%]\ntest_disaster_recovery.py::TestDisasterRecoveryAutomation::test_schedule_disaster_recovery_test PASSED [ 71%]\ntest_disaster_recovery.py::TestDisasterRecoveryAutomation::test_create_disaster_recovery_drill PASSED [ 75%]\ntest_disaster_recovery.py::TestDisasterRecoveryAutomation::test_get_test_statistics PASSED [ 78%]\ntest_disaster_recovery.py::TestDisasterRecoveryIntegration::test_end_to_end_disaster_recovery PASSED [ 82%]\ntest_disaster_recovery.py::TestDisasterRecoveryIntegration::test_multiple_concurrent_disaster_scenarios PASSED [ 85%]\ntest_disaster_recovery.py::TestDisasterRecoveryConfigurationValidation::test_config_file_loading PASSED [ 89%]\ntest_disaster_recovery.py::TestDisasterRecoveryConfigurationValidation::test_default_config_generation PASSED [ 92%]\ntest_disaster_recovery.py::TestDisasterRecoveryPerformance::test_backup_creation_performance PASSED [ 96%]\ntest_disaster_recovery.py::TestDisasterRecoveryPerformance::test_disaster_scenario_execution_performance PASSED [100%]\n\n============================= 28 passed in 44.08s =============================\n",
+      "stderr": "",
+      "test_stats": {
+        "summary_line": "============================= 28 passed in 44.08s ============================="
+      }
+    },
+    "DR Framework Functionality": {
+      "status": "PASS",
+      "message": "DR framework functionality validation completed",
+      "issues": [],
+      "components_tested": [
+        "DisasterRecoveryTestRunner",
+        "BackupManager",
+        "FailoverManager",
+        "DataRecoveryValidator",
+        "DisasterScenario"
+      ]
+    },
+    "DR Automation Functionality": {
+      "status": "PASS",
+      "message": "DR automation functionality validation completed",
+      "issues": [],
+      "components_tested": [
+        "DisasterRecoveryAutomation",
+        "DisasterRecoverySchedule",
+        "DisasterRecoveryDrill"
+      ]
+    },
+    "Configuration Files": {
+      "status": "PASS",
+      "message": "Configuration validation completed",
+      "issues": [],
+      "validated_files": [
+        "dr_config.yaml"
+      ]
+    },
+    "Test Coverage Analysis": {
+      "status": "PASS",
+      "message": "Test coverage analysis completed: 100.0%",
+      "coverage_percentage": 100.0,
+      "covered_areas": 8,
+      "total_areas": 8,
+      "missing_areas": [],
+      "coverage_details": {
+        "backup_management": true,
+        "failover_management": true,
+        "data_recovery_validation": true,
+        "disaster_scenario_execution": true,
+        "automation": true,
+        "integration_testing": true,
+        "configuration": true,
+        "performance": true
+      }
+    }
+  }
+}

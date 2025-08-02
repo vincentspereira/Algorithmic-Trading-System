@@ -1,0 +1,81 @@
+{
+  "test_report_id": "prod_readiness_test_1754151933",
+  "timestamp": "2025-08-02T17:25:33.188827",
+  "execution_time": 0.053744,
+  "overall_status": "failed",
+  "summary": {
+    "total_tests": 5,
+    "passed_tests": 0,
+    "warning_tests": 0,
+    "failed_tests": 5,
+    "total_sub_tests": 1,
+    "passed_sub_tests": 1,
+    "success_rate": 0.0,
+    "sub_test_success_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test_name": "Framework Validation",
+      "status": "failed",
+      "sub_tests": [],
+      "execution_time": 0.0003905296325683594,
+      "issues": [
+        "Framework validation error: name 'ScalabilityValidator' is not defined"
+      ]
+    },
+    {
+      "test_name": "Automation Validation",
+      "status": "failed",
+      "sub_tests": [],
+      "execution_time": 0.04788494110107422,
+      "issues": [
+        "Automation validation error: name 'ScalabilityValidator' is not defined"
+      ]
+    },
+    {
+      "test_name": "Multi-Environment Validation",
+      "status": "failed",
+      "sub_tests": [],
+      "execution_time": 0.0007569789886474609,
+      "issues": [
+        "Multi-environment validation error: name 'ScalabilityValidator' is not defined"
+      ]
+    },
+    {
+      "test_name": "Error Handling and Recovery",
+      "status": "failed",
+      "sub_tests": [
+        {
+          "name": "Invalid Configuration Handling",
+          "passed": true,
+          "handled_gracefully": true
+        }
+      ],
+      "execution_time": 0.0012545585632324219,
+      "issues": [
+        "Error handling validation error: name 'ScalabilityValidator' is not defined"
+      ]
+    },
+    {
+      "test_name": "Performance and Scalability",
+      "status": "failed",
+      "sub_tests": [],
+      "execution_time": 0.0006160736083984375,
+      "issues": [
+        "Performance validation error: name 'ScalabilityValidator' is not defined"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Address critical issues in Framework Validation",
+    "Resolve: Framework validation error: name 'ScalabilityValidator' is not defined",
+    "Address critical issues in Automation Validation",
+    "Resolve: Automation validation error: name 'ScalabilityValidator' is not defined",
+    "Address critical issues in Multi-Environment Validation",
+    "Resolve: Multi-environment validation error: name 'ScalabilityValidator' is not defined",
+    "Address critical issues in Error Handling and Recovery",
+    "Resolve: Error handling validation error: name 'ScalabilityValidator' is not defined",
+    "Address critical issues in Performance and Scalability",
+    "Resolve: Performance validation error: name 'ScalabilityValidator' is not defined"
+  ]
+}

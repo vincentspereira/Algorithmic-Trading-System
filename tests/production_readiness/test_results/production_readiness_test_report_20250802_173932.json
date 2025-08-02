@@ -1,0 +1,176 @@
+{
+  "test_report_id": "prod_readiness_test_1754152772",
+  "timestamp": "2025-08-02T17:35:44.978671",
+  "execution_time": 227.562701,
+  "overall_status": "failed",
+  "summary": {
+    "total_tests": 5,
+    "passed_tests": 2,
+    "warning_tests": 2,
+    "failed_tests": 1,
+    "total_sub_tests": 14,
+    "passed_sub_tests": 10,
+    "success_rate": 40.0,
+    "sub_test_success_rate": 71.42857142857143
+  },
+  "test_results": [
+    {
+      "test_name": "Framework Validation",
+      "status": "warning",
+      "sub_tests": [
+        {
+          "name": "Security Validation",
+          "passed": true,
+          "total_checks": 5,
+          "passed_checks": 4,
+          "failed_checks": 0
+        },
+        {
+          "name": "Performance Validation",
+          "passed": true,
+          "total_checks": 4,
+          "passed_checks": 3,
+          "failed_checks": 1
+        },
+        {
+          "name": "Scalability Validation",
+          "passed": true,
+          "total_checks": 3,
+          "passed_checks": 3,
+          "failed_checks": 0
+        },
+        {
+          "name": "Compliance Validation",
+          "passed": true,
+          "total_checks": 3,
+          "passed_checks": 3,
+          "failed_checks": 0
+        },
+        {
+          "name": "Comprehensive Validation",
+          "passed": false,
+          "total_checks": 21,
+          "passed_checks": 19,
+          "failed_checks": 1,
+          "go_live_approved": false
+        }
+      ],
+      "execution_time": 16.93240451812744,
+      "issues": [
+        "Sub-test failed: Comprehensive Validation"
+      ]
+    },
+    {
+      "test_name": "Automation Validation",
+      "status": "failed",
+      "sub_tests": [],
+      "execution_time": 145.46092891693115,
+      "issues": [
+        "Automation validation error: 'charmap' codec can't encode character '\\u274c' in position 258: character maps to <undefined>"
+      ]
+    },
+    {
+      "test_name": "Multi-Environment Validation",
+      "status": "warning",
+      "sub_tests": [
+        {
+          "name": "Development Environment",
+          "passed": false,
+          "environment": "development",
+          "total_checks": 21,
+          "passed_checks": 19,
+          "failed_checks": 1,
+          "go_live_approved": false
+        },
+        {
+          "name": "Staging Environment",
+          "passed": false,
+          "environment": "staging",
+          "total_checks": 21,
+          "passed_checks": 19,
+          "failed_checks": 1,
+          "go_live_approved": false
+        },
+        {
+          "name": "Production Environment",
+          "passed": false,
+          "environment": "production",
+          "total_checks": 21,
+          "passed_checks": 19,
+          "failed_checks": 1,
+          "go_live_approved": false
+        }
+      ],
+      "execution_time": 25.406277656555176,
+      "issues": [
+        "Environment failed: development",
+        "Environment failed: staging",
+        "Environment failed: production"
+      ]
+    },
+    {
+      "test_name": "Error Handling and Recovery",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Invalid Configuration Handling",
+          "passed": true,
+          "handled_gracefully": true
+        },
+        {
+          "name": "Validation Timeout Handling",
+          "passed": true,
+          "timeout_handled": true
+        },
+        {
+          "name": "Retry Mechanism",
+          "passed": true,
+          "retry_attempts": 3,
+          "retry_handled": true
+        }
+      ],
+      "execution_time": 0.048471689224243164,
+      "issues": []
+    },
+    {
+      "test_name": "Performance and Scalability",
+      "status": "passed",
+      "sub_tests": [
+        {
+          "name": "Validation Execution Time",
+          "passed": true,
+          "execution_time": 8.433978796005249,
+          "threshold": 60,
+          "total_checks": 21
+        },
+        {
+          "name": "Concurrent Validation",
+          "passed": true,
+          "execution_time": 22.85974645614624,
+          "concurrent_validations": 3,
+          "successful_validations": 3
+        },
+        {
+          "name": "Memory Usage",
+          "passed": true,
+          "memory_before_mb": 40.5625,
+          "memory_after_mb": 40.58984375,
+          "memory_increase_mb": 0.02734375,
+          "threshold_mb": 100
+        }
+      ],
+      "execution_time": 39.71131944656372,
+      "issues": []
+    }
+  ],
+  "recommendations": [
+    "Review warnings in Framework Validation",
+    "Resolve: Sub-test failed: Comprehensive Validation",
+    "Address critical issues in Automation Validation",
+    "Resolve: Automation validation error: 'charmap' codec can't encode character '\\u274c' in position 258: character maps to <undefined>",
+    "Review warnings in Multi-Environment Validation",
+    "Resolve: Environment failed: development",
+    "Resolve: Environment failed: staging",
+    "Resolve: Environment failed: production"
+  ]
+}

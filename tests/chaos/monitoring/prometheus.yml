@@ -1,0 +1,45 @@
+# Prometheus configuration for chaos engineering monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Chaos engineering framework metrics
+  - job_name: 'chaos-engineering'
+    static_configs:
+      - targets: ['chaos-engineering:8080']
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+
+  # Test services
+  - job_name: 'test-api'
+    static_configs:
+      - targets: ['test-api:80']
+    scrape_interval: 10s
+
+  # System metrics (if node_exporter is added)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 10s
+
+# Alerting rules for chaos experiments
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Recording rules for chaos metrics
+rule_files:
+  - "chaos_rules.yml"

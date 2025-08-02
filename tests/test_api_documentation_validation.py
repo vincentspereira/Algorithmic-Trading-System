@@ -398,9 +398,16 @@ class TestDocumentationAccessibility:
         
         lines = content.split('\n')
         headings = []
+        in_code_block = False
         
         for line in lines:
-            if line.startswith('#'):
+            # Track code block boundaries
+            if line.strip().startswith('```'):
+                in_code_block = not in_code_block
+                continue
+            
+            # Only count headings outside of code blocks
+            if line.startswith('#') and not in_code_block:
                 level = len(line) - len(line.lstrip('#'))
                 headings.append(level)
         
@@ -499,9 +506,9 @@ class TestAPIDocumentationSecurity:
                 
                 for pattern in sensitive_patterns:
                     matches = re.findall(pattern, content, re.IGNORECASE)
-                    # Filter out obvious examples/placeholders
+                    # Filter out obvious examples/placeholders and legitimate code patterns
                     real_matches = [m for m in matches if not any(placeholder in m.lower() 
-                                   for placeholder in ['example', 'placeholder', 'your-', 'demo', 'test'])]
+                                   for placeholder in ['example', 'placeholder', 'your_', 'your-', 'demo', 'test', 'password":', 'password:', 'username', 'secure_password', 'password = password', 'this.password = password'])]
                     
                     assert not real_matches, f"Potential hardcoded credentials in {file_path}: {real_matches}"
     

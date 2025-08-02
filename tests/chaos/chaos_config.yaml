@@ -1,0 +1,222 @@
+# Chaos Engineering Configuration
+
+automation:
+  enabled: true
+  max_concurrent_experiments: 3
+  experiment_timeout: 3600  # 1 hour in seconds
+  cleanup_retention_days: 30
+
+notifications:
+  email:
+    enabled: false
+    smtp_server: "smtp.company.com"
+    smtp_port: 587
+    username: "chaos-engineering@company.com"
+    password: "${SMTP_PASSWORD}"
+    recipients:
+      - "devops@company.com"
+      - "sre@company.com"
+  
+  slack:
+    enabled: false
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "#chaos-engineering"
+    username: "Chaos Bot"
+  
+  webhook:
+    enabled: false
+    url: "${WEBHOOK_URL}"
+    headers:
+      Authorization: "Bearer ${WEBHOOK_TOKEN}"
+      Content-Type: "application/json"
+
+environments:
+  production:
+    enabled: false  # Disabled by default for safety
+    allowed_failure_types:
+      - "network_latency"
+    max_intensity: 0.3
+    max_duration: 300  # 5 minutes
+    business_hours_only: false
+    approval_required: true
+  
+  staging:
+    enabled: true
+    allowed_failure_types:
+      - "network_latency"
+      - "service_crash"
+      - "memory_pressure"
+      - "cpu_spike"
+      - "api_timeout"
+    max_intensity: 0.8
+    max_duration: 1800  # 30 minutes
+    business_hours_only: false
+    approval_required: false
+  
+  development:
+    enabled: true
+    allowed_failure_types: "all"
+    max_intensity: 1.0
+    max_duration: 3600  # 1 hour
+    business_hours_only: false
+    approval_required: false
+
+safety:
+  circuit_breaker_enabled: true
+  max_error_rate: 15.0  # percentage
+  max_response_time: 10000  # milliseconds
+  abort_on_critical_failure: true
+  
+  # Safety checks before experiment execution
+  pre_experiment_checks:
+    - check_system_health
+    - check_ongoing_deployments
+    - check_business_hours
+    - check_recent_incidents
+  
+  # Automatic abort conditions
+  abort_conditions:
+    - error_rate_exceeds_threshold
+    - response_time_exceeds_threshold
+    - critical_service_unavailable
+    - manual_abort_signal
+
+# Experiment templates
+experiment_templates:
+  network_latency:
+    name: "Network Latency Test"
+    description: "Test system resilience under network latency"
+    failure_type: "network_latency"
+    default_duration: 300  # 5 minutes
+    default_intensity: 0.5
+    parameters:
+      latency_ms: 500
+    
+  service_crash:
+    name: "Service Crash Test"
+    description: "Test system behavior when services crash"
+    failure_type: "service_crash"
+    default_duration: 180  # 3 minutes
+    default_intensity: 1.0
+    parameters: {}
+  
+  memory_pressure:
+    name: "Memory Pressure Test"
+    description: "Test system under high memory usage"
+    failure_type: "memory_pressure"
+    default_duration: 600  # 10 minutes
+    default_intensity: 0.8
+    parameters:
+      target_usage: 0.85
+  
+  cpu_spike:
+    name: "CPU Spike Test"
+    description: "Test system under high CPU load"
+    failure_type: "cpu_spike"
+    default_duration: 300  # 5 minutes
+    default_intensity: 0.9
+    parameters:
+      target_usage: 0.9
+
+# Monitoring and metrics
+monitoring:
+  metrics_collection_interval: 5  # seconds
+  
+  # System metrics to collect
+  system_metrics:
+    - cpu_usage
+    - memory_usage
+    - disk_usage
+    - network_latency
+    - network_throughput
+  
+  # Application metrics to collect
+  application_metrics:
+    - response_time
+    - error_rate
+    - throughput
+    - active_connections
+    - queue_depth
+  
+  # Custom metrics (would be defined by application)
+  custom_metrics:
+    - trading_latency
+    - order_processing_rate
+    - market_data_lag
+    - portfolio_calculation_time
+
+# Reporting
+reporting:
+  output_directory: "tests/chaos/reports"
+  formats:
+    - json
+    - html
+    - markdown
+  
+  # Report sections to include
+  sections:
+    - experiment_summary
+    - metrics_analysis
+    - resilience_validation
+    - recommendations
+    - lessons_learned
+  
+  # Automatic report distribution
+  distribution:
+    email_reports: true
+    slack_summaries: true
+    dashboard_updates: true
+
+# Game day configuration
+game_days:
+  default_duration: 240  # 4 hours
+  
+  # Standard game day scenarios
+  scenarios:
+    basic_resilience:
+      name: "Basic Resilience Test"
+      experiments:
+        - network_latency
+        - service_crash
+      duration: 120  # 2 hours
+    
+    comprehensive_stress:
+      name: "Comprehensive Stress Test"
+      experiments:
+        - network_latency
+        - service_crash
+        - memory_pressure
+        - cpu_spike
+      duration: 240  # 4 hours
+    
+    disaster_recovery:
+      name: "Disaster Recovery Simulation"
+      experiments:
+        - network_partition
+        - service_crash
+        - database_failure
+      duration: 180  # 3 hours
+
+# Integration settings
+integrations:
+  prometheus:
+    enabled: false
+    endpoint: "http://prometheus:9090"
+    push_gateway: "http://pushgateway:9091"
+  
+  grafana:
+    enabled: false
+    endpoint: "http://grafana:3000"
+    dashboard_id: "chaos-engineering"
+  
+  pagerduty:
+    enabled: false
+    integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+    service_id: "${PAGERDUTY_SERVICE_ID}"
+  
+  jira:
+    enabled: false
+    server: "https://company.atlassian.net"
+    username: "${JIRA_USERNAME}"
+    api_token: "${JIRA_API_TOKEN}"
+    project_key: "CHAOS"
