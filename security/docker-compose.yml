@@ -1,0 +1,43 @@
+services:
+  fraud-detection-test:
+    build:
+      context: ..
+      dockerfile: security/Dockerfile
+    container_name: fraud_detection_test
+    volumes:
+      - ..:/app
+      - fraud_models:/app/models
+    environment:
+      - PYTHONPATH=/app
+      - FRAUD_TEST_MODE=true
+      - LOG_LEVEL=INFO
+    command: python security/test_comprehensive_fraud_detection.py
+    networks:
+      - fraud_network
+
+  fraud-detection-server:
+    build:
+      context: ..
+      dockerfile: security/Dockerfile
+    container_name: fraud_detection_server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ..:/app
+      - fraud_models:/app/models
+    environment:
+      - PYTHONPATH=/app
+      - FRAUD_SERVER_MODE=true
+      - LOG_LEVEL=INFO
+    command: python security/fraud_detection_server.py
+    networks:
+      - fraud_network
+    depends_on:
+      - fraud-detection-test
+
+volumes:
+  fraud_models:
+
+networks:
+  fraud_network:
+    driver: bridge

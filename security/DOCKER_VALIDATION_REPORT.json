@@ -1,0 +1,67 @@
+{
+  "validation_suite": "Docker-based Fraud Detection Validation",
+  "execution_date": "2025-08-03T03:03:28.369147",
+  "environment": "Docker with full dependencies",
+  "summary": {
+    "total_tests": 5,
+    "passed_tests": 5,
+    "failed_tests": 0,
+    "success_rate": "100.0%"
+  },
+  "test_results": [
+    {
+      "test_name": "Dependencies Check",
+      "passed": true,
+      "details": "All required dependencies available",
+      "timestamp": "2025-08-03T03:03:28.029657",
+      "metrics": {
+        "numpy_version": "2.3.2",
+        "pandas_version": "2.3.1",
+        "sklearn_version": "1.7.1",
+        "networkx_version": "3.5"
+      }
+    },
+    {
+      "test_name": "Module Imports",
+      "passed": true,
+      "details": "Successfully imported fraud detection modules",
+      "timestamp": "2025-08-03T03:03:28.345543",
+      "metrics": {}
+    },
+    {
+      "test_name": "Fraud Detection Basic",
+      "passed": true,
+      "details": "Basic fraud detection working",
+      "timestamp": "2025-08-03T03:03:28.352135",
+      "metrics": {
+        "fraud_score": "0.500",
+        "risk_level": "MEDIUM",
+        "total_events": 1
+      }
+    },
+    {
+      "test_name": "Graph Analytics Basic",
+      "passed": true,
+      "details": "Basic graph analytics working",
+      "timestamp": "2025-08-03T03:03:28.355044",
+      "metrics": {
+        "total_nodes": 3,
+        "total_edges": 5,
+        "alice_risk_score": "0.200",
+        "total_patterns": 1
+      }
+    },
+    {
+      "test_name": "Performance Basic",
+      "passed": true,
+      "details": "Performance requirements met",
+      "timestamp": "2025-08-03T03:03:28.367834",
+      "metrics": {
+        "total_time_seconds": "0.011",
+        "avg_time_per_event_ms": "1.1",
+        "throughput_per_second": "888.0"
+      }
+    }
+  ],
+  "status": "PASSED"
+}
