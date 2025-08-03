@@ -125,7 +125,7 @@ bandit>=1.7.5
 swagger-ui-bundle>=0.0.9
 
 # GraphQL dependencies
-graphene>=3.3.0
-flask-graphql>=2.0.1
-graphql-core>=3.2.3
-graphql-relay>=3.2.0
+graphene==2.1.9
+flask-graphql==2.0.1
+graphql-core==2.3.2
+graphql-relay==2.0.1
