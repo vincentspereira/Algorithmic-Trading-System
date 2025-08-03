@@ -1,0 +1,128 @@
+groups:
+  - name: system_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: trading_system_system_cpu_percent > 80
+        for: 2m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 2 minutes. Current value: {{ $value }}%"
+          
+      - alert: CriticalCPUUsage
+        expr: trading_system_system_cpu_percent > 95
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical CPU usage detected"
+          description: "CPU usage is above 95% for more than 1 minute. Current value: {{ $value }}%"
+          
+      - alert: HighMemoryUsage
+        expr: trading_system_system_memory_percent > 85
+        for: 2m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% for more than 2 minutes. Current value: {{ $value }}%"
+          
+      - alert: CriticalMemoryUsage
+        expr: trading_system_system_memory_percent > 95
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Memory usage is above 95% for more than 1 minute. Current value: {{ $value }}%"
+          
+      - alert: LowDiskSpace
+        expr: trading_system_system_disk_percent > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage is above 90% for more than 5 minutes. Current value: {{ $value }}%"
+          
+  - name: application_alerts
+    rules:
+      - alert: HighHTTPErrorRate
+        expr: rate(trading_system_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High HTTP error rate"
+          description: "HTTP 5xx error rate is above 10% for more than 2 minutes"
+          
+      - alert: HighHTTPLatency
+        expr: histogram_quantile(0.95, rate(trading_system_http_request_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High HTTP latency"
+          description: "95th percentile HTTP latency is above 1 second for more than 2 minutes"
+          
+      - alert: TradingOrderProcessingDelay
+        expr: histogram_quantile(0.95, rate(trading_system_trading_order_processing_time_bucket[5m])) > 0.5
+        for: 1m
+        labels:
+          severity: critical
+          component: trading
+        annotations:
+          summary: "Trading order processing delay"
+          description: "95th percentile order processing time is above 500ms for more than 1 minute"
+          
+  - name: security_alerts
+    rules:
+      - alert: HighSecurityEventRate
+        expr: rate(trading_system_security_events_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High security event rate"
+          description: "Security events rate is above 10 events per second for more than 1 minute"
+          
+      - alert: CriticalSecurityEvent
+        expr: increase(trading_system_security_events_total{severity="critical"}[1m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "Critical security event detected"
+          description: "A critical security event has been detected"
+          
+  - name: monitoring_alerts
+    rules:
+      - alert: MonitoringDown
+        expr: up{job="trading-system-monitoring"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: monitoring
+        annotations:
+          summary: "Monitoring system is down"
+          description: "The monitoring system has been down for more than 1 minute"
+          
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: monitoring
+        annotations:
+          summary: "Prometheus is down"
+          description: "Prometheus has been down for more than 1 minute"
