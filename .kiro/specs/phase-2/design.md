@@ -30,24 +30,64 @@ graph TB
 
 ### Component Architecture
 
-#### 1. Frontend UI Layer
-- **Purpose**: Provide modern, responsive web interface for trading operations
-- **Technology**: React 18, TypeScript, Tailwind CSS, Zustand for state management
+#### 1. Multi-Platform Frontend Layer
+- **Purpose**: Comprehensive trading interfaces across web, mobile, and desktop platforms
+- **Technology**: Next.js 14, React 18, TypeScript, Tailwind CSS, React Native, Electron
 - **Components**:
-  - Trading Dashboard
-  - Order Management Interface
-  - Portfolio and Risk Management
-  - Market Data Visualization
-  - Real-time Charts and Analytics
+  - Next.js Web Application with SSR/SSG
+  - Progressive Web App (PWA) with offline capabilities
+  - React Native Mobile Applications (iOS/Android)
+  - Electron Desktop Application (Windows/macOS/Linux)
+  - TradingView Charting Integration
+  - Real-time WebSocket Data Streaming
 
-#### 2. Broker Integration Layer
-- **Purpose**: Standardized interface for multiple broker connections
-- **Technology**: Python asyncio, broker-specific APIs, connection pooling
+#### 2. Advanced UI Components
+- **Purpose**: Rich, interactive trading interface components
+- **Technology**: Material-UI, TradingView Charting Library, WebSocket connections
 - **Components**:
-  - Generic Broker Interface
-  - Interactive Brokers Integration
+  - Real-time Trading Dashboard with customizable layouts
+  - Advanced Order Entry with risk validation
+  - Portfolio Management with P&L tracking
+  - Market Data Visualization with technical indicators
+  - Risk Management Interface with real-time monitoring
+
+#### 3. Progressive Web App Features
+- **Purpose**: Offline functionality and native app-like experience
+- **Technology**: Service Workers, Push API, Web App Manifest
+- **Components**:
+  - Service Worker for offline caching
+  - Push Notifications for critical alerts
+  - App Installation and Update Management
+  - Offline Data Synchronization
+
+#### 4. Mobile Application Architecture
+- **Purpose**: Native mobile trading experience
+- **Technology**: React Native, Expo, Biometric Authentication
+- **Components**:
+  - Cross-platform mobile UI components
+  - Biometric authentication (Touch ID, Face ID)
+  - Push notification handling
+  - Mobile-optimized trading workflows
+
+#### 5. Desktop Application Framework
+- **Purpose**: Native desktop trading application
+- **Technology**: Electron, Native OS Integration
+- **Components**:
+  - Desktop application wrapper
+  - System tray integration
+  - Native notifications
+  - Auto-update mechanisms
+
+#### 6. Comprehensive Broker Integration Layer
+- **Purpose**: Unified interface for multiple broker platforms
+- **Technology**: Python asyncio, REST/WebSocket APIs, FIX Protocol
+- **Components**:
+  - Interactive Brokers (Paper & Live Trading)
   - Alpaca Integration
-  - Order Routing Engine
+  - OANDA Integration (Forex)
+  - Coinbase Integration (Crypto)
+  - Unified Broker Abstraction Layer
+  - Smart Order Routing Engine
   - Account Management System
 
 #### 3. Real-time Data Streaming
@@ -667,3 +707,479 @@ class AccountInfo:
 - **Application**: Custom business metrics and KPIs
 - **Alerting**: Real-time alerting for critical issues
 - **Dashboards**: Comprehensive monitoring dashboards for operations team
+## Componen
+ts and Interfaces
+
+### Multi-Platform Frontend Architecture
+
+#### Next.js Web Application
+```typescript
+// Next.js App Router Structure
+interface WebAppArchitecture {
+  app: {
+    layout: 'root-layout-with-providers';
+    dashboard: 'trading-dashboard-page';
+    orders: 'order-management-page';
+    portfolio: 'portfolio-overview-page';
+    analytics: 'performance-analytics-page';
+  };
+  components: {
+    ui: 'reusable-ui-components';
+    trading: 'trading-specific-components';
+    charts: 'tradingview-integration';
+    realtime: 'websocket-data-components';
+  };
+  hooks: {
+    useWebSocket: 'real-time-data-hook';
+    useOrders: 'order-management-hook';
+    usePortfolio: 'portfolio-data-hook';
+  };
+}
+
+// Real-time Data Management
+interface RealtimeDataManager {
+  connect(): Promise<WebSocket>;
+  subscribe(channels: string[]): void;
+  unsubscribe(channels: string[]): void;
+  onMessage(callback: (data: any) => void): void;
+  reconnect(): Promise<void>;
+}
+```
+
+#### Progressive Web App Implementation
+```typescript
+// Service Worker Configuration
+interface PWAConfig {
+  caching: {
+    strategy: 'cache-first' | 'network-first' | 'stale-while-revalidate';
+    resources: string[];
+    maxAge: number;
+  };
+  notifications: {
+    vapidKey: string;
+    endpoint: string;
+    permissions: NotificationPermission;
+  };
+  offline: {
+    fallbackPages: string[];
+    syncStrategies: SyncStrategy[];
+  };
+}
+
+// Push Notification Service
+interface PushNotificationService {
+  requestPermission(): Promise<NotificationPermission>;
+  subscribe(): Promise<PushSubscription>;
+  sendNotification(data: NotificationData): Promise<void>;
+  handleNotificationClick(event: NotificationEvent): void;
+}
+```
+
+#### React Native Mobile Architecture
+```typescript
+// Mobile App Navigation
+interface MobileNavigation {
+  stack: {
+    Auth: 'authentication-screens';
+    Main: 'main-trading-interface';
+    Orders: 'order-management-screens';
+    Portfolio: 'portfolio-screens';
+    Settings: 'user-settings';
+  };
+  tabs: {
+    Dashboard: 'main-dashboard';
+    Trading: 'order-entry';
+    Portfolio: 'positions-pnl';
+    Analytics: 'performance-charts';
+  };
+}
+
+// Biometric Authentication
+interface BiometricAuth {
+  isAvailable(): Promise<boolean>;
+  authenticate(reason: string): Promise<AuthResult>;
+  getSupportedTypes(): Promise<BiometricType[]>;
+  cancel(): void;
+}
+
+// Mobile-Specific Services
+interface MobileServices {
+  notifications: PushNotificationService;
+  biometrics: BiometricAuth;
+  storage: SecureStorage;
+  networking: NetworkManager;
+}
+```
+
+#### Electron Desktop Application
+```typescript
+// Main Process Architecture
+interface ElectronMainProcess {
+  windowManager: WindowManager;
+  menuBuilder: MenuBuilder;
+  autoUpdater: AutoUpdater;
+  systemTray: SystemTray;
+  ipcHandlers: IPCHandlers;
+}
+
+// System Integration
+interface SystemIntegration {
+  tray: {
+    create(): Tray;
+    setContextMenu(menu: Menu): void;
+    displayBalloon(options: BalloonOptions): void;
+  };
+  notifications: {
+    show(options: NotificationOptions): void;
+    onClick(callback: () => void): void;
+  };
+  autoUpdater: {
+    checkForUpdates(): Promise<UpdateInfo>;
+    downloadUpdate(): Promise<void>;
+    quitAndInstall(): void;
+  };
+}
+```
+
+### TradingView Charting Integration
+
+#### Chart Configuration
+```typescript
+interface TradingViewConfig {
+  container: string;
+  symbol: string;
+  interval: ChartInterval;
+  datafeed: IDatafeed;
+  library_path: string;
+  locale: string;
+  disabled_features: string[];
+  enabled_features: string[];
+  charts_storage_url: string;
+  charts_storage_api_version: string;
+  client_id: string;
+  user_id: string;
+  fullscreen: boolean;
+  autosize: boolean;
+  studies_overrides: StudiesOverrides;
+  overrides: ChartOverrides;
+}
+
+// Custom Datafeed Implementation
+interface CustomDatafeed extends IDatafeed {
+  onReady(callback: OnReadyCallback): void;
+  searchSymbols(userInput: string, exchange: string, symbolType: string, onResult: SearchSymbolsCallback): void;
+  resolveSymbol(symbolName: string, onResolve: ResolveCallback, onError: ErrorCallback): void;
+  getBars(symbolInfo: LibrarySymbolInfo, resolution: ResolutionString, periodParams: PeriodParams, onResult: HistoryCallback, onError: ErrorCallback): void;
+  subscribeBars(symbolInfo: LibrarySymbolInfo, resolution: ResolutionString, onTick: SubscribeBarsCallback, listenerGuid: string, onResetCacheNeededCallback: () => void): void;
+  unsubscribeBars(listenerGuid: string): void;
+}
+```
+
+### Comprehensive Broker Integration
+
+#### Unified Broker Interface
+```typescript
+interface UnifiedBrokerInterface {
+  // Connection Management
+  connect(credentials: BrokerCredentials): Promise<ConnectionResult>;
+  disconnect(): Promise<void>;
+  isConnected(): boolean;
+  getConnectionStatus(): ConnectionStatus;
+
+  // Account Management
+  getAccountInfo(): Promise<AccountInfo>;
+  getPositions(): Promise<Position[]>;
+  getOrders(): Promise<Order[]>;
+  getBalance(): Promise<Balance>;
+
+  // Order Management
+  placeOrder(order: OrderRequest): Promise<OrderResult>;
+  modifyOrder(orderId: string, modifications: OrderModifications): Promise<OrderResult>;
+  cancelOrder(orderId: string): Promise<CancellationResult>;
+  getOrderStatus(orderId: string): Promise<OrderStatus>;
+
+  // Market Data
+  subscribeToMarketData(symbols: string[]): Promise<void>;
+  unsubscribeFromMarketData(symbols: string[]): Promise<void>;
+  getMarketData(symbol: string): Promise<MarketData>;
+  getHistoricalData(request: HistoricalDataRequest): Promise<HistoricalData>;
+}
+```
+
+#### Interactive Brokers Integration
+```typescript
+interface IBKRIntegration extends UnifiedBrokerInterface {
+  // IBKR-Specific Methods
+  connectToTWS(host: string, port: number, clientId: number): Promise<void>;
+  connectToGateway(host: string, port: number, clientId: number): Promise<void>;
+  requestMarketDataType(marketDataType: number): void;
+  requestAccountSummary(reqId: number, group: string, tags: string): void;
+  
+  // Order Types
+  createMarketOrder(symbol: string, quantity: number, action: 'BUY' | 'SELL'): IBKROrder;
+  createLimitOrder(symbol: string, quantity: number, action: 'BUY' | 'SELL', price: number): IBKROrder;
+  createStopOrder(symbol: string, quantity: number, action: 'BUY' | 'SELL', stopPrice: number): IBKROrder;
+  
+  // Market Data
+  requestMarketData(reqId: number, contract: Contract, genericTickList: string, snapshot: boolean, regulatorySnapshot: boolean, mktDataOptions: TagValue[]): void;
+  cancelMarketData(reqId: number): void;
+}
+```
+
+#### Alpaca Integration
+```typescript
+interface AlpacaIntegration extends UnifiedBrokerInterface {
+  // Alpaca-Specific Configuration
+  baseUrl: string;
+  keyId: string;
+  secretKey: string;
+  paper: boolean;
+
+  // Alpaca Order Management
+  submitOrder(orderRequest: AlpacaOrderRequest): Promise<AlpacaOrder>;
+  getOrder(orderId: string): Promise<AlpacaOrder>;
+  listOrders(status?: OrderStatus, limit?: number, after?: Date, until?: Date, direction?: 'asc' | 'desc'): Promise<AlpacaOrder[]>;
+  replaceOrder(orderId: string, orderRequest: AlpacaOrderRequest): Promise<AlpacaOrder>;
+  cancelOrder(orderId: string): Promise<void>;
+
+  // Alpaca Market Data
+  getBars(symbols: string[], timeframe: Timeframe, start?: Date, end?: Date, limit?: number): Promise<BarData>;
+  getTrades(symbols: string[], start?: Date, end?: Date, limit?: number): Promise<TradeData>;
+  getQuotes(symbols: string[], start?: Date, end?: Date, limit?: number): Promise<QuoteData>;
+}
+```
+
+#### OANDA Forex Integration
+```typescript
+interface OANDAIntegration extends UnifiedBrokerInterface {
+  // OANDA-Specific Configuration
+  apiUrl: string;
+  accountId: string;
+  accessToken: string;
+  environment: 'practice' | 'trade';
+
+  // Forex-Specific Methods
+  getCurrencyPairs(): Promise<CurrencyPair[]>;
+  getSpread(instrument: string): Promise<Spread>;
+  createForexOrder(instrument: string, units: number, type: 'MARKET' | 'LIMIT' | 'STOP', price?: number): Promise<ForexOrder>;
+  
+  // Position Management
+  getOpenPositions(): Promise<ForexPosition[]>;
+  closePosition(instrument: string, longUnits?: string, shortUnits?: string): Promise<PositionCloseResult>;
+  
+  // Pricing and Market Data
+  getPricing(instruments: string[]): Promise<PricingData>;
+  getCandles(instrument: string, granularity: CandleGranularity, count?: number, from?: Date, to?: Date): Promise<CandleData>;
+}
+```
+
+#### Coinbase Crypto Integration
+```typescript
+interface CoinbaseIntegration extends UnifiedBrokerInterface {
+  // Coinbase-Specific Configuration
+  apiUrl: string;
+  apiKey: string;
+  apiSecret: string;
+  passphrase: string;
+  sandbox: boolean;
+
+  // Crypto-Specific Methods
+  getCryptoCurrencies(): Promise<CryptoCurrency[]>;
+  getTradingPairs(): Promise<TradingPair[]>;
+  getOrderBook(productId: string, level?: number): Promise<OrderBook>;
+  
+  // Crypto Order Management
+  placeCryptoOrder(order: CryptoOrderRequest): Promise<CryptoOrder>;
+  getCryptoOrder(orderId: string): Promise<CryptoOrder>;
+  cancelCryptoOrder(orderId: string): Promise<void>;
+  
+  // Wallet Management
+  getAccounts(): Promise<CryptoAccount[]>;
+  getAccount(accountId: string): Promise<CryptoAccount>;
+  getAccountHistory(accountId: string): Promise<AccountActivity[]>;
+  
+  // Market Data
+  getTicker(productId: string): Promise<Ticker>;
+  getHistoricRates(productId: string, start?: Date, end?: Date, granularity?: number): Promise<HistoricRate[]>;
+}
+```
+
+### Real-time Data Streaming Architecture
+
+#### WebSocket Manager
+```typescript
+interface WebSocketManager {
+  connections: Map<string, WebSocket>;
+  subscriptions: Map<string, Set<string>>;
+  reconnectAttempts: Map<string, number>;
+  
+  // Connection Management
+  createConnection(url: string, protocols?: string[]): Promise<WebSocket>;
+  closeConnection(connectionId: string): void;
+  reconnect(connectionId: string): Promise<void>;
+  
+  // Subscription Management
+  subscribe(connectionId: string, channels: string[]): void;
+  unsubscribe(connectionId: string, channels: string[]): void;
+  
+  // Message Handling
+  onMessage(connectionId: string, handler: MessageHandler): void;
+  sendMessage(connectionId: string, message: any): void;
+  broadcast(message: any): void;
+}
+
+// Message Processing
+interface MessageProcessor {
+  processMarketData(data: RawMarketData): ProcessedMarketData;
+  processOrderUpdate(data: RawOrderUpdate): ProcessedOrderUpdate;
+  processPortfolioUpdate(data: RawPortfolioUpdate): ProcessedPortfolioUpdate;
+  processNewsUpdate(data: RawNewsUpdate): ProcessedNewsUpdate;
+}
+```
+
+### State Management Architecture
+
+#### Redux Toolkit Configuration
+```typescript
+// Store Configuration
+interface StoreConfig {
+  reducer: {
+    auth: AuthSlice;
+    orders: OrdersSlice;
+    portfolio: PortfolioSlice;
+    marketData: MarketDataSlice;
+    ui: UISlice;
+    notifications: NotificationsSlice;
+  };
+  middleware: Middleware[];
+  devTools: boolean;
+}
+
+// RTK Query API
+interface TradingAPI {
+  // Order Management
+  getOrders: QueryDefinition<OrderFilter, any, 'api', Order[]>;
+  createOrder: MutationDefinition<OrderRequest, any, 'api', OrderResult>;
+  updateOrder: MutationDefinition<{id: string, updates: OrderUpdates}, any, 'api', OrderResult>;
+  cancelOrder: MutationDefinition<string, any, 'api', CancellationResult>;
+  
+  // Portfolio Management
+  getPortfolio: QueryDefinition<void, any, 'api', Portfolio>;
+  getPositions: QueryDefinition<void, any, 'api', Position[]>;
+  getPerformance: QueryDefinition<PerformanceRequest, any, 'api', PerformanceData>;
+  
+  // Market Data
+  getMarketData: QueryDefinition<string[], any, 'api', MarketData[]>;
+  getHistoricalData: QueryDefinition<HistoricalRequest, any, 'api', HistoricalData>;
+}
+```
+
+## Data Models
+
+### Trading Data Models
+```typescript
+interface Order {
+  id: string;
+  clientOrderId: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  orderType: 'market' | 'limit' | 'stop' | 'stop_limit';
+  quantity: number;
+  price?: number;
+  stopPrice?: number;
+  timeInForce: 'GTC' | 'IOC' | 'FOK' | 'DAY';
+  status: OrderStatus;
+  broker: string;
+  createdAt: Date;
+  updatedAt: Date;
+  fills: Fill[];
+}
+
+interface Position {
+  symbol: string;
+  quantity: number;
+  averagePrice: number;
+  marketPrice: number;
+  marketValue: number;
+  unrealizedPnL: number;
+  realizedPnL: number;
+  dayPnL: number;
+  broker: string;
+  lastUpdated: Date;
+}
+
+interface Portfolio {
+  id: string;
+  userId: string;
+  totalValue: number;
+  cashBalance: number;
+  dayPnL: number;
+  totalPnL: number;
+  positions: Position[];
+  orders: Order[];
+  performance: PerformanceMetrics;
+  riskMetrics: RiskMetrics;
+}
+```
+
+### Market Data Models
+```typescript
+interface MarketData {
+  symbol: string;
+  price: number;
+  bid: number;
+  ask: number;
+  bidSize: number;
+  askSize: number;
+  volume: number;
+  change: number;
+  changePercent: number;
+  high: number;
+  low: number;
+  open: number;
+  previousClose: number;
+  timestamp: Date;
+}
+
+interface HistoricalData {
+  symbol: string;
+  interval: string;
+  data: OHLCV[];
+}
+
+interface OHLCV {
+  timestamp: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+```
+
+## Security and Performance
+
+### Security Implementation
+- **Authentication**: JWT tokens with refresh mechanism
+- **Authorization**: Role-based access control (RBAC)
+- **Data Encryption**: End-to-end encryption for sensitive data
+- **API Security**: Rate limiting, input validation, CORS configuration
+- **Broker Credentials**: Secure storage with encryption at rest
+
+### Performance Optimization
+- **Code Splitting**: Dynamic imports for optimal bundle sizes
+- **Lazy Loading**: Component-level lazy loading
+- **Memoization**: React.memo and useMemo for expensive operations
+- **Virtual Scrolling**: For large data sets
+- **WebSocket Optimization**: Connection pooling and message batching
+- **Caching**: Intelligent caching strategies for API responses
+
+### Testing Strategy
+- **Unit Tests**: Jest and React Testing Library
+- **Integration Tests**: API integration testing
+- **E2E Tests**: Cypress for complete user workflows
+- **Performance Tests**: Lighthouse CI for web vitals
+- **Mobile Testing**: Detox for React Native testing
+- **Cross-Platform Testing**: Automated testing across all platforms
+
+This comprehensive design ensures Phase 2 delivers a complete multi-platform trading solution with extensive broker integration capabilities.

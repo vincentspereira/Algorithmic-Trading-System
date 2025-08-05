@@ -1,4 +1,4 @@
-# Requirements Document
+# Requirements Document - Phase 6
 
 ## Introduction
 
@@ -224,7 +224,31 @@ This specification outlines comprehensive improvements to the Nautilus Trader En
 4. WHEN CI/CD pipelines execute THEN GitOps-based deployment SHALL be automated
 5. WHEN deployments occur THEN blue-green and canary strategies SHALL be supported
 
-### Requirement 18: Advanced Security and Fraud Detection
+### Requirement 18: Performance Optimization and System Tuning
+
+**User Story:** As a performance engineer, I want comprehensive system performance optimization and tuning capabilities, so that the trading system operates at peak efficiency with minimal latency.
+
+#### Acceptance Criteria
+
+1. WHEN performance monitoring is active THEN it SHALL track latency, throughput, and resource utilization in real-time
+2. WHEN performance bottlenecks are detected THEN automated optimization recommendations SHALL be generated
+3. WHEN system tuning is performed THEN database queries, caching, and network optimization SHALL be applied
+4. WHEN load testing is conducted THEN the system SHALL demonstrate linear scalability up to 10x baseline load
+5. WHEN performance regression is detected THEN automated alerts SHALL trigger immediate investigation
+
+### Requirement 19: Production Deployment and Infrastructure Management
+
+**User Story:** As a DevOps engineer, I want comprehensive production deployment and infrastructure management capabilities, so that the trading system can be deployed and managed reliably in production environments.
+
+#### Acceptance Criteria
+
+1. WHEN Kubernetes deployment occurs THEN all services SHALL be deployed with proper resource allocation and scaling policies
+2. WHEN infrastructure changes are made THEN they SHALL be managed through Infrastructure as Code with version control
+3. WHEN deployments are executed THEN blue-green or canary strategies SHALL minimize downtime and risk
+4. WHEN monitoring is configured THEN comprehensive observability SHALL cover all system components
+5. WHEN disaster recovery is tested THEN full system recovery SHALL be completed within defined RTO/RPO targets
+
+### Requirement 20: Advanced Security and Fraud Detection
 
 **User Story:** As a security officer, I want advanced security measures and fraud detection so that the system is protected against cyber threats and unauthorized activities.
 

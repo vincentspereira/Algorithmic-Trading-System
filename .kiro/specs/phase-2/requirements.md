@@ -186,7 +186,31 @@ This document outlines the requirements for Phase 2 of the Algorithmic Trading S
 4. WHEN desktop app is launched THEN it SHALL provide system tray integration and native notifications
 5. WHEN apps are updated THEN auto-update mechanisms SHALL work seamlessly across all platforms
 
-### Requirement 16: Testing and Quality Assurance
+### Requirement 16: TradingView Charting Integration
+
+**User Story:** As a trader, I want advanced TradingView charting capabilities integrated into the platform, so that I can perform comprehensive technical analysis with professional-grade charting tools.
+
+#### Acceptance Criteria
+
+1. WHEN TradingView charts are loaded THEN they SHALL display real-time market data with sub-second updates
+2. WHEN technical indicators are applied THEN they SHALL calculate and display correctly with customizable parameters
+3. WHEN chart interactions occur THEN drawing tools, trend lines, and annotations SHALL persist across sessions
+4. WHEN multiple timeframes are selected THEN chart synchronization SHALL work seamlessly
+5. WHEN custom indicators are created THEN they SHALL integrate with the existing TradingView framework
+
+### Requirement 17: Unified Broker Abstraction Layer
+
+**User Story:** As a system architect, I want a unified broker abstraction layer, so that all brokers can be managed through a consistent interface with intelligent order routing.
+
+#### Acceptance Criteria
+
+1. WHEN multiple brokers are connected THEN the abstraction layer SHALL provide a unified API for all operations
+2. WHEN orders are routed THEN the system SHALL select optimal brokers based on liquidity, cost, and execution quality
+3. WHEN broker failover occurs THEN the system SHALL automatically switch to backup brokers without interruption
+4. WHEN broker-specific features are used THEN the abstraction layer SHALL handle broker differences transparently
+5. WHEN new brokers are added THEN integration SHALL follow standardized patterns and interfaces
+
+### Requirement 18: Testing and Quality Assurance
 
 **User Story:** As a QA engineer, I want comprehensive testing coverage, so that all frontend and broker integration features work reliably in production.
 
