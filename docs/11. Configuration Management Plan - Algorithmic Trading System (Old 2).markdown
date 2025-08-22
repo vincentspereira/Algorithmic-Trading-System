@@ -1,0 +1,171 @@
+
+
+## **Configuration Management Plan**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:**   | 2.0                         |
+|:-------------- |:--------------------------- |
+| **Date:**      | August 6, 2025              |
+| **Status:**    | For Review                  |
+| **Author(s):** | Vincent Pereira             |
+| **Owner:**     | Technical Lead, DevOps Team |
+
+-----
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose**
+
+This document outlines the Configuration Management (CM) Plan for the Nautilus Trader Algorithmic Trading System (ATS). Its purpose is to establish a systematic approach for identifying, organizing, controlling, and maintaining all configurable items (CIs) throughout the system's lifecycle. This plan ensures the integrity, consistency, and traceability of all system components, from source code and infrastructure to documentation and third-party dependencies. Adherence to this plan is critical for maintaining system stability, supporting enterprise-grade reliability, and ensuring regulatory compliance.
+
+#### **1.2 Scope**
+
+This CM Plan applies to all hardware, software, documentation, and environments used in the development, testing, and production deployment of the Nautilus Trader platform. This includes:
+
+* **Source Code:** All microservices, libraries, and frontend applications.
+* **Infrastructure as Code (IaC):** Kubernetes manifests, Helm charts, and Terraform configurations.
+* **Container Images:** Docker images for all services.
+* **Configuration Files:** Application settings, environment variables, and service configurations.
+* **External Dependencies:** All 60+ open-source libraries and forked repositories.
+* **Databases:** Schemas for PostgreSQL, ClickHouse, and others.
+* **API Schemas:** Definitions for REST, GraphQL, WebSocket, and gRPC interfaces.
+* **Documentation:** All project documents, including this plan, BRD, SDD, and TSD.
+* **Environments:** Development, Staging, and Production environments.
+
+#### **1.3 Guiding Principles**
+
+The CM strategy is guided by the core architectural principles of the Nautilus Trader platform:
+
+* **Infrastructure as Code (IaC):** All infrastructure is defined and managed in version-controlled code to ensure repeatability and traceability.
+* **GitOps:** The state of the system is managed through a Git repository as the single source of truth. All changes to the production environment are driven by commits to this repository.
+* **Automation:** All CM processes, from building and testing to deployment and verification, are automated to the greatest extent possible to reduce human error and increase efficiency.
+* **Immutability:** Configuration changes are implemented by deploying new, versioned artifacts (e.g., container images, Helm charts) rather than modifying running systems in place.
+
+-----
+
+### **2.0 Roles and Responsibilities**
+
+| Role                           | Responsibilities                                                                                                                                                                                                                |
+|:------------------------------ |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Development Team**           | - Authors and maintains source code, Dockerfiles, and service-level configuration files.\<br\>- Submits change requests via pull requests.\<br\>- Responsible for unit and integration testing of their changes.                |
+| **DevOps Team**                | - Manages the CI/CD pipeline, IaC (Terraform, Helm), and Kubernetes infrastructure.\<br\>- Administers the configuration management tools (Git, Vault, ArgoCD).\<br\>- Oversees the deployment process across all environments. |
+| **Technical Lead**             | - Reviews and approves significant architectural and configuration changes.\<br\>- Ensures CM processes are followed by all teams.                                                                                              |
+| **Security Team**              | - Manages and audits secrets, API keys, and certificates using HashiCorp Vault.\<br\>- Reviews changes for security implications and manages SAST tools like Bandit.                                                            |
+| **Compliance Officer**         | - Defines requirements for audit trails and data retention.\<br\>- Audits the CM process and change logs to ensure regulatory compliance.                                                                                       |
+| **Change Control Board (CCB)** | - A cross-functional team (including Tech Lead, DevOps Lead, Security Lead) that reviews and approves high-impact changes, especially those affecting the production environment.                                               |
+
+-----
+
+### **3.0 Configuration Identification**
+
+All components of the Nautilus Trader system are classified as Configuration Items (CIs). Each CI will be assigned a unique identifier and version number to allow for precise tracking.
+
+#### **3.1 CI Naming and Versioning Convention**
+
+* **Source Code Repositories:** `nautilus-trader-<service-name>` (e.g., `nautilus-trader-oms-service`). Versioning follows **Semantic Versioning (MAJOR.MINOR.PATCH)**.
+* **Docker Images:** `<registry>/nautilus-trader-<service-name>:<version>-<git-commit-short-sha>` (e.g., `our.registry/nautilus-trader-oms-service:1.2.0-a1b2c3d`).
+* **Helm Charts:** Stored in a dedicated Git repository. Versioning follows Semantic Versioning.
+* **Infrastructure (Terraform):** Modules are versioned and stored in a dedicated Git repository.
+* **External Dependencies:** Managed via the tiered system defined in Phase 0. Forks are maintained in our Git organization, and versions are pinned in dependency files (`requirements.txt`, `package.json`).
+
+#### **3.2 Baselines**
+
+A **baseline** is a formally agreed-upon version of one or more CIs that serves as a reference point for further development. Baselines will be established at key milestones:
+
+* **Development Baseline:** Created at the start of each sprint.
+* **Testing Baseline:** The set of CIs deployed to the Staging environment for a release candidate.
+* **Production Baseline:** The set of CIs currently running in the Production environment.
+
+All baselines will be captured as Git tags on the respective repositories.
+
+-----
+
+### **4.0 Configuration Control**
+
+Configuration control is the process of managing changes to CIs in a structured and audited manner. All changes must follow the process below, which is built around a **Git-based workflow**.
+
+#### **4.1 Change Request Process**
+
+1. **Branching:** A developer creates a new feature or bugfix branch from the `main` branch in the relevant Git repository (e.g., `feature/OMS-123-new-order-type`).
+2. **Implementation:** The developer implements the changes, including updating code, configurations, and documentation.
+3. **Pull Request (PR):** The developer submits a Pull Request to merge the changes back into the `main` branch. The PR must include:
+   * A clear description of the change and its purpose.
+   * Links to relevant work items (e.g., Jira tickets).
+   * Evidence of successful execution of all automated tests in the CI pipeline.
+4. **Review and Approval:**
+   * **Code Review:** At least one other developer must review the code for correctness and adherence to standards.
+   * **Automated Checks:** The CI pipeline automatically runs unit tests, integration tests, and security scans (SAST with Bandit).
+   * **Approval:** Once reviews and checks pass, the PR is approved by the repository owner or Technical Lead.
+5. **Merge:** The PR is merged into the `main` branch. This action triggers the CI/CD pipeline to build and publish new versioned artifacts (e.g., Docker image).
+
+#### **4.2 CI/CD and Deployment**
+
+The deployment process is fully automated and managed via **GitOps** using **ArgoCD**.
+
+1. **Artifact Creation:** Merging to `main` triggers the CI pipeline to build a new versioned Docker image and push it to the container registry.
+2. **Staging Deployment:** The pipeline automatically creates a PR in the **deployment configuration repository**. This PR updates the Helm chart's `values.yaml` file to point to the new Docker image version.
+3. **Staging Approval:** The DevOps team reviews the deployment PR. Upon approval and merge, **ArgoCD** detects the change in the Git repository and automatically deploys the new version to the **Staging environment**.
+4. **Production Deployment:** After successful validation in Staging, the change is promoted to Production. This follows the same GitOps process but requires explicit approval from the **Change Control Board (CCB)**. A blue-green or canary deployment strategy is used to minimize downtime and risk.
+
+#### **4.3 Managing Secrets and Sensitive Configuration**
+
+* **No Secrets in Git:** Under no circumstances will secrets (API keys, passwords, certificates) be stored in Git repositories.
+* **Secret Management:** All secrets are stored and managed in **HashiCorp Vault**.
+* **Accessing Secrets:** Applications running in Kubernetes will be granted access to secrets in Vault via secure, short-lived tokens and dedicated service accounts.
+
+#### **4.4 Feature Flags**
+
+* **Dynamic Configuration:** The **Unleash** feature flag system is used to dynamically enable or disable features in real-time without requiring a new deployment.
+* **Control:** Feature flags are managed through the Unleash UI and are considered CIs, with changes to their state being logged and audited. This provides a critical "kill switch" capability for risk management.
+
+-----
+
+### **5.0 Configuration Status Accounting and Reporting**
+
+This process involves tracking and reporting on the state of all CIs and any changes made to them.
+
+* **Single Source of Truth:** Git repositories serve as the definitive source of truth for the desired state of all code and infrastructure.
+* **Real-time Status:**
+  * **ArgoCD Dashboard:** Provides a real-time view of the synchronization status between the Git configuration repository and the live Kubernetes cluster.
+  * **Dependency Health Dashboard:** The custom dashboard built in Phase 0 provides real-time status of all 60+ external dependencies.
+  * **Grafana Dashboards:** Display operational metrics and system health, providing an indirect status of application configurations.
+* **Change History and Audit Trails:**
+  * **Git History:** Provides a complete, immutable log of every change made to code and configuration, including who made the change, when, and why (via PR descriptions).
+  * **Apache Iceberg:** Used for immutable, long-term storage of all sensitive system actions and trade events, satisfying regulatory compliance requirements.
+
+-----
+
+### **6.0 Configuration Auditing and Verification**
+
+Auditing ensures that the system's configuration is correct, complete, and consistent with documentation and baselines.
+
+* **Automated Verification:**
+  * **CI Pipeline:** The CI pipeline automatically verifies that every commit builds successfully and passes all tests.
+  * **ArgoCD:** Continuously monitors the live state of the Kubernetes cluster and alerts on any drift from the state defined in Git.
+* **Periodic Audits:**
+  * **Quarterly Audits:** The DevOps and Security teams will conduct quarterly audits to:
+    * Verify that the deployed infrastructure matches the Terraform and Helm configurations.
+    * Review access controls in Git, Kubernetes, and Vault.
+    * Ensure no secrets have been inadvertently committed to repositories.
+  * **Compliance Audits:** The Compliance Officer will conduct audits as required to verify that the system and its change history meet regulatory standards.
+
+-----
+
+### **7.0 Tools and Infrastructure**
+
+The following tools are used to implement this Configuration Management Plan:
+
+| Tool                     | Purpose                                                                        |
+|:------------------------ |:------------------------------------------------------------------------------ |
+| **Git (GitHub)**         | Version control and the single source of truth for all code and configuration. |
+| **Docker**               | Containerization of all microservices.                                         |
+| **Kubernetes**           | Container orchestration for all environments.                                  |
+| **Helm**                 | Package management for Kubernetes applications.                                |
+| **Terraform**            | Infrastructure as Code for provisioning cloud resources.                       |
+| **ArgoCD**               | GitOps continuous delivery tool for Kubernetes.                                |
+| **GitHub Actions**       | CI/CD pipeline orchestration and automation.                                   |
+| **HashiCorp Vault**      | Centralized secrets management.                                                |
+| **Unleash**              | Feature flag management.                                                       |
+| **Prometheus & Grafana** | Monitoring, observability, and status dashboards.                              |
+| **Apache Iceberg**       | Immutable audit trail storage.                                                 |

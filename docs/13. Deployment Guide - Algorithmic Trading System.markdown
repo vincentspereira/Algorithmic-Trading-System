@@ -1,0 +1,577 @@
+## **Deployment Guide**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:** | 3.0                          |
+|:------------ |:---------------------------- |
+| **Date:**    | August 21, 2025             |
+| **Status:**  | Draft                       |
+| **Author:**  | Vincent Pereira             |
+
+---
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose**
+
+This Deployment Guide provides a comprehensive, step-by-step framework for deploying the Nautilus Trader Algorithmic Trading System (ATS). It is designed for DevOps engineers, system administrators, and platform engineers tasked with provisioning infrastructure, deploying microservices, and ensuring system reliability, scalability, and compliance. The guide covers environment setup, dependency deployment, application deployment, configuration management, and post-deployment procedures, incorporating all features from the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document, including no-code strategy development, AI-driven analytics, voice trading, augmented reality (AR) interfaces, and the Strategy Marketplace.
+
+#### **1.2 Scope**
+
+This guide encompasses the deployment of the entire Nautilus Trader platform, including:
+
+- **Infrastructure Setup:** Provisioning Kubernetes clusters, networking, storage, and multi-AZ configurations on AWS/GCP.
+- **Dependency Deployment:** Installing core dependencies (Apache Kafka, PostgreSQL/pgvector, ClickHouse, Qdrant, Redis, Apache Iceberg, DuckDB).
+- **Application Deployment:** Deploying microservices (Trading Engine, AI Assistant, Order Management System, etc.) and frontends (web, mobile, desktop, PWA).
+- **Configuration Management:** Managing environment-specific configurations, secrets (HashiCorp Vault), and feature flags (Unleash).
+- **Observability and Compliance:** Setting up monitoring (Prometheus, Grafana, Loki, Jaeger/Tempo) and audit trails (Apache Iceberg).
+- **Post-Deployment:** Verification, high availability (HA), disaster recovery (DR), and rollback procedures.
+
+#### **1.3 Architectural Context**
+
+Nautilus Trader is a cloud-native, event-driven, microservices-based platform built on open-source technologies (NautilusTrader, LangChain, PyPortfolioOpt, QuantLib, etc.). It leverages **Docker** for containerization, **Kubernetes** for orchestration, **Terraform** for Infrastructure as Code (IaC), and **ArgoCD** for GitOps-driven deployments. The system supports multi-asset trading (stocks, ETFs, futures, options, forex, commodities, cryptocurrencies) with <10ms median API latency, <100µs market data ingestion, and scalability for >10,000 concurrent users. Security is enforced via a zero-trust model with Keycloak (OAuth 2.0/OIDC) and Istio (mTLS).
+
+**Mermaid Diagram: Deployment Architecture**
+
+```mermaid
+graph TD
+    subgraph Cloud Provider (AWS/GCP)
+        subgraph Kubernetes Cluster
+            subgraph System Namespace
+                ISTIO[Istio Service Mesh]
+                KAFKA[Apache Kafka & Schema Registry]
+                VAULT[HashiCorp Vault]
+                UNLEASH[Unleash Feature Flags]
+            end
+            subgraph Monitoring Namespace
+                PROM[Prometheus]
+                GRAF[Grafana & Loki]
+                JAEGER[Jaeger/Tempo]
+            end
+            subgraph Prod Namespace
+                TE[Trading Engine]
+                OMS[Order Management System]
+                AI[AI Assistant]
+                PM[Portfolio Manager]
+                RM[Risk Manager]
+                SCANNER[Market Scanner]
+                CSBOT[Customer Service Bot]
+                MARKETPLACE[Strategy Marketplace]
+            end
+            subgraph Data Namespace
+                PG[(PostgreSQL/pgvector)]
+                CH[(ClickHouse)]
+                QDR[(Qdrant)]
+                ICE[(Apache Iceberg)]
+                RED[(Redis)]
+                DUCK[(DuckDB)]
+            end
+        end
+        subgraph External
+            UI[Web, Mobile, Desktop, PWA]
+            BROKER[Broker APIs]
+            DATA[Market Data Providers]
+            ALT[Alternative Data]
+        end
+    end
+
+    UI -->|HTTPS/WebSocket| ISTIO
+    BROKER -->|FIX/API| ISTIO
+    DATA -->|Market Data| ISTIO
+    ALT -->|News/Social| ISTIO
+    ISTIO -->|mTLS| KAFKA
+    KAFKA -->|Events| TE & OMS & AI & PM & RM & SCANNER & CSBOT & MARKETPLACE
+    TE & OMS & AI & PM & RM & SCANNER & CSBOT & MARKETPLACE -->|Data| PG & CH & QDR & ICE & RED
+    TE & OMS & AI & PM & RM & SCANNER & CSBOT & MARKETPLACE -->|Metrics| PROM
+    PROM -->|Dashboards| GRAF
+    TE & OMS & AI & PM & RM & SCANNER & CSBOT & MARKETPLACE -->|Traces| JAEGER
+    VAULT -->|Secrets| TE & OMS & AI & PM & RM & SCANNER & CSBOT & MARKETPLACE
+    UNLEASH -->|Feature Flags| TE & AI & MARKETPLACE
+```
+
+---
+
+### **2.0 Prerequisites**
+
+#### **2.1 Infrastructure & Tools**
+
+- **Cloud Provider:** AWS or GCP account with permissions for EKS/GKE, VPC, IAM, and storage services.
+- **Kubernetes Cluster:** Version 1.27+, multi-AZ, with at least 3 nodes (e.g., `m5.xlarge` or `n2-standard-4`) and 100GB EBS/GCE Persistent Disk.
+- **kubectl:** Version 1.27+, configured with cluster access.
+- **Helm:** Version 3.10+, for deploying packaged applications.
+- **Docker:** Version 20.10+, for building and pushing container images.
+- **Git:** Version 2.35+, with access to GitHub repositories.
+- **CI/CD System:** GitHub Actions configured for CI/CD pipelines.
+- **GitOps Tool:** ArgoCD 2.8+ for automated deployments.
+- **IaC Tool:** Terraform 1.5+ for provisioning cloud resources.
+- **Container Registry:** AWS ECR or GCP Artifact Registry for storing Docker images.
+- **Secret Management:** HashiCorp Vault 1.14+ for secrets and certificates.
+- **Monitoring Tools:**
+  - Prometheus 2.45+ for metrics.
+  - Grafana 10.0+ with Loki for logs.
+  - Jaeger/Tempo for distributed tracing.
+- **Feature Flags:** Unleash 5.0+ for dynamic configuration.
+
+#### **2.2 Access & Permissions**
+
+- **GitHub Repositories:**
+  - Read access to `nautilus-trader-*` repositories (e.g., `nautilus-trader-trading-service`).
+  - Write access to `nautilus-trader-helm-charts` for deployment configurations.
+- **Container Registry:** Push/pull access to ECR/Artifact Registry.
+- **Vault:** Admin access to configure secrets and service accounts.
+- **Keycloak:** Admin access to configure OAuth 2.0/OIDC and RBAC.
+
+---
+
+### **3.0 Environment Setup**
+
+The Nautilus Trader ATS uses multiple environments to ensure controlled releases and testing.
+
+#### **3.1 Kubernetes Namespace Organization**
+
+| Namespace                     | Purpose                              |
+|:---------------------------- |:------------------------------------ |
+| `nautilus-trader-prod`       | Production environment.              |
+| `nautilus-trader-staging`    | Staging environment for testing.     |
+| `nautilus-trader-dev`        | Development environment for testing. |
+| `nautilus-trader-monitoring` | Observability stack.                |
+| `nautilus-trader-system`     | System-level components (Istio, etc.). |
+| `nautilus-trader-data`       | Databases and storage services.     |
+
+**Command to Create Namespaces:**
+
+```bash
+kubectl create namespace nautilus-trader-prod
+kubectl create namespace nautilus-trader-staging
+kubectl create namespace nautilus-trader-dev
+kubectl create namespace nautilus-trader-monitoring
+kubectl create namespace nautilus-trader-system
+kubectl create namespace nautilus-trader-data
+```
+
+#### **3.2 Cloud Infrastructure Setup**
+
+Use Terraform to provision the following:
+
+- **VPC:** Multi-AZ VPC with public/private subnets.
+- **Kubernetes Cluster:** EKS/GKE cluster with 3+ nodes, auto-scaling enabled.
+- **Storage:**
+  - EBS/GCE Persistent Disk for PostgreSQL, ClickHouse.
+  - S3/GCS for Apache Iceberg.
+- **Networking:**
+  - AWS ALB/GCP Cloud Load Balancer for Ingress.
+  - Route 53/Google Cloud DNS for domain management.
+
+**Example Terraform Configuration:**
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "eks_cluster" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.0.0"
+
+  cluster_name    = "nautilus-trader"
+  cluster_version = "1.27"
+  subnets         = ["subnet-1", "subnet-2", "subnet-3"]
+  vpc_id          = "vpc-123456"
+
+  node_groups = {
+    main = {
+      instance_types = ["m5.xlarge"]
+      min_size       = 3
+      max_size       = 10
+      desired_size   = 3
+    }
+  }
+}
+
+resource "aws_s3_bucket" "iceberg" {
+  bucket = "nautilus-trader-iceberg"
+  acl    = "private"
+}
+```
+
+#### **3.3 Core Dependency Deployment**
+
+Deploy dependencies using Helm charts in the `nautilus-trader-data` and `nautilus-trader-system` namespaces.
+
+1. **Istio Service Mesh:**
+   - Install Istio 1.18+ for mTLS, traffic management, and observability.
+   - Configure Ingress Gateway for external traffic.
+   ```bash
+   helm install istio-base istio/base -n nautilus-trader-system
+   helm install istiod istio/istiod -n nautilus-trader-system
+   helm install istio-ingress istio/gateway -n nautilus-trader-system
+   ```
+
+2. **Apache Kafka:**
+   - Use Strimzi operator for Kafka 3.4+ with Schema Registry.
+   - Configure 3 brokers, 3 ZooKeeper nodes, and persistent storage.
+   ```bash
+   helm install kafka strimzi/kafka -n nautilus-trader-data \
+     --set replicas=3 \
+     --set zookeeper.replicas=3 \
+     --set persistence.size=100Gi
+   ```
+
+3. **PostgreSQL/pgvector:**
+   - Deploy PostgreSQL 15+ with pgvector for user data and embeddings.
+   ```bash
+   helm install postgresql bitnami/postgresql -n nautilus-trader-data \
+     --set persistence.size=50Gi \
+     --set auth.database=nautilus_trader
+   ```
+
+4. **ClickHouse:**
+   - Deploy ClickHouse 23+ for time-series market data.
+   ```bash
+   helm install clickhouse clickhouse/clickhouse -n nautilus-trader-data \
+     --set persistence.size=200Gi
+   ```
+
+5. **Qdrant:**
+   - Deploy Qdrant 1.5+ for vector embeddings.
+   ```bash
+   helm install qdrant qdrant/qdrant -n nautilus-trader-data \
+     --set persistence.size=50Gi
+   ```
+
+6. **Apache Iceberg:**
+   - Configure Iceberg with S3/GCS for audit trails.
+   - Use Spark for catalog management.
+   ```bash
+   helm install spark bitnami/spark -n nautilus-trader-data \
+     --set spark.executor.memory=4g
+   ```
+
+7. **Redis:**
+   - Deploy Redis 7+ for caching.
+   ```bash
+   helm install redis bitnami/redis -n nautilus-trader-data \
+     --set replica.replicaCount=3
+   ```
+
+8. **HashiCorp Vault:**
+   - Deploy Vault for secrets management with Kubernetes CSI driver.
+   ```bash
+   helm install vault hashicorp/vault -n nautilus-trader-system \
+     --set injector.enabled=true
+   ```
+
+9. **Unleash:**
+   - Deploy Unleash for feature flags.
+   ```bash
+   helm install unleash unleash/unleash -n nautilus-trader-system \
+     --set database.url=postgresql://user:pass@postgresql:5432/unleash
+   ```
+
+10. **Observability Stack:**
+    - Deploy Prometheus, Grafana (with Loki), and Jaeger/Tempo.
+    ```bash
+    helm install prometheus prometheus-community/kube-prometheus-stack -n nautilus-trader-monitoring
+    helm install loki grafana/loki -n nautilus-trader-monitoring
+    helm install tempo grafana/tempo -n nautilus-trader-monitoring
+    ```
+
+---
+
+### **4.0 GitOps Deployment Workflow**
+
+The deployment process follows a GitOps model using ArgoCD, ensuring declarative, auditable deployments.
+
+1. **Repository Structure:**
+   - **Source Repositories:** `nautilus-trader-<service>` (e.g., `nautilus-trader-trading-service`).
+   - **Helm Charts Repository:** `nautilus-trader-helm-charts`.
+   - **Infrastructure Repository:** `nautilus-trader-infrastructure`.
+
+2. **CI Pipeline (GitHub Actions):**
+   - Trigger: PR merge to `main`.
+   - Steps:
+     - Build: Compile Python (3.10+), Rust, or Node.js code.
+     - Test: Run unit (Pytest), integration, and performance tests.
+     - Scan: Perform SAST (Bandit) and DAST (OWASP ZAP).
+     - Package: Build Docker image with version and Git SHA (e.g., `1.2.3-a1b2c3d`).
+     - Push: Push image to ECR/Artifact Registry.
+     - Update: Create PR in `nautilus-trader-helm-charts` to update `values.yaml`.
+
+3. **CD with ArgoCD:**
+   - ArgoCD monitors `nautilus-trader-helm-charts`.
+   - Syncs changes to Kubernetes namespaces (`dev`, `staging`, `prod`).
+   - Uses blue-green or canary deployments for zero-downtime updates.
+
+**Mermaid Diagram: GitOps Workflow**
+
+```mermaid
+graph TD
+    A[Developer] -->|Push Code| B[Source Repo]
+    B -->|PR Merge| C[GitHub Actions]
+    C -->|Build & Test| D[Docker Image]
+    D -->|Push| E[Container Registry]
+    C -->|Update Helm| F[Helm Charts Repo]
+    F -->|PR Merge| G[ArgoCD]
+    G -->|Sync| H[Kubernetes Cluster]
+    H -->|Deploy| I[Dev/Staging/Prod]
+    I -->|Monitor| J[Prometheus & Grafana]
+    J -->|Alert| K[Slack/Email]
+```
+
+---
+
+### **5.0 Application Deployment Steps**
+
+#### **5.1 Helm Charts**
+
+Each microservice and frontend has a Helm chart in `nautilus-trader-helm-charts`, including:
+
+- **Deployment:** Pod template, replicas (min: 3 for prod), resource limits (e.g., 1 CPU, 2GB RAM).
+- **Service:** ClusterIP for internal access.
+- **ConfigMap:** Non-sensitive configurations (e.g., Kafka bootstrap servers).
+- **Secret:** References Vault paths for sensitive data.
+- **HorizontalPodAutoscaler (HPA):** Scales based on CPU/memory (e.g., 80% threshold).
+- **Istio VirtualService/DestinationRule:** Configures mTLS and traffic routing.
+
+**Example Helm Chart Structure:**
+
+```
+nautilus-trader-trading-service/
+├── templates/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── configmap.yaml
+│   ├── secret.yaml
+│   ├── hpa.yaml
+│   ├── virtualservice.yaml
+├── values.yaml
+├── values-dev.yaml
+├── values-staging.yaml
+├── values-prod.yaml
+```
+
+**Example `values-prod.yaml`:**
+
+```yaml
+replicaCount: 3
+image:
+  repository: our.registry/nautilus-trader-trading-service
+  tag: 1.2.3
+resources:
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+  requests:
+    cpu: "0.5"
+    memory: "1Gi"
+vault:
+  path: secret/nautilus-trader/trading-service
+hpa:
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+```
+
+#### **5.2 Microservices and Frontends**
+
+| Component            | Description                              | Dependencies                     |
+|:-------------------- |:---------------------------------------- |:-------------------------------- |
+| **Trading Engine**  | Executes trading strategies (NautilusTrader). | Kafka, PostgreSQL, Redis        |
+| **OMS**             | Manages orders and broker interactions (QuickFIX/J). | Kafka, PostgreSQL, Brokers      |
+| **AI Assistant**    | Provides predictions and insights (LangGraph, RAGFlow). | Kafka, Qdrant/pgvector, ClickHouse |
+| **Portfolio Manager** | Tracks portfolio state (PyPortfolioOpt). | Kafka, PostgreSQL, Redis        |
+| **Risk Manager**    | Calculates VaR, anomalies (PyOD, SHAP). | Kafka, ClickHouse, Redis        |
+| **Market Scanner**  | Ranks symbols by indicators (VectorBT). | Kafka, ClickHouse               |
+| **Customer Service Bot** | Handles user queries (Lobe Chat).     | Kafka, Qdrant/pgvector          |
+| **Strategy Marketplace** | Manages strategy sharing.             | Kafka, PostgreSQL               |
+| **Web Frontend**    | React 18/Next.js with Tailwind CSS.      | API Gateway, Redis              |
+| **Mobile Frontend** | React Native for iOS/Android.            | API Gateway, Redis              |
+| **Desktop Frontend** | Electron with DuckDB for offline analytics. | API Gateway, DuckDB             |
+| **PWA**             | Progressive Web App for offline access.  | API Gateway, Redis              |
+
+**Deployment Command:**
+
+```bash
+helm upgrade --install trading-service nautilus-trader-helm-charts/trading-service \
+  -n nautilus-trader-prod \
+  -f nautilus-trader-helm-charts/trading-service/values-prod.yaml
+```
+
+#### **5.3 Configuration Management**
+
+- **Environment-Specific Configurations:**
+  - Use `values-<env>.yaml` for environment-specific settings (e.g., replica counts, database URLs).
+  - Example: `values-prod.yaml` sets higher replicas and stricter resource limits.
+
+- **Secrets Management:**
+  - Vault stores API keys, database credentials, and TLS certificates.
+  - Kubernetes CSI driver injects secrets as environment variables or files.
+  ```yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: trading-service
+  spec:
+    template:
+      metadata:
+        annotations:
+          vault.hashicorp.com/agent-inject: "true"
+          vault.hashicorp.com/role: "trading-service"
+          vault.hashicorp.com/secret-volume-path: "/vault/secrets"
+  ```
+
+- **Feature Flags:**
+  - Unleash manages flags for features (e.g., `voice-trading`, `ar-visualization`).
+  - Microservices query Unleash API at runtime.
+  ```bash
+  curl -X POST http://unleash:4242/api/client/features \
+    -H "Authorization: <unleash-api-key>" \
+    -d '{"featureName": "voice-trading"}'
+  ```
+
+---
+
+### **6.0 Post-Deployment Verification**
+
+1. **Check Pod Status:**
+   ```bash
+   kubectl get pods -n nautilus-trader-prod -o wide
+   ```
+   Ensure all pods are `Running` or `Completed`.
+
+2. **Review Logs:**
+   ```bash
+   kubectl logs -f trading-service-abc123 -n nautilus-trader-prod
+   ```
+   Check for errors or exceptions.
+
+3. **Test Endpoints:**
+   - Verify API Gateway routes (e.g., `https://api.nautilus-trader.com/v1/orders`).
+   - Test WebSocket streams (`wss://api.nautilus-trader.com/ws`).
+   - Validate FIX connectivity (`fix.nautilus-trader.com:443`).
+
+4. **Monitor Dashboards:**
+   - **Grafana:** Check API latency (<10ms), Kafka throughput (>1M messages/s), and error rates.
+   - **Jaeger/Tempo:** Verify request traces for all microservices.
+   - **Prometheus Alerts:** Ensure no critical alerts (e.g., CPU >80%, memory leaks).
+
+5. **Validate Features:**
+   - Test no-code strategy creation (Blockly).
+   - Run backtest with historical data (>90% accuracy).
+   - Place test order via voice command (>95% transcription accuracy).
+   - Render AR visualization in WebXR.
+
+---
+
+### **7.0 High Availability and Disaster Recovery**
+
+#### **7.1 High Availability (HA)**
+
+- **Multi-AZ Deployment:** Deploy across 3+ Availability Zones.
+- **Replication:**
+  - Microservices: Minimum 3 replicas in `prod` namespace.
+  - Kafka: 3 brokers, replication factor of 3.
+  - PostgreSQL/ClickHouse: Clustered with 3 nodes.
+- **Auto-Scaling:**
+  - HPA scales microservices based on CPU/memory.
+  - Cluster Autoscaler adjusts node count.
+- **Load Balancing:** AWS ALB/GCP Cloud Load Balancer distributes traffic.
+
+#### **7.2 Backup and Restore**
+
+- **Databases:**
+  - PostgreSQL: Daily snapshots, point-in-time recovery (PITR).
+  - ClickHouse: Incremental backups to S3/GCS.
+  - Iceberg: Immutable, no backups needed.
+- **Kubernetes State:** Stored in `nautilus-trader-helm-charts` (GitOps).
+- **Configuration Backup:** Terraform state in S3/GCS with versioning.
+
+#### **7.3 Disaster Recovery (DR)**
+
+- **Recovery Time Objective (RTO):** <4 hours.
+- **Recovery Point Objective (RPO):** <15 minutes.
+- **Procedure:**
+  1. Provision new cluster using Terraform.
+  2. Restore database snapshots.
+  3. Sync ArgoCD to deploy applications.
+  4. Validate via monitoring dashboards.
+
+---
+
+### **8.0 Rollback Procedure**
+
+1. **Identify Issue:** Use Grafana/Jaeger to pinpoint failing commit.
+2. **Revert Commit:**
+   ```bash
+   git revert <commit-sha>
+   git push origin main
+   ```
+3. **ArgoCD Sync:** Automatically rolls back to previous state.
+4. **Feature Flag Kill Switch:** Disable problematic features via Unleash UI.
+   ```bash
+   curl -X POST http://unleash:4242/api/admin/projects/default/features/voice-trading/toggle \
+     -H "Authorization: <unleash-api-key>" \
+     -d '{"enabled": false}'
+   ```
+5. **Validate Rollback:** Check pod status and monitoring dashboards.
+
+---
+
+### **9.0 Phased Deployment**
+
+The deployment aligns with the six-phase roadmap:
+
+- **Phase 0: Foundation**
+  - Deploy Kafka, PostgreSQL, ClickHouse, Redis, Vault, Unleash.
+  - Set up EKS/GKE and Istio.
+
+- **Phase 1: Core Services**
+  - Deploy Trading Engine, OMS, Portfolio Manager.
+  - Enable REST and WebSocket APIs.
+
+- **Phase 2: Real-Time Data**
+  - Deploy Market Data Service and WebSocket streams.
+  - Enable GraphQL subscriptions.
+
+- **Phase 3: AI Integration**
+  - Deploy AI Assistant (LangGraph, RAGFlow) with Qdrant/pgvector.
+  - Enable predictive analytics and sentiment analysis.
+
+- **Phase 4: Advanced Features**
+  - Deploy voice trading (Whisper) and AR (WebXR).
+  - Enable FIX API and smart order routing.
+
+- **Phase 5: Compliance & Marketplace**
+  - Deploy Apache Iceberg for audit trails.
+  - Enable Strategy Marketplace.
+
+- **Phase 6: Optimization**
+  - Deploy market microstructure analysis and FPGA/SmartNIC support.
+  - Scale for >10,000 concurrent users.
+
+**Mermaid Gantt Chart:**
+
+```mermaid
+gantt
+    title Nautilus Trader Deployment Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 0: Foundation
+    Core Infrastructure        :2025-08-01, 30d
+    section Phase 1: Core Services
+    Trading & OMS Deployment   :2025-09-01, 60d
+    section Phase 2: Real-Time Data
+    WebSocket & GraphQL        :2025-11-01, 90d
+    section Phase 3: AI Integration
+    AI & Analytics Deployment  :2026-02-01, 90d
+    section Phase 4: Advanced Features
+    Voice & AR Deployment      :2026-05-01, 60d
+    section Phase 5: Compliance
+    Audit & Marketplace        :2026-07-01, 60d
+    section Phase 6: Optimization
+    Microstructure & Scaling   :2026-09-01, 90d
+```
+
+---
+
+This Deployment Guide provides a detailed framework for deploying the Nautilus Trader ATS, incorporating all features from the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document. It leverages GitOps, IaC, and observability to ensure reliability, scalability, and compliance, supported by Mermaid diagrams for clarity.
+

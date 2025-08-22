@@ -1,0 +1,193 @@
+
+
+## **Functional Requirements Document (FRD)**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:** | 2.0             |
+|:------------ |:--------------- |
+| **Date:**    | August 6, 2025  |
+| **Status:**  | Draft           |
+| **Author:**  | Vincent Pereira |
+
+---
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose of this Document**
+
+This Functional Requirements Document (FRD) provides a detailed description of the functions, behaviors, and capabilities of the Nautilus Trader Algorithmic Trading System (ATS). It translates the business needs outlined in the Business Requirements Document (BRD) into specific functional specifications that will guide the design, development, and testing of the system. This document describes *how the system will behave* to meet the business requirements, detailing user interactions, system processes, and functional capabilities.
+
+#### **1.2 Scope**
+
+The scope of this FRD is consistent with the project scope defined in the BRD.
+
+##### **In-Scope Functions:**
+
+* [cite_start]Development of a comprehensive trading platform with no-code and code-based strategy development tools[cite: 8].
+* [cite_start]Integration of real-time data feeds, backtesting engines, and live trading capabilities[cite: 9].
+* [cite_start]Deployment of an AI Assistant for natural language queries, code generation, and predictive analytics[cite: 10].
+* [cite_start]Support for multiple asset classes including stocks, ETFs, futures, options, forex, and cryptocurrencies[cite: 11, 153].
+* [cite_start]Implementation of a multi-phase development roadmap to ensure incremental delivery and enterprise readiness[cite: 12].
+* [cite_start]Enterprise-grade security features including Zero-Trust architecture, Role-Based Access Control (RBAC), and immutable audit trails[cite: 166, 167].
+
+##### **Out-of-Scope Functions:**
+
+* [cite_start]The system will not perform proprietary hardware development[cite: 14].
+* [cite_start]The system will not directly manage third-party broker platforms beyond the specified API integrations[cite: 14].
+
+#### **1.3 References**
+
+This FRD is based on the following source documents:
+
+* Business Requirements Document (BRD) - Algorithmic Trading System
+* Features, Phases & Integration Strategy - Algorithmic Trading System
+* Comprehensive System Architecture
+* Complete Requirements Document
+* Complete Designs Document
+* Complete Tasks Document
+
+#### **1.4 Definitions and Acronyms**
+
+| Term | Definition                                               |
+|:---- |:-------------------------------------------------------- |
+| AI   | [cite_start]Artificial Intelligence [cite: 17]           |
+| API  | [cite_start]Application Programming Interface [cite: 19] |
+| ATS  | [cite_start]Algorithmic Trading System [cite: 15]        |
+| BRD  | [cite_start]Business Requirements Document [cite: 16]    |
+| FIX  | [cite_start]Financial Information eXchange [cite: 23]    |
+| FRD  | Functional Requirements Document                         |
+| ML   | [cite_start]Machine Learning [cite: 18]                  |
+| OMS  | [cite_start]Order Management System [cite: 157]          |
+| RAG  | [cite_start]Retrieval-Augmented Generation [cite: 23]    |
+| RBAC | [cite_start]Role-Based Access Control [cite: 21]         |
+| UI   | [cite_start]User Interface [cite: 20]                    |
+| VaR  | Value at Risk                                            |
+
+---
+
+### **2.0 Functional Requirements**
+
+The functional requirements are categorized by system module and capability.
+
+#### **2.1 User Interfaces and Experience**
+
+##### **2.1.1 Multi-Platform Framework**
+
+* [cite_start]**FR-101:** The system SHALL provide a modern, responsive web interface built with React 18 and TypeScript that is accessible from all major web browsers[cite: 610].
+* [cite_start]**FR-102:** The system SHALL offer a Progressive Web App (PWA) that provides offline functionality and native-like installation capabilities[cite: 336, 614, 614].
+* [cite_start]**FR-103:** The system SHALL provide native mobile applications for iOS and Android, built with React Native, supporting features like push notifications and biometric authentication[cite: 614, 624].
+* [cite_start]**FR-104:** The system SHALL provide a desktop application for Windows, macOS, and Linux, built with Electron, featuring system tray integration and native notifications[cite: 614, 624].
+* [cite_start]**FR-105:** The UI SHALL update in real-time in response to market data and account changes without requiring a manual page refresh, utilizing WebSocket connections[cite: 613].
+
+##### **2.1.2 Trading Dashboard & Visualization**
+
+* [cite_start]**FR-110:** The system SHALL present a real-time trading dashboard displaying the user's current portfolio value, Profit & Loss (P&L), and open positions[cite: 620].
+* [cite_start]**FR-111:** The dashboard SHALL integrate the TradingView charting library to display real-time price data with multiple timeframes and over 50 technical indicators[cite: 653, 661].
+* [cite_start]**FR-112:** Users SHALL be able to apply and customize technical indicators on the charts, and these settings SHALL be saved across sessions[cite: 661].
+* [cite_start]**FR-113:** The dashboard SHALL feature a real-time risk monitoring interface that displays visual warnings when configured risk limits are approached[cite: 155, 662].
+
+##### **2.1.3 Order Management Interface**
+
+* [cite_start]**FR-120:** The system SHALL provide an interface to place, modify, and cancel orders for all supported asset classes[cite: 652, 660].
+* [cite_start]**FR-121:** The order entry form SHALL validate all order parameters (e.g., symbol, quantity, price) before submission and provide clear error messages for invalid entries[cite: 74, 158].
+* [cite_start]**FR-122:** The interface SHALL display real-time pre-trade risk checks (e.g., estimated margin impact) as a user constructs an order[cite: 166].
+
+#### **2.2 Strategy Development & Management**
+
+##### **2.2.1 No-Code Strategy Builder**
+
+* [cite_start]**FR-201:** The system SHALL provide a visual, drag-and-drop strategy builder using the Blockly library[cite: 71, 159, 516].
+* [cite_start]**FR-202:** The no-code builder SHALL allow users to construct trading logic by connecting blocks representing technical indicators, mathematical operators, logical conditions (if/then), and trade actions (buy/sell)[cite: 517].
+* [cite_start]**FR-203:** The system SHALL be able to generate executable Python code from the visual block arrangement created by the user[cite: 518].
+
+##### **2.2.2 AI-Assisted and Code-Based Development**
+
+* [cite_start]**FR-210:** The system SHALL provide a "Python Studio," a full-featured, code-based environment for professional developers to write, test, and debug trading strategies in Python[cite: 71, 161, 519].
+* [cite_start]**FR-211:** The system SHALL integrate an AI-Assisted Development & Debugging Agent (OpenHands) that can help users write and debug Python code for strategies and integrations[cite: 160, 227, 229].
+* [cite_start]**FR-212:** The AI agent (OpenHands) SHALL be capable of refactoring old code, expanding test coverage by generating test files, and fixing failing pipelines[cite: 234, 235, 236].
+* [cite_start]**FR-213:** The system SHALL integrate another AI agent (Codename Goose) to act as a high-level workflow orchestrator, capable of automating multi-step DevOps and engineering tasks[cite: 242, 254].
+
+#### **2.3 Backtesting and Optimization**
+
+* [cite_start]**FR-220:** The system's core backtesting engine (NautilusTrader) SHALL be event-driven and capable of simulating trading strategies against historical tick-level data[cite: 145, 173].
+* [cite_start]**FR-221:** Backtests SHALL simulate realistic market conditions by accounting for transaction costs, fees, and slippage[cite: 92].
+* [cite_start]**FR-222:** The system SHALL provide GPU-accelerated backtesting capabilities using the VectorBT library to rapidly test strategies across many parameter combinations[cite: 72, 148, 296].
+* [cite_start]**FR-223:** Upon completion of a backtest, the system SHALL generate a performance report with key metrics including Sharpe Ratio, Maximum Drawdown, and total P&L[cite: 72].
+* [cite_start]**FR-224:** The system SHALL integrate the Optuna framework to perform hyperparameter optimization on trading strategies, automatically finding the best-performing parameters[cite: 109, 492].
+
+#### **2.4 Live Trading and Broker Integration**
+
+* [cite_start]**FR-301:** The system SHALL support live trading by connecting to external brokerages through their respective APIs[cite: 73, 115].
+* [cite_start]**FR-302:** The system SHALL provide a unified broker abstraction layer to manage connections, data normalization, and order execution across all supported brokers in a consistent manner[cite: 611].
+* [cite_start]**FR-303:** The system SHALL provide full integration with Interactive Brokers (TWS/Gateway), supporting order execution and market data feeds[cite: 115, 611].
+* [cite_start]**FR-304:** The system SHALL provide full integration with Alpaca, supporting its REST API and real-time webhook updates for order status[cite: 611].
+* [cite_start]**FR-305:** The system SHALL provide a Financial Information eXchange (FIX) protocol gateway for institutional-grade connectivity[cite: 115, 158, 380].
+* [cite_start]**FR-306:** The system SHALL support advanced and algorithmic order types such as VWAP and TWAP[cite: 157].
+
+#### **2.5 AI & Analytics**
+
+##### **2.5.1 Agentic AI Assistant**
+
+* [cite_start]**FR-401:** The user SHALL be able to interact with the system using natural language commands through a chatbot interface (Lobe Chat)[cite: 75, 162].
+* [cite_start]**FR-402:** The AI assistant SHALL use a Retrieval-Augmented Generation (RAG) pipeline (RAGFlow) to process and answer questions based on user-uploaded documents like research papers and financial statements[cite: 163, 337].
+* [cite_start]**FR-403:** The AI assistant SHALL be composed of a collaborative network of specialized agents (e.g., Analyst, Researcher, Risk Manager) that interact via the Kafka event bus to fulfill user requests[cite: 164, 221].
+* [cite_start]**FR-404:** Users SHALL be able to instruct the AI assistant to perform actions such as running a backtest, retrieving portfolio status, or placing a live trade[cite: 112, 165].
+
+##### **2.5.2 Predictive Analytics and Machine Learning**
+
+* [cite_start]**FR-410:** The system SHALL integrate machine learning and deep learning models (ARIMA, LSTM, GANs) for stock forecasting and time-series prediction[cite: 76, 147, 288, 291].
+* [cite_start]**FR-411:** The system SHALL provide a real-time prediction engine using Tensorflow.js and Kafka to stream live predictions for use in trading strategies[cite: 294].
+* [cite_start]**FR-412:** The system SHALL integrate a reinforcement learning framework (FinRL) and environment (TradingGym) to develop and optimize trading strategies using RL agents[cite: 149, 302, 530].
+* [cite_start]**FR-413:** The system SHALL utilize an anomaly detection library (PyOD) to identify unusual trading patterns or system performance issues[cite: 149, 508].
+
+#### **2.6 Portfolio and Risk Management**
+
+* [cite_start]**FR-501:** The system SHALL provide real-time calculation and display of portfolio risk metrics, including Value at Risk (VaR) and exposure limits[cite: 155].
+* [cite_start]**FR-502:** The system SHALL integrate portfolio optimization libraries (PyPortfolioOpt, Riskfolio-Lib) to perform asset allocation analysis, including mean-variance optimization and hierarchical risk parity[cite: 76, 149, 500, 504].
+* [cite_start]**FR-503:** The system SHALL allow users to conduct stress tests on their portfolios by simulating various adverse market scenarios[cite: 155].
+* [cite_start]**FR-504:** The system SHALL provide functionality for portfolio rebalancing to maintain desired asset allocations[cite: 154].
+
+#### **2.7 User and System Administration**
+
+* **FR-601:** The system SHALL provide interfaces for administrators to manage users, roles, and permissions.
+* **FR-602:** The system SHALL allow administrators to configure and manage connections to external brokers and data feeds.
+* [cite_start]**FR-603:** The system SHALL provide a real-time health dashboard, integrated with Prometheus and Grafana, to monitor the status of all system components and dependencies[cite: 576].
+
+#### **2.8 Security Functional Requirements**
+
+* [cite_start]**FR-701:** The system SHALL authenticate users using the OAuth 2.0 / OpenID Connect standard[cite: 468]. [cite_start]The system SHALL support Multi-Factor Authentication (MFA)[cite: 468].
+* [cite_start]**FR-702:** The system SHALL authorize all user actions based on a predefined Role-Based Access Control (RBAC) model, ensuring users can only access permitted data and functions[cite: 167, 468].
+* [cite_start]**FR-703:** All user actions, API calls, and significant system events SHALL be logged to an immutable audit trail stored in Apache Iceberg for compliance and security purposes[cite: 167, 470].
+* [cite_start]**FR-704:** The system's CI/CD pipeline SHALL automatically scan Python code for common security vulnerabilities using a Static Application Security Testing (SAST) tool like Bandit[cite: 99, 169, 477].
+* [cite_start]**FR-705:** All sensitive data, such as API keys and user credentials, SHALL be encrypted at rest (AES-256) and in transit (TLS 1.3)[cite: 98, 468].
+
+---
+
+### **3.0 Use Cases**
+
+#### **3.1 Use Case 1: Non-Technical Trader Creates and Deploys a Strategy**
+
+* [cite_start]**Actor:** Sarah, a retail investor[cite: 79].
+* [cite_start]**Preconditions:** Sarah is logged into the ATS web platform with a verified account[cite: 80].
+* **Workflow:**
+  1. Sarah navigates to the "Strategy Builder" section of the application.
+  2. She selects the "No-Code Builder" option. [cite_start]The system displays the Blockly visual programming interface[cite: 81].
+  3. Sarah drags and drops blocks to create a moving average crossover strategy. [cite_start]She drags a "50-day SMA" block, a "200-day SMA" block, a "crosses above" operator, a "Buy" action block, and a "Sell" action block[cite: 82].
+  4. [cite_start]She configures the parameters within the blocks, selecting "AAPL" as the asset and setting the order quantity[cite: 83].
+  5. She clicks the "Run Backtest" button. [cite_start]The system processes her visual strategy against historical data and displays a performance report with metrics like P&L and Sharpe Ratio[cite: 84].
+  6. Satisfied with the results, Sarah clicks "Deploy to Live Trading." The system activates her strategy.
+* **Postcondition:** The strategy is now live and will automatically execute trades in her linked brokerage account when its conditions are met. [cite_start]The results are visible on her main dashboard[cite: 85].
+
+#### **3.2 Use Case 2: AI Assistant Provides Market Insights**
+
+* [cite_start]**Actor:** A Trader[cite: 89].
+* **Preconditions:** The trader is logged in and has the AI chat interface open.
+* **Workflow:**
+  1. [cite_start]The trader types the following query into the chat box: "What is the current market sentiment for tech stocks, and are there any unusual volume patterns for NVDA today?"[cite: 90].
+  2. [cite_start]The system's master orchestrator (LangGraph) receives the prompt and routes the tasks to the appropriate specialized agents[cite: 262].
+  3. The "Researcher Agent" accesses external news and social media feeds to perform sentiment analysis.
+  4. The "Analyst Agent" queries the real-time market data service to analyze volume patterns for the "NVDA" ticker.
+  5. The agents return their findings to LangGraph.
+  6. The AI assistant synthesizes the information into a coherent summary and presents it to the trader in the chat window.
+* [cite_start]**Postcondition:** The trader receives a data-driven summary of market sentiment and specific stock analytics, helping them make an informed decision[cite: 91].

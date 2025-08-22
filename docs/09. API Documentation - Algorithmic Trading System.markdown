@@ -1,0 +1,1013 @@
+# **Nautilus Trader API Documentation**
+
+**Version:** 3.0  
+**Status:** Draft  
+**Base URL:** `https://api.nautilus-trader.com/v1`
+
+---
+
+## **Introduction**
+
+The Nautilus Trader API provides a comprehensive interface for developers to interact programmatically with the Nautilus Trader Algorithmic Trading System (ATS). Built on a "Best-of-Breed" philosophy, the platform integrates leading open-source technologies (NautilusTrader, Apache Kafka, LangChain, etc.) into a cloud-native, microservices-based architecture. This API enables developers to build custom trading applications, integrate with third-party services, manage strategies, execute trades, and access advanced analytics, all while maintaining high performance, scalability, and security.
+
+The API follows an **API-First** principle, exposing all platform functionality through well-defined, versioned, and documented interfaces. It supports multiple protocols to cater to diverse use cases:
+
+- **REST API**: For stateless, resource-oriented interactions, ideal for standard client-server communication.
+- **WebSocket API**: For low-latency, real-time data streaming, critical for live trading and market updates.
+- **GraphQL API**: For flexible, efficient data queries and real-time subscriptions, suitable for complex dashboards.
+- **gRPC API**: For high-performance, internal service-to-service communication, optimized for microservices.
+- **FIX API**: For institutional trading, supporting the Financial Information eXchange protocol.
+
+This documentation details endpoints, data models, authentication mechanisms, error handling, and rate-limiting policies, ensuring developers can effectively leverage the platform’s capabilities. All features from the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document are incorporated, including support for no-code strategy development, AI-driven analytics, voice trading, augmented reality (AR) interfaces, and a Strategy Marketplace.
+
+**Key Objectives:**
+- Enable seamless integration with the Nautilus Trader platform for retail and professional users.
+- Support multi-asset trading (stocks, ETFs, futures, options, forex, commodities, cryptocurrencies).
+- Provide robust security through a zero-trust model.
+- Ensure low-latency performance (<10ms median for REST, <100µs for market data ingestion).
+- Facilitate scalability for 10,000+ concurrent users and >10,000 requests/second.
+
+**Mermaid Diagram: API Interaction Flow**
+
+```mermaid
+sequenceDiagram
+    participant Client as Client Application
+    participant NGINX as NGINX Ingress
+    participant AUTH as Keycloak (OAuth 2.0/OIDC)
+    participant API as API Gateway (Istio)
+    participant SERVICE as Microservices
+    participant KAFKA as Apache Kafka
+    participant STORAGE as Data Storage
+
+    Client->>NGINX: HTTPS/WebSocket Request
+    NGINX->>AUTH: Validate JWT
+    AUTH-->>NGINX: Token Valid
+    NGINX->>API: Forward Request
+    API->>SERVICE: Route to Microservice
+    SERVICE->>KAFKA: Publish Event (e.g., trade.order.submitted)
+    SERVICE->>STORAGE: Persist Data (PostgreSQL, ClickHouse, etc.)
+    SERVICE-->>API: Response
+    API->>KAFKA: Publish Response Event (e.g., trade.order.filled)
+    KAFKA->>Client: Stream Update via WebSocket
+    API-->>NGINX: Response
+    NGINX-->>Client: Response
+```
+
+---
+
+## **Authentication**
+
+The Nautilus Trader API enforces a **zero-trust** security model, requiring authentication and authorization for all requests. Authentication is managed via **OAuth 2.0** and **OpenID Connect (OIDC)** through Keycloak, ensuring secure user and application access. API keys are available for service-to-service communication, and Role-Based Access Control (RBAC) governs permissions.
+
+### **Authentication Flow**
+
+1. **Obtain Credentials**: Register your application to receive an `API Key` and `Secret` from the Nautilus Trader developer portal.
+2. **User Authorization**: Redirect users to the Keycloak authorization endpoint (`/auth`) for login and consent. Users authenticate via credentials, MFA (biometric, TOTP), or SSO (LDAP/AD).
+3. **Receive Authorization Code**: Upon successful login, Keycloak redirects to your application’s callback URL with a temporary `authorization_code`.
+4. **Exchange for Tokens**: Your server exchanges the `authorization_code`, `API Key`, and `Secret` for an `access_token` (JWT) and `refresh_token` via the token endpoint (`/token`).
+5. **Make Authenticated Requests**: Include the `access_token` in the `Authorization` header as a Bearer token for all API requests.
+
+**Example Authorization Header:**
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### **Access Tokens (JWT)**
+
+- **Lifetime**: Access tokens are short-lived (e.g., 15 minutes) for security.
+- **Payload**: Contains `user_id`, `role` (e.g., `trader`, `quant`, `admin`), and `scopes` for RBAC enforcement.
+- **Refresh Tokens**: Long-lived tokens used to obtain new access tokens without re-authentication.
+- **Validation**: The API Gateway (Istio) validates JWTs for every request, rejecting invalid or expired tokens with a `401 Unauthorized` response.
+
+**Example JWT Payload:**
+
+```json
+{
+  "sub": "user_12345",
+  "role": "trader",
+  "scopes": ["orders:read", "orders:write", "portfolio:read"],
+  "exp": 1692744321,
+  "iat": 1692743721
+}
+```
+
+### **API Keys**
+
+For automated scripts or service-to-service communication, long-lived API keys are supported. Include the key in the `X-API-KEY` header:
+
+```http
+X-API-KEY: sk_abc123xyz789
+```
+
+**Security Notes:**
+- API keys MUST be stored securely using HashiCorp Vault or equivalent.
+- API keys are subject to rate limits and RBAC restrictions.
+- All sensitive endpoints require MFA for user authentication.
+
+---
+
+## **REST API Reference**
+
+The REST API provides a resource-oriented interface using standard HTTP verbs (GET, POST, PUT, DELETE) and JSON payloads. It is implemented with FastAPI, documented via OpenAPI/Swagger, and versioned at `/v1`. Key performance targets include <10ms median latency and >10,000 requests/second throughput.
+
+### **Orders**
+
+#### `POST /v1/orders`
+
+Submits a new trade order to the Order Management System (OMS), which performs pre-trade risk and compliance checks before routing to a broker.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `account_id`  | `string` | Yes      | UUID of the trading account.                                    |
+| `symbol`      | `string` | Yes      | Trading symbol (e.g., `AAPL`, `EUR/USD`, `BTC/USD`).            |
+| `side`        | `enum`   | Yes      | `BUY` or `SELL`.                                                |
+| `type`        | `enum`   | Yes      | `MARKET`, `LIMIT`, `STOP`, `STOP_LIMIT`, `VWAP`, `TWAP`, `ICEBERG`. |
+| `quantity`    | `number` | Yes      | Number of units to trade (e.g., 100 shares).                    |
+| `limit_price` | `number` | No       | Price for `LIMIT` or `STOP_LIMIT` orders.                      |
+| `stop_price`  | `number` | No       | Stop price for `STOP` or `STOP_LIMIT` orders.                  |
+| `strategy_id` | `string` | No       | UUID of the associated strategy (optional for manual orders).   |
+
+**Example Request:**
+
+```http
+POST /v1/orders
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "account_id": "acc_12345",
+  "symbol": "AAPL",
+  "side": "BUY",
+  "type": "LIMIT",
+  "quantity": 100,
+  "limit_price": 150.00,
+  "strategy_id": "strat_67890"
+}
+```
+
+**Responses:**
+
+- **202 Accepted**: Order submitted for processing.
+  ```json
+  {
+    "order_id": "ord_abc123",
+    "status": "PENDING",
+    "message": "Order submitted successfully"
+  }
+  ```
+- **400 Bad Request**: Invalid or missing fields.
+  ```json
+  {
+    "error": "Invalid symbol or quantity"
+  }
+  ```
+- **403 Forbidden**: Insufficient permissions.
+- **429 Too Many Requests**: Rate limit exceeded.
+
+#### `GET /v1/orders/{order_id}`
+
+Retrieves the status and details of a specific order.
+
+**URL Parameters:**
+
+| Parameter  | Type     | Description                         |
+|:---------- |:-------- |:----------------------------------- |
+| `order_id` | `string` | UUID of the order.                  |
+
+**Example Response:**
+
+```json
+{
+  "order_id": "ord_abc123",
+  "account_id": "acc_12345",
+  "symbol": "AAPL",
+  "side": "BUY",
+  "type": "LIMIT",
+  "quantity": 100,
+  "limit_price": 150.00,
+  "status": "FILLED",
+  "filled_quantity": 100,
+  "fill_price": 149.95,
+  "created_at": "2025-08-21T03:12:00Z",
+  "updated_at": "2025-08-21T03:12:05Z"
+}
+```
+
+#### `PUT /v1/orders/{order_id}`
+
+Modifies an existing order (e.g., updates quantity or price).
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `quantity`    | `number` | No       | Updated quantity.                                               |
+| `limit_price` | `number` | No       | Updated limit price for `LIMIT` or `STOP_LIMIT` orders.         |
+| `stop_price`  | `number` | No       | Updated stop price for `STOP` or `STOP_LIMIT` orders.           |
+
+**Example Request:**
+
+```http
+PUT /v1/orders/ord_abc123
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "quantity": 150,
+  "limit_price": 151.00
+}
+```
+
+**Responses:**
+
+- **200 OK**: Order updated successfully.
+- **400 Bad Request**: Invalid update parameters.
+- **404 Not Found**: Order does not exist.
+
+#### `DELETE /v1/orders/{order_id}`
+
+Cancels an existing order.
+
+**Responses:**
+
+- **200 OK**: Order canceled.
+  ```json
+  {
+    "order_id": "ord_abc123",
+    "status": "CANCELED"
+  }
+  ```
+- **404 Not Found**: Order does not exist.
+
+### **Strategies**
+
+#### `POST /v1/strategies`
+
+Creates or updates a trading strategy.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `user_id`     | `string` | Yes      | UUID of the user.                                               |
+| `name`        | `string` | Yes      | Strategy name (e.g., "VW MACD Crossover").                      |
+| `code`        | `string` | Yes      | Python code or Blockly JSON for the strategy.                   |
+| `parameters`  | `object` | No       | Strategy parameters (e.g., `{"sma_period": 20}`).               |
+| `asset_class` | `enum`   | Yes      | `STOCKS`, `ETFS`, `FUTURES`, `OPTIONS`, `FOREX`, `CRYPTO`.      |
+
+**Example Request:**
+
+```http
+POST /v1/strategies
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "user_id": "user_12345",
+  "name": "VW MACD Crossover",
+  "code": "def strategy(data): ...",
+  "parameters": {"vw_macd_fast": 12, "vw_macd_slow": 26},
+  "asset_class": "STOCKS"
+}
+```
+
+**Responses:**
+
+- **201 Created**: Strategy created.
+  ```json
+  {
+    "strategy_id": "strat_67890",
+    "name": "VW MACD Crossover",
+    "version": "1.0"
+  }
+  ```
+- **400 Bad Request**: Invalid code or parameters.
+
+#### `GET /v1/strategies/{strategy_id}`
+
+Retrieves details of a specific strategy.
+
+**Example Response:**
+
+```json
+{
+  "strategy_id": "strat_67890",
+  "user_id": "user_12345",
+  "name": "VW MACD Crossover",
+  "code": "def strategy(data): ...",
+  "parameters": {"vw_macd_fast": 12, "vw_macd_slow": 26},
+  "asset_class": "STOCKS",
+  "created_at": "2025-08-21T03:12:00Z"
+}
+```
+
+### **Backtesting**
+
+#### `POST /v1/backtest`
+
+Runs a backtest for a strategy.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `strategy_id` | `string` | Yes      | UUID of the strategy to backtest.                               |
+| `start_date`  | `string` | Yes      | Start date (ISO 8601, e.g., `2024-01-01`).                     |
+| `end_date`    | `string` | Yes      | End date (ISO 8601, e.g., `2025-08-21`).                       |
+| `symbols`     | `array`  | Yes      | List of symbols to test (e.g., `["AAPL", "GOOGL"]`).           |
+| `parameters`  | `object` | No       | Override parameters for the backtest.                           |
+
+**Example Request:**
+
+```http
+POST /v1/backtest
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "strategy_id": "strat_67890",
+  "start_date": "2024-01-01",
+  "end_date": "2025-08-21",
+  "symbols": ["AAPL", "GOOGL"],
+  "parameters": {"vw_macd_fast": 10}
+}
+```
+
+**Responses:**
+
+- **202 Accepted**: Backtest queued.
+  ```json
+  {
+    "backtest_id": "bt_12345",
+    "status": "QUEUED"
+  }
+  ```
+- **400 Bad Request**: Invalid parameters or strategy.
+
+#### `GET /v1/backtest/{backtest_id}`
+
+Retrieves backtest results.
+
+**Example Response:**
+
+```json
+{
+  "backtest_id": "bt_12345",
+  "strategy_id": "strat_67890",
+  "status": "COMPLETED",
+  "results": {
+    "sharpe_ratio": 1.5,
+    "max_drawdown": -0.12,
+    "total_pnl": 2500.75,
+    "trades": [
+      {"symbol": "AAPL", "entry_price": 150.00, "exit_price": 155.00, "pnl": 500.00}
+    ]
+  },
+  "completed_at": "2025-08-21T03:12:10Z"
+}
+```
+
+### **Portfolio**
+
+#### `GET /v1/portfolio`
+
+Retrieves the current portfolio state.
+
+**Example Response:**
+
+```json
+{
+  "portfolio_value": 250675.50,
+  "unrealized_pnl": 1250.75,
+  "realized_pnl_today": 500.00,
+  "positions": [
+    {"symbol": "AAPL", "quantity": 100, "average_entry_price": 150.00, "market_value": 15100.00},
+    {"symbol": "GOOGL", "quantity": 50, "average_entry_price": 2800.00, "market_value": 140500.00}
+  ]
+}
+```
+
+#### `POST /v1/portfolio/optimize`
+
+Optimizes portfolio allocations using PyPortfolioOpt and Riskfolio-Lib.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `symbols`     | `array`  | Yes      | List of symbols to optimize (e.g., `["AAPL", "GOOGL"]`).        |
+| `method`      | `enum`   | Yes      | Optimization method (`MEAN_VARIANCE`, `RISK_PARITY`).           |
+| `constraints` | `object` | No       | Constraints (e.g., `{"max_weight": 0.3}`).                     |
+
+**Example Request:**
+
+```http
+POST /v1/portfolio/optimize
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "symbols": ["AAPL", "GOOGL", "TSLA"],
+  "method": "MEAN_VARIANCE",
+  "constraints": {"max_weight": 0.3}
+}
+```
+
+**Responses:**
+
+- **200 OK**: Optimization completed.
+  ```json
+  {
+    "weights": {"AAPL": 0.3, "GOOGL": 0.4, "TSLA": 0.3},
+    "expected_return": 0.08,
+    "volatility": 0.15
+  }
+  ```
+
+### **Risk Management**
+
+#### `GET /v1/risk/metrics`
+
+Retrieves real-time risk metrics.
+
+**Example Response:**
+
+```json
+{
+  "var_95": 5000.00,
+  "expected_shortfall": 7500.00,
+  "volatility": 0.12,
+  "exposure": {"AAPL": 0.4, "GOOGL": 0.3}
+}
+```
+
+#### `GET /v1/risk/alerts`
+
+Retrieves recent risk alerts.
+
+**Example Response:**
+
+```json
+{
+  "alerts": [
+    {
+      "alert_id": "alert_123",
+      "type": "ANOMALY",
+      "message": "Unusual trading volume detected for AAPL",
+      "timestamp": "2025-08-21T03:12:00Z"
+    }
+  ]
+}
+```
+
+### **Analytics**
+
+#### `POST /v1/analytics/predict`
+
+Runs predictive modeling for market patterns.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `symbol`      | `string` | Yes      | Symbol to predict (e.g., `AAPL`).                               |
+| `model`       | `enum`   | Yes      | Model type (`LSTM`, `REALTIME`).                               |
+| `horizon`     | `string` | Yes      | Prediction horizon (e.g., `1h`, `1d`).                         |
+
+**Example Request:**
+
+```http
+POST /v1/analytics/predict
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "symbol": "AAPL",
+  "model": "LSTM",
+  "horizon": "1d"
+}
+```
+
+**Responses:**
+
+- **200 OK**: Prediction generated.
+  ```json
+  {
+    "symbol": "AAPL",
+    "prediction": 152.50,
+    "confidence": 0.92,
+    "timestamp": "2025-08-21T03:12:00Z"
+  }
+  ```
+
+#### `POST /v1/analytics/sentiment`
+
+Analyzes sentiment from news and social media.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `symbol`      | `string` | Yes      | Symbol for sentiment analysis (e.g., `AAPL`).                   |
+| `sources`     | `array`  | Yes      | Sources (e.g., `["news", "social"]`).                          |
+
+**Example Response:**
+
+```json
+{
+  "symbol": "AAPL",
+  "sentiment_score": 0.75,
+  "details": {"news": 0.8, "social": 0.7},
+  "timestamp": "2025-08-21T03:12:00Z"
+}
+```
+
+### **Market Data**
+
+#### `GET /v1/market/historical`
+
+Retrieves historical market data.
+
+**Query Parameters:**
+
+| Parameter     | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `symbol`      | `string` | Yes      | Symbol (e.g., `AAPL`).                                          |
+| `start_date`  | `string` | Yes      | Start date (ISO 8601).                                         |
+| `end_date`    | `string` | Yes      | End date (ISO 8601).                                           |
+| `resolution`  | `enum`   | Yes      | Data resolution (`TICK`, `1m`, `1h`, `1d`).                     |
+
+**Example Response:**
+
+```json
+{
+  "symbol": "AAPL",
+  "data": [
+    {"timestamp": "2025-08-21T03:00:00Z", "open": 150.00, "high": 151.00, "low": 149.50, "close": 150.75, "volume": 100000}
+  ]
+}
+```
+
+### **Voice Trading**
+
+#### `POST /v1/voice/command`
+
+Processes a voice-based trading command.
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `command`     | `string` | Yes      | Natural language command (e.g., “Buy 100 AAPL at market”).      |
+
+**Example Response:**
+
+```json
+{
+  "order_id": "ord_abc123",
+  "status": "PENDING",
+  "message": "Order submitted for 100 AAPL at market price"
+}
+```
+
+### **Augmented Reality (AR)**
+
+#### `GET /v1/ar/visualize`
+
+Streams AR-compatible data for 3D visualization.
+
+**Query Parameters:**
+
+| Parameter     | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `symbols`     | `array`  | Yes      | Symbols to visualize (e.g., `["AAPL", "GOOGL"]`).               |
+
+**Example Response:**
+
+```json
+{
+  "symbols": ["AAPL", "GOOGL"],
+  "data": [
+    {"symbol": "AAPL", "price": 150.75, "volume": 100000, "timestamp": "2025-08-21T03:12:00Z"}
+  ]
+}
+```
+
+---
+
+## **WebSocket API Reference**
+
+The WebSocket API enables real-time data streaming for market data, portfolio updates, risk alerts, and AI responses. It uses the `wss://api.nautilus-trader.com/ws` endpoint.
+
+### **Channels**
+
+- **marketdata:{symbol}**: Streams real-time tick or bar data for a symbol.
+  ```json
+  {
+    "event": "market.ticks",
+    "symbol": "AAPL",
+    "price": 150.75,
+    "volume": 1000,
+    "timestamp": "2025-08-21T03:12:00Z"
+  }
+  ```
+- **portfolio:{user_id}**: Streams portfolio updates.
+  ```json
+  {
+    "event": "portfolio.update",
+    "user_id": "user_12345",
+    "portfolio_value": 250675.50,
+    "unrealized_pnl": 1250.75
+  }
+  ```
+- **risk:{user_id}**: Streams risk alerts.
+  ```json
+  {
+    "event": "risk.alert",
+    "alert_id": "alert_123",
+    "message": "VaR threshold breached",
+    "timestamp": "2025-08-21T03:12:00Z"
+  }
+  ```
+- **ai:{user_id}**: Streams AI assistant responses.
+  ```json
+  {
+    "event": "ai.response",
+    "query_id": "query_123",
+    "response": "Backtest completed with Sharpe Ratio 1.5",
+    "timestamp": "2025-08-21T03:12:00Z"
+  }
+  ```
+- **support:{user_id}**: Streams customer service bot responses.
+  ```json
+  {
+    "event": "support.response",
+    "query_id": "support_123",
+    "response": "To reset your API key, visit the developer portal.",
+    "timestamp": "2025-08-21T03:12:00Z"
+  }
+  ```
+
+**Connection Flow:**
+
+```mermaid
+sequenceDiagram
+    participant Client as Client
+    participant WS as WebSocket Server
+
+    Client->>WS: Connect wss://api.nautilus-trader.com/ws
+    Client->>WS: Authenticate with JWT
+    WS-->>Client: Connection Established
+    Client->>WS: Subscribe to marketdata:AAPL
+    WS-->>Client: Stream Ticks
+    Client->>WS: Unsubscribe from marketdata:AAPL
+    WS-->>Client: Acknowledgment
+```
+
+---
+
+## **GraphQL API Reference**
+
+The GraphQL API, hosted at `https://api.nautilus-trader.com/graphql`, provides flexible queries and real-time subscriptions for efficient data retrieval. It is ideal for complex dashboards and data-driven applications.
+
+### **Queries**
+
+#### `dashboardData`
+
+Fetches comprehensive data for a trading dashboard.
+
+**Example Query:**
+
+```graphql
+query GetDashboardData($userId: ID!) {
+  dashboardData(userId: $userId) {
+    portfolio {
+      value
+      unrealizedPnl
+      positions {
+        symbol
+        quantity
+        averageEntryPrice
+      }
+    }
+    riskMetrics {
+      var95
+      volatility
+    }
+    watchList(name: "Favorites") {
+      symbol
+      price
+    }
+  }
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "data": {
+    "dashboardData": {
+      "portfolio": {
+        "value": 250675.50,
+        "unrealizedPnl": 1250.75,
+        "positions": [
+          {"symbol": "AAPL", "quantity": 100, "averageEntryPrice": 150.00},
+          {"symbol": "GOOGL", "quantity": 50, "averageEntryPrice": 2800.00}
+        ]
+      },
+      "riskMetrics": {
+        "var95": 5000.00,
+        "volatility": 0.12
+      },
+      "watchList": [
+        {"symbol": "TSLA", "price": 900.50},
+        {"symbol": "MSFT", "price": 305.25}
+      ]
+    }
+  }
+}
+```
+
+#### `strategyDetails`
+
+Retrieves details of a strategy.
+
+**Example Query:**
+
+```graphql
+query GetStrategy($strategyId: ID!) {
+  strategyDetails(strategyId: $strategyId) {
+    name
+    code
+    parameters
+    assetClass
+    performance {
+      sharpeRatio
+      maxDrawdown
+    }
+  }
+}
+```
+
+### **Subscriptions**
+
+#### `onOrderStatusUpdate`
+
+Subscribes to real-time order status updates.
+
+**Example Subscription:**
+
+```graphql
+subscription OrderStatus($orderId: ID!) {
+  onOrderStatusUpdate(orderId: $orderId) {
+    status
+    filledQuantity
+    fillPrice
+  }
+}
+```
+
+**Example Data:**
+
+```json
+{
+  "data": {
+    "onOrderStatusUpdate": {
+      "status": "PARTIALLY_FILLED",
+      "filledQuantity": 50,
+      "fillPrice": 149.95
+    }
+  }
+}
+```
+
+#### `onMarketDataUpdate`
+
+Subscribes to real-time market data.
+
+**Example Subscription:**
+
+```graphql
+subscription MarketData($symbol: String!) {
+  onMarketDataUpdate(symbol: $symbol) {
+    price
+    volume
+    timestamp
+  }
+}
+```
+
+---
+
+## **gRPC API Reference**
+
+The gRPC API is used for high-performance, internal service-to-service communication and select external endpoints. It is defined using Protocol Buffers (`.proto` files) and hosted at `grpc.nautilus-trader.com:443`.
+
+**Example Service Definition:**
+
+```proto
+service TradingService {
+  rpc SubmitOrder(OrderRequest) returns (OrderResponse);
+  rpc GetPortfolio(PortfolioRequest) returns (PortfolioResponse);
+}
+
+message OrderRequest {
+  string account_id = 1;
+  string symbol = 2;
+  string side = 3;
+  string type = 4;
+  double quantity = 5;
+  optional double limit_price = 6;
+}
+
+message OrderResponse {
+  string order_id = 1;
+  string status = 2;
+}
+```
+
+**Key Endpoints:**
+
+- `SubmitOrder`: Submits a new order (similar to REST `POST /v1/orders`).
+- `GetPortfolio`: Retrieves portfolio state.
+- **Latency**: <1ms for internal calls.
+
+---
+
+## **FIX API Reference**
+
+The FIX API supports institutional trading using the Financial Information eXchange protocol (version 4.4 or higher). It is implemented with QuickFIX/J and FIX8.
+
+**Key Messages:**
+
+- **NewOrderSingle**: Submits a new order.
+- **OrderCancelRequest**: Cancels an existing order.
+- **ExecutionReport**: Reports order status and fills.
+
+**Example NewOrderSingle:**
+
+```
+8=FIX.4.4|9=126|35=D|34=1|49=SENDER|56=TARGET|52=20250821-03:12:00|11=ord_abc123|55=AAPL|54=1|38=100|40=2|44=150.00|10=123|
+```
+
+**Configuration:**
+
+- **Host**: `fix.nautilus-trader.com:443`
+- **Session**: Configurable via FIX Gateway settings.
+
+---
+
+## **Data Models**
+
+| Object        | Field                 | Type      | Description                                          |
+|:------------- |:--------------------- |:--------- |:---------------------------------------------------- |
+| **Order**     | `order_id`            | `string`  | UUID of the order.                                   |
+|               | `account_id`          | `string`  | UUID of the account.                                 |
+|               | `symbol`              | `string`  | Trading symbol.                                      |
+|               | `side`                | `enum`    | `BUY`, `SELL`.                                       |
+|               | `type`                | `enum`    | `MARKET`, `LIMIT`, `STOP`, `STOP_LIMIT`, `VWAP`, `TWAP`, `ICEBERG`. |
+|               | `quantity`            | `number`  | Total quantity ordered.                              |
+|               | `status`              | `enum`    | `PENDING`, `FILLED`, `PARTIALLY_FILLED`, `CANCELED`. |
+|               | `filled_quantity`     | `number`  | Quantity filled.                                     |
+|               | `fill_price`          | `number`  | Average fill price.                                  |
+| **Position**  | `symbol`              | `string`  | Trading symbol.                                      |
+|               | `quantity`            | `number`  | Units held.                                          |
+|               | `average_entry_price` | `number`  | Average entry price.                                 |
+|               | `market_value`        | `number`  | Current market value.                                |
+| **Portfolio** | `portfolio_value`     | `number`  | Total portfolio value.                               |
+|               | `unrealized_pnl`      | `number`  | Unrealized profit/loss.                              |
+|               | `realized_pnl_today`  | `number`  | Realized profit/loss today.                          |
+|               | `positions`           | `array`   | List of Position objects.                            |
+| **Tick**      | `timestamp`           | `string`  | ISO 8601 timestamp.                                  |
+|               | `price`               | `number`  | Trade price.                                         |
+|               | `volume`              | `number`  | Trade volume.                                        |
+| **Bar**       | `timestamp`           | `string`  | ISO 8601 timestamp.                                  |
+|               | `open`                | `number`  | Open price.                                          |
+|               | `high`                | `number`  | High price.                                          |
+|               | `low`                 | `number`  | Low price.                                           |
+|               | `close`               | `number`  | Close price.                                         |
+|               | `volume`              | `number`  | Volume.                                              |
+
+---
+
+## **Error Handling & Rate Limiting**
+
+### **HTTP Status Codes**
+
+| Code                        | Meaning                                                                                           |
+|:--------------------------- |:------------------------------------------------------------------------------------------------- |
+| `200 OK`                    | Request successful.                                                                       |
+| `201 Created`               | Resource created (e.g., new strategy).                                                    |
+| `202 Accepted`              | Request accepted for asynchronous processing (e.g., order submission, backtest).          |
+| `400 Bad Request`           | Invalid or malformed request.                                                             |
+| `401 Unauthorized`          | Invalid or missing authentication credentials.                                            |
+| `403 Forbidden`             | Insufficient permissions.                                                                 |
+| `404 Not Found`             | Resource not found.                                                                       |
+| `429 Too Many Requests`     | Rate limit exceeded.                                                                     |
+| `500 Internal Server Error` | Unexpected server error.                                                                 |
+
+**Example Error Response:**
+
+```json
+{
+  "error": "Invalid symbol",
+  "details": "Symbol 'XYZ' is not supported",
+  "code": 400
+}
+```
+
+### **Rate Limiting**
+
+- **Limit**: 10,000 requests/second for authenticated users, 1,000 requests/second for API keys.
+- **Response**: `429 Too Many Requests` with `Retry-After` header (e.g., `Retry-After: 60`).
+- **Mitigation**: Implement exponential backoff in client applications.
+
+---
+
+## **Integration Examples**
+
+### **Python Client (REST)**
+
+```python
+import requests
+
+BASE_URL = "https://api.nautilus-trader.com/v1"
+TOKEN = "<access_token>"
+
+def submit_order(account_id, symbol, side, type, quantity, limit_price=None):
+    headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+    payload = {
+        "account_id": account_id,
+        "symbol": symbol,
+        "side": side,
+        "type": type,
+        "quantity": quantity,
+        "limit_price": limit_price
+    }
+    response = requests.post(f"{BASE_URL}/orders", json=payload, headers=headers)
+    return response.json()
+
+# Example: Submit a limit order for 100 AAPL shares
+result = submit_order("acc_12345", "AAPL", "BUY", "LIMIT", 100, 150.00)
+print(result)
+```
+
+### **JavaScript Client (WebSocket)**
+
+```javascript
+const ws = new WebSocket("wss://api.nautilus-trader.com/ws", ["Bearer", "<access_token>"]);
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({ event: "subscribe", channel: "marketdata:AAPL" }));
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log("Market Data:", data);
+};
+```
+
+---
+
+## **Phased Implementation**
+
+The API is rolled out in alignment with the six-phase development roadmap:
+
+- **Phase 0**: API key generation and OAuth 2.0/OIDC setup with Keycloak.
+- **Phase 1**: Core REST endpoints (`/orders`, `/portfolio`, `/strategies`, `/backtest`).
+- **Phase 2**: WebSocket channels (`marketdata`, `portfolio`) and GraphQL queries.
+- **Phase 3**: AI-driven endpoints (`/analytics`, `/voice`) and subscriptions.
+- **Phase 4**: FIX API and smart order routing.
+- **Phase 5**: Compliance and audit endpoints.
+- **Phase 6**: AR visualization, Strategy Marketplace, and market microstructure APIs.
+
+**Mermaid Gantt Chart:**
+
+```mermaid
+gantt
+    title Nautilus Trader API Development Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 0: Authentication
+    OAuth 2.0 & API Keys      :2025-08-01, 30d
+    section Phase 1: Core REST
+    Orders & Portfolio APIs   :2025-09-01, 60d
+    section Phase 2: WebSocket & GraphQL
+    Real-Time Streaming       :2025-11-01, 90d
+    section Phase 3: AI Integration
+    Analytics & Voice APIs    :2026-02-01, 90d
+    section Phase 4: FIX & Routing
+    FIX API & Smart Routing   :2026-05-01, 60d
+    section Phase 5: Compliance
+    Audit & Compliance APIs   :2026-07-01, 60d
+    section Phase 6: Advanced Features
+    AR & Marketplace APIs     :2026-09-01, 90d
+```
+
+---
+
+This API documentation provides a comprehensive guide to the Nautilus Trader platform, covering all features from the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document. It includes detailed endpoint descriptions, data models, and integration examples, supported by Mermaid diagrams for clarity.
+

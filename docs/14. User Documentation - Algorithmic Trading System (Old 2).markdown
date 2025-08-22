@@ -1,0 +1,185 @@
+
+
+## **Nautilus Trader User Documentation**
+
+**Welcome to Nautilus Trader\!** 🚀
+
+| **Version:**      | 2.0            |
+|:----------------- |:-------------- |
+| **Last Updated:** | August 6, 2025 |
+| **Audience:**     | All Users      |
+
+-----
+
+### **1.0 Introduction**
+
+Welcome to Nautilus Trader, a next-generation algorithmic trading platform designed to empower everyone from first-time investors to professional quantitative analysts. Our mission is to **democratize algorithmic trading** by providing powerful, intuitive, and intelligent tools in a single, unified system.
+
+This guide will walk you through everything you need to know to get started, navigate the platform, and harness its full potential. Whether you want to build strategies without writing a single line of code, command a powerful AI assistant with plain English, or develop complex quantitative models in a professional Python environment, you've come to the right place.
+
+-----
+
+### **2.0 Getting Started**
+
+Let's get you set up and ready to trade.
+
+#### **2.1 Creating Your Account**
+
+1. Navigate to the Nautilus Trader homepage and click "Sign Up."
+2. Enter your details to create your account.
+3. You will receive a verification email. Click the link in the email to confirm your account.
+
+#### **2.2 Your First Login & Securing Your Account**
+
+Security is our top priority. Upon your first login, you will be prompted to set up **Multi-Factor Authentication (MFA)**.
+
+1. Log in with your new credentials.
+2. Follow the on-screen instructions to link your account with an authenticator app (like Google Authenticator or Authy) on your smartphone.
+3. Scan the QR code and enter the 6-digit code from your app to complete the setup.
+
+From now on, you will need both your password and a code from your authenticator app to log in, providing a critical layer of security for your account.
+
+#### **2.3 Connecting a Brokerage Account**
+
+Nautilus Trader is a platform for managing your strategies; your funds and positions remain securely with your broker. You must connect a brokerage account to enable trading.
+
+1. Navigate to the **"Settings"** page from the main dashboard.
+2. Go to the **"Broker Integrations"** tab.
+3. Click **"Add New Broker"** and select your broker from the list (e.g., **Interactive Brokers**, **Alpaca**).
+4. Follow the secure on-screen instructions to enter your broker's API keys. These keys create a secure link allowing Nautilus Trader to manage trades on your behalf.
+   * **Note:** Your credentials are encrypted and stored securely using enterprise-grade secret management.
+
+-----
+
+### **3.0 Navigating the Dashboard**
+
+The Dashboard is your mission control. It's a real-time, customizable view of your entire trading world.
+
+* **Portfolio View:** At the top, you'll see your key portfolio metrics:
+  * **Portfolio Value:** The total current value of your connected account(s).
+  * **Unrealized P\&L:** The current profit or loss on your open positions.
+  * **Realized P\&L:** The profit or loss from trades you've closed today.
+* **Positions:** A detailed list of all your current holdings, including the quantity, average entry price, and current market value.
+* **Charts (TradingView):** A professional-grade, interactive charting panel powered by TradingView. You can view multiple assets, apply over 50 technical indicators (like Moving Averages, RSI, etc.), and use drawing tools to perform technical analysis.
+* **Watchlist:** A customizable list of assets you want to monitor closely.
+* **Notifications:** An area where you'll receive real-time alerts about trade executions, risk limit warnings, or insights from the AI Assistant.
+
+-----
+
+### **4.0 The Three Ways to Trade: Find Your Perfect Workflow**
+
+Nautilus Trader is designed to adapt to you. We offer three distinct, powerful ways to develop, test, and deploy your trading strategies.
+
+#### **4.1 For the Everyday Investor: The No-Code Strategy Builder** 🎨
+
+Want to automate your trading ideas without writing any code? The No-Code Builder is for you. It uses a simple, visual drag-and-drop interface powered by **Blockly**.
+
+**Tutorial: Creating a Simple Moving Average Crossover Strategy**
+
+1. **Open the Builder:** From the main menu, navigate to **"Strategies" -\> "No-Code Builder."**
+2. **Create a New Strategy:** Click "Create New" and give your strategy a name, like "My First Crossover."
+3. **Define Your Trigger:**
+   * From the "Market Data" blocks, drag a `When...` block onto the canvas.
+   * From the "Indicators" blocks, drag a `Moving Average` block and drop it into the `When...` block. Set its period to `10`.
+   * From the "Logic" blocks, drag a `crosses above` block.
+   * Drag another `Moving Average` block, set its period to `50`, and connect it.
+   * Your trigger should now read: **"When MA(10) crosses above MA(50) for symbol AAPL..."**
+4. **Define Your Action:**
+   * From the "Actions" blocks, drag a `Place Market Order` block and connect it inside the `When...` block.
+   * Set the parameters: `Side: BUY`, `Quantity: 100`.
+5. **Backtest It:** Click the **"Backtest"** button. Select a date range and let the engine run your strategy against historical data. You'll get a detailed report with key metrics like **Sharpe Ratio** and **Maximum Drawdown** to see how it would have performed.
+6. **Deploy It:** Happy with the results? Click **"Deploy"** and assign the strategy to your paper or live trading account. It's that simple\!
+
+#### **4.2 For the Power User: The Agentic AI Assistant** 🤖
+
+This is your conversational partner for trading, research, and analysis. Powered by a sophisticated network of AI agents, you can command it using plain English through the **Lobe Chat** interface.
+
+**What you can do with the AI Assistant:**
+
+* **Get Market Insights:**
+  
+  * `"What's the latest news on Tesla?"`
+  * `"Show me a 1-hour chart for BTC/USD with RSI and MACD."`
+  * `"What was the market sentiment for tech stocks yesterday?"`
+
+* **Manage Your Portfolio:**
+  
+  * `"What is my current exposure to the energy sector?"`
+  * `"Place a limit order to sell 50 shares of MSFT at $350."`
+
+* **Perform Complex Analysis & Workflows:**
+  
+  * `"Run a backtest on my 'Momentum' strategy using SPY data from the last 5 years."`
+  * **The Ultimate Command:** `_Backtest my 'Volatility' strategy on QQQ from 2020 to today. If the Sharpe Ratio is above 1.5 and the max drawdown is less than 20%, deploy it to my live Alpaca account._` The AI will execute this entire multi-step workflow for you.
+
+* **Analyze Documents (RAG):**
+  
+  * Have a PDF of a new research paper or a company's quarterly report? Just upload it to the chat\!
+  * You can then ask: `_"According to this document, what are the main risks outlined in the report?"_` The AI will read the document and give you a precise, cited answer.
+
+#### **4.3 For the Professional Quant: The Python Studio** 💻
+
+The Python Studio is a full-featured, browser-based development environment for professional quantitative analysts who need maximum power and flexibility.
+
+**Key Features:**
+
+* **NautilusTrader Engine:** Write your strategies in Python using the high-performance, institutional-grade NautilusTrader framework.
+* **AI Co-pilot (OpenHands):** You're never coding alone. The studio has an integrated AI assistant specifically trained to help with Python code.
+  * Stuck on a bug? Just ask: `_"@OpenHands, I'm getting a KeyError on line 42, can you help me debug?"_`
+  * Need to improve performance? `_"@OpenHands, can you refactor this function to be more efficient?"_`
+* **Full Lifecycle Management:** Write, debug, backtest, and deploy your most complex strategies directly from the studio.
+
+**Example Basic Strategy:**
+
+```python
+# A simple strategy to buy when the price crosses above a moving average
+from nautilus_trader.model.strategy import Strategy
+from nautilus_trader.model.data import Bar
+from nautilus_trader.indicator import MovingAverage
+
+class MySimpleStrategy(Strategy):
+    def on_start(self):
+        self.ma = MovingAverage(period=50)
+        self.add_indicator(self.ma)
+
+    def on_bar(self, bar: Bar):
+        if not self.ma.is_ready:
+            return
+
+        if bar.close > self.ma.value:
+            # Logic to submit a buy order
+            self.log.info("Price is above MA, considering a buy.")
+```
+
+-----
+
+### **5.0 Advanced Features**
+
+#### **5.1 Portfolio & Risk Management**
+
+* **Risk Dashboard:** Navigate to the **"Risk"** tab to see a real-time view of your portfolio's risk profile. This includes:
+  * **Value at Risk (VaR):** Understand your potential loss over a specific time frame.
+  * **Exposure Analysis:** See your portfolio's concentration in different sectors or assets.
+* **Portfolio Optimization:** Use our integrated tools (**PyPortfolioOpt**, **Riskfolio-Lib**) to run advanced optimizations, such as finding the most efficient asset allocation based on your risk tolerance.
+
+#### **5.2 Security & Account Settings**
+
+* In the **"Settings"** menu, you can:
+  * Manage your profile information.
+  * Change your password or reset your MFA.
+  * Generate and manage **API keys** for programmatic access to your account.
+
+-----
+
+### **6.0 Troubleshooting & Support**
+
+* **FAQ:** Visit our Help Center for a list of frequently asked questions.
+* **Contact Support:** If you need further assistance, you can contact our support team directly through the "Help" button in the application.
+
+### **7.0 Glossary**
+
+* **Agentic AI:** An AI system made of multiple, specialized AI "agents" that collaborate to solve complex problems.
+* **Backtesting:** The process of testing a trading strategy on historical data to see how it would have performed.
+* **RAG (Retrieval-Augmented Generation):** An AI technique that allows the model to "look up" information from provided documents before answering a question, leading to more accurate and factual responses.
+* **Sharpe Ratio:** A measure of risk-adjusted return. A higher Sharpe Ratio is generally better.
+* **VaR (Value at Risk):** A statistic that quantifies the level of financial risk within a portfolio over a specific time frame.

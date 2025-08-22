@@ -1,0 +1,379 @@
+
+
+# **Nautilus Trader API Documentation**
+
+**Version:** 2.0
+**Status:** Draft
+**Base URL:** `https://api.nautilus-trader.com/v1`
+
+-----
+
+## **Introduction**
+
+Welcome to the Nautilus Trader API\! 🚀
+
+This documentation provides a comprehensive guide for developers to interact with the Nautilus Trader platform. [cite\_start]Our system is built on a "Best-of-Breed" philosophy, leveraging a powerful, event-driven microservices architecture to deliver unparalleled performance, intelligence, and security[cite: 2, 288, 873].
+
+[cite\_start]The Nautilus Trader API is designed with an **API-First** principle, ensuring that all platform functionality is exposed through a set of clean, robust, and well-documented interfaces[cite: 883, 997]. Whether you're building custom trading applications, integrating with third-party services, or managing strategies programmatically, this API provides the tools you need.
+
+We offer a multi-protocol approach to suit different use cases:
+
+* **REST API**: For standard, stateless client-server interactions.
+* **WebSocket API**: For high-performance, real-time data streaming.
+* **GraphQL API**: For flexible and efficient data queries and real-time subscriptions.
+* **gRPC**: For high-performance internal service-to-service communication.
+
+-----
+
+## **Authentication** 🔐
+
+[cite\_start]The Nautilus Trader API employs a **Zero-Trust** security model, where every request must be authenticated and authorized[cite: 93, 237, 947]. [cite\_start]We use the industry-standard **OAuth 2.0 and OpenID Connect (OIDC)** protocol for user authentication[cite: 655, 948, 1064].
+
+### **Authentication Flow**
+
+1. **Obtain Credentials**: Your application will need an `API Key` and `Secret` to identify itself. These will be provided upon registration of your application.
+2. **User Authorization**: Your application must redirect the user to the Nautilus Trader authorization endpoint. The user will log in and grant your application permission to access their data.
+3. **Receive Authorization Code**: After successful authorization, the user will be redirected back to your application with a temporary `authorization_code`.
+4. **Exchange for Tokens**: Your application server exchanges this `authorization_code` (along with your API Key and Secret) for an `access_token` and a `refresh_token`.
+5. **Make Authenticated Requests**: The `access_token` is a **JSON Web Token (JWT)** that must be included in the `Authorization` header of all API requests as a Bearer token.
+
+<!-- end list -->
+
+```http
+Authorization: Bearer <your_access_token>
+```
+
+### **Access Tokens (JWT)**
+
+* [cite\_start]Access tokens are **short-lived** for security purposes[cite: 949].
+* Once an access token expires, you must use the `refresh_token` to obtain a new one without requiring the user to log in again.
+* [cite\_start]The JWT payload contains the user's `user_id` and their **role** (e.g., `trader`, `admin`, `quant`), which is used for **Role-Based Access Control (RBAC)** to authorize actions[cite: 94, 952, 1065].
+
+### **API Keys**
+
+For service-to-service communication or automated scripts, you can generate long-lived API keys. These keys must be sent with every request in the `X-API-KEY` header.
+
+-----
+
+## **REST API Reference**
+
+Our REST API provides a predictable, resource-oriented interface using standard HTTP verbs and status codes. It's the primary way to manage strategies, place orders, and query portfolio status.
+
+[cite\_start]**Latency Target:** \< 10ms (median) [cite: 99, 1075]
+[cite\_start]**Throughput Target:** 10,000 requests per second (RPS) [cite: 102]
+
+### **Orders**
+
+#### `POST /orders`
+
+Submits a new trade order to the Order Management System (OMS). [cite\_start]The OMS will perform pre-trade risk and compliance checks before routing it to the appropriate broker[cite: 62, 63, 64].
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                                     |
+|:------------- |:-------- |:-------- |:--------------------------------------------------------------- |
+| `account_id`  | `string` | Yes      | The ID of the account to place the trade on.                    |
+| `symbol`      | `string` | Yes      | The trading symbol (e.g., `AAPL`, `EUR/USD`).                   |
+| `side`        | `enum`   | Yes      | The trade side. Can be `BUY` or `SELL`.                         |
+| `type`        | `enum`   | Yes      | The order type. Can be `MARKET`, `LIMIT`, `STOP`, `STOP_LIMIT`. |
+| `quantity`    | `number` | Yes      | The number of units to trade.                                   |
+| `limit_price` | `number` | No       | The limit price for `LIMIT` and `STOP_LIMIT` orders.            |
+| `stop_price`  | `number` | No       | The stop price for `STOP` and `STOP_LIMIT` orders.              |
+
+**Example Request:**
+
+```json
+{
+  "account_id": "acc_12345",
+  "symbol": "AAPL",
+  "side": "BUY",
+  "type": "LIMIT",
+  "quantity": 100,
+  "limit_price": 150.00
+}
+```
+
+**Responses:**
+
+* **202 Accepted**: The order was successfully submitted for processing. The response body will contain the `order_id`.
+* **400 Bad Request**: The request was malformed (e.g., missing fields, invalid values).
+* **403 Forbidden**: The user does not have permission to trade on the specified account.
+
+#### `GET /orders/{order_id}`
+
+[cite\_start]Retrieves the current status and details of a specific order[cite: 944].
+
+**URL Parameters:**
+
+| Parameter  | Type     | Description                         |
+|:---------- |:-------- |:----------------------------------- |
+| `order_id` | `string` | The unique identifier of the order. |
+
+**Example Response:**
+
+```json
+{
+  "order_id": "ord_abcde12345",
+  "status": "FILLED",
+  "symbol": "AAPL",
+  "side": "BUY",
+  "type": "LIMIT",
+  "quantity": 100,
+  "filled_quantity": 100,
+  "average_fill_price": 149.95,
+  "created_at": "2025-08-06T14:30:00Z"
+}
+```
+
+### **Portfolio**
+
+#### `GET /portfolio`
+
+[cite\_start]Retrieves the current state of the user's portfolio, including value, profit & loss (P\&L), and current positions[cite: 945].
+
+**Example Response:**
+
+```json
+{
+  "portfolio_value": 250675.50,
+  "unrealized_pnl": 1250.75,
+  "realized_pnl_today": -250.10,
+  "positions": [
+    {
+      "symbol": "AAPL",
+      "quantity": 100,
+      "average_entry_price": 149.95,
+      "market_value": 15120.00
+    },
+    {
+      "symbol": "GOOGL",
+      "quantity": 50,
+      "average_entry_price": 2800.00,
+      "market_value": 141500.00
+    }
+  ]
+}
+```
+
+### **Strategies**
+
+#### `POST /strategies`
+
+Creates a new trading strategy or updates an existing one. [cite\_start]The `code_body` should contain the Python code for the strategy, designed to run on the **NautilusTrader** engine[cite: 945].
+
+**Request Body:**
+
+| Field         | Type     | Required | Description                                  |
+|:------------- |:-------- |:-------- |:-------------------------------------------- |
+| `name`        | `string` | Yes      | A unique name for the strategy.              |
+| `description` | `string` | No       | A brief description of the strategy's logic. |
+| `code_body`   | `string` | Yes      | The Python source code of the strategy.      |
+
+**Example Response:**
+
+```json
+{
+  "strategy_id": "strat_xyz789",
+  "name": "My Moving Average Crossover",
+  "version": 1,
+  "status": "ACTIVE"
+}
+```
+
+-----
+
+## **WebSocket API**
+
+Our WebSocket API provides real-time, bidirectional data streams, perfect for applications that need to react instantly to market changes. [cite\_start]This is the primary method for receiving live market data and portfolio updates[cite: 597, 1058].
+
+**Connection URL:** `wss://ws.nautilus-trader.com`
+
+To connect, you must provide your `access_token` as a query parameter:
+`wss://ws.nautilus-trader.com?token=<your_access_token>`
+
+### **Subscribing to Channels**
+
+Once connected, you can subscribe to channels by sending a JSON message:
+
+```json
+{
+  "action": "subscribe",
+  "channels": ["marketdata:AAPL", "portfolio:acc_12345"]
+}
+```
+
+### **Channels**
+
+#### `marketdata:{symbol}`
+
+[cite\_start]Streams real-time tick or bar data for a specified symbol[cite: 946]. [cite\_start]The system handles throughput of over **1 million messages per second** on this service[cite: 103].
+
+**Example Message (Received):**
+
+```json
+{
+  "channel": "marketdata:AAPL",
+  "type": "tick",
+  "data": {
+    "timestamp": 1660000000000,
+    "price": 151.21,
+    "volume": 100
+  }
+}
+```
+
+#### `portfolio:{user_id}`
+
+[cite\_start]Streams real-time updates to a user's portfolio whenever a trade is executed or market value changes[cite: 946].
+
+**Example Message (Received):**
+
+```json
+{
+  "channel": "portfolio:user_123",
+  "type": "pnl_update",
+  "data": {
+    "portfolio_value": 250680.00,
+    "unrealized_pnl": 1255.25
+  }
+}
+```
+
+-----
+
+## **GraphQL API**
+
+For maximum flexibility, especially in complex UIs and dashboards, our GraphQL API allows you to request exactly the data you need in a single round trip. [cite\_start]It also supports real-time updates via Subscriptions[cite: 955, 1056].
+
+**Endpoint:** `https://api.nautilus-trader.com/graphql`
+
+### **Queries**
+
+#### `dashboardData`
+
+A sample query to efficiently fetch all data needed for a main trading dashboard.
+
+**Example Query:**
+
+```graphql
+query GetDashboardData {
+  dashboardData {
+    portfolio {
+      value
+      pnl
+    }
+    positions {
+      symbol
+      quantity
+    }
+    watchList(name: "My Favorites") {
+      symbol
+      price
+    }
+  }
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "data": {
+    "dashboardData": {
+      "portfolio": {
+        "value": 250675.50,
+        "pnl": 1250.75
+      },
+      "positions": [
+        { "symbol": "AAPL", "quantity": 100 },
+        { "symbol": "GOOGL", "quantity": 50 }
+      ],
+      "watchList": [
+        { "symbol": "TSLA", "price": 900.50 },
+        { "symbol": "MSFT", "price": 305.25 }
+      ]
+    }
+  }
+}
+```
+
+### **Subscriptions**
+
+#### `onOrderStatusUpdate`
+
+Subscribes to real-time status updates for a specific order.
+
+**Example Subscription:**
+
+```graphql
+subscription OrderStatusSubscription($orderId: ID!) {
+  onOrderStatusUpdate(orderId: $orderId) {
+    status
+    filledQuantity
+  }
+}
+```
+
+**Example Data (Received over time):**
+
+```json
+{
+  "data": {
+    "onOrderStatusUpdate": {
+      "status": "PARTIALLY_FILLED",
+      "filledQuantity": 50
+    }
+  }
+}
+```
+
+-----
+
+## **Data Models**
+
+This section defines the core data objects used across the API ecosystem.
+
+| Object        | Field                 | Type      | Description                                          |
+|:------------- |:--------------------- |:--------- |:---------------------------------------------------- |
+| **Order**     | `order_id`            | `string`  | Unique identifier for the order.                     |
+|               | `account_id`          | `string`  | The account the order belongs to.                    |
+|               | `symbol`              | `string`  | The trading symbol.                                  |
+|               | `side`                | `enum`    | `BUY` or `SELL`.                                     |
+|               | `type`                | `enum`    | `MARKET`, `LIMIT`, `STOP`, etc.                      |
+|               | `quantity`            | `number`  | The total quantity ordered.                          |
+|               | `status`              | `enum`    | `PENDING`, `FILLED`, `CANCELED`, etc.                |
+|               | `filled_quantity`     | `number`  | The quantity that has been filled.                   |
+| **Position**  | `symbol`              | `string`  | The trading symbol.                                  |
+|               | `quantity`            | `number`  | The number of units held.                            |
+|               | `average_entry_price` | `number`  | The average price at which the position was entered. |
+|               | `market_value`        | `number`  | The current market value of the position.            |
+| **Portfolio** | `portfolio_value`     | `number`  | The total current value of the account.              |
+|               | `unrealized_pnl`      | `number`  | The profit or loss on open positions.                |
+|               | `realized_pnl_today`  | `number`  | The profit or loss from closed positions today.      |
+|               | `positions`           | `array`   | An array of **Position** objects.                    |
+| **Tick**      | `timestamp`           | `integer` | Unix timestamp in milliseconds.                      |
+|               | `price`               | `number`  | The price of the trade.                              |
+|               | `volume`              | `integer` | The volume of the trade.                             |
+
+-----
+
+## **Error Handling & Rate Limiting**
+
+### **HTTP Status Codes**
+
+The API uses standard HTTP status codes to indicate the success or failure of a request.
+
+| Code                        | Meaning                                                                                           |
+|:--------------------------- |:------------------------------------------------------------------------------------------------- |
+| `200 OK`                    | The request was successful.                                                                       |
+| `202 Accepted`              | The request was accepted for processing (used for asynchronous operations like order submission). |
+| `400 Bad Request`           | The request was improperly formatted or contained invalid parameters.                             |
+| `401 Unauthorized`          | The request lacks valid authentication credentials.                                               |
+| `403 Forbidden`             | The authenticated user does not have permission to perform the requested action.                  |
+| `404 Not Found`             | The requested resource does not exist.                                                            |
+| `429 Too Many Requests`     | You have exceeded the rate limit.                                                                 |
+| `500 Internal Server Error` | An unexpected error occurred on our servers.                                                      |
+
+### **Rate Limiting**
+
+To ensure fair usage and system stability, API requests are rate-limited. [cite\_start]The current limit for authenticated users is **10,000 requests per second**[cite: 102]. If you exceed this limit, you will receive an `HTTP 429 Too Many Requests` response. Check the `Retry-After` header to see when you can resume making requests.

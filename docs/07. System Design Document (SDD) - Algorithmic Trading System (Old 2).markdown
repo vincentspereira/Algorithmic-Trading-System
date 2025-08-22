@@ -1,0 +1,307 @@
+
+
+## **System Design Document (SDD)**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:**        | 2.0                     |
+|:------------------- |:----------------------- |
+| **Date:**           | August 6, 2025          |
+| **Status:**         | For Review              |
+| **Author(s):**      | Gemini AI (Synthesized) |
+| **Technical Lead:** | [To Be Assigned]        |
+
+-----
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose**
+
+This System Design Document (SDD) provides a comprehensive architectural and technical design for the Nautilus Trader Algorithmic Trading System (ATS). It serves as the master blueprint for the engineering team, translating the functional and non-functional requirements from the BRD and PRD into concrete design specifications. This document details the system's components, their interactions, data schemas, interfaces, and deployment strategies, ensuring a unified and coherent development approach.
+
+#### **1.2 Scope**
+
+This SDD covers the end-to-end design of the Nautilus Trader platform, including:
+
+* **System Architecture:** High-level and low-level design of the microservices, event-driven communication, and cloud-native infrastructure.
+* **Component Design:** Detailed internal design of each microservice, including the Trading Engine, Agentic AI Assistant, Portfolio Manager, and others.
+* **Data Design:** Comprehensive data models, database schemas, event schemas for Kafka, and data flow diagrams.
+* **Interface Design:** Detailed specifications for all internal and external APIs (REST, GraphQL, WebSocket, gRPC) and user interfaces.
+* **Security Design:** Implementation details for the Zero-Trust security model, authentication/authorization mechanisms, and data protection strategies.
+* **Deployment and Operations:** The CI/CD pipeline, Kubernetes configuration, and the full observability stack.
+
+#### **1.3 System Overview**
+
+Nautilus Trader is an enterprise-grade algorithmic trading platform designed for performance, intelligence, and accessibility. It is built on a "Best-of-Breed" philosophy, integrating top-tier open-source projects into a cohesive system. The architecture is fundamentally a **microservices-based, event-driven system** orchestrated on a **cloud-native** infrastructure. This design ensures scalability, resilience, and maintainability, catering to a diverse user base from non-technical retail investors to professional quantitative analysts.
+
+-----
+
+### **2.0 System Architecture**
+
+The system's architecture is founded on four key principles: Microservices, Event-Driven Communication, Cloud-Native Deployment, and an API-First approach.
+
+#### **2.1 Architectural Principles**
+
+* **Microservices:** The system is decomposed into fine-grained, independently deployable services, each responsible for a specific business capability. This promotes fault isolation, technology diversity, and agile development cycles.
+* **Event-Driven:** Services communicate asynchronously through a central **Apache Kafka** event bus. This decouples services, provides high throughput for market data, and enables event sourcing for data replayability and system resilience.
+* **Cloud-Native:** The entire system is designed to run on containerized infrastructure managed by **Kubernetes**. This leverages modern DevOps practices, including Infrastructure as Code (IaC) and automated scaling.
+* **API-First:** All system functionality is exposed through well-defined, versioned APIs, ensuring clear contracts for both internal services and external clients.
+
+#### **2.2 High-Level Architecture Diagram**
+
+This diagram provides a logical view of the system's layers and core components.
+
+```mermaid
+graph TD
+    subgraph "Client Layer"
+        WEB[Web Dashboard<br>(Next.js, React)]
+        MOBILE[Mobile App<br>(React Native)]
+        DESKTOP[Desktop App<br>(Electron)]
+        API_CLIENT[External API Clients]
+    end
+
+    subgraph "API Gateway & Service Mesh"
+        NGINX[NGINX Ingress Controller] --> ISTIO[Istio Service Mesh]
+        ISTIO --> |mTLS, Traffic Mgmt| AppLayer
+    end
+
+    subgraph "Application Layer (Microservices)" id:AppLayer
+        TRADING[Trading Engine<br>(NautilusTrader)]
+        AI_ASSISTANT[Agentic AI Assistant<br>(LangGraph, TradingAgents)]
+        PORTFOLIO[Portfolio Manager]
+        RISK[Risk Manager]
+        MARKET_DATA[Market Data Service]
+        OMS[Order Management System]
+        NOTIFY[Notification Service]
+    end
+
+    subgraph "Event Bus"
+        KAFKA[Apache Kafka]
+        SCHEMA_REGISTRY[Schema Registry]
+    end
+
+    subgraph "Integration Layer"
+        BROKER_GW[Broker Gateway<br>(IBKR, Alpaca, FIX)]
+        DATA_FEED_GW[Data Feed Gateway]
+    end
+
+    subgraph "Data Persistence Layer"
+        POSTGRES[(PostgreSQL + pgvector)]
+        CLICKHOUSE[(ClickHouse)]
+        QDRANT[(Qdrant)]
+        ICEBERG[(Apache Iceberg)]
+        REDIS[(Redis)]
+    end
+
+    subgraph "Observability & Operations"
+        KUBERNETES[Kubernetes]
+        MONITORING[Prometheus & Grafana]
+        LOGGING[Loki / ELK Stack]
+        TRACING[Jaeger / Tempo]
+        CICD[CI/CD Pipeline]
+    end
+
+    Client Layer --> NGINX
+    AppLayer -- Events --> KAFKA
+    KAFKA -- Events --> AppLayer
+    AppLayer --> Data Persistence Layer
+    AppLayer --> Integration Layer
+```
+
+-----
+
+### **3.0 Detailed Component Design**
+
+#### **3.1 Trading Engine (`trading-engine-service`)**
+
+* **Core Technology:** **NautilusTrader**.
+* **Language:** Python with Rust extensions.
+* **Responsibilities:**
+  * Manages the lifecycle of trading strategies (instantiation, execution, termination).
+  * Executes backtests using an event-driven engine that simulates realistic market conditions.
+  * Connects to the live trading environment for real-time strategy execution.
+  * Consumes market data events from Kafka and produces trade signal events.
+  * Maintains the real-time state of all active strategies.
+* **Internal Logic:** The engine will be wrapped in a microservice that subscribes to specific Kafka topics (e.g., `market.data.tick`, `strategy.control.start`). Upon receiving a start command, it instantiates the specified strategy class, feeds it market data, and listens for signals. When a signal is generated, it publishes an `order.request` event to Kafka.
+
+#### **3.2 Agentic AI Assistant (`ai-assistant-service`)**
+
+* **Core Technologies:** **LangGraph**, **TradingAgents**, **OpenHands**, **Codename Goose**.
+* **Language:** Python.
+* **Responsibilities:**
+  * Acts as the central "brain" of the platform, processing natural language queries.
+  * Orchestrates a team of specialized AI agents for analysis, research, risk assessment, and code generation.
+  * Manages a Retrieval-Augmented Generation (RAG) pipeline using **RAGFlow** for document-based Q\&A.
+  * Executes complex, multi-step workflows requested by the user.
+* **Architecture:**
+  1. **Entrypoint:** A FastAPI server exposes endpoints for the Lobe Chat interface.
+  2. **Orchestrator:** A **LangGraph** instance receives the user's prompt and determines the user's intent.
+  3. **Agent Delegation:** Based on the intent, LangGraph routes the task to the appropriate agent:
+     * **Codename Goose (Workflow Agent):** For multi-step tasks like "run a backtest and deploy if successful." Goose can call other tools and services via their APIs.
+     * **OpenHands (Code Agent):** For tasks involving writing, debugging, or optimizing Python strategy code.
+     * **TradingAgents (Analysis Agents):** For market analysis, sentiment analysis, and generating insights.
+  4. **Tool Integration:** Agents use tools like the **OpenBB** library to fetch financial data and **TA-Lib** for technical analysis.
+  5. **Communication:** Agents publish their findings or status updates as events to Kafka (e.g., `ai.insight.generated`, `ai.workflow.status`).
+
+#### **3.3 Order Management System (`oms-service`)**
+
+* **Language:** Python.
+* **Responsibilities:**
+  * Manages the entire lifecycle of an order: validation, submission, tracking, modification, and cancellation.
+  * Consumes `order.request` events from Kafka.
+  * Performs pre-submission checks (e.g., compliance, account balance).
+  * Routes orders to the appropriate broker via the Broker Gateway.
+  * Receives execution reports (fills) from the Broker Gateway and publishes `order.filled` or `order.rejected` events to Kafka.
+* **Key Features:**
+  * **Smart Order Router (SOR):** For large orders, the SOR will implement algorithms (e.g., VWAP, TWAP, Iceberg) to slice the order into smaller child orders and route them intelligently to minimize market impact.
+  * **FIX Gateway Integration:** Includes a client for connecting to the institutional-grade FIX Gateway.
+
+#### **3.4 Risk Manager (`risk-manager-service`)**
+
+* **Language:** Python.
+* **Responsibilities:**
+  * Provides real-time risk monitoring and control for all trading activities.
+  * Consumes `order.request` and `portfolio.update` events from Kafka.
+  * Performs real-time, pre-trade risk checks (e.g., position limits, VaR, account exposure). If a check fails, it publishes an `order.rejected` event with the reason.
+  * Maintains a real-time view of the firm's overall risk profile.
+* **Key Features:**
+  * **Account-Level Circuit Breakers:** Automatically halts trading for an account if predefined loss limits are breached.
+  * **VaR Calculation:** Implements multiple methodologies for Value at Risk calculation (Historical, Monte Carlo, Parametric).
+
+#### **3.5 User Interface (Frontend)**
+
+* **Core Technologies:** **Next.js**, **React 18**, **TypeScript**, **React Native**, **Electron**.
+* **Responsibilities:**
+  * Provides a seamless and responsive user experience across web, mobile, and desktop.
+  * Communicates with the backend via the API Gateway (REST, GraphQL, WebSocket).
+* **Key Components:**
+  * **Real-Time Dashboard:** A customizable grid of widgets that subscribe to WebSocket streams for real-time updates on P\&L, positions, and market data.
+  * **TradingView Charting:** Integration of the TradingView library, fed by a custom data provider that connects to the backend's market data service.
+  * **No-Code Strategy Builder:** An interface built with **Blockly** that allows users to visually construct trading logic. The visual blocks are translated into a JSON representation, which is sent to the backend to generate executable Python code.
+  * **Lobe Chat Interface:** A modern chat UI for interacting with the Agentic AI Assistant.
+
+-----
+
+### **4.0 Data Design**
+
+#### **4.1 Data Flow Diagram**
+
+This diagram illustrates the flow of data through the system, from ingestion to processing and storage.
+
+```mermaid
+graph LR
+    subgraph External Sources
+        A[Broker Feeds]
+        B[Market Data Providers]
+        C[News & Social Media APIs]
+    end
+
+    subgraph Ingestion & Processing
+        D[Integration Layer] --> E[Apache Kafka Bus]
+        E -- Raw Events --> F[Stream Processors (Kafka Streams/ksqlDB)]
+    end
+
+    subgraph Persistence
+        F -- Enriched Events --> E
+        E -- Processed Data --> G[PostgreSQL]
+        E -- Time-Series Data --> H[ClickHouse]
+        E -- Vector Embeddings --> I[Qdrant / pgvector]
+        E -- Audit Logs --> J[Apache Iceberg]
+        E -- Cache Updates --> K[Redis]
+    end
+
+    subgraph Consumption
+        L[Application Services]
+        M[AI Assistant]
+        N[User Interface]
+    end
+
+    G --> L; H --> L; I --> M; J --> L; K --> L;
+    L --> N; M --> N;
+```
+
+#### **4.2 Database Schemas**
+
+This section provides a high-level overview of the key database schemas.
+
+* **PostgreSQL Schema (`main_db`)**
+  
+  * `users`: `user_id`, `username`, `hashed_password`, `email`, `role`, `created_at`.
+  * `accounts`: `account_id`, `user_id`, `broker_name`, `account_number`, `api_key_encrypted`.
+  * `strategies`: `strategy_id`, `user_id`, `name`, `description`, `code_body`, `version`.
+  * `orders`: `order_id`, `strategy_id`, `symbol`, `type`, `side`, `quantity`, `status`, `created_at`.
+
+* **ClickHouse Schema (`market_data_db`)**
+  
+  * `ticks`: `timestamp` (DateTime64), `symbol` (String), `price` (Float64), `volume` (UInt64).
+  * `bars_1min`: `timestamp` (DateTime), `symbol` (String), `open` (Float64), `high` (Float64), `low` (Float64), `close` (Float64), `volume` (UInt64).
+
+* **Apache Iceberg Schema (`audit_db`)**
+  
+  * `actions_log`: `event_id` (UUID), `timestamp` (timestamptz), `user_id` (string), `service_name` (string), `action_type` (string), `details` (jsonb).
+
+#### **4.3 Kafka Event Schemas**
+
+All events published to Kafka will conform to a versioned schema managed by the **Schema Registry**.
+
+* **Topic:** `market.data.tick`
+  * **Schema:** `{ "timestamp": long, "symbol": string, "price": double, "volume": int }`
+* **Topic:** `order.request`
+  * **Schema:** `{ "order_id": string, "user_id": string, "account_id": string, "symbol": string, "order_type": enum, "side": enum, "quantity": double, "limit_price": double | null }`
+* **Topic:** `order.filled`
+  * **Schema:** `{ "order_id": string, "fill_id": string, "fill_price": double, "fill_quantity": double, "timestamp": long }`
+
+-----
+
+### **5.0 Interface Design**
+
+#### **5.1 API Specifications**
+
+* **REST API (FastAPI):**
+  * `POST /v1/orders`: Submit a new order.
+  * `GET /v1/orders/{order_id}`: Get the status of a specific order.
+  * `GET /v1/portfolio`: Get the current portfolio state.
+  * `POST /v1/strategies`: Create or update a trading strategy.
+* **GraphQL API:**
+  * **Query:** `dashboardData { portfolio { value, pnl }, positions { symbol, quantity }, watchList { symbol, price } }`
+  * **Subscription:** `onOrderStatusUpdate(orderId: "...") { status, filledQuantity }`
+* **WebSocket API:**
+  * **Channels:**
+    * `marketdata:{symbol}`: Streams real-time tick or bar data for a symbol.
+    * `portfolio:{user_id}`: Streams real-time updates to the user's portfolio.
+
+-----
+
+### **6.0 Security Design**
+
+The security design is based on the **Zero-Trust** principle, implemented through a multi-layered approach.
+
+* **Authentication:**
+  * Users will authenticate via an **OAuth 2.0 / OIDC** flow.
+  * The system will issue short-lived **JWTs** to authenticated clients.
+  * The API Gateway will validate the JWT on every incoming request.
+* **Authorization:**
+  * **Role-Based Access Control (RBAC)** will be enforced. A user's role (e.g., `trader`, `admin`, `quant`) will be encoded in their JWT.
+  * The API Gateway and individual microservices will use this role to authorize access to specific endpoints and resources.
+* **Network Security:**
+  * The **Istio service mesh** will enforce strict network policies, allowing communication only between explicitly authorized services.
+  * All service-to-service communication within the cluster will be automatically encrypted using **mutual TLS (mTLS)**.
+* **Data Security:**
+  * **Encryption at Rest:** All sensitive data in PostgreSQL and Apache Iceberg will be encrypted using AES-256.
+  * **Secret Management:** Broker API keys and other secrets will be stored securely using **HashiCorp Vault** or a similar secret management solution, not in configuration files or environment variables.
+
+-----
+
+### **7.0 Deployment and Operations**
+
+* **Infrastructure as Code (IaC):** The entire Kubernetes infrastructure, including deployments, services, and network policies, will be defined using tools like **Terraform** and **Helm**.
+* **CI/CD Pipeline:**
+  1. **Commit:** A developer pushes code to a Git repository.
+  2. **Build:** A CI server (e.g., Jenkins, GitHub Actions) automatically builds a Docker image.
+  3. **Test:** The pipeline runs unit, integration, and SAST (Bandit) tests.
+  4. **Deploy:** Upon successful testing, the pipeline uses a GitOps tool (e.g., ArgoCD) to automatically deploy the new container image to the Kubernetes cluster using a blue-green or canary deployment strategy to minimize downtime.
+* **Observability:**
+  * **Prometheus** will scrape metrics from all microservices.
+  * **Grafana** will be used to create dashboards for visualizing system health, application performance, and business KPIs.
+  * **Jaeger/Tempo** will provide distributed tracing to debug performance bottlenecks.
+  * **Loki/ELK** will aggregate logs for centralized analysis and troubleshooting.

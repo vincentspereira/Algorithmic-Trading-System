@@ -1,0 +1,209 @@
+
+
+## **Deployment Guide**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:** | 2.0                |
+|:------------ |:------------------ |
+| **Date:**    | August 6, 2025     |
+| **Status:**  | For Implementation |
+| **Author:**  | Vincent Pereira    |
+
+-----
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose**
+
+This document provides a comprehensive, step-by-step guide for deploying the Nautilus Trader Algorithmic Trading System (ATS). It is intended for DevOps engineers, system administrators, and platform engineers responsible for setting up and maintaining the system's infrastructure and deploying its various microservices. This guide covers everything from environment prerequisites to production deployment, monitoring, and maintenance procedures.
+
+#### **1.2 Scope**
+
+This guide covers the deployment of the entire Nautilus Trader platform, including:
+
+* **Infrastructure Setup:** Configuring Kubernetes clusters, networking, and storage.
+* **Dependency Deployment:** Setting up core dependencies like Apache Kafka, PostgreSQL, Redis, and the observability stack.
+* **Application Deployment:** Deploying all custom microservices using a GitOps-based CI/CD pipeline.
+* **Configuration Management:** Managing environment-specific configurations and secrets.
+* **Post-Deployment:** Verification, monitoring, and maintenance procedures.
+
+#### **1.3 Architectural Context**
+
+The Nautilus Trader platform is a **cloud-native, event-driven, microservices-based system**. All components are containerized with **Docker** and orchestrated by **Kubernetes**. The deployment strategy relies heavily on **Infrastructure as Code (IaC)** principles and a **GitOps** workflow for automated, declarative deployments.
+
+-----
+
+### **2.0 Prerequisites**
+
+Before beginning the deployment process, ensure the following prerequisites are met.
+
+#### **2.1 Infrastructure & Tools**
+
+* **Cloud Provider:** A cloud provider account (e.g., AWS, GCP, Azure) with sufficient permissions to create and manage Kubernetes clusters, networking, and storage.
+* **Kubernetes Cluster:** A running Kubernetes cluster (v1.25+ recommended). For production, a multi-AZ (Availability Zone) setup is required for high availability.
+* **kubectl:** The Kubernetes command-line tool, configured to connect to your cluster.
+* **Helm:** The Kubernetes package manager (v3.8+), used for deploying packaged applications.
+* **Docker:** Docker installed locally for building and pushing container images.
+* **Git:** A Git client for version control.
+* **CI/CD System:** A CI/CD platform like GitHub Actions or Jenkins, configured for building and testing the application.
+* **GitOps Tool:** An installed and configured GitOps tool like **ArgoCD** or Flux, connected to the Kubernetes cluster.
+* **IaC Tool:** An Infrastructure as Code tool like **Terraform** or Pulumi for provisioning cloud resources.
+
+#### **2.2 Access & Permissions**
+
+* **Container Registry:** Access to a container registry (e.g., Docker Hub, AWS ECR, Google GCR) to store and pull Docker images.
+* **Git Repositories:** Read access to all application source code repositories and write access to the GitOps configuration repository.
+* **Secret Management:** Access to a secret management system like **HashiCorp Vault** for storing sensitive credentials.
+
+-----
+
+### **3.0 Environment Setup**
+
+The system utilizes multiple environments to ensure a safe and controlled release process. The setup for each environment (Development, Staging, Production) is similar, with variations in resource allocation, scaling, and security configurations.
+
+#### **3.1 Kubernetes Namespace Organization**
+
+Create the following namespaces in your Kubernetes cluster to isolate resources for different environments and functions:
+
+* `nautilus-trader-prod`: For the production deployment.
+* `nautilus-trader-staging`: For the staging/testing environment.
+* `nautilus-trader-dev`: For the development environment.
+* `nautilus-trader-monitoring`: For the observability stack (Prometheus, Grafana, etc.).
+* `nautilus-trader-system`: For system-level components like Istio.
+
+#### **3.2 Core Dependency Deployment**
+
+These core components must be deployed before the application microservices. Use official Helm charts for deployment where possible.
+
+1. **Istio Service Mesh:**
+   
+   * Deploy Istio to the `nautilus-trader-system` namespace. Istio will manage all service-to-service communication, providing traffic management, mTLS encryption, and observability.
+   * Enable the Istio Ingress Gateway to manage all incoming traffic.
+
+2. **Apache Kafka:**
+   
+   * Deploy a highly available Kafka cluster (e.g., using the Strimzi operator) into its own namespace or the `nautilus-trader-prod` namespace.
+   * Deploy the **Schema Registry** alongside Kafka to enforce data consistency for all events.
+
+3. **Databases and Caching:**
+   
+   * **PostgreSQL:** Deploy a high-availability PostgreSQL cluster (e.g., using a Patroni-based Helm chart).
+   * **ClickHouse:** Deploy a ClickHouse cluster for time-series data.
+   * **Qdrant:** Deploy Qdrant for vector similarity search.
+   * **Redis:** Deploy a Redis cluster for caching and session management.
+   * **MinIO/S3:** Provision an S3-compatible object storage bucket for Apache Iceberg.
+
+4. **Observability Stack:**
+   
+   * Deploy the entire observability stack into the `nautilus-trader-monitoring` namespace.
+   * **Prometheus:** For metrics collection.
+   * **Grafana:** For dashboards and visualization.
+   * **Jaeger/Grafana Tempo:** For distributed tracing.
+   * **ELK Stack/Grafana Loki:** For centralized log aggregation.
+
+-----
+
+### **4.0 CI/CD and GitOps Workflow**
+
+The deployment process is fully automated using a CI/CD pipeline integrated with a GitOps workflow.
+
+**CI (Continuous Integration) Pipeline (e.g., GitHub Actions):**
+
+1. **On Code Commit:** A developer pushes code to a feature branch in a microservice's Git repository.
+2. **Automated Build:** The CI pipeline triggers, building a new **Docker image** for the service.
+3. **Automated Testing:** The pipeline runs a comprehensive suite of tests:
+   * Unit and integration tests.
+   * **Static Application Security Testing (SAST)** using **Bandit** to scan for vulnerabilities.
+4. **Image Push:** If all tests pass, the Docker image is tagged and pushed to the container registry.
+5. **Configuration Update:** The pipeline automatically updates the image tag in the service's Kubernetes deployment manifest within a **GitOps configuration repository**.
+
+**CD (Continuous Deployment) Pipeline (e.g., ArgoCD):**
+
+1. **Monitor GitOps Repo:** The GitOps tool (ArgoCD) continuously monitors the configuration repository for changes.
+2. **Detect Change:** ArgoCD detects the updated image tag in the deployment manifest.
+3. **Sync to Cluster:** ArgoCD automatically "syncs" the change, applying the updated manifest to the Kubernetes cluster.
+4. **Rolling Deployment:** Kubernetes performs a rolling update, safely deploying the new version of the microservice with zero downtime.
+
+-----
+
+### **5.0 Application Deployment Steps**
+
+With the GitOps workflow in place, deploying or updating an application is as simple as merging a pull request in the configuration repository. The following outlines the structure of the deployment artifacts.
+
+#### **5.1 Helm Charts**
+
+Each microservice will have its own **Helm chart**. This chart packages all the necessary Kubernetes manifests for the service:
+
+* `Deployment`: Defines the pod template, replicas, and resource requests/limits.
+* `Service`: Exposes the deployment within the cluster.
+* `ConfigMap`: Manages non-sensitive configuration data.
+* `Secret`: Manages sensitive data (placeholders to be populated by Vault).
+* `HorizontalPodAutoscaler (HPA)`: Defines auto-scaling rules.
+* `Istio VirtualService/DestinationRule`: Configures traffic routing and policies.
+
+#### **5.2 Configuration Management**
+
+* **Environment Configuration:** Use Helm's `values.yaml` files (`values-dev.yaml`, `values-staging.yaml`, `values-prod.yaml`) to manage environment-specific configurations like database connection strings, resource limits, and replica counts.
+* **Feature Flags:** The **Unleash** feature management service is deployed separately. Microservices will connect to it to dynamically toggle features in real-time without requiring a redeployment.
+* **Secret Management:**
+  1. Secrets (API keys, database passwords) are stored in **HashiCorp Vault**.
+  2. The Kubernetes cluster is configured with the Vault Secrets Webhook or CSI driver.
+  3. Deployments reference Vault paths in their annotations. At runtime, the webhook/driver injects the secrets directly into the pod as environment variables or files, ensuring they are never stored in Git or Kubernetes itself.
+
+-----
+
+### **6.0 Post-Deployment Verification**
+
+After a deployment, perform the following checks to ensure the system is healthy:
+
+1. **Check Pod Status:**
+   
+   ```bash
+   kubectl get pods -n nautilus-trader-prod
+   ```
+   
+   Ensure all pods are in the `Running` or `Completed` state.
+
+2. **Review Logs:**
+   
+   ```bash
+   kubectl logs -f <pod-name> -n nautilus-trader-prod
+   ```
+   
+   Check for any startup errors or exceptions in the logs.
+
+3. **Check Service Endpoints:** Verify that services are accessible within the cluster and that the NGINX Ingress is routing external traffic correctly.
+
+4. **Review Monitoring Dashboards:**
+   
+   * **Grafana:** Check the application and system dashboards for any anomalous behavior (e.g., high error rates, increased latency, CPU spikes).
+   * **Jaeger:** Verify that new traces are appearing, indicating that requests are flowing through the system correctly.
+
+-----
+
+### **7.0 High Availability and Disaster Recovery**
+
+* **High Availability (HA):**
+  
+  * The system is deployed across multiple Availability Zones (AZs) in the cloud provider.
+  * Kubernetes deployments are configured with multiple replicas (`minReplicas: 3` for critical production services).
+  * The HPA will automatically scale services based on load.
+  * Stateful services like Kafka and PostgreSQL are deployed in a clustered configuration for fault tolerance.
+
+* **Backup and Restore:**
+  
+  * **Databases:** Use the cloud provider's managed database services to configure automated daily snapshots and point-in-time recovery.
+  * **Kubernetes State:** The entire cluster configuration is stored declaratively in the GitOps repository, which serves as the primary backup.
+  * **Disaster Recovery (DR):** In the event of a full region failure, a new infrastructure can be provisioned from scratch using the Terraform scripts, and applications can be redeployed via the GitOps repository. The RTO is targeted at \< 4 hours and RPO at \< 15 minutes.
+
+-----
+
+### **8.0 Rollback Procedure**
+
+Thanks to the GitOps workflow, rolling back a failed deployment is a safe and straightforward process.
+
+1. **Identify Failing Commit:** Determine the Git commit in the configuration repository that introduced the issue.
+2. **Revert Commit:** Use `git revert` to create a new commit that undoes the changes from the failing one. Push the revert commit to the main branch.
+3. **Automated Rollback:** The GitOps tool (ArgoCD) will detect this new commit and automatically "sync" the cluster back to the previous, stable state. Kubernetes will perform a rolling update to deploy the older version of the service.
+4. **Emergency "Kill Switch":** For critical issues with a specific feature, use the **Unleash** UI to immediately disable the problematic feature flag, which can mitigate the issue without a full rollback.

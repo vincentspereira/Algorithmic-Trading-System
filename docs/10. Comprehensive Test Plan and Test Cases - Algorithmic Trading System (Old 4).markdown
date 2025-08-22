@@ -1,0 +1,349 @@
+
+
+## **Comprehensive Test Plan and Test Cases**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:**      | 1.0                                                           |
+|:----------------- |:------------------------------------------------------------- |
+| **Date:**         | August 7, 2025                                                |
+| **Status:**       | Draft                             |
+| **Author:**       | Vincent Pereira                                               |
+| **Prepared For:** | Nautilus Trader QA Team, Development Team, Project Management |
+
+-----
+
+## **Part 1: Master Test Plan**
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose**
+
+This document outlines the comprehensive testing strategy for the Nautilus Trader Algorithmic Trading System (ATS). Its purpose is to define the scope, approach, resources, and schedule for all testing activities. This plan will ensure that the system meets the functional, non-functional, and business requirements specified in the project documentation and is delivered with the highest quality.
+
+#### **1.2 Scope of Testing**
+
+##### **In-Scope**
+
+The scope of testing will cover all functional and non-functional requirements outlined in the Software Requirements Specification (SRS). This includes, but is not limited to:
+
+* **Core Trading Functionality:**
+  * NautilusTrader Engine (Backtesting & Live Trading)
+  * Order Management System (All order types: Market, Limit, Stop, VWAP, TWAP)
+  * Multi-Asset Class Support (Equities, Forex, Crypto, Options, Futures)
+  * Broker Integration (Interactive Brokers, Alpaca, OANDA, Coinbase, FIX Protocol)
+* **User Interfaces (UI/UX):**
+  * Web Dashboard (Next.js), Mobile App (React Native), and Desktop Client (Electron)
+  * Real-Time Trading Dashboard, Advanced Charting (TradingView)
+  * No-Code Strategy Builder (Blockly)
+  * Python Studio for professional developers
+* **Agentic AI Assistant:**
+  * Natural Language Processing (NLP) and query understanding (Lobe Chat)
+  * Multi-Agent Coordination (LangGraph, TradingAgents)
+  * Retrieval-Augmented Generation (RAG) for document analysis
+  * AI-assisted code generation and debugging (OpenHands)
+* **Portfolio & Risk Management:**
+  * Real-time P\&L, position tracking, and VaR calculations
+  * Portfolio optimization tools
+  * Pre-trade risk checks and account-level circuit breakers
+* **Enterprise Features:**
+  * Security (Zero-Trust, RBAC, MFA, Encryption)
+  * Observability (Monitoring, Logging, Tracing)
+  * Compliance and Audit Trails (Apache Iceberg)
+  * High Availability and Disaster Recovery
+
+##### **Out-of-Scope**
+
+* Testing of third-party systems beyond the integration layer. For example, we will test our connection to the Interactive Brokers API, but not the internal functionality of the IBKR platform itself.
+* Development of proprietary testing hardware.
+* Live production environment testing with real money during the pre-launch phases. All live trading tests will be conducted in paper trading environments.
+
+#### **1.3 Project References**
+
+This Test Plan is derived from and traceable to the following documents:
+
+1. Software Requirements Specification (SRS) v2.0
+2. Functional Requirements Document (FRD) v2.0
+3. Product Requirements Document (PRD) v2.0
+4. Business Requirements Document (BRD) v2.0
+5. `01. Features, Phases & Integration Strategy...`
+6. `comprehensive_system_architecture.md`
+7. `complete_requirements.md`
+8. `complete_designs.md`
+9. `complete_tasks.md`
+
+### **2.0 Testing Strategy**
+
+#### **2.1 Levels of Testing**
+
+Our testing strategy employs a multi-layered approach to ensure quality at every stage of development.
+
+* **Level 1: Unit Testing:**
+  * **Objective:** To test individual functions, methods, and components in isolation.
+  * **Responsibility:** Developers.
+  * **Tools:** `pytest` for Python backend, `React Testing Library`/`Jest` for frontend components.
+* **Level 2: Integration Testing:**
+  * **Objective:** To verify the interaction between microservices and with external systems (e.g., database, Kafka, broker APIs).
+  * **Responsibility:** Developers and QA Team.
+  * **Scope:** Testing API contracts between services, data flow through the Kafka event bus, and connections to external APIs.
+* **Level 3: System Testing:**
+  * **Objective:** To test the completely integrated system to verify that it meets all requirements specified in the SRS.
+  * **Responsibility:** QA Team.
+  * **Scope:** This is end-to-end testing of the entire application, simulating real-world usage.
+* **Level 4: User Acceptance Testing (UAT):**
+  * **Objective:** To validate that the system meets the business needs and is usable for the target audience.
+  * **Responsibility:** Business Analysts and select end-users (representing personas like "Sarah the Retail Investor" and "Michael the Quant Analyst").
+  * **Scope:** Executing real-world scenarios and workflows to confirm business logic and usability.
+
+#### **2.2 Types of Testing**
+
+In addition to the testing levels, the following types of testing will be performed across the system.
+
+| Test Type                          | Objective                                                                                                 | Tools & Methods                                                                                                                           |
+|:---------------------------------- |:--------------------------------------------------------------------------------------------------------- |:----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Functional Testing**             | Validate that the software behaves according to the functional requirements in the SRS.                   | Manual and automated test cases based on the SRS.                                                                                         |
+| **Performance Testing**            | Ensure the system meets the defined non-functional requirements for latency, throughput, and scalability. | Load testing (e.g., using k6, JMeter), stress testing, and latency benchmarking against SRS targets (e.g., \<1ms for trading engine) `` . |
+| **Usability Testing**              | Evaluate the user-friendliness and intuitiveness of the UI/UX for the target personas.                    | Heuristic evaluation, and user feedback sessions with personas.                                                                           |
+| **Reliability & Recovery Testing** | Verify the system's ability to withstand failures and recover gracefully.                                 | Chaos engineering, failover testing of the multi-AZ deployment, and disaster recovery drills to validate RTO/RPO targets \`\`.            |
+| **Regression Testing**             | Ensure that new code changes, enhancements, or bug fixes do not break existing functionality.             | An automated suite of critical-path test cases will be run as part of every CI/CD pipeline execution.                                     |
+
+* **Functional Testing:** Validating that each feature works as specified in the requirements documents.
+* **Performance Testing:**
+  * **Load Testing:** Simulating expected user loads (e.g., 10,000+ concurrent users) to ensure the system meets performance targets.
+  * **Stress Testing:** Pushing the system beyond its limits (e.g., 2x normal load) to identify breaking points and ensure graceful degradation.
+  * **Latency Testing:** Measuring end-to-end latency for critical paths, ensuring targets are met (e.g., **\<1ms** order execution, **\<10ms** API response).
+* **Security Testing:**
+  * **Static Application Security Testing (SAST):** Automated scanning of source code for vulnerabilities using tools like **Bandit**.
+  * **Penetration Testing:** External security experts will be engaged to perform penetration tests on the production environment before launch.
+  * **Vulnerability Scanning:** Continuous scanning of all dependencies and infrastructure.
+* **Usability Testing:** Assessing the ease of use and intuitiveness of the user interfaces for target personas.
+* **Compatibility Testing:** Ensuring the web application works correctly across major browsers (Chrome, Firefox, Safari, Edge) and the mobile/desktop apps work on their target OS versions.
+* **Disaster Recovery (DR) Testing:** Simulating failures of critical components (e.g., database cluster, Kafka broker, entire AZ) to validate the automated failover and recovery procedures. This includes verifying the RTO (\<4 hours) and RPO (\<15 minutes).
+* **Regression Testing:** An automated suite of tests will be run on every code commit to ensure that new changes do not break existing functionality.
+
+#### **3.0 Test Environment & Resources**
+
+#### **3.1 Test Environment**
+
+A multi-environment setup is required to ensure proper testing isolation ` . All environments will be managed via Infrastructure as Code and use Docker containers for consistency  `.
+
+* **Development:** Used by developers for unit and local integration testing.
+* **Staging:** A production-like environment where the complete, integrated system is deployed for System and UAT testing.
+* **Production:** The live environment for end-users.
+
+#### **3.2 Test Tools**
+
+| Tool                      | Purpose                                               |
+|:------------------------- |:----------------------------------------------------- |
+| **Jira (or similar)**     | Defect Tracking and Test Case Management.             |
+| **pytest**                | Python Unit & Integration Testing.                    |
+| **React Testing Library** | Frontend component testing.                           |
+| **Cypress**               | End-to-end UI testing.                                |
+| **Docker**                | Containerization for consistent test environments ` . |
+| **Prometheus / Grafana**  | Monitoring performance during load tests \`\`.        |
+
+**Testing Tools & Infrastructure:**
+
+* **Test Frameworks:** `pytest` (Python), `Jest` / `React Testing Library` (TypeScript/React).
+* **UI Automation:** `Cypress` or `Playwright`.
+* **Performance Testing:** `k6`, `JMeter`.
+* **Memory Profiling:** `Memray` for Python services.
+* **Security Scanning:** `Bandit` (SAST), `OWASP ZAP`.
+* **CI/CD & Deployment:** Docker, Kubernetes, Helm, ArgoCD.
+* **Observability Tools:** Prometheus, Grafana, Jaeger (used for monitoring during tests).
+
+### **4.0 Test Execution & Reporting**
+
+#### **4.1 Test Schedule**
+
+Testing activities are aligned with the project's phased development plan. Each phase will have a dedicated testing cycle that begins once the developed features are deployed to the Staging environment.
+
+#### **4.2 Entry & Exit Criteria**
+
+| Criteria                                                      | Description                                                                                                                                                                                                                                        |
+|:------------------------------------------------------------- |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entry Criteria** (To begin System Testing)                  | - All code for the phase has been successfully deployed to the Staging environment.\<br\>- All unit and integration tests are passing in the CI/CD pipeline.\<br\>- The Test Plan and relevant Test Cases for the phase are complete and approved. |
+| **Exit Criteria** (To approve a phase for Production release) | - ≥ 95% of all planned test cases have passed.\<br\>- There are zero outstanding critical or blocker defects.\<br\>- All high-severity defects have a documented resolution plan.\<br\>- The SRS requirements for the phase have been fully met.   |
+
+**Entry Criteria (To begin a testing phase):**
+
+* All code for the features to be tested has been successfully deployed to the Staging environment.
+* All unit and integration tests have passed in the CI/CD pipeline.
+* The Test Plan and relevant Test Cases have been reviewed and approved.
+
+**Exit Criteria (To conclude a testing phase):**
+
+* **100%** of all planned test cases have been executed.
+* **98%** of all test cases have passed.
+* **Zero** outstanding "Blocker" or "Critical" severity defects.
+* All "High" severity defects have a documented resolution plan.
+* Performance and security testing results meet the defined acceptance criteria.
+
+#### **4.3 Defect Management**
+
+1. **Discovery:** Any deviation from the expected result is logged as a defect in the defect tracking system (e.g., Jira).
+2. **Triage:** The defect is assigned a severity (Blocker, Critical, High, Medium, Low) and priority.
+3. **Resolution:** The development team fixes the defect.
+4. **Verification:** The QA team re-tests the functionality to confirm the fix and closes the defect.
+
+-----
+
+## **Part 2: Test Cases**
+
+This section provides a structured set of test scenarios and sample test cases, aligned with the development phases and tasks outlined in `complete_tasks.md`.
+
+### **Phase 1: Immediate Priority - Testing**
+
+*Associated Tasks from `complete_tasks.md`*
+
+#### **Test Scenario 1.1: Security System Validation**
+
+* **Objective:** To verify the successful implementation of the core security framework as per tasks 2.1-2.5 \`\`.
+* **Test Case 1.1.1: Zero-Trust Microservice Communication**
+  * **ID:** TC-SEC-001
+  * **Requirement:** NFR-SEC-01, SRS Constraint 2.4
+  * **Preconditions:** The Trading Engine and Risk Manager microservices are deployed in the Staging Kubernetes cluster with the Istio service mesh enabled \`\`.
+  * **Test Steps:**
+    1. Attempt to send a gRPC request directly to the Risk Manager service from a pod not in the service mesh.
+    2. Attempt to send a gRPC request from the Trading Engine service to the Risk Manager service.
+  * **Expected Results:**
+    1. The connection is refused.
+    2. The connection is successful and the request is processed.
+* **Test Case 1.1.2: ML-Based Fraud Detection**
+  * **ID:** TC-SEC-002
+  * **Requirement:** SRS FUN-SEC-101 (related functionality), Task 2.3
+  * **Preconditions:** A user account exists. An ML model for fraud detection is trained and active \`\`.
+  * **Test Steps:**
+    1. Simulate a series of rapid login attempts from different IP addresses for the user account.
+    2. After 5 failed attempts, make one successful login attempt.
+  * **Expected Results:**
+    1. The system logs the anomalous login behavior.
+    2. After the successful login, the system requires an additional verification step (e.g., email confirmation) or flags the account for review, demonstrating the fraud detection response.
+
+#### **Test Scenario 1.2: Core Trading Engine Validation**
+
+* **Objective:** To conduct comprehensive testing of the NautilusTrader engine's functionality as per tasks 3.1-3.5 \`\`.
+* **Test Case 1.2.1: Order Management - Market Order**
+  * **ID:** TC-TRD-001
+  * **Requirement:** SRS FUN-OMS-401
+  * **Preconditions:** A user is authenticated and has a funded paper trading account linked. The market is open.
+  * **Test Steps:**
+    1. Using the API, submit a market order to BUY 10 shares of "AAPL".
+    2. Query the order status immediately after submission.
+    3. Wait for the broker mock to return a "FILL" confirmation.
+    4. Query the user's portfolio.
+  * **Expected Results:**
+    1. The API returns a 200 OK response with an order ID.
+    2. The order status is "Submitted" or "Pending".
+    3. The order status updates to "Filled".
+    4. The user's portfolio now shows a position of 10 shares of "AAPL".
+
+### **Phase 2: Frontend and Broker Integration - Testing**
+
+*Associated Tasks from `complete_tasks.md`*
+
+#### **Test Scenario 2.1: UI - No-Code Strategy Builder**
+
+* **Objective:** To verify the functionality of the Blockly no-code strategy builder as per task 16.2 \`\`.
+* **Test Case 2.1.1: Create and Backtest a Simple Strategy**
+  * **ID:** TC-UI-001
+  * **Requirement:** SRS FUN-DEV-201
+  * **Preconditions:** User is logged into the web application.
+  * **Test Steps:**
+    1. Navigate to the "Strategy Builder" page.
+    2. Drag and drop blocks to create a simple moving average crossover strategy.
+    3. Set the asset to "GOOG" and the quantity to 5.
+    4. Click the "Run Backtest" button.
+  * **Expected Results:**
+    1. The page loads correctly.
+    2. The blocks connect and allow parameter configuration.
+    3. The system correctly interprets the blocks.
+    4. A backtest report is displayed with performance metrics (P\&L, Sharpe Ratio, etc.).
+
+#### **Test Scenario 2.2: Broker Integration - Alpaca**
+
+* **Objective:** To validate the integration with the Alpaca API as per tasks 5.1-5.5 \`\`.
+* **Test Case 2.2.1: Process Alpaca Order Update Webhook**
+  * **ID:** TC-INT-001
+  * **Requirement:** FRD FR-304
+  * **Preconditions:** An order has been submitted to Alpaca via the ATS. The ATS webhook endpoint is configured in Alpaca.
+  * **Test Steps:**
+    1. Manually (or via a mock) send a JSON payload representing an order fill event from Alpaca to the ATS webhook endpoint.
+    2. Query the order status in the ATS database.
+    3. Check the user's portfolio in the ATS.
+  * **Expected Results:**
+    1. The webhook endpoint returns a 200 OK response.
+    2. The corresponding order's status in the ATS is updated to "Filled".
+    3. The user's portfolio correctly reflects the new position.
+
+### **Phase 3: AI/ML Integration - Testing**
+
+*Associated Tasks from `complete_tasks.md`*
+
+#### **Test Scenario 3.1: Agentic AI Assistant Interaction**
+
+* **Objective:** To test the functionality of the conversational AI assistant as per tasks 10 and 11 \`\`.
+* **Test Case 3.1.1: Query on User-Uploaded Document**
+  * **ID:** TC-AI-001
+  * **Requirement:** PRD Feature 2.3, SRS FUN-DEV-202 (related)
+  * **Preconditions:** User is logged in. A PDF of a company's annual report has been uploaded to the AI's knowledge base.
+  * **Test Steps:**
+    1. Open the Lobe Chat interface.
+    2. Type the query: "According to the uploaded annual report, what was the company's revenue last year?"
+  * **Expected Results:**
+    1. The chat interface is responsive.
+    2. The AI assistant provides a correct answer, citing the specific text from the uploaded PDF document, demonstrating the RAG pipeline is working \`\`.
+
+### **Phase 4: Frontend & Live Trading - Testing**
+
+*Associated Tasks from `complete_tasks.md`*
+
+#### **Test Scenario 4.1: Real-Time UI Updates**
+
+* **Objective:** To verify that the frontend updates in real-time in response to live market data as per task 2.2 \`\`.
+* **Test Case 4.1.1: Real-Time Chart Updates**
+  * **ID:** TC-UI-002
+  * **Requirement:** FRD FR-112
+  * **Preconditions:** The user is viewing the TradingView chart for "BTC-USD" on the dashboard.
+  * **Test Steps:**
+    1. Using a market data simulator, push a new price tick for "BTC-USD" through the WebSocket stream.
+    2. Observe the chart on the UI.
+  * **Expected Results:**
+    1. A new candle/point appears on the chart reflecting the new price tick within 1 second. The chart does not require a manual refresh.
+
+### **Phase 5: Enterprise Readiness - Testing**
+
+*Associated Tasks from `complete_tasks.md`*
+
+#### **Test Scenario 5.1: High Availability and Disaster Recovery**
+
+* **Objective:** To test the system's automated disaster recovery procedures as per task 4.2 \`\`.
+* **Test Case 5.1.1: Database Failover**
+  * **ID:** TC-REL-001
+  * **Requirement:** NFR-REL-01, NFR-REL-02
+  * **Preconditions:** The system is running in a multi-AZ configuration. The primary database is in AZ-1 and the replica is in AZ-2.
+  * **Test Steps:**
+    1. Simulate a failure of the primary database instance in AZ-1.
+    2. Monitor the system's API endpoints and background processing.
+  * **Expected Results:**
+    1. The system automatically promotes the replica database in AZ-2 to become the new primary.
+    2. The system remains available, with a service interruption of less than 30 seconds. System functionality is fully restored within the RTO target.
+
+### **Phase 6: System Enhancement - Testing**
+
+*Associated Tasks from `complete_tasks.md`*
+
+#### **Test Scenario 6.1: Advanced Order Management**
+
+* **Objective:** To validate the functionality of advanced execution algorithms like VWAP as per task 3.2 \`\`.
+* **Test Case 6.1.1: VWAP Order Execution**
+  * **ID:** TC-TRD-002
+  * **Requirement:** FRD FR-306
+  * **Preconditions:** User is authenticated. A VWAP execution algorithm is configured.
+  * **Test Steps:**
+    1. Submit a large order to BUY 100,000 shares of a liquid stock using the VWAP algorithm, with a start and end time.
+    2. Monitor the "child" orders being created and executed by the algorithm throughout the day.
+  * **Expected Results:**
+    1. The system accepts the "parent" VWAP order.
+    2. The system automatically creates and submits smaller "child" orders to the market over the specified time period, with execution volumes weighted towards periods of higher market volume.
+    3. The final average execution price for all child orders is close to the market's VWAP for that period.

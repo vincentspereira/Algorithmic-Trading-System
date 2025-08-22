@@ -1,0 +1,332 @@
+## **Functional Requirements Document (FRD)**
+
+### **Nautilus Trader: Enterprise Algorithmic Trading System**
+
+| **Version:** | 3.0                             |
+|:------------ |:------------------------------- |
+| **Date:**    | August 21, 2025                 |
+| **Status:**  | Draft                           |
+| **Author:**  | Vincent Pereira                 |
+
+---
+
+### **1.0 Introduction**
+
+#### **1.1 Purpose of this Document**
+
+This Functional Requirements Document (FRD) provides a comprehensive and detailed specification of the functions, behaviors, and capabilities of the Nautilus Trader Algorithmic Trading System (ATS). It translates the business needs outlined in the Business Requirements Document (BRD) into specific, actionable functional requirements to guide the design, development, testing, and deployment of the system. The document describes how the system will operate to meet business objectives, detailing user interactions, system processes, data flows, and integration points. It ensures alignment with the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document, capturing all specified features, including the modular microservices architecture, event-driven design, AI-driven capabilities, and enterprise-grade security and compliance measures.
+
+#### **1.2 Scope**
+
+The scope of this FRD aligns with the project scope defined in the BRD and the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document, focusing on delivering a comprehensive, enterprise-grade algorithmic trading platform.
+
+##### **In-Scope Functions:**
+
+- Development of a modular, event-driven trading platform with microservices communicating via Apache Kafka, supporting no-code and code-based strategy development.
+- Integration of multi-source, real-time, and historical data feeds with fallback mechanisms for uninterrupted availability across asset classes (stocks, ETFs, futures, options, forex, commodities, cryptocurrencies).
+- Deployment of a sophisticated Agentic AI Assistant as the system’s "brain," enabling natural language interaction, document analysis via Retrieval-Augmented Generation (RAG), multi-agent collaboration, and iterative strategy refinement.
+- Support for high-performance, event-driven backtesting and live trading using NautilusTrader, supplemented by GPU-accelerated backtesting (VectorBT) and flexible strategy environments (TradingGym).
+- Implementation of advanced analytics, including custom volume-weighted technical indicators, portfolio optimization (PyPortfolioOpt, Riskfolio-Lib), anomaly detection (PyOD), reinforcement learning (FinRL), and options analytics (QuantLib).
+- Multi-platform user interfaces (Web, Mobile, Desktop, PWA) with real-time data visualization, advanced charting, and risk dashboards.
+- Broker integrations starting with Interactive Brokers (paper and live trading modes), expanding to Alpaca, OANDA, Coinbase, and FIX protocol connectivity.
+- Enterprise-grade security with zero-trust architecture, Role-Based Access Control (RBAC), immutable audit trails (Apache Iceberg), feature flags (Unleash), Static Application Security Testing (SAST) with Bandit, and User and Entity Behavior Analytics (UEBA).
+- Ultra-low latency infrastructure with Direct Market Access (DMA), co-location strategies, and exploration of FPGAs/SmartNICs.
+- Comprehensive observability using Prometheus, Grafana, Jaeger, and Grafana Loki, with automated self-healing microservices and multi-region deployment for high availability.
+- A phased development roadmap ensuring incremental delivery, culminating in a future-ready platform with voice trading, AR interfaces, and a scoped Strategy Marketplace.
+
+##### **Out-of-Scope Functions:**
+
+- Development of proprietary trading hardware.
+- Direct management of client funds or acting as a custodian.
+- Providing financial advice; the platform provides analytical tools, not recommendations.
+- Management of third-party broker platforms beyond defined API integrations.
+
+#### **1.3 References**
+
+This FRD is based on the following source documents:
+
+- Business Requirements Document (BRD) - Algorithmic Trading System (Version 3.0)
+- Features, Phases & Integration Strategy - Algorithmic Trading System
+- Comprehensive System Architecture
+- Detailed Design Specifications
+- Full Phased Implementation Tasks
+
+#### **1.4 Definitions and Acronyms**
+
+| Term           | Definition                                                                                                                                                                                    |
+|:-------------- |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Agentic AI** | An AI system composed of multiple specialized, collaborative agents that reason, plan, and execute complex tasks.                                                   |
+| **API**        | Application Programming Interface.                                                                                                                                            |
+| **ATS**        | Algorithmic Trading System.                                                                                                                                                   |
+| **BRD**        | Business Requirements Document.                                                                                                                                               |
+| **CQRS**       | Command Query Responsibility Segregation.                                                                                                                                     |
+| **DMA**        | Direct Market Access.                                                                                                                                                         |
+| **FIX**        | Financial Information eXchange: A messaging protocol for securities transactions.                                                                                             |
+| **FRD**        | Functional Requirements Document.                                                                                                                                             |
+| **MCP**        | Model Context Protocol for managing AI conversation context.                                                                                                                  |
+| **ML**         | Machine Learning.                                                                                                                                                             |
+| **OMS**        | Order Management System.                                                                                                                                                      |
+| **PWA**        | Progressive Web App.                                                                                                                                                          |
+| **RAG**        | Retrieval-Augmented Generation: An AI technique enhancing responses via knowledge base retrieval.                                                                             |
+| **RBAC**       | Role-Based Access Control: A security model restricting access based on user roles.                                                                                           |
+| **RLOps**      | Reinforcement Learning Operations: Framework for continuous training and deployment of RL models.                                                                             |
+| **SAST**       | Static Application Security Testing.                                                                                                                                          |
+| **UEBA**       | User and Entity Behavior Analytics.                                                                                                                                           |
+| **VaR**        | Value at Risk: A statistic quantifying potential financial loss over a time frame.                                                                                           |
+| **Zero-Trust** | A security model of "never trust, always verify" for all access requests.                                                                                                     |
+
+---
+
+### **2.0 Functional Requirements**
+
+The functional requirements are organized by system module and capability, reflecting all features from the "Features, Phases & Integration Strategy - Algorithmic Trading System" document.
+
+#### **2.1 User Interfaces and Experience**
+
+##### **2.1.1 Multi-Platform Framework**
+
+- **FR-101:** The system SHALL provide a responsive web interface built with React 18 and TypeScript, accessible across major browsers (Chrome, Firefox, Safari, Edge), ensuring consistent performance and styling.
+- **FR-102:** The system SHALL offer a Progressive Web App (PWA) with offline functionality, native-like installation, and push notifications for market events and trade executions.
+- **FR-103:** The system SHALL provide native mobile applications for iOS and Android using React Native, supporting push notifications, biometric authentication (fingerprint/face ID), and seamless synchronization with the web platform.
+- **FR-104:** The system SHALL provide a desktop application for Windows, macOS, and Linux using Electron, featuring system tray integration, native notifications, and offline caching for critical functionalities.
+- **FR-105:** All UI components SHALL update in real-time using WebSocket connections for market data, portfolio updates, and trade executions, without requiring manual refreshes.
+
+##### **2.1.2 Trading Dashboard & Visualization**
+
+- **FR-110:** The system SHALL present a customizable real-time trading dashboard displaying portfolio value, Profit & Loss (P&L), open positions, active strategies, and market data feeds, with user-configurable layouts saved across sessions.
+- **FR-111:** The dashboard SHALL integrate TradingView, react-financial-charts, and Plotly Dash for professional-grade charting, supporting real-time price data, over 50 technical indicators (including custom volume-weighted indicators), multiple timeframes, and drawing tools.
+- **FR-112:** Users SHALL be able to apply, customize, and save technical indicator settings (e.g., VW SMA, VW MACD) across sessions, with drag-and-drop chart adjustments.
+- **FR-113:** The dashboard SHALL feature a real-time risk monitoring interface displaying visual warnings for approaching risk limits (e.g., VaR, exposure), with configurable thresholds.
+- **FR-114:** The system SHALL implement a "Glass Box UI / Decision Event Explorer" to visualize the complete Kafka event chain for each trade, including timestamps, agent decisions, and contextual data like sentiment trends and topic clouds.
+- **FR-115:** The system SHALL provide a high-performance UI grid for the Market Scanner Service, displaying real-time scanning results based on user-defined criteria and technical indicators.
+
+##### **2.1.3 Order Management Interface**
+
+- **FR-120:** The system SHALL provide an intuitive interface for placing, modifying, and canceling orders across all supported asset classes (stocks, ETFs, futures, options, forex, commodities, cryptocurrencies).
+- **FR-121:** The order entry form SHALL validate parameters (symbol, quantity, price, order type) before submission, providing clear error messages for invalid inputs.
+- **FR-122:** The interface SHALL display real-time pre-trade risk checks (e.g., margin impact, VaR, exposure) as users construct orders, with warnings for violations.
+- **FR-123:** The system SHALL provide a toggle in the UI to switch between paper and live trading modes, seamlessly integrating with broker accounts (e.g., Interactive Brokers).
+
+##### **2.1.4 AI Chat and No-Code Interfaces**
+
+- **FR-130:** The system SHALL integrate Lobe Chat as the primary interface for natural language interaction with the Agentic AI Assistant, supporting queries, backtests, trade execution, and document analysis.
+- **FR-131:** The system SHALL provide a no-code strategy builder using Blockly, enabling users to construct trading logic via drag-and-drop blocks for indicators, operators, conditions, and actions.
+- **FR-132:** The Blockly builder SHALL generate clean, human-readable, well-commented Python code aligned with NautilusTrader’s strategy classes, facilitating a learning path to programmatic customization.
+
+##### **2.1.5 Future-Ready Interfaces**
+
+- **FR-140:** The system SHALL support voice trading capabilities, allowing users to issue natural language commands (e.g., “Buy 100 AAPL at market”) via voice input.
+- **FR-141:** The system SHALL provide augmented reality (AR) interfaces for visualizing market data and trade analytics in immersive environments, scoped for Phase 6.
+
+#### **2.2 Strategy Development & Management**
+
+##### **2.2.1 No-Code Strategy Builder**
+
+- **FR-201:** The system SHALL provide a visual, drag-and-drop strategy builder using Blockly, supporting blocks for technical indicators (e.g., VW SMA, VW MACD), mathematical operators, logical conditions, and trade actions (buy/sell/stop).
+- **FR-202:** The builder SHALL allow users to configure asset-specific parameters (e.g., symbol, timeframe, quantity) and validate logic before execution.
+- **FR-203:** The system SHALL generate executable Python code from Blockly arrangements, ensuring compatibility with NautilusTrader’s strategy framework and readability for professional users.
+
+##### **2.2.2 AI-Assisted and Code-Based Development**
+
+- **FR-210:** The system SHALL provide a "Python Studio" environment for professional developers to write, test, and debug trading strategies in Python, with syntax highlighting, autocompletion, and integrated debugging tools.
+- **FR-211:** The system SHALL integrate an AI-Assisted Development & Debugging Agent (OpenHands) to assist with Python code generation, refactoring, debugging, and test coverage expansion for strategies and integrations.
+- **FR-212:** The system SHALL integrate a high-level AI workflow orchestrator (Codename Goose) to automate multi-step DevOps and engineering tasks, such as pipeline fixes and strategy optimization.
+- **FR-213:** The system SHALL support iterative strategy refinement via an AI feedback loop, analyzing performance metrics and autonomously generating optimized code using FinRL and Optuna.
+
+##### **2.2.3 Custom Volume-Weighted Indicators**
+
+- **FR-220:** The system SHALL implement a comprehensive suite of custom volume-weighted technical indicators using TA-Lib/ta-lib-python (primary), Bukosabino/ta (secondary), and NumPy, integrated into NautilusTrader for strategy development. Indicators include:
+  - Beta vis-à-vis Market Index
+  - Auto Correlation
+  - Historical Annual Volatility
+  - Intraday Annual Volatility
+  - 55 Day VW SMA of Open (Entry)
+  - 13 Day VW SMA of Open (Entry)
+  - 5 Day VW SMA of High (Exit)
+  - 5 Day VW SMA of Low (Exit)
+  - 34 Day VW SMA of Open (Entry)
+  - 13 Day VW SMA of High (Exit)
+  - 13 Day VW SMA of Low (Exit)
+  - 13 Day VW EMA of Open
+  - 5 Day VW EMA of HLC Average (Trend Finder)
+  - VW MACD of HLC Average (12, 26, 9 Day)
+  - VW MACD Histogram of HLC Average
+  - 14 Day VW MFI of HLC Average
+  - 34 Day VW SMA of MFI (14) of HLC Average (Entry)
+  - 21 Day VW SMA of MFI (14) of HLC Average (Exit)
+  - Market Normalisation with 21 Day VW ATR for Positional Trades [N]
+  - Rupee/Dollar/Pound Volatility/Risk [N x Lot Size]
+  - Contract Risk (Units) [2N for Positional, 0.75N for Intraday]
+  - Max. Lots Tradable with Unit of Currency [No. of Lots]
+  - 21 Day Average True Range Percent
+  - 8 Day Average True Range Percent
+  - Strength/Weakness (Based on 21 Day Avg. HLC & ATR) for Positional
+  - Market Normalisation with 8 Day VW ATR for Intraday Trades [N]
+  - Choppy Market Index (21/8 Day)
+  - Buy/Sell Easier Day Metrics
+- **FR-221:** The system SHALL ensure indicators are configurable for different markets (e.g., Dollar Volatility for US exchanges, Pound for LSE) and integrated into backtesting and live trading workflows.
+
+#### **2.3 Backtesting and Optimization**
+
+- **FR-230:** The system SHALL provide an event-driven backtesting engine via NautilusTrader, simulating strategies against historical tick-level data with realistic market conditions (slippage, fees, latency).
+- **FR-231:** The system SHALL integrate VectorBT for GPU-accelerated backtesting, enabling rapid testing across large parameter sets and datasets.
+- **FR-232:** The system SHALL support flexible strategy development environments via TradingGym, simulating various market scenarios for strategy validation.
+- **FR-233:** Backtests SHALL generate comprehensive performance reports, including Sharpe Ratio, Maximum Drawdown, Total P&L, and trade-by-trade analysis.
+- **FR-234:** The system SHALL integrate Optuna for hyperparameter optimization, automatically tuning strategy parameters to maximize performance metrics.
+- **FR-235:** The system SHALL support backtesting with custom volume-weighted indicators, ensuring seamless integration with strategy logic.
+
+#### **2.4 Live Trading and Broker Integration**
+
+- **FR-301:** The system SHALL support live trading by connecting to external brokers via their APIs, starting with Interactive Brokers (TWS/Gateway) for paper and live trading modes.
+- **FR-302:** The system SHALL provide a unified broker abstraction layer to normalize data and order execution across brokers, supporting intelligent order routing.
+- **FR-303:** The system SHALL enable seamless switching between paper and live trading modes in the UI, ensuring compliance with broker-specific regulations.
+- **FR-304:** The system SHALL integrate with Alpaca, OANDA, Coinbase, and FIX protocol (QuickFIX/J, FIX8) for institutional connectivity in later phases.
+- **FR-305:** The system SHALL support standard order types (Market, Limit, Stop, Stop-Limit) and advanced/algorithmic orders (VWAP, TWAP, Iceberg) via a smart order router to minimize market impact.
+- **FR-306:** The system SHALL manage the full order lifecycle, including validation, execution, fill processing, and compliance checks.
+- **FR-307:** The system SHALL support position management and trade settlement, updating in real-time across all platforms.
+
+#### **2.5 AI & Analytics**
+
+##### **2.5.1 Agentic AI Assistant**
+
+- **FR-401:** The system SHALL provide a chatbot interface via Lobe Chat for natural language interaction, enabling users to query markets, portfolios, run backtests, place trades, and analyze documents.
+- **FR-402:** The AI assistant SHALL use a Retrieval-Augmented Generation (RAG) pipeline with RAGFlow to process user-uploaded documents (e.g., research papers, SEC filings) and provide context-aware insights.
+- **FR-403:** The AI assistant SHALL consist of specialized agents (Analyst, Researcher, Risk Manager, Compliance, Trader) communicating asynchronously via Kafka, ensuring decoupled, auditable interactions.
+- **FR-404:** The system SHALL implement Model Context Protocols (MCPs) using LangChain and LangGraph to maintain conversation history and context across multi-turn interactions, supporting workflows like query → retrieval → analysis → response.
+- **FR-405:** The system SHALL integrate a proactive RAG intelligence engine with a dedicated Researcher agent to monitor external sources (news, SEC filings) and update the vector database (Qdrant/pgvector) in real-time.
+- **FR-406:** The system SHALL deploy an AI Knowledge Hub (Archon) as a central MCP server, ingesting documentation for Tier 1 components (NautilusTrader, Kafka) for context-aware task execution by agents like OpenHands and Goose.
+- **FR-407:** The AI assistant SHALL support iterative strategy refinement, analyzing performance and generating optimized code via FinRL and Optuna in a continuous feedback loop.
+
+##### **2.5.2 Predictive Analytics and Machine Learning**
+
+- **FR-410:** The system SHALL integrate predictive models (Stock-Prediction-Models, LSTM-Neural-Network-for-Time-Series-Prediction, Real-time-stock-market-prediction) for time-series forecasting, achieving >90% accuracy for pattern recognition.
+- **FR-411:** The system SHALL provide a real-time inference engine (TensorFlow Serving, PyTorch) for sub-millisecond predictions, streaming via Kafka for live trading strategies.
+- **FR-412:** The system SHALL integrate FinRL and TradingGym for reinforcement learning, developing and optimizing DRL strategies with an RLOps pipeline for continuous training and deployment.
+- **FR-413:** The system SHALL use PyOD for anomaly detection, identifying irregularities in trading patterns or system performance with <5% false positives.
+- **FR-414:** The system SHALL implement a sentiment analysis pipeline using Transformers and PyTorch to analyze news, social media, and financial documents, achieving >85% accuracy.
+- **FR-415:** The system SHALL integrate SHAP for explainable AI, providing transparent explanations of ML model outputs with scores >80%.
+- **FR-416:** The system SHALL support options analytics via QuantLib, including pricing, real-time implied volatility surfaces, and dividend forecast integration.
+
+#### **2.6 Portfolio and Risk Management**
+
+- **FR-501:** The system SHALL provide real-time calculation and display of portfolio risk metrics (VaR, exposure limits, circuit breakers) on a dedicated dashboard, updating via WebSocket.
+- **FR-502:** The system SHALL integrate PyPortfolioOpt and Riskfolio-Lib for portfolio optimization (mean-variance, hierarchical risk parity), asset allocation, rebalancing, and performance attribution.
+- **FR-503:** The system SHALL support stress testing by simulating adverse market scenarios (e.g., 10% market drop) and displaying impact on portfolio metrics.
+- **FR-504:** The system SHALL provide real-time pre-trade risk checks, integrating custom volume-weighted indicators and PyOD anomaly detection to flag risky trades.
+
+#### **2.7 Market Data and Scanner**
+
+- **FR-601:** The system SHALL integrate multi-source data feeds with a primary source (Yahoo Finance) and fallbacks (Alpha Vantage, Finnhub, Investing.com, CME Group, Twelve Data, Polygon, Barchart, SpiderRock, TradingCharts, Oanda) per asset class, streaming via Kafka with automatic failover.
+- **FR-602:** The system SHALL provide historical data (minimum 5 years for options chains) from free sources (Yahoo Finance, Alpha Vantage, etc.) for paper trading and Interactive Brokers for live trading.
+- **FR-603:** The system SHALL normalize and distribute real-time and historical market data, supporting multi-asset fallback chains and dividend forecasts.
+- **FR-604:** The system SHALL implement a Market Scanner Service to scan a large universe of symbols in real-time, applying custom filters and technical indicators (TA-Lib) and streaming results to a high-performance UI grid.
+
+#### **2.8 User and System Administration**
+
+- **FR-701:** The system SHALL provide administrative interfaces to manage users, roles, permissions, and broker/data feed configurations.
+- **FR-702:** The system SHALL integrate a real-time health dashboard using Prometheus and Grafana to monitor system components, dependencies, and performance metrics.
+- **FR-703:** The system SHALL provide a Professional Trader Quick-Start Guide, detailing commands for accessing Kafka, ClickHouse, FIX Gateway, and JupyterHub (e.g., `docker-compose --profile pro up`), with expected outputs for professional users.
+
+#### **2.9 Security and Compliance**
+
+- **FR-801:** The system SHALL authenticate users via OAuth 2.0/OpenID Connect, supporting Multi-Factor Authentication (MFA) with biometric and TOTP options.
+- **FR-802:** The system SHALL enforce RBAC, ensuring users access only authorized data and functions based on their roles.
+- **FR-803:** The system SHALL log all user actions, API calls, and system events to an immutable audit trail in Apache Iceberg for compliance (e.g., MiFID II, SOX).
+- **FR-804:** The system SHALL integrate SAST with Bandit in the CI/CD pipeline to scan Python code for vulnerabilities before deployment.
+- **FR-805:** The system SHALL implement UEBA for proactive threat detection, analyzing user and system behavior to identify anomalies.
+- **FR-806:** The system SHALL incorporate threat modeling (STRIDE) in the SDLC for all services.
+- **FR-807:** The system SHALL use Unleash for feature flags and kill switches, enabling dynamic toggling of strategies and emergency shutdowns.
+- **FR-808:** All sensitive data SHALL be encrypted at rest (AES-256) and in transit (TLS 1.3).
+- **FR-809:** The system SHALL implement a formalized backup strategy for data resilience, with automated recovery mechanisms.
+- **FR-810:** The system SHALL deploy microservices with automated self-healing mechanisms to detect and restore faulty components.
+
+#### **2.10 Infrastructure and Advanced Features**
+
+- **FR-901:** The system SHALL implement an event-driven architecture with Apache Kafka, using hierarchical topics (e.g., `domain.action.entity.source.symbol`) and wildcard subscriptions for flexible data flows.
+- **FR-902:** The system SHALL deploy on Kubernetes with Helm charts, Istio service mesh, and GitOps CI/CD for scalability and observability.
+- **FR-903:** The system SHALL implement ultra-low latency infrastructure, including DMA, server co-location, and exploration of FPGAs/SmartNICs for critical data paths.
+- **FR-904:** The system SHALL optimize performance with low-level techniques (lock-free data structures, cache-line alignment) in critical code paths.
+- **FR-905:** The system SHALL integrate Memray for memory profiling and Grafana Tempo for distributed tracing to debug performance issues.
+- **FR-906:** The system SHALL provide market microstructure analysis tools for real-time order book analytics, liquidity detection, and market impact estimation.
+- **FR-907:** The system SHALL develop a Customer Service Bot using the RAG pipeline for automated user support.
+- **FR-908:** The system SHALL scope a Strategy Marketplace with copy trading capabilities for future implementation.
+
+---
+
+### **3.0 Use Cases**
+
+#### **3.1 Use Case 1: Non-Technical Trader Creates and Deploys a Strategy**
+
+- **Actor:** Sarah, a retail investor.
+- **Preconditions:** Sarah is logged into the ATS web platform with a verified account linked to an Interactive Brokers paper trading account.
+- **Workflow:**
+  1. Sarah navigates to the "Strategy Builder" section and selects the no-code builder.
+  2. The system displays the Blockly interface with blocks for indicators, operators, and actions.
+  3. Sarah constructs a VW MACD crossover strategy using blocks for 12-day VW MACD, 26-day VW MACD, and 9-day signal line, setting buy/sell actions for AAPL.
+  4. She configures parameters (e.g., quantity, timeframe) and validates the logic.
+  5. Sarah clicks "Run Backtest," triggering NautilusTrader to simulate the strategy against 5 years of historical data, incorporating slippage and fees.
+  6. The system displays a performance report with Sharpe Ratio, P&L, and drawdown metrics.
+  7. Satisfied, Sarah selects "Deploy to Paper Trading," and the system activates the strategy in paper mode via Interactive Brokers.
+  8. Sarah monitors real-time performance on the dashboard, with risk metrics and trade events visualized in the Glass Box UI.
+- **Postcondition:** The strategy executes in paper trading mode, with results visible on the dashboard and auditable via Kafka event logs.
+
+#### **3.2 Use Case 2: Professional Trader Optimizes a Strategy**
+
+- **Actor:** James, a quantitative trader.
+- **Preconditions:** James is logged into the Python Studio via JupyterHub, with access to Kafka and ClickHouse.
+- **Workflow:**
+  1. James clones the repository and launches the professional environment using `docker-compose --profile pro up`.
+  2. He accesses JupyterHub at `http://localhost:8888` and writes a Python strategy using NautilusTrader, incorporating custom VW MFI and Normalized ATR indicators.
+  3. James uses the AI-Assisted Development Agent (OpenHands) to debug and optimize code, generating additional test cases.
+  4. He runs a GPU-accelerated backtest with VectorBT, analyzing results via ClickHouse analytics.
+  5. James submits the strategy for hyperparameter tuning via the `POST /optimise` endpoint with Optuna specifications.
+  6. The system returns optimized parameters, and James deploys the strategy to a live Interactive Brokers account via FIX Gateway, setting `LIVE_TRADING_MODE=FIX`.
+  7. Real-time trade executions are monitored on the dashboard, with risk metrics and microstructure analytics (order book, liquidity).
+- **Postcondition:** The optimized strategy executes live, with performance and risk metrics updated in real-time and auditable via Apache Iceberg.
+
+#### **3.3 Use Case 3: AI Assistant Provides Market Insights**
+
+- **Actor:** Emma, a portfolio manager.
+- **Preconditions:** Emma is logged into the web platform with the Lobe Chat interface open.
+- **Workflow:**
+  1. Emma queries: “Analyze sentiment for tech stocks and check for anomalies in NVDA volume today.”
+  2. LangGraph routes the query to the Researcher Agent (sentiment analysis) and Analyst Agent (volume anomalies).
+  3. The Researcher Agent processes news and social media via the sentiment pipeline (Transformers/PyTorch), updating Qdrant with real-time data.
+  4. The Analyst Agent queries Kafka topic `ticks.raw` for NVDA, using PyOD to detect volume anomalies.
+  5. LangGraph synthesizes results, presenting a summary in Lobe Chat: “Tech sentiment is neutral; NVDA shows 15% above-average volume, no anomalies.”
+  6. Emma requests a backtest of a VW MACD strategy for NVDA, which the AI executes via NautilusTrader and displays results.
+- **Postcondition:** Emma receives actionable insights and backtest results, enabling informed trading decisions.
+
+#### **3.4 Use Case 4: Administrator Manages Compliance and Security**
+
+- **Actor:** Priya, a compliance officer.
+- **Preconditions:** Priya has admin access with RBAC permissions.
+- **Workflow:**
+  1. Priya accesses the admin interface to review user roles and permissions, ensuring traders have appropriate access.
+  2. She queries Apache Iceberg for an immutable audit trail of all trades and system events over the past month.
+  3. The system generates an automated MiFID II compliance report, exported as a PDF.
+  4. Priya monitors the UEBA dashboard, identifying an anomalous login attempt and triggering an MFA challenge.
+  5. She uses Unleash to toggle off a risky strategy and activates a kill switch for a specific user account.
+  6. Priya reviews the Prometheus/Grafana dashboard for system health, confirming microservice self-healing after a detected failure.
+- **Postcondition:** Compliance requirements are met, security threats are mitigated, and system stability is verified.
+
+---
+
+### **4.0 Assumptions and Constraints**
+
+- **Assumption:** Broker APIs (Interactive Brokers, Alpaca, etc.) and data feeds (Yahoo Finance, Alpha Vantage, etc.) are reliable and accessible.
+- **Assumption:** Cloud infrastructure (Kubernetes, S3-compatible storage) supports performance and scalability requirements.
+- **Constraint:** The system relies on the stability of open-source components (NautilusTrader, Kafka, etc.), mitigated by a robust dependency management framework.
+- **Constraint:** Development phases are sequential, with each phase dependent on the successful completion of prior deliverables.
+
+---
+
+### **5.0 References**
+
+- **BRD:** Business Requirements Document (Version 3.0)
+- **Features Document:** Features, Phases & Integration Strategy - Algorithmic Trading System
+- **Appendices:** Comprehensive System Architecture, Detailed Design Specifications, Full Phased Implementation Tasks
+
+---
+
+This FRD comprehensively captures all functional requirements from the updated "Features, Phases & Integration Strategy - Algorithmic Trading System" document, ensuring no features are omitted. It provides a detailed blueprint for developers to implement the Nautilus Trader ATS, aligning with business objectives and user needs.

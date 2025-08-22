@@ -2,15 +2,34 @@
 
 ## Overview
 
-This document consolidates all requirements from phases 0-6 of the algorithmic trading system development. Each phase builds upon the previous phases to create a comprehensive, enterprise-grade trading platform.
+This document consolidates all requirements from phases 0-6 of the algorithmic trading system development. Each phase builds upon the previous phases to create a comprehensive, enterprise-grade trading platform. The platform adopts a "Best-of-Breed" integration strategy, selecting leading open-source projects for each major component to ensure a modular, scalable, and high-performance foundation. It supports a diverse user base, from non-technical retail investors (via intuitive no-code tools and natural language interfaces) to professional quantitative analysts (via advanced Python-based development environments and enterprise-grade features). The system leverages AI Agents and Agentic AI extensively to provide intelligent, automated trading capabilities.
+
+The architecture is composed of distinct microservices communicating through an Apache Kafka event bus, enabling asynchronous, event-driven processing. This design decouples services, ensures data replayability for robust testing and auditing, and scales to handle high-frequency data streams. Key highlights include a sophisticated Agentic AI Assistant as the platform's "brain," supporting natural language management of trading, research, and analysis. The core trading engine, NautilusTrader, is a high-performance Python-based platform with Rust components, supporting event-driven backtesting and live trading across all asset classes (stocks, ETFs, futures, options, forex, commodities, cryptocurrencies).
+
+The system integrates advanced forecasting models (Stock-Prediction-Models, LSTM-Neural-Network-for-Time-Series-Prediction, Real-time-stock-market-prediction), GPU-accelerated backtesting (VectorBT), flexible strategy environments (TradingGym), portfolio optimization (PyPortfolioOpt, Riskfolio-Lib), anomaly detection (PyOD), no-code strategy building (Blockly), visualization tools (react-financial-charts, Plotly Dash), explainable AI (SHAP), reinforcement learning (FinRL), and advanced NLP (Transformers, PyTorch), alongside options analytics (QuantLib).
+
+**Key Characteristics:**
+- **High Performance:** Microsecond-level latency for trading operations, achieved through optimized code paths, lock-free data structures, cache-line alignment, and hardware accelerations like FPGAs/SmartNICs.
+- **Scalable:** Horizontal scaling across multiple nodes, supporting 10,000+ concurrent users and >1M messages/second throughput.
+- **Resilient:** Fault-tolerant with automatic failover, self-healing microservices, and multi-region deployments.
+- **Secure:** Enterprise-grade security with zero-trust architecture, RBAC, MFA, AES-256 encryption at rest, TLS 1.3 in transit, SAST (Bandit), and UEBA for threat detection.
+- **Observable:** Comprehensive monitoring and alerting with Prometheus, Grafana, Loki/ELK, Jaeger/Tempo, and Memray for profiling.
+
+**Architecture Principles:**
+1. **Microservices Architecture:** Service decomposition by business capability, independent deployment, technology diversity, fault isolation, and automated self-healing to minimize downtime and prevent cascading failures.
+2. **Event-Driven Architecture:** Asynchronous communication via events, event sourcing for state changes, CQRS for command/query separation, and real-time event processing to support high-frequency trading.
+3. **Cloud-Native Design:** Container-first with Docker, Kubernetes orchestration, adherence to 12-Factor App principles, and IaC for all infrastructure.
+4. **API-First Design:** Standard REST interfaces, flexible GraphQL queries, real-time WebSocket streams, high-performance gRPC for internal communication, and FIX protocol for institutional connectivity.
+
+The system ensures research-to-production parity, with seamless transitions from backtesting to live trading, and supports advanced features like voice trading, AR interfaces, market microstructure analysis, and a Strategy Marketplace with copy trading capabilities.
 
 ---
- 
+
 # Requirements Document - Phase 0: Dependency Management Setup
 
 ## Introduction
 
-Phase 0 establishes the foundation for managing all external dependencies and best-of-breed components used throughout the algorithmic trading system. This phase implements automated monitoring, update management, and integration pipelines for 50+ external repositories and components, ensuring system stability and security through proactive dependency management.
+Phase 0 establishes the foundational framework for managing all external dependencies and best-of-breed components used throughout the algorithmic trading system. This phase implements automated monitoring, update management, and integration pipelines for over 60 external repositories and components (e.g., NautilusTrader, LangChain, PyPortfolioOpt, QuantLib, RAGFlow, etc.), ensuring system stability, security, and compliance through proactive dependency management. It sets up tiered categories for dependencies based on criticality, with customized forks for core components to maintain control over updates and customizations.
 
 ## Requirements
 
@@ -20,11 +39,11 @@ Phase 0 establishes the foundation for managing all external dependencies and be
 
 #### Acceptance Criteria
 
-1. WHEN external repositories are forked THEN they SHALL be organized into tiered categories based on criticality
-2. WHEN repository forks are created THEN proper branch protection rules and access controls SHALL be established
-3. WHEN customizations are made THEN they SHALL be tracked and documented with clear change management
-4. WHEN upstream changes occur THEN impact assessment SHALL be performed automatically
-5. WHEN integration points are defined THEN they SHALL be documented and validated regularly
+1. WHEN external repositories are forked THEN they SHALL be organized into tiered categories based on criticality (Tier 1: Core like NautilusTrader, LangGraph; Tier 2: Important like PyPortfolioOpt, Riskfolio-Lib; Tier 3: Supporting like Lobe Chat, Whisper; Tier 4: Infrastructure like Apache Kafka, Istio).
+2. WHEN repository forks are created THEN proper branch protection rules and access controls SHALL be established, including required reviews, code owners, and restricted push access.
+3. WHEN customizations are made THEN they SHALL be tracked and documented with clear change management, including detailed commit messages, PR descriptions, and a CHANGELOG.md in each fork.
+4. WHEN upstream changes occur THEN impact assessment SHALL be performed automatically, including compatibility checks, security scans, and performance benchmarks.
+5. WHEN integration points are defined THEN they SHALL be documented and validated regularly, with API contracts and test suites for each dependency.
 
 ### Requirement 2: Automated Update Monitoring System
 
@@ -32,11 +51,11 @@ Phase 0 establishes the foundation for managing all external dependencies and be
 
 #### Acceptance Criteria
 
-1. WHEN monitoring workflows execute THEN they SHALL check all 50+ repositories according to their tier priority
-2. WHEN updates are detected THEN impact analysis SHALL be performed automatically with severity classification
-3. WHEN security vulnerabilities are found THEN immediate notifications SHALL be triggered with remediation guidance
-4. WHEN breaking changes are detected THEN detailed impact reports SHALL be generated with migration paths
-5. WHEN monitoring fails THEN fallback mechanisms SHALL ensure continuous monitoring coverage
+1. WHEN monitoring workflows execute THEN they SHALL check all 60+ repositories according to their tier priority, with daily scans for Tier 1 and weekly for Tier 4.
+2. WHEN updates are detected THEN impact analysis SHALL be performed automatically with severity classification (critical, high, medium, low) based on changelogs, CVE databases, and semantic versioning.
+3. WHEN security vulnerabilities are found THEN immediate notifications SHALL be triggered with remediation guidance, including automated PRs for patches where possible.
+4. WHEN breaking changes are detected THEN detailed impact reports SHALL be generated with migration paths, including affected microservices (e.g., Trading Engine integration with NautilusTrader).
+5. WHEN monitoring fails THEN fallback mechanisms SHALL ensure continuous monitoring coverage, such as redundant scanners or manual fallback alerts.
 
 ### Requirement 3: Tiered Monitoring and Notification Strategy
 
@@ -44,11 +63,11 @@ Phase 0 establishes the foundation for managing all external dependencies and be
 
 #### Acceptance Criteria
 
-1. WHEN Tier 1 (Critical) components are monitored THEN daily monitoring with immediate notifications SHALL be implemented
-2. WHEN Tier 2 (Important) components are monitored THEN daily monitoring with standard notifications SHALL be implemented
-3. WHEN Tier 3 (Supporting) components are monitored THEN weekly monitoring with batch notifications SHALL be implemented
-4. WHEN Tier 4 (Infrastructure) components are monitored THEN weekly monitoring with summary notifications SHALL be implemented
-5. WHEN notification thresholds are exceeded THEN escalation procedures SHALL be triggered automatically
+1. WHEN Tier 1 (Critical) components are monitored THEN daily monitoring with immediate notifications SHALL be implemented, including real-time alerts for CVEs or breaking changes in NautilusTrader or LangGraph.
+2. WHEN Tier 2 (Important) components are monitored THEN daily monitoring with standard notifications SHALL be implemented, e.g., for PyPortfolioOpt updates affecting portfolio optimization.
+3. WHEN Tier 3 (Supporting) components are monitored THEN weekly monitoring with batch notifications SHALL be implemented, e.g., for Lobe Chat or Whisper updates.
+4. WHEN Tier 4 (Infrastructure) components are monitored THEN weekly monitoring with summary notifications SHALL be implemented, e.g., for Apache Kafka or Istio.
+5. WHEN notification thresholds are exceeded THEN escalation procedures SHALL be triggered automatically, including alerts to CCB for Tier 1 issues.
 
 ### Requirement 4: Consolidated Notification and Reporting
 
@@ -56,237 +75,162 @@ Phase 0 establishes the foundation for managing all external dependencies and be
 
 #### Acceptance Criteria
 
-1. WHEN weekly reports are generated THEN they SHALL include all updates across all tiers in a single consolidated message
-2. WHEN notifications are sent THEN they SHALL be delivered through multiple channels (Teams, Discord, Email, GitHub Issues)
-3. WHEN update summaries are created THEN they SHALL include impact assessment and recommended actions
-4. WHEN critical updates are detected THEN immediate notifications SHALL bypass the weekly consolidation
-5. WHEN notification delivery fails THEN backup channels SHALL ensure message delivery
+1. WHEN weekly reports are generated THEN they SHALL include all updates across all tiers in a single consolidated message, with summaries of changes, impacts, and recommended actions.
+2. WHEN notifications are sent THEN they SHALL be delivered through multiple channels (Slack, Email, GitHub Issues, Microsoft Teams) with configurable preferences per user/role.
+3. WHEN update summaries are created THEN they SHALL include impact assessment and recommended actions, e.g., "NautilusTrader v2.1.0 introduces breaking API change; migration required for Trading Engine."
+4. WHEN critical updates are detected THEN immediate notifications SHALL bypass the weekly consolidation, with high-priority alerts for security vulnerabilities.
+5. WHEN notification delivery fails THEN backup channels SHALL ensure message delivery, with logging of failures in Grafana Loki.
 
 ### Requirement 5: Update Integration Pipeline
 
-**User Story:** As a software engineer, I want automated integration pipelines for dependency updates, so that updates can be tested and integrated safely without manual intervention.
+**User Story:** As a software engineer, I want automated integration pipelines for dependency updates, so that I can seamlessly incorporate changes while maintaining system integrity.
 
 #### Acceptance Criteria
 
-1. WHEN updates are approved THEN automated branch creation SHALL be triggered with proper naming conventions
-2. WHEN integration branches are created THEN comprehensive testing SHALL be executed automatically
-3. WHEN merge conflicts are detected THEN detailed conflict reports SHALL be generated with resolution guidance
-4. WHEN tests pass THEN automated pull request creation SHALL be triggered with proper reviewers assigned
-5. WHEN integration fails THEN rollback procedures SHALL be executed automatically with failure analysis
+1. WHEN update PRs are created THEN they SHALL trigger automated CI pipelines with unit tests, integration tests, and performance benchmarks specific to the dependency (e.g., backtesting speed for NautilusTrader updates).
+2. WHEN pipeline tests pass THEN the update SHALL be merged automatically for non-critical tiers, with manual approval for Tier 1.
+3. WHEN integration fails THEN rollback procedures SHALL be automated, with detailed error reports and suggested fixes.
+4. WHEN updates affect multiple components THEN end-to-end tests SHALL be triggered, e.g., testing AI Assistant integration with updated LangGraph.
+5. WHEN all updates are integrated THEN system-wide regression tests SHALL be executed to verify no unintended impacts.
 
 ### Requirement 6: Dependency Health Dashboard
 
-**User Story:** As a system administrator, I want a comprehensive dashboard showing the health of all dependencies, so that I can monitor system-wide dependency status and make proactive decisions.
+**User Story:** As a system administrator, I want a centralized health dashboard for all dependencies, so that I can monitor status, vulnerabilities, and update progress at a glance.
 
 #### Acceptance Criteria
 
-1. WHEN the dashboard loads THEN it SHALL display real-time status of all 50+ repositories organized by tier
-2. WHEN dependency relationships are visualized THEN interactive graphs SHALL show component interconnections
-3. WHEN health metrics are displayed THEN they SHALL include update frequency, security status, and compatibility
-4. WHEN manual overrides are needed THEN dashboard controls SHALL allow immediate intervention
-5. WHEN historical data is accessed THEN trends and patterns SHALL be visualized for decision support
+1. WHEN the dashboard is accessed THEN it SHALL display real-time status for all tiers, including version, last update, vulnerabilities, and health metrics (e.g., uptime, latency for API dependencies).
+2. WHEN filters are applied THEN the dashboard SHALL support tier-based, component-based, and severity-based views.
+3. WHEN alerts are triggered THEN the dashboard SHALL show visual indicators (red/yellow/green) with drill-down details.
+4. WHEN reports are generated THEN weekly PDF exports SHALL be available with historical trends.
+5. WHEN dashboard data is updated THEN it SHALL pull from Renovate, CVE databases, and GitHub APIs in real-time.
 
-### Requirement 7: Component Testing and Validation Framework
+**Mermaid Diagram: Dependency Management Flow**
 
-**User Story:** As a quality assurance engineer, I want comprehensive testing of all dependency updates, so that system stability is maintained when components are updated.
-
-#### Acceptance Criteria
-
-1. WHEN component updates are tested THEN Docker-based isolated environments SHALL be used for all testing
-2. WHEN integration tests are executed THEN they SHALL validate compatibility with existing system components
-3. WHEN performance tests are run THEN baseline comparisons SHALL identify any performance regressions
-4. WHEN security scans are performed THEN vulnerability assessments SHALL be completed for all updates
-5. WHEN test failures occur THEN detailed failure analysis SHALL be provided with remediation recommendations
-
-### Requirement 8: Customization Tracking and Management
-
-**User Story:** As a development team member, I want clear tracking of all customizations made to external components, so that I can understand the impact of updates and maintain custom functionality.
-
-#### Acceptance Criteria
-
-1. WHEN customizations are made THEN they SHALL be documented in structured manifest files with change rationale
-2. WHEN customization conflicts arise THEN automated detection SHALL identify potential issues with proposed updates
-3. WHEN customization documentation is updated THEN version control SHALL maintain complete change history
-4. WHEN integration points change THEN impact assessment SHALL evaluate effects on custom functionality
-5. WHEN customization reviews are conducted THEN they SHALL include validation of continued necessity and effectiveness
-
-### Requirement 9: Security and Vulnerability Management
-
-**User Story:** As a security officer, I want proactive security monitoring of all dependencies, so that vulnerabilities are identified and addressed before they impact the trading system.
-
-#### Acceptance Criteria
-
-1. WHEN security scans are performed THEN they SHALL check all dependencies for known vulnerabilities daily
-2. WHEN vulnerabilities are detected THEN severity assessment SHALL be performed with CVSS scoring
-3. WHEN critical vulnerabilities are found THEN immediate alerts SHALL be sent with patch availability information
-4. WHEN security updates are available THEN automated testing SHALL validate patch compatibility
-5. WHEN security incidents occur THEN incident response procedures SHALL be triggered with containment measures
-
-### Requirement 10: Performance and Resource Optimization
-
-**User Story:** As a system performance engineer, I want monitoring of dependency performance impact, so that system performance is maintained as dependencies are updated.
-
-#### Acceptance Criteria
-
-1. WHEN performance monitoring is active THEN it SHALL track resource usage and performance metrics for all components
-2. WHEN performance regressions are detected THEN automated alerts SHALL be triggered with performance comparison data
-3. WHEN resource utilization changes THEN capacity planning SHALL be updated to reflect new requirements
-4. WHEN optimization opportunities are identified THEN recommendations SHALL be provided for performance improvements
-5. WHEN performance baselines are established THEN they SHALL be maintained and updated with each major release
+```mermaid
+graph TD
+    A[Upstream Repo Update] -->|Detect| B[Renovate Scan]
+    B -->|Create PR| C[GitHub Fork]
+    C -->|CI Tests| D[Impact Analysis]
+    D -->|Approval| E[Merge to Main]
+    E -->|Deploy| F[Integration Pipeline]
+    F -->|Success| G[Health Dashboard: Green]
+    F -->|Failure| H[Rollback & Alert]
+    I[Security Scan] -->|Vulnerability| H
+    G -->|Weekly Report| J[Consolidated Notification]
+```
 
 ---
 
-# Phase 1: Immediate Priority
+# Requirements Document - Phase 1: Core System Validation & Hardening
 
 ## Introduction
 
-This document outlines the requirements for Phase 1 of the Algorithmic Trading System, which focuses on fixing existing issues, validating the core foundation, and enhancing the API layer to prepare for critical component development.
+Phase 1 focuses on validating and hardening the core system components, including the trading engine, database connections, API layer, Kafka event bus, and foundational security. This phase ensures stability for subsequent integrations, with emphasis on zero-trust architecture, threat modeling, and market data fallback mechanisms.
 
 ## Requirements
 
-### Requirement 1: Security System Validation and Testing
+### Requirement 1: Core Trading Engine Validation
 
-**User Story:** As a system administrator, I want the security system fully validated and tested, so that I can ensure robust protection for the trading platform.
-
-#### Acceptance Criteria
-
-1. WHEN security system builds THEN all dependency conflicts SHALL be resolved
-2. WHEN security tests run THEN zero-trust architecture SHALL be validated with >95% coverage
-3. WHEN fraud detection tests execute THEN ML-based scoring SHALL achieve <5% false positive rate
-4. WHEN integration tests run THEN all security workflows SHALL function end-to-end
-5. WHEN performance tests complete THEN security overhead SHALL not exceed 10% of system performance
-
-### Requirement 2: Core Trading Engine Comprehensive Testing
-
-**User Story:** As a trading system architect, I want the core trading engine thoroughly tested and validated, so that I can ensure reliable order execution and risk management.
+**User Story:** As a system architect, I want the core trading engine (NautilusTrader) validated for backtesting and live trading, so that it forms a reliable foundation for the system.
 
 #### Acceptance Criteria
 
-1. WHEN NautilusTrader tests run THEN engine initialization and configuration SHALL be validated with all components
-2. WHEN order management tests execute THEN order lifecycle SHALL be tested with all order types (market, limit, stop, stop-limit)
-3. WHEN risk management tests run THEN real-time risk calculations SHALL be accurate within 1ms with position limit monitoring
-4. WHEN multi-asset tests execute THEN all asset classes (equities, forex, crypto, futures) SHALL be supported with proper validation
-5. WHEN database integration tests run THEN PostgreSQL, ClickHouse, DuckDB, and Qdrant connections SHALL be stable and performant
+1. WHEN backtesting is executed THEN it SHALL process historical data with realistic simulation (slippage, fees, latency) for all asset classes.
+2. WHEN live trading is tested THEN it SHALL handle paper/live modes with Interactive Brokers integration.
+3. WHEN custom indicators are integrated THEN all VW indicators (VW SMA/EMA/MACD/MFI, Normalized ATR, Choppy Market Index, etc.) SHALL compute accurately using TA-Lib and NumPy.
+4. WHEN performance is measured THEN latency SHALL be <1ms for order processing.
+5. WHEN validation fails THEN automated alerts SHALL be sent with detailed logs.
 
-### Requirement 3: Enhanced API Layer Implementation
+### Requirement 2: Database Connection Hardening
 
-**User Story:** As a frontend developer, I want comprehensive API layer with GraphQL, enhanced REST, and WebSocket support, so that I can build rich user interfaces with real-time data.
-
-#### Acceptance Criteria
-
-1. WHEN GraphQL API is implemented THEN it SHALL support all trading operations with real-time subscriptions for market data and orders
-2. WHEN REST API is enhanced THEN it SHALL include comprehensive error handling, API versioning, and backward compatibility
-3. WHEN WebSocket API is created THEN it SHALL support real-time market data streaming and order updates with connection pooling
-4. WHEN API security is implemented THEN it SHALL include authentication, authorization, rate limiting, and API key management
-5. WHEN API tests complete THEN all endpoints SHALL have >95% test coverage with sub-200ms response time validation
-
-### Requirement 4: Database Integration and Performance
-
-**User Story:** As a data engineer, I want all database systems integrated and optimized, so that I can ensure fast and reliable data operations.
+**User Story:** As a database administrator, I want secure and reliable connections to all databases (PostgreSQL/pgvector, ClickHouse, Qdrant, Apache Iceberg, DuckDB, Redis), so that data persistence is robust.
 
 #### Acceptance Criteria
 
-1. WHEN PostgreSQL integration tests run THEN connection pooling and transactions SHALL work correctly
-2. WHEN ClickHouse tests execute THEN time-series data operations SHALL perform within SLA requirements
-3. WHEN DuckDB tests run THEN analytics queries SHALL execute with sub-second response times
-4. WHEN Qdrant tests execute THEN vector operations SHALL support AI/ML workloads efficiently
-5. WHEN database failover tests run THEN system SHALL maintain availability during database issues
+1. WHEN connections are established THEN they SHALL use encrypted channels (TLS 1.3) with connection pooling.
+2. WHEN failover is tested THEN automatic switching to replicas SHALL occur with RPO <15 minutes.
+3. WHEN data is inserted/retrieved THEN operations SHALL succeed with latency <10ms for Redis, <100ms for others.
+4. WHEN schemas are validated THEN they SHALL match defined models for users, strategies, market data, etc.
+5. WHEN backups are configured THEN daily snapshots SHALL be taken with PITR support.
 
-### Requirement 5: Docker-Based Testing Framework
+### Requirement 3: API Layer Setup
 
-**User Story:** As a DevOps engineer, I want all testing conducted in Docker containers, so that tests are isolated, reproducible, and consistent across environments.
-
-#### Acceptance Criteria
-
-1. WHEN Docker environments are built THEN they SHALL include all necessary dependencies
-2. WHEN tests are executed THEN they SHALL run in isolated containers with no global dependencies
-3. WHEN test results are generated THEN they SHALL be consistent across different host environments
-4. WHEN Docker tests complete THEN containers SHALL be automatically cleaned up
-5. WHEN CI/CD pipeline runs THEN Docker-based tests SHALL integrate seamlessly
-
-### Requirement 6: Performance and Scalability Validation
-
-**User Story:** As a performance engineer, I want comprehensive performance testing, so that I can ensure the system meets latency and throughput requirements.
+**User Story:** As a developer, I want the foundational API layer (REST, GraphQL, WebSocket, gRPC) set up, so that internal and external communications are enabled.
 
 #### Acceptance Criteria
 
-1. WHEN performance tests run THEN order execution latency SHALL be sub-millisecond
-2. WHEN load tests execute THEN system SHALL handle 10,000+ concurrent connections
-3. WHEN stress tests run THEN system SHALL maintain stability under 2x normal load
-4. WHEN memory tests execute THEN memory usage SHALL not exceed allocated limits
-5. WHEN scalability tests complete THEN system SHALL demonstrate horizontal scaling capability
+1. WHEN REST endpoints are called THEN they SHALL respond with <10ms median latency.
+2. WHEN GraphQL queries are executed THEN they SHALL support flexible data retrieval with subscriptions.
+3. WHEN WebSocket connections are tested THEN real-time streaming SHALL handle >1M messages/second.
+4. WHEN gRPC calls are made THEN internal service communication SHALL be high-performance (<1ms).
+5. WHEN API documentation is generated THEN OpenAPI/Swagger SHALL be available for all endpoints.
 
-### Requirement 7: Integration Testing and Workflow Validation
+### Requirement 4: Kafka Event Bus Implementation
 
-**User Story:** As a QA engineer, I want comprehensive integration testing, so that I can ensure all components work together seamlessly.
-
-#### Acceptance Criteria
-
-1. WHEN integration tests run THEN all component interfaces SHALL be validated
-2. WHEN workflow tests execute THEN end-to-end trading workflows SHALL complete successfully
-3. WHEN data flow tests run THEN data consistency SHALL be maintained across all components
-4. WHEN error handling tests execute THEN system SHALL recover gracefully from failures
-5. WHEN integration validation completes THEN all inter-component communications SHALL be verified
-
-### Requirement 8: Documentation and Audit Trail
-
-**User Story:** As a compliance officer, I want complete documentation and audit trails, so that I can ensure regulatory compliance and system transparency.
+**User Story:** As a DevOps engineer, I want the Apache Kafka event bus implemented with hierarchical topics, so that asynchronous communication is decoupled and scalable.
 
 #### Acceptance Criteria
 
-1. WHEN documentation is generated THEN it SHALL cover all system components and APIs
-2. WHEN audit trails are created THEN they SHALL capture all system operations with timestamps
-3. WHEN compliance reports are generated THEN they SHALL include all required regulatory information
-4. WHEN documentation reviews are conducted THEN all documentation SHALL be current and accurate
-5. WHEN audit validation completes THEN all audit requirements SHALL be satisfied
+1. WHEN topics are created THEN they SHALL follow hierarchical naming (e.g., `domain.action.entity.source.symbol`).
+2. WHEN events are published/consumed THEN they SHALL use Schema Registry for consistency.
+3. WHEN wildcard subscriptions are tested THEN services SHALL receive relevant events.
+4. WHEN throughput is measured THEN >1M messages/second SHALL be handled with <100µs latency.
+5. WHEN replayability is verified THEN historical events SHALL be replayed for testing.
 
-### Requirement 9: Error Handling and Recovery
+### Requirement 5: Zero-Trust Security Implementation
 
-**User Story:** As a system reliability engineer, I want robust error handling and recovery mechanisms, so that the system can handle failures gracefully.
-
-#### Acceptance Criteria
-
-1. WHEN errors occur THEN system SHALL log detailed error information with context
-2. WHEN failures happen THEN system SHALL attempt automatic recovery where possible
-3. WHEN recovery fails THEN system SHALL fail safely without data corruption
-4. WHEN alerts are triggered THEN appropriate personnel SHALL be notified immediately
-5. WHEN error analysis is conducted THEN root cause SHALL be identifiable from logs
-
-### Requirement 10: NautilusTrader Engine Comprehensive Validation
-
-**User Story:** As a trading system architect, I want comprehensive NautilusTrader engine validation with all components and configurations, so that the core trading infrastructure is fully tested and production-ready.
+**User Story:** As a security officer, I want a zero-trust security model implemented, so that all access is verified and secured.
 
 #### Acceptance Criteria
 
-1. WHEN NautilusTrader engine initializes THEN all components (order management, risk management, data handlers) SHALL be validated
-2. WHEN engine configuration is loaded THEN all settings SHALL be verified for correctness and compatibility
-3. WHEN engine shutdown occurs THEN all resources SHALL be properly cleaned up without memory leaks
-4. WHEN engine performance is tested THEN it SHALL meet sub-millisecond order processing requirements
-5. WHEN engine integration is validated THEN all external connections SHALL be tested and verified
+1. WHEN authentication is tested THEN OAuth 2.0/OIDC with MFA SHALL be enforced.
+2. WHEN authorization is verified THEN RBAC SHALL restrict access based on roles (trader, quant, admin).
+3. WHEN encryption is checked THEN data in transit SHALL use TLS 1.3 and at rest AES-256.
+4. WHEN SAST scans are run THEN Bandit SHALL detect no critical vulnerabilities.
+5. WHEN UEBA is tested THEN anomalies SHALL be detected with <5% false positives.
 
-### Requirement 11: Multi-Asset Trading Support Validation
+### Requirement 6: Threat Modeling
 
-**User Story:** As a multi-asset trader, I want comprehensive support for all asset classes with proper validation, so that I can trade equities, forex, crypto, and futures through a unified interface.
-
-#### Acceptance Criteria
-
-1. WHEN equity trading is tested THEN all equity-specific order types and market rules SHALL be validated
-2. WHEN forex trading is tested THEN currency pair handling and forex-specific risk management SHALL be verified
-3. WHEN crypto trading is tested THEN cryptocurrency-specific features and security measures SHALL be validated
-4. WHEN futures trading is tested THEN margin requirements and expiration handling SHALL be verified
-5. WHEN cross-asset correlation is calculated THEN unified portfolio management SHALL work across all asset classes
-
-### Requirement 12: Quality Gates and Validation
-
-**User Story:** As a project manager, I want strict quality gates, so that no component progresses without meeting all requirements.
+**User Story:** As a security architect, I want threat modeling using STRIDE methodology, so that potential vulnerabilities are identified and mitigated.
 
 #### Acceptance Criteria
 
-1. WHEN quality gates are evaluated THEN all tests SHALL pass with >95% coverage
-2. WHEN code reviews are conducted THEN all code SHALL meet established standards
-3. WHEN performance validation runs THEN all performance targets SHALL be met
-4. WHEN security validation executes THEN all security requirements SHALL be satisfied
-5. WHEN phase completion is assessed THEN all acceptance criteria SHALL be verified
+1. WHEN spoofing threats are tested THEN authentication SHALL prevent identity forgery.
+2. WHEN tampering threats are tested THEN data integrity SHALL be maintained with hashing.
+3. WHEN repudiation threats are tested THEN audit trails SHALL log all actions immutably.
+4. WHEN information disclosure threats are tested THEN encryption SHALL protect sensitive data.
+5. WHEN denial of service threats are tested THEN rate limiting and auto-scaling SHALL maintain availability.
+6. WHEN elevation of privilege threats are tested THEN RBAC SHALL prevent unauthorized access.
+
+### Requirement 7: Market Data Fallback Mechanism
+
+**User Story:** As a trader, I want automatic fallback for market data sources, so that data availability is ensured.
+
+#### Acceptance Criteria
+
+1. WHEN primary source (Yahoo Finance) fails THEN fallback to Alpha Vantage SHALL occur seamlessly.
+2. WHEN all sources are tested THEN data normalization SHALL maintain consistency.
+3. WHEN failover latency is measured THEN switching SHALL happen in <100ms.
+4. WHEN historical data is requested THEN >5 years of options chains SHALL be available.
+5. WHEN dividend forecasts are integrated THEN they SHALL be included in analytics.
+
+**Mermaid Diagram: Phase 1 Security Flow**
+
+```mermaid
+graph TD
+    A[User Request] -->|OAuth 2.0/MFA| B[Keycloak]
+    B -->|JWT Token| C[API Gateway]
+    C -->|RBAC Check| D[Microservice]
+    D -->|mTLS| E[Kafka]
+    E -->|Encrypted Events| F[Database]
+    F -->|AES-256| G[Storage]
+    H[UEBA] -->|Anomaly Alert| E
+    I[Bandit SAST] -->|Scan Code| J[CI Pipeline]
+    K[STRIDE Model] -->|Threat Assessment| L[Mitigation]
+    M[Threat] -->|Simulate| N[Detection]
+    N -->|Log| O[Apache Iceberg]
+```
 
 ---
 
@@ -294,475 +238,228 @@ This document outlines the requirements for Phase 1 of the Algorithmic Trading S
 
 ## Introduction
 
-This document outlines the requirements for Phase 2 of the Algorithmic Trading System, which focuses on developing the frontend UI layer and implementing comprehensive broker integration to enable live trading capabilities.
+Phase 2 focuses on developing multi-platform user interfaces, integrating brokers for paper/live trading, and enabling real-time streaming, including Lobe Chat for AI interactions and Blockly for no-code strategies.
 
 ## Requirements
 
-### Requirement 1: Modern Frontend UI Development
+### Requirement 1: Multi-Platform UI Development
 
-**User Story:** As a trader, I want a modern, responsive web interface with multi-platform support, so that I can efficiently manage my trading activities and monitor market data in real-time across web, mobile, and desktop platforms.
-
-#### Acceptance Criteria
-
-1. WHEN the frontend loads THEN it SHALL display within 3 seconds with all core components across web, mobile, and desktop
-2. WHEN users interact with the interface THEN all actions SHALL provide immediate visual feedback with smooth animations
-3. WHEN the interface is accessed on different devices THEN it SHALL be fully responsive and functional with platform-specific optimizations
-4. WHEN real-time data updates THEN the UI SHALL update without page refresh or user intervention using WebSocket connections
-5. WHEN users navigate the application THEN the interface SHALL maintain state and provide smooth transitions with offline capability
-
-### Requirement 2: Real-Time Trading Dashboard
-
-**User Story:** As a trader, I want a comprehensive real-time dashboard, so that I can monitor my portfolio, positions, and market data in one centralized view.
+**User Story:** As a user, I want consistent interfaces across web, mobile, desktop, and PWA, so that I can access the platform from any device.
 
 #### Acceptance Criteria
 
-1. WHEN the dashboard loads THEN it SHALL display current portfolio value, P&L, and positions
-2. WHEN market data changes THEN dashboard SHALL update in real-time with <100ms latency
-3. WHEN orders are placed or filled THEN dashboard SHALL reflect changes immediately
-4. WHEN risk limits are approached THEN dashboard SHALL display clear visual warnings
-5. WHEN dashboard is customized THEN user preferences SHALL be saved and restored
+1. WHEN the web interface is accessed THEN it SHALL be responsive with Next.js/React 18, supporting customizable dashboards.
+2. WHEN the mobile app is used THEN it SHALL support React Native with biometric authentication and push notifications.
+3. WHEN the desktop app is launched THEN it SHALL use Electron with offline analytics via DuckDB.
+4. WHEN the PWA is installed THEN it SHALL provide progressive access with service workers for offline functionality.
+5. WHEN interfaces are tested THEN they SHALL comply with WCAG 2.1 and load in <2s.
 
-### Requirement 3: Advanced Order Management Interface
+### Requirement 2: Broker Integration with Paper/Live Toggle
 
-**User Story:** As a trader, I want an intuitive order management interface, so that I can place, modify, and cancel orders efficiently with proper risk controls.
-
-#### Acceptance Criteria
-
-1. WHEN placing orders THEN interface SHALL support all order types with validation
-2. WHEN order parameters are entered THEN real-time risk checks SHALL be displayed
-3. WHEN orders are submitted THEN confirmation SHALL be required for high-risk orders
-4. WHEN orders are active THEN users SHALL be able to modify or cancel them easily
-5. WHEN order errors occur THEN clear error messages SHALL be displayed with suggested actions
-
-### Requirement 4: Market Data Visualization
-
-**User Story:** As a trader, I want advanced market data visualization, so that I can analyze price movements and make informed trading decisions.
+**User Story:** As a trader, I want seamless integration with Interactive Brokers and a paper/live toggle, so that I can test strategies safely.
 
 #### Acceptance Criteria
 
-1. WHEN viewing charts THEN they SHALL display real-time price data with multiple timeframes
-2. WHEN technical indicators are added THEN they SHALL calculate and display correctly
-3. WHEN chart interactions occur THEN zooming and panning SHALL be smooth and responsive
-4. WHEN multiple symbols are viewed THEN charts SHALL support tabbed or multi-window display
-5. WHEN historical data is requested THEN it SHALL load efficiently without blocking the UI
+1. WHEN IBKR is connected THEN paper/live modes SHALL toggle without restarting.
+2. WHEN orders are placed THEN they SHALL route correctly in each mode.
+3. WHEN account data is fetched THEN balances and positions SHALL update in real-time.
+4. WHEN toggle is switched THEN UI SHALL reflect the mode with visual indicators.
+5. WHEN errors occur THEN fallback mechanisms SHALL handle disconnections.
 
-### Requirement 5: Portfolio and Risk Management Interface
+### Requirement 3: Lobe Chat Integration for AI Assistant
 
-**User Story:** As a trader, I want comprehensive portfolio and risk management tools, so that I can monitor my exposure and manage risk effectively.
-
-#### Acceptance Criteria
-
-1. WHEN viewing portfolio THEN current positions, P&L, and allocations SHALL be clearly displayed
-2. WHEN risk metrics are calculated THEN VaR, exposure, and concentration SHALL be shown
-3. WHEN risk limits are set THEN they SHALL be enforced with real-time monitoring
-4. WHEN portfolio changes occur THEN risk metrics SHALL update automatically
-5. WHEN risk violations occur THEN immediate alerts SHALL be displayed with recommended actions
-
-### Requirement 6: Multi-Broker Integration Framework
-
-**User Story:** As a system administrator, I want a flexible broker integration framework, so that multiple brokers can be connected to provide diverse trading options.
+**User Story:** As a user, I want an integrated chat interface for the AI Assistant, so that I can query and interact naturally.
 
 #### Acceptance Criteria
 
-1. WHEN brokers are configured THEN the system SHALL support multiple simultaneous connections
-2. WHEN broker APIs are integrated THEN all standard trading operations SHALL be supported
-3. WHEN broker connections fail THEN automatic reconnection SHALL be attempted
-4. WHEN broker data differs THEN the system SHALL handle data normalization correctly
-5. WHEN new brokers are added THEN integration SHALL follow standardized patterns
+1. WHEN Lobe Chat is opened THEN it SHALL connect to the AI Assistant via WebSocket.
+2. WHEN queries are sent THEN responses SHALL return in <2s with >85% accuracy.
+3. WHEN voice input is used THEN transcription SHALL achieve >95% accuracy.
+4. WHEN documents are uploaded THEN RAG SHALL process them for contextual queries.
+5. WHEN chat history is accessed THEN MCPs SHALL maintain context across sessions.
 
-### Requirement 7: Interactive Brokers (IBKR) Integration
+### Requirement 4: Blockly No-Code Strategy Builder
 
-**User Story:** As a trader, I want full Interactive Brokers integration, so that I can execute trades and access market data through IBKR's platform.
-
-#### Acceptance Criteria
-
-1. WHEN IBKR connection is established THEN all account information SHALL be synchronized
-2. WHEN orders are placed through IBKR THEN they SHALL execute with proper order routing
-3. WHEN market data is requested THEN IBKR data feeds SHALL provide real-time updates
-4. WHEN IBKR API limits are reached THEN the system SHALL handle rate limiting gracefully
-5. WHEN IBKR connection issues occur THEN appropriate error handling and recovery SHALL be implemented
-
-### Requirement 8: Alpaca Integration
-
-**User Story:** As a trader, I want Alpaca broker integration, so that I can access commission-free trading and modern API capabilities.
+**User Story:** As a non-technical user, I want a visual strategy builder, so that I can create strategies without coding.
 
 #### Acceptance Criteria
 
-1. WHEN Alpaca connection is established THEN account data SHALL be retrieved and displayed
-2. WHEN orders are submitted to Alpaca THEN they SHALL be processed with proper validation
-3. WHEN Alpaca market data is accessed THEN it SHALL integrate seamlessly with the platform
-4. WHEN Alpaca webhooks are received THEN order and position updates SHALL be processed
-5. WHEN Alpaca rate limits are encountered THEN the system SHALL implement proper throttling
+1. WHEN blocks are dragged THEN they SHALL connect for logic (indicators, orders, conditions).
+2. WHEN code is generated THEN it SHALL be clean Python compatible with NautilusTrader.
+3. WHEN strategies are saved THEN they SHALL be stored in PostgreSQL with version control.
+4. WHEN backtests are run THEN results SHALL display in the UI with metrics.
+5. WHEN strategies are deployed THEN they SHALL integrate with the Trading Engine.
 
-### Requirement 9: Real-Time Data Streaming
+### Requirement 5: Real-Time WebSocket Streaming
 
-**User Story:** As a trader, I want real-time market data streaming, so that I can make trading decisions based on current market conditions.
-
-#### Acceptance Criteria
-
-1. WHEN data streams are established THEN they SHALL provide sub-second market data updates
-2. WHEN multiple symbols are subscribed THEN the system SHALL handle high-frequency updates
-3. WHEN data stream interruptions occur THEN automatic reconnection SHALL be attempted
-4. WHEN data quality issues are detected THEN appropriate filtering and validation SHALL be applied
-5. WHEN bandwidth is limited THEN data compression and prioritization SHALL be implemented
-
-### Requirement 10: Order Execution and Management
-
-**User Story:** As a trader, I want reliable order execution and management, so that my trading strategies can be implemented effectively across multiple brokers.
+**User Story:** As a trader, I want real-time data streaming, so that I can monitor markets and portfolios live.
 
 #### Acceptance Criteria
 
-1. WHEN orders are routed THEN the system SHALL select the optimal broker based on configured rules
-2. WHEN order execution occurs THEN fills SHALL be reported back to the system immediately
-3. WHEN partial fills happen THEN remaining quantities SHALL be managed appropriately
-4. WHEN order rejections occur THEN detailed rejection reasons SHALL be provided
-5. WHEN execution quality is measured THEN metrics SHALL be tracked and reported
+1. WHEN WebSocket is connected THEN it SHALL stream market data with <100µs latency.
+2. WHEN subscriptions are made THEN symbols SHALL update in real-time.
+3. WHEN disconnections occur THEN auto-reconnect SHALL happen within 5s.
+4. WHEN data volume is high THEN throughput SHALL exceed 1M messages/s.
+5. WHEN streaming fails THEN fallback to polling SHALL maintain functionality.
 
-### Requirement 11: Account and Position Management
+**Mermaid Diagram: Phase 2 Broker Integration Flow**
 
-**User Story:** As a trader, I want comprehensive account and position management, so that I can track my holdings and account status across multiple brokers.
-
-#### Acceptance Criteria
-
-1. WHEN accounts are connected THEN all account information SHALL be synchronized regularly
-2. WHEN positions change THEN updates SHALL be reflected across all connected systems
-3. WHEN account balances are updated THEN cash and margin information SHALL be accurate
-4. WHEN corporate actions occur THEN position adjustments SHALL be handled correctly
-5. WHEN account reconciliation runs THEN discrepancies SHALL be identified and reported
-
-### Requirement 12: Performance and Scalability
-
-**User Story:** As a system administrator, I want the frontend and broker integrations to be performant and scalable, so that the system can handle multiple users and high trading volumes.
-
-#### Acceptance Criteria
-
-1. WHEN multiple users access the system THEN response times SHALL remain under 200ms
-2. WHEN high trading volumes occur THEN the system SHALL maintain performance standards
-3. WHEN broker connections scale THEN the system SHALL handle increased load efficiently
-4. WHEN frontend components render THEN they SHALL optimize for smooth user experience
-5. WHEN system resources are monitored THEN utilization SHALL stay within acceptable limits
-
-### Requirement 13: Security and Compliance
-
-**User Story:** As a compliance officer, I want robust security and compliance features, so that all trading activities meet regulatory requirements and security standards.
-
-#### Acceptance Criteria
-
-1. WHEN broker credentials are stored THEN they SHALL be encrypted and securely managed
-2. WHEN trading activities occur THEN all actions SHALL be logged for audit purposes
-3. WHEN user authentication happens THEN multi-factor authentication SHALL be supported
-4. WHEN data is transmitted THEN all communications SHALL use secure protocols
-5. WHEN compliance reports are generated THEN they SHALL include all required information
-
-### Requirement 14: Error Handling and Recovery
-
-**User Story:** As a trader, I want robust error handling and recovery, so that system issues don't impact my trading activities or cause data loss.
-
-#### Acceptance Criteria
-
-1. WHEN broker connection errors occur THEN the system SHALL attempt automatic recovery
-2. WHEN order submission fails THEN users SHALL receive clear error messages and guidance
-3. WHEN data feed interruptions happen THEN alternative data sources SHALL be utilized
-4. WHEN system errors occur THEN user sessions and data SHALL be preserved
-5. WHEN recovery procedures run THEN system state SHALL be restored to a consistent condition
-
-### Requirement 15: Progressive Web App and Mobile Features
-
-**User Story:** As a trader, I want PWA capabilities and native mobile applications, so that I can access trading functionality offline and receive push notifications on mobile devices.
-
-#### Acceptance Criteria
-
-1. WHEN PWA is installed THEN it SHALL provide offline functionality with service worker caching
-2. WHEN push notifications are enabled THEN critical alerts SHALL be delivered immediately to mobile devices
-3. WHEN mobile app is used THEN it SHALL provide biometric authentication and platform-specific features
-4. WHEN desktop app is launched THEN it SHALL provide system tray integration and native notifications
-5. WHEN apps are updated THEN auto-update mechanisms SHALL work seamlessly across all platforms
-
-### Requirement 16: TradingView Charting Integration
-
-**User Story:** As a trader, I want advanced TradingView charting capabilities integrated into the platform, so that I can perform comprehensive technical analysis with professional-grade charting tools.
-
-#### Acceptance Criteria
-
-1. WHEN TradingView charts are loaded THEN they SHALL display real-time market data with sub-second updates
-2. WHEN technical indicators are applied THEN they SHALL calculate and display correctly with customizable parameters
-3. WHEN chart interactions occur THEN drawing tools, trend lines, and annotations SHALL persist across sessions
-4. WHEN multiple timeframes are selected THEN chart synchronization SHALL work seamlessly
-5. WHEN custom indicators are created THEN they SHALL integrate with the existing TradingView framework
-
-### Requirement 17: Unified Broker Abstraction Layer
-
-**User Story:** As a system architect, I want a unified broker abstraction layer, so that all brokers can be managed through a consistent interface with intelligent order routing.
-
-#### Acceptance Criteria
-
-1. WHEN multiple brokers are connected THEN the abstraction layer SHALL provide a unified API for all operations
-2. WHEN orders are routed THEN the system SHALL select optimal brokers based on liquidity, cost, and execution quality
-3. WHEN broker failover occurs THEN the system SHALL automatically switch to backup brokers without interruption
-4. WHEN broker-specific features are used THEN the abstraction layer SHALL handle broker differences transparently
-5. WHEN new brokers are added THEN integration SHALL follow standardized patterns and interfaces
-
-### Requirement 18: Testing and Quality Assurance
-
-**User Story:** As a QA engineer, I want comprehensive testing coverage, so that all frontend and broker integration features work reliably in production.
-
-#### Acceptance Criteria
-
-1. WHEN unit tests run THEN they SHALL achieve >95% code coverage across web, mobile, and desktop platforms
-2. WHEN integration tests execute THEN all broker connections SHALL be validated with automated testing
-3. WHEN UI tests run THEN all user interactions SHALL be tested automatically using Cypress and React Testing Library
-4. WHEN performance tests complete THEN all performance requirements SHALL be verified including mobile performance
-5. WHEN end-to-end tests execute THEN complete trading workflows SHALL be validated across all platforms
+```mermaid
+graph TD
+    A[User UI] -->|Toggle Mode| B[API Gateway]
+    B -->|Authenticated| C[Kafka]
+    C -->|broker.toggle| D[Broker Abstraction Layer]
+    D -->|Paper Mode| E[Interactive Brokers Paper]
+    D -->|Live Mode| F[Interactive Brokers Live]
+    E & F -->|Account Data| D
+    D -->|Normalized| C
+    C -->|Updates| G[UI Stream]
+    H[Blockly] -->|Strategy Code| I[Trading Engine]
+    J[Lobe Chat] -->|Query| K[AI Assistant]
+    L[WebSocket] -->|Market Data| M[Dashboard Charts]
+```
 
 ---
 
-# Requirements Document - Phase 3: Advanced Analytics and AI Integration
+# Requirements Document - Phase 3: AI/ML Integration
 
 ## Introduction
 
-This document outlines the requirements for Phase 3 of the Algorithmic Trading System, which focuses on implementing advanced analytics capabilities, AI-powered trading strategies, and comprehensive backtesting infrastructure.
+Phase 3 integrates AI/ML features, including the Agentic AI Assistant, predictive models, sentiment analysis, custom indicators, RLOps, and AI knowledge hub, ensuring intelligent trading capabilities.
 
 ## Requirements
 
-### Requirement 1: Advanced Analytics Engine
+### Requirement 1: Agentic AI Assistant Integration
 
-**User Story:** As a quantitative analyst, I want advanced analytics capabilities, so that I can perform sophisticated market analysis and generate trading insights.
-
-#### Acceptance Criteria
-
-1. WHEN analytics queries are executed THEN they SHALL complete within 5 seconds for datasets up to 1TB
-2. WHEN statistical calculations are performed THEN they SHALL provide accurate results with 99.9% precision
-3. WHEN time-series analysis is conducted THEN it SHALL support multiple frequencies and aggregations
-4. WHEN correlation analysis is performed THEN it SHALL handle up to 10,000 instruments simultaneously
-5. WHEN analytics results are generated THEN they SHALL be cached for improved performance
-
-### Requirement 2: Machine Learning Pipeline
-
-**User Story:** As a data scientist, I want a comprehensive ML pipeline, so that I can develop, train, and deploy machine learning models for trading strategies.
+**User Story:** As a user, I want an Agentic AI Assistant for trading and analysis, so that I can interact naturally.
 
 #### Acceptance Criteria
 
-1. WHEN ML models are trained THEN the pipeline SHALL support supervised and unsupervised learning
-2. WHEN feature engineering is performed THEN it SHALL automatically generate relevant trading features
-3. WHEN model validation occurs THEN it SHALL use proper cross-validation and backtesting techniques
-4. WHEN models are deployed THEN they SHALL integrate seamlessly with the trading engine
-5. WHEN model performance is monitored THEN it SHALL track accuracy and drift metrics
+1. WHEN the assistant is queried THEN it SHALL process natural language with LangGraph orchestration.
+2. WHEN agents collaborate THEN asynchronous Kafka communication SHALL be used.
+3. WHEN responses are generated THEN they SHALL be accurate and context-aware.
+4. WHEN voice input is processed THEN Whisper SHALL convert to text with >95% accuracy.
+5. WHEN the assistant is tested THEN latency SHALL be <2s for queries.
 
-### Requirement 3: Backtesting Framework
+### Requirement 2: LangChain/LangGraph MCPs
 
-**User Story:** As a strategy developer, I want a robust backtesting framework, so that I can validate trading strategies against historical data with realistic market conditions.
-
-#### Acceptance Criteria
-
-1. WHEN backtests are executed THEN they SHALL simulate realistic market conditions including slippage and fees
-2. WHEN historical data is processed THEN it SHALL handle tick-level data with microsecond precision
-3. WHEN strategy performance is calculated THEN it SHALL provide comprehensive risk and return metrics
-4. WHEN backtests are run THEN they SHALL complete within reasonable time for multi-year datasets
-5. WHEN backtest results are generated THEN they SHALL include detailed trade-by-trade analysis
-
-### Requirement 4: Strategy Development Environment
-
-**User Story:** As a strategy developer, I want an integrated development environment, so that I can create, test, and deploy trading strategies efficiently.
+**User Story:** As a developer, I want MCPs for multi-step AI tasks, so that context is maintained.
 
 #### Acceptance Criteria
 
-1. WHEN strategies are developed THEN the IDE SHALL provide code completion and debugging capabilities
-2. WHEN strategy code is written THEN it SHALL support multiple programming languages (Python, R, C++)
-3. WHEN strategies are tested THEN they SHALL run in isolated sandbox environments
-4. WHEN strategy deployment occurs THEN it SHALL include proper version control and rollback capabilities
-5. WHEN strategy monitoring is active THEN it SHALL provide real-time performance tracking
+1. WHEN MCPs are used THEN conversation history SHALL be preserved across sessions.
+2. WHEN workflows are defined THEN they SHALL support multi-step tasks (e.g., query → analysis → trade).
+3. WHEN errors occur THEN MCPs SHALL handle retries and fallbacks.
+4. WHEN performance is measured THEN MCP overhead SHALL be <50ms.
+5. WHEN MCPs are tested THEN they SHALL integrate with TradingAgents.
 
-### Requirement 5: Risk Analytics and Management
+### Requirement 3: TradingAgents Multi-Agent Framework
 
-**User Story:** As a risk manager, I want comprehensive risk analytics, so that I can monitor and control portfolio risk in real-time.
-
-#### Acceptance Criteria
-
-1. WHEN risk calculations are performed THEN they SHALL update in real-time with position changes
-2. WHEN VaR calculations are executed THEN they SHALL use multiple methodologies (Historical, Monte Carlo, Parametric)
-3. WHEN stress testing is conducted THEN it SHALL simulate various market scenarios
-4. WHEN risk limits are breached THEN the system SHALL automatically trigger alerts and actions
-5. WHEN risk reports are generated THEN they SHALL comply with regulatory requirements
-
-### Requirement 6: Alternative Data Integration
-
-**User Story:** As a quantitative researcher, I want access to alternative data sources, so that I can develop unique trading strategies based on non-traditional data.
+**User Story:** As a quant, I want a multi-agent framework for AI decision-making, so that complex tasks are handled collaboratively.
 
 #### Acceptance Criteria
 
-1. WHEN alternative data is ingested THEN it SHALL support various formats (JSON, XML, CSV, APIs)
-2. WHEN data quality is assessed THEN it SHALL automatically validate and clean incoming data
-3. WHEN data is processed THEN it SHALL be normalized and stored in appropriate formats
-4. WHEN data access is requested THEN it SHALL provide low-latency retrieval for real-time strategies
-5. WHEN data lineage is tracked THEN it SHALL maintain complete audit trails for compliance
+1. WHEN agents are orchestrated THEN Analyst, Researcher, Risk Manager, Compliance, and Trader agents SHALL collaborate.
+2. WHEN decisions are made THEN they SHALL be auditable via Kafka events.
+3. WHEN agents are tested THEN coordination SHALL achieve >90% task completion rate.
+4. WHEN agent communication fails THEN fallback to single-agent mode.
+5. WHEN scalability is tested THEN multiple agents SHALL handle concurrent queries.
 
-### Requirement 7: LangChain/LangGraph Agentic AI Framework
+### Requirement 4: Real-Time Inference Engine
 
-**User Story:** As an AI developer, I want LangChain and LangGraph integration for multi-agent coordination, so that I can build sophisticated agentic AI workflows for trading research and decision-making.
-
-#### Acceptance Criteria
-
-1. WHEN LangChain processes documents THEN it SHALL extract relevant trading information with >90% accuracy
-2. WHEN LangGraph workflows execute THEN multi-agent coordination SHALL complete within defined timeouts
-3. WHEN agentic RAG pipeline operates THEN it SHALL provide contextual trading research with source attribution
-4. WHEN agent communication occurs THEN message passing SHALL maintain data integrity and traceability
-5. WHEN AI workflows are deployed THEN they SHALL integrate seamlessly with existing trading infrastructure
-
-### Requirement 8: Natural Language Processing for Market Sentiment
-
-**User Story:** As a sentiment analyst, I want NLP capabilities for market sentiment analysis, so that I can incorporate news and social media sentiment into trading decisions.
+**User Story:** As a trader, I want real-time predictions, so that I can make timely decisions.
 
 #### Acceptance Criteria
 
-1. WHEN news articles are processed THEN NLP SHALL extract sentiment scores with >85% accuracy
-2. WHEN social media data is analyzed THEN it SHALL identify relevant financial discussions
-3. WHEN sentiment analysis is performed THEN it SHALL provide real-time sentiment scores
-4. WHEN sentiment data is integrated THEN it SHALL correlate with market movements
-5. WHEN sentiment alerts are generated THEN they SHALL trigger within 30 seconds of significant changes
+1. WHEN inferences are run THEN TensorFlow Serving/PyTorch SHALL provide <100ms latency.
+2. WHEN models are deployed THEN they SHALL support Stock-Prediction-Models, LSTM, and Real-time-stock-market-prediction.
+3. WHEN accuracy is verified THEN >90% for pattern recognition.
+4. WHEN data is streamed THEN Kafka SHALL feed inputs in real-time.
+5. WHEN engine is tested THEN it SHALL scale to 10,000+ concurrent inferences.
 
-### Requirement 8: Portfolio Optimization Engine
+### Requirement 5: Archon AI Knowledge Hub
 
-**User Story:** As a portfolio manager, I want advanced portfolio optimization, so that I can construct optimal portfolios based on various constraints and objectives.
-
-#### Acceptance Criteria
-
-1. WHEN portfolio optimization is executed THEN it SHALL support multiple optimization objectives
-2. WHEN constraints are applied THEN it SHALL handle position limits, sector allocations, and risk budgets
-3. WHEN optimization algorithms run THEN they SHALL converge to optimal solutions within 60 seconds
-4. WHEN rebalancing is performed THEN it SHALL minimize transaction costs and market impact
-5. WHEN optimization results are generated THEN they SHALL include sensitivity analysis
-
-### Requirement 9: Real-time Strategy Execution
-
-**User Story:** As a strategy operator, I want real-time strategy execution, so that trading strategies can respond immediately to market opportunities.
+**User Story:** As a developer, I want an AI Knowledge Hub for component documentation, so that the assistant has context for tasks.
 
 #### Acceptance Criteria
 
-1. WHEN market signals are generated THEN strategies SHALL respond within 10 milliseconds
-2. WHEN orders are placed THEN they SHALL be routed optimally based on strategy requirements
-3. WHEN strategy parameters are updated THEN changes SHALL take effect immediately
-4. WHEN execution quality is measured THEN it SHALL track slippage and implementation shortfall
-5. WHEN strategy conflicts occur THEN the system SHALL resolve them based on priority rules
+1. WHEN docs are ingested THEN Tier 1 components (NautilusTrader, Kafka) SHALL be processed with RAGFlow.
+2. WHEN queries are made THEN responses SHALL draw from hub knowledge.
+3. WHEN updates occur THEN hub SHALL re-ingest docs automatically.
+4. WHEN accuracy is tested THEN >95% for documentation-based queries.
+5. WHEN hub is tested THEN it SHALL integrate with MCPs for context.
 
-### Requirement 10: Performance Attribution and Analysis
+### Requirement 6: Reinforcement Learning with RLOps
 
-**User Story:** As a performance analyst, I want detailed performance attribution, so that I can understand the sources of portfolio returns and identify improvement opportunities.
-
-#### Acceptance Criteria
-
-1. WHEN performance attribution is calculated THEN it SHALL decompose returns by various factors
-2. WHEN attribution analysis is performed THEN it SHALL support multiple attribution models
-3. WHEN performance metrics are computed THEN they SHALL include risk-adjusted returns
-4. WHEN benchmark comparisons are made THEN they SHALL use appropriate benchmarks for each strategy
-5. WHEN attribution reports are generated THEN they SHALL be available in multiple formats
-
-### Requirement 11: Data Visualization and Reporting
-
-**User Story:** As an analyst, I want advanced data visualization capabilities, so that I can create insightful charts and reports for stakeholders.
+**User Story:** As a quant, I want RLOps for DRL strategies, so that models can be continuously trained and deployed.
 
 #### Acceptance Criteria
 
-1. WHEN visualizations are created THEN they SHALL support interactive charts and dashboards
-2. WHEN reports are generated THEN they SHALL be customizable and schedulable
-3. WHEN data is displayed THEN it SHALL update in real-time for live dashboards
-4. WHEN charts are exported THEN they SHALL support multiple formats (PDF, PNG, SVG)
-5. WHEN dashboards are shared THEN they SHALL support role-based access control
+1. WHEN models are trained THEN FinRL/TradingGym SHALL use historical data from ClickHouse.
+2. WHEN deployment occurs THEN RLOps pipeline SHALL automate updates with zero downtime.
+3. WHEN performance is measured THEN reward functions SHALL improve over iterations.
+4. WHEN testing is done THEN models SHALL achieve positive returns in simulations.
+5. WHEN pipeline fails THEN rollback SHALL restore previous model.
 
-### Requirement 12: Model Governance and Compliance
+### Requirement 7: Anomaly Detection with PyOD
 
-**User Story:** As a compliance officer, I want model governance capabilities, so that all AI/ML models meet regulatory requirements and internal standards.
-
-#### Acceptance Criteria
-
-1. WHEN models are developed THEN they SHALL follow established governance procedures
-2. WHEN model validation is performed THEN it SHALL include independent validation processes
-3. WHEN models are deployed THEN they SHALL have proper documentation and approval
-4. WHEN model monitoring occurs THEN it SHALL track performance degradation and bias
-5. WHEN compliance reports are generated THEN they SHALL meet regulatory requirements
-
-### Requirement 13: Scalability and Performance
-
-**User Story:** As a system administrator, I want the analytics system to be highly scalable and performant, so that it can handle increasing data volumes and user demands.
+**User Story:** As a risk manager, I want anomaly detection for trading patterns, so that irregularities are flagged.
 
 #### Acceptance Criteria
 
-1. WHEN system load increases THEN it SHALL scale horizontally to maintain performance
-2. WHEN large datasets are processed THEN memory usage SHALL be optimized and controlled
-3. WHEN concurrent users access the system THEN response times SHALL remain consistent
-4. WHEN computational resources are allocated THEN they SHALL be distributed efficiently
-5. WHEN system capacity is monitored THEN it SHALL provide early warning of resource constraints
+1. WHEN data is analyzed THEN PyOD SHALL detect anomalies with <5% false positives.
+2. WHEN alerts are triggered THEN they SHALL be published to Kafka.
+3. WHEN integration is tested THEN detection SHALL work with live and backtest data.
+4. WHEN thresholds are set THEN they SHALL be configurable via UI.
+5. WHEN accuracy is verified THEN >95% detection rate for simulated anomalies.
 
-### Requirement 14: Integration and Interoperability
+### Requirement 8: Hyperparameter Optimization with Optuna
 
-**User Story:** As a system integrator, I want seamless integration capabilities, so that the analytics system can work with existing trading infrastructure and external systems.
-
-#### Acceptance Criteria
-
-1. WHEN external systems are integrated THEN they SHALL use standardized APIs and protocols
-2. WHEN data is exchanged THEN it SHALL maintain consistency and integrity across systems
-3. WHEN system updates occur THEN they SHALL not disrupt existing integrations
-4. WHEN new integrations are added THEN they SHALL follow established patterns and standards
-5. WHEN integration monitoring is active THEN it SHALL track data flow and system health
-
-### Requirement 15: TradingAgents Multi-Agent Framework
-
-**User Story:** As a trading system architect, I want specialized trading agents with coordination capabilities, so that I can implement sophisticated multi-agent trading strategies with role-based decision making.
+**User Story:** As a quant, I want hyperparameter tuning for strategies, so that performance is optimized.
 
 #### Acceptance Criteria
 
-1. WHEN trading agents are deployed THEN specialized agents (Analyst, Risk Manager, Trader) SHALL operate independently
-2. WHEN agent coordination occurs THEN communication protocols SHALL ensure consistent decision-making
-3. WHEN consensus mechanisms are used THEN agent decisions SHALL be aggregated with proper weighting
-4. WHEN agent performance is monitored THEN individual and collective metrics SHALL be tracked
-5. WHEN agent conflicts arise THEN resolution mechanisms SHALL maintain system stability
+1. WHEN optimization is run THEN Optuna SHALL tune parameters for strategies and models.
+2. WHEN results are compared THEN optimized strategies SHALL show improved Sharpe Ratio.
+3. WHEN integration is tested THEN it SHALL work with backtesting engine.
+4. WHEN parallelism is verified THEN multi-core/GPU support SHALL accelerate tuning.
+5. WHEN logs are checked THEN process SHALL be auditable in Kafka.
 
-### Requirement 16: Real-time Model Inference Engine
+### Requirement 9: Sentiment Analysis Pipeline
 
-**User Story:** As a quantitative developer, I want sub-millisecond model inference capabilities, so that I can deploy machine learning models for high-frequency trading applications.
-
-#### Acceptance Criteria
-
-1. WHEN models are served THEN inference latency SHALL be under 1 millisecond for standard models
-2. WHEN model caching is used THEN warm-up strategies SHALL minimize cold start delays
-3. WHEN inference pipelines operate THEN they SHALL handle concurrent requests efficiently
-4. WHEN model updates occur THEN hot-swapping SHALL not interrupt ongoing inference
-5. WHEN inference monitoring is active THEN performance metrics SHALL be tracked in real-time
-
-### Requirement 17: Market Pattern Recognition System
-
-**User Story:** As a quantitative analyst, I want advanced market pattern recognition capabilities, so that I can identify trading opportunities through automated pattern detection and analysis.
+**User Story:** As a trader, I want sentiment analysis from news/social media, so that I can gauge market mood.
 
 #### Acceptance Criteria
 
-1. WHEN candlestick patterns are analyzed THEN the system SHALL detect and classify patterns with >90% accuracy
-2. WHEN volume profile analysis is performed THEN it SHALL identify support/resistance levels and volume nodes
-3. WHEN market regime detection runs THEN it SHALL classify market conditions (trending, ranging, volatile) in real-time
-4. WHEN anomaly detection is active THEN it SHALL identify unusual market behavior and price movements
-5. WHEN pattern alerts are generated THEN they SHALL be delivered within 5 seconds of pattern completion
+1. WHEN data is ingested THEN Transformers/PyTorch SHALL process news/social feeds.
+2. WHEN accuracy is tested THEN >85% for sentiment classification (positive/neutral/negative).
+3. WHEN results are integrated THEN they SHALL influence AI insights.
+4. WHEN real-time is verified THEN latency <2s for analysis.
+5. WHEN testing is done THEN pipeline SHALL handle 10,000+ daily articles.
 
-### Requirement 18: Data Quality and Schema Management
+### Requirement 10: Custom Volume-Weighted Indicators
 
-**User Story:** As a data engineer, I want comprehensive data quality management and schema validation, so that all data used in AI/ML models is accurate, consistent, and properly structured.
-
-#### Acceptance Criteria
-
-1. WHEN data is ingested THEN schema validation SHALL ensure data conforms to expected formats
-2. WHEN data quality checks run THEN they SHALL identify and flag data inconsistencies and anomalies
-3. WHEN data cleansing occurs THEN it SHALL automatically correct common data quality issues
-4. WHEN schema evolution happens THEN backward compatibility SHALL be maintained for existing models
-5. WHEN data lineage is tracked THEN complete data flow documentation SHALL be maintained
-
-### Requirement 19: Security and Data Protection
-
-**User Story:** As a security officer, I want robust security measures, so that sensitive trading data and intellectual property are protected from unauthorized access.
+**User Story:** As a quant, I want custom VW indicators, so that I can implement advanced technical analysis.
 
 #### Acceptance Criteria
 
-1. WHEN data is stored THEN it SHALL be encrypted using industry-standard encryption
-2. WHEN access is granted THEN it SHALL use multi-factor authentication and authorization
-3. WHEN data is transmitted THEN it SHALL use secure protocols and encryption
-4. WHEN audit trails are maintained THEN they SHALL capture all data access and modifications
-5. WHEN security incidents occur THEN they SHALL be detected and responded to immediately
+1. WHEN indicators are computed THEN VW SMA/EMA/MACD/MFI (various periods) SHALL be accurate.
+2. WHEN Normalized ATR is tested THEN 21/8 Day calculations SHALL match reference.
+3. WHEN Choppy Market Index is verified THEN it SHALL identify sideways markets correctly.
+4. WHEN integration is tested THEN indicators SHALL work in backtesting and live trading.
+5. WHEN performance is measured THEN computation SHALL be <1ms per tick.
+
+### Requirement 11: AI Knowledge Hub (Archon)
+
+**User Story:** As a developer, I want an AI Knowledge Hub for component docs, so that the assistant has accurate context.
+
+#### Acceptance Criteria
+
+1. WHEN docs are ingested THEN Tier 1 components (NautilusTrader, Kafka) SHALL be processed.
+2. WHEN queries are made THEN responses SHALL be based on hub knowledge.
+3. WHEN updates occur THEN re-ingestion SHALL be automated.
+4. WHEN accuracy is tested THEN >95% for documentation queries.
+5. WHEN hub is integrated THEN it SHALL support MCPs for multi-step tasks.
 
 ---
 
@@ -770,105 +467,77 @@ This document outlines the requirements for Phase 3 of the Algorithmic Trading S
 
 ## Introduction
 
-Phase 4 focuses on creating a comprehensive frontend user interface and implementing live trading capabilities. This phase transforms the algorithmic trading system from a backend-focused platform into a complete trading solution with real-time user interaction, advanced visualization, and live market execution capabilities.
+Phase 4 enables live trading through frontend integration, including WebSocket/REST APIs, order management UI, TradingView charts, risk/analytics dashboards, and Glass Box UI.
 
 ## Requirements
 
-### Requirement 1: Advanced Frontend Dashboard
+### Requirement 1: WebSocket/REST Live Trading Integration
 
-**User Story:** As a trader, I want a comprehensive dashboard interface, so that I can monitor all trading activities, market data, and system performance in real-time.
-
-#### Acceptance Criteria
-
-1. WHEN a user accesses the dashboard THEN the system SHALL display real-time market data, portfolio status, and active strategies
-2. WHEN market data updates THEN the dashboard SHALL refresh automatically without user intervention
-3. WHEN a user selects different time frames THEN the system SHALL update all charts and indicators accordingly
-4. IF the user has multiple portfolios THEN the system SHALL allow switching between portfolio views
-5. WHEN system alerts are triggered THEN the dashboard SHALL display notifications prominently
-
-### Requirement 2: Interactive Trading Interface
-
-**User Story:** As a trader, I want an interactive trading interface, so that I can execute trades, modify orders, and manage positions directly from the web interface.
+**User Story:** As a trader, I want WebSocket/REST for live trading, so that I can execute and monitor trades in real-time.
 
 #### Acceptance Criteria
 
-1. WHEN a user places an order THEN the system SHALL validate the order parameters and execute through the trading engine
-2. WHEN an order is submitted THEN the system SHALL provide immediate confirmation and order tracking
-3. WHEN a user modifies an existing order THEN the system SHALL update the order in real-time
-4. IF an order fails THEN the system SHALL display clear error messages and suggested corrections
-5. WHEN positions are opened or closed THEN the interface SHALL update portfolio displays immediately
+1. WHEN WebSocket is connected THEN it SHALL stream order updates with <100ms latency.
+2. WHEN REST endpoints are called THEN they SHALL handle live orders with <10ms response.
+3. WHEN live data is processed THEN it SHALL integrate with Kafka events.
+4. WHEN disconnections occur THEN auto-reconnect SHALL happen within 5s.
+5. WHEN testing is done THEN throughput SHALL exceed 10,000 requests/s.
 
-### Requirement 3: Real-time Market Data Visualization
+### Requirement 2: Order Management UI
 
-**User Story:** As a trader, I want advanced charting and visualization tools, so that I can analyze market trends and make informed trading decisions.
-
-#### Acceptance Criteria
-
-1. WHEN a user selects a trading instrument THEN the system SHALL display interactive price charts with technical indicators
-2. WHEN technical indicators are applied THEN the charts SHALL update in real-time with new market data
-3. WHEN a user draws trend lines or annotations THEN the system SHALL persist these across sessions
-4. IF multiple timeframes are selected THEN the system SHALL synchronize chart displays
-5. WHEN market events occur THEN the system SHALL highlight significant price movements and volume changes
-
-### Requirement 4: Live Trading Engine Integration
-
-**User Story:** As a system administrator, I want seamless integration with live trading engines, so that the system can execute real trades in production environments.
+**User Story:** As a trader, I want an intuitive UI for order management, so that I can place and monitor orders easily.
 
 #### Acceptance Criteria
 
-1. WHEN the system connects to live brokers THEN it SHALL establish secure, authenticated connections
-2. WHEN live trading is enabled THEN the system SHALL route orders to appropriate broker APIs
-3. WHEN market data is received THEN the system SHALL process and distribute updates within 100ms
-4. IF connection issues occur THEN the system SHALL implement automatic reconnection with exponential backoff
-5. WHEN trades are executed THEN the system SHALL receive and process fill confirmations immediately
+1. WHEN orders are placed THEN the UI SHALL support all types with real-time validation.
+2. WHEN status updates occur THEN the UI SHALL refresh via WebSocket.
+3. WHEN modifications are made THEN updates SHALL reflect in the backend.
+4. WHEN cancellations are requested THEN they SHALL process immediately.
+5. WHEN UI is tested THEN it SHALL be responsive across devices.
 
-### Requirement 5: Risk Management Interface
+### Requirement 3: TradingView, Risk, and Analytics Dashboards
 
-**User Story:** As a risk manager, I want comprehensive risk monitoring tools, so that I can oversee trading activities and enforce risk limits in real-time.
-
-#### Acceptance Criteria
-
-1. WHEN risk limits are approached THEN the system SHALL display warnings and prevent limit violations
-2. WHEN portfolio exposure exceeds thresholds THEN the system SHALL trigger automatic risk reduction measures
-3. WHEN unusual trading patterns are detected THEN the system SHALL alert risk managers immediately
-4. IF emergency stops are required THEN the system SHALL provide one-click position closure capabilities
-5. WHEN risk reports are generated THEN the system SHALL include real-time P&L, VaR, and exposure metrics
-
-### Requirement 6: Performance Analytics Dashboard
-
-**User Story:** As a portfolio manager, I want detailed performance analytics, so that I can evaluate strategy effectiveness and optimize trading approaches.
+**User Story:** As a user, I want integrated dashboards for trading, risk, and analytics, so that I can monitor everything in one place.
 
 #### Acceptance Criteria
 
-1. WHEN performance data is requested THEN the system SHALL calculate and display key metrics (Sharpe ratio, drawdown, alpha, beta)
-2. WHEN comparing strategies THEN the system SHALL provide side-by-side performance comparisons
-3. WHEN historical analysis is performed THEN the system SHALL support custom date ranges and benchmarking
-4. IF performance degrades THEN the system SHALL highlight underperforming strategies and suggest optimizations
-5. WHEN reports are exported THEN the system SHALL support multiple formats (PDF, Excel, CSV)
+1. WHEN TradingView is loaded THEN it SHALL display real-time charts with custom indicators.
+2. WHEN risk dashboard is accessed THEN it SHALL show VaR, exposure, and alerts in real-time.
+3. WHEN analytics dashboard is viewed THEN it SHALL display backtest results and performance metrics.
+4. WHEN data is streamed THEN Plotly Dash SHALL handle visualizations with <100ms updates.
+5. WHEN dashboards are customized THEN layouts SHALL save in PostgreSQL.
 
-### Requirement 7: User Authentication and Authorization
+### Requirement 4: Glass Box UI for Event Explorer
 
-**User Story:** As a system administrator, I want robust user management capabilities, so that I can control access to trading functions and sensitive data.
-
-#### Acceptance Criteria
-
-1. WHEN users log in THEN the system SHALL authenticate using multi-factor authentication
-2. WHEN user roles are assigned THEN the system SHALL enforce role-based access controls throughout the interface
-3. WHEN sensitive operations are performed THEN the system SHALL require additional authorization
-4. IF unauthorized access is attempted THEN the system SHALL log security events and block access
-5. WHEN user sessions expire THEN the system SHALL automatically log out users and clear sensitive data
-
-### Requirement 8: Mobile Responsiveness
-
-**User Story:** As a trader, I want mobile-friendly interfaces, so that I can monitor and manage trading activities from any device.
+**User Story:** As a quant, I want a Glass Box UI to visualize event chains, so that I can debug strategies.
 
 #### Acceptance Criteria
 
-1. WHEN accessing from mobile devices THEN the interface SHALL adapt to different screen sizes automatically
-2. WHEN touch interactions are used THEN the system SHALL provide appropriate touch-friendly controls
-3. WHEN mobile notifications are enabled THEN the system SHALL send push notifications for critical alerts
-4. IF network connectivity is poor THEN the system SHALL optimize data usage and provide offline capabilities
-5. WHEN switching between devices THEN the system SHALL synchronize user preferences and session state
+1. WHEN a trade is selected THEN the UI SHALL display Kafka event chain with timestamps.
+2. WHEN events are visualized THEN they SHALL include agent decisions and sentiment trends.
+3. WHEN topic clouds are generated THEN they SHALL summarize data flows.
+4. WHEN UI is interactive THEN users SHALL filter events by type/symbol.
+5. WHEN performance is tested THEN rendering SHALL be <200ms for 1000 events.
+
+**Mermaid Diagram: Phase 4 Order Flow**
+
+```mermaid
+graph TD
+    A[UI Order Placement] -->|REST/Post| B[API Gateway]
+    B -->|JWT Validated| C[Kafka: order.submitted]
+    C -->|Consume| D[Trading Engine]
+    D -->|Pre-Trade Check| E[Risk Manager]
+    E -->|Approved| F[OMS]
+    F -->|Route| G[Broker]
+    G -->|Fill| F
+    F -->|Update| H[Kafka: order.filled]
+    H -->|Stream| I[UI WebSocket]
+    H -->|Update| J[Portfolio Manager]
+    J -->|Metrics| K[Risk Dashboard]
+    L[Glass Box UI] -->|Query Events| M[Kafka/Apache Iceberg]
+    N[TradingView] -->|Real-Time Data| O[Market Data Service]
+    O -->|Stream| I
+```
 
 ---
 
@@ -876,370 +545,292 @@ Phase 4 focuses on creating a comprehensive frontend user interface and implemen
 
 ## Introduction
 
-Phase 5 focuses on transforming the algorithmic trading system into an enterprise-ready platform with comprehensive monitoring, security, compliance, and scalability features. This phase ensures the system meets institutional-grade requirements for production deployment in regulated financial environments.
+Phase 5 focuses on enterprise features, including multi-region failover, audit trails, regulatory reporting, UEBA, self-healing, and Market Scanner integration.
 
 ## Requirements
 
-### Requirement 1: Comprehensive Monitoring and Observability
+### Requirement 1: Multi-Region Failover and High Availability
 
-**User Story:** As a system administrator, I want complete system observability, so that I can monitor performance, detect issues, and maintain optimal system health in production.
-
-#### Acceptance Criteria
-
-1. WHEN system metrics are collected THEN the monitoring system SHALL capture performance, latency, throughput, and error rates across all components
-2. WHEN anomalies are detected THEN the system SHALL trigger automated alerts with severity levels and escalation procedures
-3. WHEN distributed traces are generated THEN the system SHALL provide end-to-end request tracking across all microservices
-4. IF system performance degrades THEN the monitoring system SHALL identify root causes and suggest remediation actions
-5. WHEN dashboards are accessed THEN the system SHALL display real-time metrics with historical trending and forecasting
-
-### Requirement 2: Advanced Security and Compliance
-
-**User Story:** As a compliance officer, I want comprehensive security controls and audit capabilities, so that the system meets regulatory requirements and protects sensitive financial data.
+**User Story:** As an administrator, I want multi-region failover, so that the system maintains 99.95% uptime.
 
 #### Acceptance Criteria
 
-1. WHEN users access the system THEN authentication SHALL use multi-factor authentication with enterprise identity providers
-2. WHEN sensitive operations are performed THEN the system SHALL log all actions with immutable audit trails
-3. WHEN data is transmitted THEN all communications SHALL use end-to-end encryption with certificate pinning
-4. IF security threats are detected THEN the system SHALL implement automated threat response and isolation procedures
-5. WHEN compliance reports are generated THEN the system SHALL provide detailed audit logs meeting regulatory standards (SOX, MiFID II, GDPR)
+1. WHEN primary region fails THEN traffic SHALL route to secondary region.
+2. WHEN failover is tested THEN RTO SHALL be <4 hours and RPO <15 minutes.
+3. WHEN auto-scaling is verified THEN HPA SHALL adjust replicas based on load.
+4. WHEN self-healing is tested THEN failed pods SHALL restart within 30s.
+5. WHEN availability is monitored THEN Prometheus SHALL alert on downtime.
 
-### Requirement 3: High Availability and Disaster Recovery
+### Requirement 2: Immutable Audit Trails with Apache Iceberg
 
-**User Story:** As a business continuity manager, I want robust disaster recovery capabilities, so that trading operations can continue with minimal disruption during system failures.
-
-#### Acceptance Criteria
-
-1. WHEN primary systems fail THEN the system SHALL automatically failover to secondary systems within 30 seconds
-2. WHEN data replication occurs THEN the system SHALL maintain real-time synchronization across multiple geographic regions
-3. WHEN disaster recovery is activated THEN the system SHALL restore full functionality within 4 hours (RTO) with maximum 15 minutes of data loss (RPO)
-4. IF network partitions occur THEN the system SHALL maintain trading capabilities in degraded mode
-5. WHEN failover testing is performed THEN the system SHALL execute automated disaster recovery drills monthly
-
-### Requirement 4: Performance Optimization and Scalability
-
-**User Story:** As a system architect, I want horizontal and vertical scalability capabilities, so that the system can handle increasing trading volumes and user loads efficiently.
+**User Story:** As a compliance officer, I want immutable audit trails, so that all actions are traceable.
 
 #### Acceptance Criteria
 
-1. WHEN trading volume increases THEN the system SHALL automatically scale compute resources to maintain sub-100ms latency
-2. WHEN user load grows THEN the system SHALL support horizontal scaling to handle 10,000+ concurrent users
-3. WHEN market data volume spikes THEN the system SHALL process 1M+ messages per second without degradation
-4. IF resource utilization exceeds thresholds THEN the system SHALL trigger auto-scaling with predictive scaling algorithms
-5. WHEN performance testing is conducted THEN the system SHALL demonstrate linear scalability up to 10x baseline load
+1. WHEN actions occur THEN they SHALL log to Iceberg immutably.
+2. WHEN logs are queried THEN they SHALL be retrievable for compliance reports.
+3. WHEN tampering is attempted THEN it SHALL fail.
+4. WHEN retention is tested THEN logs SHALL be kept for 7 years.
+5. WHEN integration is verified THEN all microservices SHALL publish audit events.
 
-### Requirement 5: Enterprise Integration and API Management
+### Requirement 3: LDAP/SAML Integration for Authentication
 
-**User Story:** As an enterprise architect, I want comprehensive API management and integration capabilities, so that the system can integrate seamlessly with existing enterprise infrastructure.
-
-#### Acceptance Criteria
-
-1. WHEN external systems integrate THEN the API gateway SHALL provide rate limiting, authentication, and request/response transformation
-2. WHEN API versions are updated THEN the system SHALL maintain backward compatibility and provide deprecation notices
-3. WHEN enterprise SSO is configured THEN the system SHALL integrate with LDAP, Active Directory, and SAML providers
-4. IF API limits are exceeded THEN the system SHALL implement throttling with appropriate error responses
-5. WHEN API documentation is accessed THEN the system SHALL provide interactive documentation with code examples
-
-### Requirement 6: Advanced Analytics and Reporting
-
-**User Story:** As a portfolio manager, I want comprehensive analytics and reporting capabilities, so that I can analyze trading performance and generate regulatory reports.
+**User Story:** As an enterprise user, I want LDAP/SAML integration, so that I can use corporate credentials.
 
 #### Acceptance Criteria
 
-1. WHEN performance analysis is requested THEN the system SHALL calculate advanced metrics (Information Ratio, Calmar Ratio, Maximum Drawdown Duration)
-2. WHEN risk reports are generated THEN the system SHALL provide VaR, CVaR, and stress testing results with confidence intervals
-3. WHEN regulatory reports are required THEN the system SHALL generate standardized reports (MiFID II transaction reporting, EMIR trade reporting)
-4. IF data quality issues are detected THEN the system SHALL flag inconsistencies and provide data lineage tracking
-5. WHEN custom reports are created THEN the system SHALL support flexible report builders with scheduled delivery
+1. WHEN login is attempted THEN it SHALL support LDAP/SAML via Keycloak.
+2. WHEN users are synced THEN corporate directories SHALL integrate seamlessly.
+3. WHEN SSO is tested THEN it SHALL work with providers like Okta/Azure AD.
+4. WHEN MFA is enforced THEN it SHALL require for all logins.
+5. WHEN sessions are managed THEN expiration SHALL be 24 hours.
 
-### Requirement 7: Configuration Management and Feature Flags
+### Requirement 4: Unleash Feature Flags and Feast Feature Store
 
-**User Story:** As a DevOps engineer, I want centralized configuration management and feature flag capabilities, so that I can deploy and manage system changes safely in production.
-
-#### Acceptance Criteria
-
-1. WHEN configurations are updated THEN the system SHALL apply changes without requiring system restarts
-2. WHEN feature flags are toggled THEN the system SHALL enable/disable features in real-time with user-specific targeting
-3. WHEN configuration changes are made THEN the system SHALL validate configurations and rollback invalid changes automatically
-4. IF emergency situations occur THEN the system SHALL provide circuit breakers and emergency stop mechanisms
-5. WHEN A/B testing is conducted THEN the system SHALL support gradual rollouts with performance monitoring
-
-### Requirement 8: Data Management and Archival
-
-**User Story:** As a data governance officer, I want comprehensive data lifecycle management, so that the system maintains data integrity while meeting retention and archival requirements.
+**User Story:** As a developer, I want feature flags and a feature store, so that I can manage deployments dynamically.
 
 #### Acceptance Criteria
 
-1. WHEN data retention policies are defined THEN the system SHALL automatically archive and purge data according to regulatory requirements
-2. WHEN data backup occurs THEN the system SHALL create encrypted backups with point-in-time recovery capabilities
-3. WHEN data integrity is verified THEN the system SHALL perform automated data validation and corruption detection
-4. IF data corruption is detected THEN the system SHALL trigger automatic recovery procedures and alert administrators
-5. WHEN historical data is accessed THEN the system SHALL provide efficient querying of archived data with sub-second response times
+1. WHEN flags are toggled THEN features (e.g., voice trading) SHALL enable/disable without restart.
+2. WHEN kill switches are tested THEN they SHALL halt operations immediately.
+3. WHEN Feast is used THEN AI features SHALL store/retrieve data efficiently.
+4. WHEN flags are audited THEN changes SHALL log in Iceberg.
+5. WHEN A/B testing is done THEN flags SHALL support user segmentation.
+
+### Requirement 5: Regulatory Reporting Automation
+
+**User Story:** As a compliance officer, I want automated regulatory reports, so that I can meet MiFID II/SOX requirements.
+
+#### Acceptance Criteria
+
+1. WHEN reports are generated THEN they SHALL include trades, actions, and risks.
+2. WHEN exports are tested THEN PDFs SHALL be created accurately.
+3. WHEN scheduling is verified THEN reports SHALL run daily/weekly.
+4. WHEN data is sourced THEN it SHALL pull from Iceberg and ClickHouse.
+5. WHEN compliance is tested THEN reports SHALL adhere to GDPR data protection.
+
+### Requirement 6: Market Scanner UI Integration
+
+**User Story:** As a trader, I want a market scanner UI, so that I can identify opportunities.
+
+#### Acceptance Criteria
+
+1. WHEN scans are run THEN the UI SHALL display results in a grid with custom filters.
+2. WHEN indicators are applied THEN VW MACD, RSI, etc., SHALL compute in real-time.
+3. WHEN data is streamed THEN WebSocket SHALL update the grid <1s.
+4. WHEN exports are tested THEN results SHALL download as CSV.
+5. WHEN performance is measured THEN it SHALL handle 10,000+ symbols.
+
+### Requirement 7: UEBA Threat Detection
+
+**User Story:** As a security officer, I want UEBA for threat detection, so that anomalies are flagged.
+
+#### Acceptance Criteria
+
+1. WHEN user behavior is monitored THEN PyOD SHALL detect anomalies with <5% false positives.
+2. WHEN alerts are triggered THEN they SHALL notify via email/Slack.
+3. WHEN baselines are established THEN normal patterns SHALL be learned over time.
+4. WHEN integration is tested THEN UEBA SHALL work with audit logs.
+5. WHEN false positives are minimized THEN machine learning SHALL refine models.
+
+### Requirement 8: Self-Healing Microservices
+
+**User Story:** As an administrator, I want self-healing services, so that downtime is minimized.
+
+#### Acceptance Criteria
+
+1. WHEN a pod fails THEN Kubernetes SHALL restart it within 30s.
+2. WHEN liveness probes are tested THEN they SHALL detect unresponsive services.
+3. WHEN readiness probes are verified THEN services SHALL not receive traffic until ready.
+4. WHEN scaling is tested THEN HPA SHALL adjust replicas based on CPU/load.
+5. WHEN recovery is measured THEN system SHALL recover without data loss.
+
+### Requirement 9: Professional Quick-Start Guide Verification
+
+**User Story:** As a quant, I want a quick-start guide for pros, so that I can set up advanced features.
+
+#### Acceptance Criteria
+
+1. WHEN guide is followed THEN commands (e.g., `docker-compose --profile pro up`) SHALL succeed.
+2. WHEN JupyterHub is accessed THEN it SHALL launch at `http://localhost:8888`.
+3. WHEN Kafka is configured THEN hierarchical topics SHALL be created.
+4. WHEN FIX is tested THEN connectivity SHALL be established.
+5. WHEN guide is complete THEN it SHALL cover all Phase 5 tasks.
+
+**Mermaid Diagram: Phase 5 HA Flow**
+
+```mermaid
+graph TD
+    A[Primary Region] -->|Failure Detected| B[Prometheus Alert]
+    B -->|Trigger Failover| C[ArgoCD Sync]
+    C -->|Deploy to Secondary| D[Secondary Region]
+    D -->|Verify| E[Kubernetes Pods Running]
+    E -->|Health Checks| F[Liveness Probes]
+    F -->|Pass| G[System Available]
+    H[Self-Healing] -->|Pod Failure| I[Restart Pod]
+    I -->|Success| G
+    J[UEBA Anomaly] -->|Detect| K[Alert & Quarantine]
+    K -->|Log| L[Apache Iceberg]
+```
 
 ---
 
-# Requirements Document - Phase 6
+# Requirements Document - Phase 6: System Enhancement & Future-Ready Technologies
 
 ## Introduction
 
-This specification outlines comprehensive improvements to the Nautilus Trader Engine system based on analysis of the current architecture, features, and capabilities. The enhancements focus on advanced trading capabilities, improved system performance, enhanced monitoring, and new enterprise features that will transform the system into a world-class, AI-powered trading platform.
+Phase 6 enhances the platform with next-generation features, including ultra-low latency infrastructure, advanced execution algorithms, broker expansions, iterative refinement, voice/AR interfaces, Memray/Tempo, market microstructure analysis, Customer Service Bot, and Strategy Marketplace.
 
 ## Requirements
 
-### Requirement 1: Advanced AI-Powered Trading Intelligence
+### Requirement 1: Ultra-Low Latency Infrastructure
 
-**User Story:** As a professional trader, I want AI-powered market analysis and trade recommendations so that I can make more informed trading decisions with higher success rates.
-
-#### Acceptance Criteria
-
-1. WHEN market data is received THEN the system SHALL analyze patterns using machine learning models
-2. WHEN significant market anomalies are detected THEN the system SHALL generate intelligent alerts with confidence scores
-3. WHEN trade opportunities are identified THEN the system SHALL provide AI-generated recommendations with risk assessments
-4. WHEN historical data is available THEN the system SHALL continuously learn and improve prediction accuracy
-5. WHEN multiple timeframes are analyzed THEN the system SHALL provide multi-dimensional market insights
-6. WHEN sentiment data is available THEN the system SHALL incorporate news and social sentiment into analysis
-
-### Requirement 2: Real-Time Market Microstructure Analysis
-
-**User Story:** As an algorithmic trader, I want detailed market microstructure analysis so that I can understand order flow, liquidity patterns, and market maker behavior.
+**User Story:** As a high-frequency trader, I want ultra-low latency infrastructure, so that I can execute trades efficiently.
 
 #### Acceptance Criteria
 
-1. WHEN order book data is received THEN the system SHALL analyze bid-ask spreads and depth
-2. WHEN trade executions occur THEN the system SHALL track market impact and slippage patterns
-3. WHEN volume patterns change THEN the system SHALL detect institutional order flow
-4. WHEN liquidity conditions vary THEN the system SHALL adjust trading strategies accordingly
-5. WHEN market maker activity is detected THEN the system SHALL identify support and resistance levels
-6. WHEN dark pool activity is suspected THEN the system SHALL flag potential hidden liquidity
+1. WHEN DMA is implemented THEN direct market access SHALL reduce latency to <100µs.
+2. WHEN co-location is configured THEN servers SHALL be placed near exchanges.
+3. WHEN hardware is tested THEN FPGAs/SmartNICs SHALL process critical data paths.
+4. WHEN optimizations are applied THEN lock-free structures and cache-line alignment SHALL minimize overhead.
+5. WHEN performance is measured THEN end-to-end latency SHALL be <50µs for high-frequency flows.
 
-### Requirement 3: Advanced Risk Management and Portfolio Optimization
+### Requirement 2: Advanced Order Management
 
-**User Story:** As a portfolio manager, I want sophisticated risk management tools and portfolio optimization so that I can maximize returns while controlling downside risk.
-
-#### Acceptance Criteria
-
-1. WHEN positions are opened THEN the system SHALL calculate real-time VaR (Value at Risk)
-2. WHEN portfolio composition changes THEN the system SHALL optimize allocation using modern portfolio theory
-3. WHEN correlation patterns shift THEN the system SHALL adjust hedging strategies
-4. WHEN drawdown limits are approached THEN the system SHALL implement protective measures
-5. WHEN market volatility increases THEN the system SHALL dynamically adjust position sizes
-6. WHEN stress testing is performed THEN the system SHALL simulate various market scenarios
-
-### Requirement 4: Multi-Asset Class Trading Support
-
-**User Story:** As an institutional trader, I want to trade across multiple asset classes (equities, options, futures, forex, crypto) so that I can implement cross-asset strategies and diversification.
+**User Story:** As a trader, I want a smart order router and advanced algorithms, so that I can optimize executions.
 
 #### Acceptance Criteria
 
-1. WHEN different asset classes are traded THEN the system SHALL handle unique characteristics of each
-2. WHEN cross-asset correlations exist THEN the system SHALL identify arbitrage opportunities
-3. WHEN margin requirements vary THEN the system SHALL calculate accurate capital requirements
-4. WHEN settlement dates differ THEN the system SHALL manage cash flow and funding needs
-5. WHEN regulatory requirements vary THEN the system SHALL ensure compliance across asset classes
-6. WHEN currency exposure exists THEN the system SHALL provide hedging recommendations
+1. WHEN router is used THEN it SHALL select optimal broker/path for TWAP/VWAP/Iceberg.
+2. WHEN algorithms are tested THEN TWAP SHALL execute over time evenly.
+3. WHEN VWAP is verified THEN it SHALL match volume-weighted average.
+4. WHEN Iceberg is tested THEN large orders SHALL be hidden with small visible portions.
+5. WHEN impact is measured THEN router SHALL minimize market impact.
 
-### Requirement 5: Enhanced Performance and Scalability
+### Requirement 3: Broker Expansion
 
-**User Story:** As a system administrator, I want ultra-low latency performance and horizontal scalability so that the system can handle high-frequency trading and large institutional volumes.
-
-#### Acceptance Criteria
-
-1. WHEN market data is processed THEN latency SHALL be under 100 microseconds
-2. WHEN order execution is requested THEN response time SHALL be under 1 millisecond
-3. WHEN system load increases THEN the system SHALL automatically scale resources
-4. WHEN memory usage is optimized THEN garbage collection SHALL not impact performance
-5. WHEN network connectivity varies THEN the system SHALL maintain optimal routing
-6. WHEN hardware resources are upgraded THEN the system SHALL utilize improvements automatically
-
-### Requirement 6: Advanced Monitoring and Observability
-
-**User Story:** As a DevOps engineer, I want comprehensive system monitoring and observability so that I can proactively identify issues and optimize performance.
+**User Story:** As a user, I want expanded broker support, so that I can trade across more venues.
 
 #### Acceptance Criteria
 
-1. WHEN system metrics are collected THEN they SHALL include business-level KPIs
-2. WHEN anomalies are detected THEN the system SHALL provide root cause analysis
-3. WHEN performance degrades THEN alerts SHALL include actionable remediation steps
-4. WHEN distributed tracing is enabled THEN end-to-end request flows SHALL be visible
-5. WHEN capacity planning is needed THEN predictive analytics SHALL forecast requirements
-6. WHEN compliance reporting is required THEN audit trails SHALL be automatically generated
+1. WHEN OANDA is integrated THEN forex trading SHALL be supported.
+2. WHEN Coinbase is added THEN cryptocurrency trading SHALL be enabled.
+3. WHEN FIX protocol is tested THEN institutional connectivity SHALL work with QuickFIX/J/FIX8.
+4. WHEN abstraction layer is verified THEN all brokers SHALL normalize data.
+5. WHEN failover is tested THEN switching SHALL be seamless.
 
-### Requirement 7: Regulatory Compliance and Reporting
+### Requirement 4: Kubernetes Deployment with GitOps
 
-**User Story:** As a compliance officer, I want automated regulatory compliance and reporting so that the firm meets all regulatory requirements without manual intervention.
-
-#### Acceptance Criteria
-
-1. WHEN trades are executed THEN they SHALL be automatically checked against compliance rules
-2. WHEN regulatory reports are due THEN they SHALL be generated and submitted automatically
-3. WHEN suspicious activity is detected THEN alerts SHALL be raised for investigation
-4. WHEN audit trails are requested THEN complete transaction histories SHALL be available
-5. WHEN position limits are approached THEN warnings SHALL be issued before violations
-6. WHEN new regulations are implemented THEN the system SHALL adapt compliance rules
-
-### Requirement 8: Advanced Order Management and Execution
-
-**User Story:** As a trader, I want sophisticated order management with advanced execution algorithms so that I can minimize market impact and optimize fill prices.
+**User Story:** As a DevOps engineer, I want full Kubernetes deployment, so that the system is cloud-native.
 
 #### Acceptance Criteria
 
-1. WHEN large orders are placed THEN they SHALL be intelligently sliced and timed
-2. WHEN market conditions change THEN execution algorithms SHALL adapt strategies
-3. WHEN liquidity is fragmented THEN orders SHALL be routed to optimal venues
-4. WHEN execution quality is measured THEN detailed analytics SHALL be provided
-5. WHEN parent-child order relationships exist THEN they SHALL be properly managed
-6. WHEN order modifications are needed THEN they SHALL be processed without market impact
+1. WHEN Helm charts are deployed THEN all services SHALL launch with Istio.
+2. WHEN GitOps is tested THEN ArgoCD SHALL sync changes automatically.
+3. WHEN CI/CD is verified THEN pipelines SHALL build, test, and deploy.
+4. WHEN scaling is tested THEN HPA SHALL adjust based on load.
+5. WHEN monitoring is integrated THEN Prometheus SHALL collect metrics.
 
-### Requirement 9: Machine Learning Model Management
+### Requirement 5: Iterative Strategy Refinement
 
-**User Story:** As a quantitative analyst, I want integrated machine learning model management so that I can deploy, monitor, and update trading models efficiently.
-
-#### Acceptance Criteria
-
-1. WHEN models are trained THEN they SHALL be versioned and tracked
-2. WHEN model performance degrades THEN automatic retraining SHALL be triggered
-3. WHEN new features are available THEN models SHALL be updated with enhanced data
-4. WHEN A/B testing is performed THEN model variants SHALL be compared systematically
-5. WHEN model explanations are needed THEN interpretability tools SHALL be available
-6. WHEN model deployment occurs THEN canary releases SHALL minimize risk
-
-### Requirement 10: Enhanced User Experience and Visualization
-
-**User Story:** As a trader, I want intuitive dashboards and advanced visualization tools so that I can quickly understand market conditions and make informed decisions.
+**User Story:** As a quant, I want AI feedback loops for strategy refinement, so that performance improves automatically.
 
 #### Acceptance Criteria
 
-1. WHEN market data is displayed THEN visualizations SHALL update in real-time
-2. WHEN custom layouts are created THEN they SHALL be saved and shared
-3. WHEN alerts are triggered THEN they SHALL be prominently displayed with context
-4. WHEN historical analysis is performed THEN interactive charts SHALL support deep exploration
-5. WHEN mobile access is needed THEN responsive interfaces SHALL provide full functionality
-6. WHEN accessibility is required THEN interfaces SHALL meet WCAG guidelines
+1. WHEN backtest results are analyzed THEN AI SHALL suggest code optimizations.
+2. WHEN refinements are applied THEN new versions SHALL be generated with Optuna.
+3. WHEN iterations are tested THEN improvements SHALL show in metrics (e.g., higher Sharpe Ratio).
+4. WHEN loop is verified THEN it SHALL run autonomously based on live data.
+5. WHEN history is logged THEN refinements SHALL be auditable.
 
-### Requirement 11: Advanced Backtesting and Strategy Development
+### Requirement 6: Voice Trading and AR Interfaces
 
-**User Story:** As a strategy developer, I want comprehensive backtesting capabilities with realistic market simulation so that I can validate strategies before live deployment.
-
-#### Acceptance Criteria
-
-1. WHEN backtests are run THEN they SHALL include realistic transaction costs and slippage
-2. WHEN market regimes change THEN backtests SHALL account for different market conditions
-3. WHEN strategy parameters are optimized THEN walk-forward analysis SHALL prevent overfitting
-4. WHEN multiple strategies are tested THEN portfolio-level metrics SHALL be calculated
-5. WHEN stress testing is performed THEN extreme market scenarios SHALL be simulated
-6. WHEN results are analyzed THEN statistical significance SHALL be validated
-
-### Requirement 12: Integration and Ecosystem Connectivity
-
-**User Story:** As a system integrator, I want seamless connectivity with external systems and data providers so that the trading system can operate within a broader financial ecosystem.
+**User Story:** As a user, I want voice trading and AR interfaces, so that I can interact innovatively.
 
 #### Acceptance Criteria
 
-1. WHEN external APIs are integrated THEN they SHALL be monitored for availability and performance
-2. WHEN data feeds are consumed THEN they SHALL be normalized and validated
-3. WHEN third-party services are used THEN failover mechanisms SHALL ensure continuity
-4. WHEN message formats vary THEN translation layers SHALL handle protocol differences
-5. WHEN authentication is required THEN secure credential management SHALL be implemented
-6. WHEN rate limits exist THEN intelligent throttling SHALL prevent service disruptions
+1. WHEN voice commands are spoken THEN Whisper SHALL transcribe with >95% accuracy.
+2. WHEN commands are processed THEN they SHALL convert to orders (e.g., "Buy 100 AAPL at market").
+3. WHEN AR is accessed THEN WebXR SHALL display 3D portfolio visuals.
+4. WHEN interactions are tested THEN gestures/voice SHALL control views.
+5. WHEN latency is measured THEN responses SHALL be <2s.
 
-### Requirement 13: Advanced Analytics and Reporting
+### Requirement 7: Memray Profiling and Grafana Tempo Tracing
 
-**User Story:** As a portfolio manager, I want comprehensive analytics and customizable reporting so that I can analyze performance, risk, and attribution across all dimensions.
-
-#### Acceptance Criteria
-
-1. WHEN performance is measured THEN risk-adjusted returns SHALL be calculated
-2. WHEN attribution analysis is performed THEN factor contributions SHALL be identified
-3. WHEN benchmarking is required THEN multiple comparison methodologies SHALL be available
-4. WHEN custom reports are needed THEN flexible report builders SHALL be provided
-5. WHEN data export is requested THEN multiple formats SHALL be supported
-6. WHEN scheduled reports are configured THEN they SHALL be delivered automatically
-
-### Requirement 14: Cloud-Native Architecture and DevOps
-
-**User Story:** As a platform engineer, I want cloud-native architecture with advanced DevOps practices so that the system is resilient, scalable, and maintainable.
+**User Story:** As a developer, I want profiling and tracing tools, so that I can optimize performance.
 
 #### Acceptance Criteria
 
-1. WHEN services are deployed THEN they SHALL use containerization and orchestration
-2. WHEN infrastructure changes THEN they SHALL be managed through Infrastructure as Code
-3. WHEN deployments occur THEN they SHALL use blue-green or canary strategies
-4. WHEN failures happen THEN circuit breakers SHALL prevent cascade failures
-5. WHEN scaling is needed THEN auto-scaling SHALL respond to demand
-6. WHEN security is required THEN zero-trust principles SHALL be implemented
+1. WHEN Memray is run THEN it SHALL profile memory usage in Python code.
+2. WHEN Tempo is queried THEN it SHALL show distributed traces across services.
+3. WHEN integrations are tested THEN Grafana SHALL display profiles/traces.
+4. WHEN bottlenecks are identified THEN optimizations SHALL reduce latency/memory.
+5. WHEN testing is done THEN tools SHALL have <5% overhead.
 
-### Requirement 15: Extended Broker Integration and FIX Protocol
+### Requirement 8: Customer Service Bot
 
-**User Story:** As an institutional trader, I want extended broker integrations including FIX protocol support, so that I can access institutional-grade trading connectivity and additional broker platforms.
-
-#### Acceptance Criteria
-
-1. WHEN OANDA live trading is enabled THEN forex-specific risk management SHALL be enforced
-2. WHEN Coinbase live trading is active THEN crypto-specific security measures SHALL be implemented
-3. WHEN FIX protocol is used THEN institutional trading connectivity SHALL be established
-4. WHEN additional brokers are integrated THEN unified abstraction layer SHALL handle all brokers
-5. WHEN broker failover occurs THEN seamless switching SHALL maintain trading continuity
-
-### Requirement 16: Advanced Portfolio Analytics and Regulatory Reporting
-
-**User Story:** As a compliance officer, I want advanced portfolio analytics and automated regulatory reporting, so that the firm meets all regulatory requirements with comprehensive risk analysis.
+**User Story:** As a user, I want a RAG-based support bot, so that I can get quick help.
 
 #### Acceptance Criteria
 
-1. WHEN VaR calculations are performed THEN multiple methodologies (Historical, Monte Carlo, Parametric) SHALL be supported
-2. WHEN stress testing is conducted THEN various market scenarios SHALL be simulated
-3. WHEN regulatory reports are generated THEN they SHALL be created automatically and submitted
-4. WHEN portfolio optimization is performed THEN modern portfolio theory algorithms SHALL be applied
-5. WHEN performance analytics are calculated THEN comprehensive risk-adjusted metrics SHALL be provided
+1. WHEN queries are made THEN the bot SHALL respond using platform docs.
+2. WHEN RAG is tested THEN it SHALL retrieve from Qdrant/pgvector.
+3. WHEN accuracy is verified THEN responses SHALL be >90% relevant.
+4. WHEN chat is real-time THEN latency SHALL be <2s.
+5. WHEN escalation is needed THEN it SHALL route to human support.
 
-### Requirement 17: Kubernetes Deployment and CI/CD Infrastructure
+### Requirement 9: Strategy Marketplace
 
-**User Story:** As a DevOps engineer, I want Kubernetes deployment capabilities and comprehensive CI/CD pipelines, so that the system can be deployed and managed in cloud-native environments.
-
-#### Acceptance Criteria
-
-1. WHEN Kubernetes manifests are created THEN they SHALL support all system services
-2. WHEN Helm charts are deployed THEN they SHALL enable parameterized deployments
-3. WHEN service mesh is integrated THEN Istio SHALL provide advanced networking capabilities
-4. WHEN CI/CD pipelines execute THEN GitOps-based deployment SHALL be automated
-5. WHEN deployments occur THEN blue-green and canary strategies SHALL be supported
-
-### Requirement 18: Performance Optimization and System Tuning
-
-**User Story:** As a performance engineer, I want comprehensive system performance optimization and tuning capabilities, so that the trading system operates at peak efficiency with minimal latency.
+**User Story:** As a user, I want a Strategy Marketplace with copy trading, so that I can discover and replicate strategies.
 
 #### Acceptance Criteria
 
-1. WHEN performance monitoring is active THEN it SHALL track latency, throughput, and resource utilization in real-time
-2. WHEN performance bottlenecks are detected THEN automated optimization recommendations SHALL be generated
-3. WHEN system tuning is performed THEN database queries, caching, and network optimization SHALL be applied
-4. WHEN load testing is conducted THEN the system SHALL demonstrate linear scalability up to 10x baseline load
-5. WHEN performance regression is detected THEN automated alerts SHALL trigger immediate investigation
+1. WHEN strategies are published THEN they SHALL be visible with metrics (Sharpe Ratio, drawdown).
+2. WHEN searching is tested THEN filters (asset class, performance) SHALL work.
+3. WHEN copy trading is enabled THEN subscribed strategies SHALL replicate trades.
+4. WHEN permissions are verified THEN public/private settings SHALL be enforced.
+5. WHEN monetization is scoped THEN subscription models SHALL be planned.
 
-### Requirement 19: Production Deployment and Infrastructure Management
+### Requirement 10: Low-Level Code Optimization
 
-**User Story:** As a DevOps engineer, I want comprehensive production deployment and infrastructure management capabilities, so that the trading system can be deployed and managed reliably in production environments.
-
-#### Acceptance Criteria
-
-1. WHEN Kubernetes deployment occurs THEN all services SHALL be deployed with proper resource allocation and scaling policies
-2. WHEN infrastructure changes are made THEN they SHALL be managed through Infrastructure as Code with version control
-3. WHEN deployments are executed THEN blue-green or canary strategies SHALL minimize downtime and risk
-4. WHEN monitoring is configured THEN comprehensive observability SHALL cover all system components
-5. WHEN disaster recovery is tested THEN full system recovery SHALL be completed within defined RTO/RPO targets
-
-### Requirement 20: Advanced Security and Fraud Detection
-
-**User Story:** As a security officer, I want advanced security measures and fraud detection so that the system is protected against cyber threats and unauthorized activities.
+**User Story:** As a performance engineer, I want low-level optimizations, so that critical paths are efficient.
 
 #### Acceptance Criteria
 
-1. WHEN user activities are monitored THEN behavioral analytics SHALL detect anomalies
-2. WHEN authentication occurs THEN multi-factor authentication SHALL be enforced
-3. WHEN data is transmitted THEN end-to-end encryption SHALL protect information
-4. WHEN access is granted THEN zero-trust principles SHALL verify every request
-5. WHEN threats are detected THEN automated response SHALL mitigate risks
-6. WHEN security incidents occur THEN forensic capabilities SHALL support investigation
+1. WHEN lock-free structures are tested THEN they SHALL handle concurrency without locks.
+2. WHEN cache-line alignment is verified THEN memory access SHALL be optimized.
+3. WHEN FPGAs/SmartNICs are integrated THEN data paths SHALL achieve <50µs latency.
+4. WHEN benchmarks are run THEN improvements SHALL be >20% in speed/memory.
+5. WHEN testing is done THEN no regressions in existing functionality.
 
----
+### Requirement 11: Market Microstructure Analysis
 
+**User Story:** As a trader, I want market microstructure tools, so that I can analyze order books and liquidity.
+
+#### Acceptance Criteria
+
+1. WHEN order books are analyzed THEN depth and imbalance SHALL be calculated.
+2. WHEN liquidity is detected THEN metrics (spread, volume) SHALL be provided.
+3. WHEN impact is estimated THEN simulations SHALL predict price movement.
+4. WHEN UI is integrated THEN results SHALL display in real-time.
+5. WHEN accuracy is tested THEN predictions SHALL match historical data >85%.
+
+**Mermaid Diagram: Phase 6 Enhancement Flow**
+
+```mermaid
+graph TD
+    A[DMA/Co-Location] -->|Low Latency| B[FPGAs/SmartNICs]
+    B -->|Optimized Data| C[Lock-Free Structures]
+    C -->|Aligned Memory| D[Cache-Line Alignment]
+    D -->|Events| E[Kafka]
+    E -->|Order Routing| F[Smart Order Router]
+    F -->|TWAP/VWAP| G[OMS]
+    G -->|Broker| H[OANDA/Coinbase/FIX]
+    I[AI Feedback] -->|Refine Strategy| J[Trading Engine]
+    K[Voice Command] -->|Process| L[AI Assistant]
+    M[AR Visualization] -->|Data| N[UI Dashboard]
+    O[Memray/Tempo] -->|Profile| P[Grafana]
+    Q[CS Bot] -->|Responses| R[UI Chat]
+    S[Marketplace] -->|Copy Trade| T[Strategy Deployment]
+    U[Microstructure] -->|Analysis| V[Analytics Dashboard]
+```
