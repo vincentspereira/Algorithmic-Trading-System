@@ -1,0 +1,88 @@
+{
+  "tier": 1,
+  "name": "Critical Dependencies",
+  "description": "Tier 1: Critical components for the Algorithmic Trading System",
+  "dependencies": [
+    {
+      "name": "NautilusTrader",
+      "type": "trading_engine",
+      "repository": "https://github.com/nautechsystems/nautilus_trader",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "high",
+      "customizations": [
+        "Integration with custom technical indicators",
+        "Multi-asset support configuration"
+      ]
+    },
+    {
+      "name": "Apache Kafka",
+      "type": "event_bus",
+      "repository": "https://github.com/apache/kafka",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "LangChain",
+      "type": "ai_framework",
+      "repository": "https://github.com/langchain-ai/langchain",
+      "local_path": "../ai_assistant",
+      "criticality": "high",
+      "customizations": [
+        "Custom tools integration",
+        "MCP implementations"
+      ]
+    },
+    {
+      "name": "LangGraph",
+      "type": "ai_framework",
+      "repository": "https://github.com/langchain-ai/langgraph",
+      "local_path": "../ai_assistant",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "TA-Lib",
+      "type": "technical_analysis",
+      "repository": "https://github.com/mrjbq7/ta-lib",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "high",
+      "customizations": [
+        "Custom volume-weighted indicators"
+      ]
+    },
+    {
+      "name": "ta-lib-python",
+      "type": "technical_analysis",
+      "repository": "https://github.com/TA-Lib/ta-lib-python",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "high",
+      "customizations": [
+        "Custom volume-weighted indicators"
+      ]
+    },
+    {
+      "name": "VectorBT",
+      "type": "backtesting",
+      "repository": "https://github.com/polakowo/vectorbt",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "FinRL",
+      "type": "reinforcement_learning",
+      "repository": "https://github.com/AI4Finance-Foundation/FinRL",
+      "local_path": "../ai_assistant",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "PyOD",
+      "type": "anomaly_detection",
+      "repository": "https://github.com/yzhao062/pyod",
+      "local_path": "../ai_assistant",
+      "criticality": "high",
+      "customizations": []
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "tier": 4,
+  "name": "Infrastructure Dependencies",
+  "description": "Tier 4: Infrastructure components for the Algorithmic Trading System",
+  "dependencies": [
+    {
+      "name": "Kubernetes",
+      "type": "container_orchestration",
+      "repository": "https://github.com/kubernetes/kubernetes",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "Docker",
+      "type": "containerization",
+      "repository": "https://github.com/docker/docker-ce",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "Istio",
+      "type": "service_mesh",
+      "repository": "https://github.com/istio/istio",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "NGINX",
+      "type": "web_server",
+      "repository": "https://github.com/nginx/nginx",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Prometheus",
+      "type": "monitoring",
+      "repository": "https://github.com/prometheus/prometheus",
+      "local_path": "../monitoring",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "Grafana",
+      "type": "monitoring",
+      "repository": "https://github.com/grafana/grafana",
+      "local_path": "../monitoring",
+      "criticality": "high",
+      "customizations": []
+    },
+    {
+      "name": "Jaeger",
+      "type": "distributed_tracing",
+      "repository": "https://github.com/jaegertracing/jaeger",
+      "local_path": "../monitoring",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Loki",
+      "type": "log_aggregation",
+      "repository": "https://github.com/grafana/loki",
+      "local_path": "../monitoring",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Unleash",
+      "type": "feature_flags",
+      "repository": "https://github.com/Unleash/unleash",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "Apache Iceberg",
+      "type": "data_lake",
+      "repository": "https://github.com/apache/iceberg",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "Bandit",
+      "type": "security_scanning",
+      "repository": "https://github.com/PyCQA/bandit",
+      "local_path": "../security",
+      "criticality": "high",
+      "customizations": []
+    }
+  ]
+}

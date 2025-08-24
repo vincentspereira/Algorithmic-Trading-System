@@ -11,7 +11,7 @@ from fastapi.openapi.utils import get_openapi
 # New imports for Phase 4
 from datetime import datetime
 from .core.config import settings
-from .routers import auth, backtest, optimization, features, strategy_builder, rl_optimization, trading, users
+from .routers import auth, backtest, optimization, features, strategy_builder, rl_optimization, trading, users, websocket
 from nautilus_trader_engine.database.database import Base, engine
 
 # Phase 5 - Enterprise Security and Monitoring

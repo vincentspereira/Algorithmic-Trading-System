@@ -1,0 +1,78 @@
+name: Dependency Monitoring
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight for Tier 1/2
+    - cron: '0 0 * * 0'  # Weekly on Sunday for Tier 3/4
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  monitor-dependencies:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tier: [1, 2, 3, 4]
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install renovate-runner dependabot-script trufflehog
+
+      - name: Load dependency configuration
+        id: config
+        run: |
+          echo "::set-output name=deps::$(jq -c '.tiers.tier${{ matrix.tier }}' dependency_management/dependencies.json)"
+
+      - name: Check for updates
+        id: updates
+        run: |
+          python scripts/check_dependencies.py \
+            --tier ${{ matrix.tier }} \
+            --config dependency_management/dependencies.json
+
+      - name: Run security scans
+        id: security
+        run: |
+          python scripts/security_scan.py \
+            --tier ${{ matrix.tier }} \
+            --cvss-threshold 7.0
+
+      - name: Generate impact report
+        if: steps.updates.outputs.has_updates == 'true' || steps.security.outputs.has_vulnerabilities == 'true'
+        run: |
+          python scripts/generate_impact_report.py \
+            --updates "${{ steps.updates.outputs.updates }}" \
+            --vulnerabilities "${{ steps.security.outputs.vulnerabilities }}"
+
+      - name: Create issues
+        if: steps.updates.outputs.has_updates == 'true' || steps.security.outputs.has_vulnerabilities == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('impact_report.json', 'utf8'));
+            
+            for (const item of report.items) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.name,
+                title: `[Dependency Update] ${item.title}`,
+                body: item.description,
+                labels: ['dependency', `tier-${matrix.tier}`, item.severity]
+              });
+            }
+
+      - name: Send notifications
+        if: steps.updates.outputs.has_updates == 'true' || steps.security.outputs.has_vulnerabilities == 'true'
+        run: |
+          python scripts/send_notifications.py \
+            --report impact_report.json \
+            --tier ${{ matrix.tier }}

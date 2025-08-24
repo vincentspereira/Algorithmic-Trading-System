@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Dependency Health Dashboard",
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "type": "stat",
+        "title": "Total Dependencies",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "count(dependency_info)",
+            "legendFormat": "Total Dependencies"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "Outdated Dependencies",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "count(dependency_outdated == 1)",
+            "legendFormat": "Outdated Dependencies"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "type": "stat",
+        "title": "Security Issues",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "count(dependency_security_issue == 1)",
+            "legendFormat": "Security Issues"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "type": "graph",
+        "title": "Dependency Updates Over Time",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "dependency_updates_total",
+            "legendFormat": "Total Updates"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "type": "table",
+        "title": "Dependency Status by Tier",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "dependency_info",
+            "format": "table"
+          }
+        ],
+        "columns": [
+          {"text": "Dependency", "value": "dependency"},
+          {"text": "Tier", "value": "tier"},
+          {"text": "Current Version", "value": "current_version"},
+          {"text": "Latest Version", "value": "latest_version"},
+          {"text": "Status", "value": "status"}
+        ]
+      }
+    ]
+  }
+}

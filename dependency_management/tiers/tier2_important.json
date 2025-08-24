@@ -1,0 +1,87 @@
+{
+  "tier": 2,
+  "name": "Important Dependencies",
+  "description": "Tier 2: Important components for the Algorithmic Trading System",
+  "dependencies": [
+    {
+      "name": "PyPortfolioOpt",
+      "type": "portfolio_optimization",
+      "repository": "https://github.com/robertmartin8/PyPortfolioOpt",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Riskfolio-Lib",
+      "type": "risk_management",
+      "repository": "https://github.com/dcajasn/Riskfolio-Lib",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Stock-Prediction-Models",
+      "type": "forecasting",
+      "repository": "https://github.com/chiphuyen/stock-prediction-models",
+      "local_path": "../ai_assistant",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "LSTM-Neural-Network-for-Time-Series-Prediction",
+      "type": "forecasting",
+      "repository": "https://github.com/nachi-heb/LSTM-Neural-Network-for-Time-Series-Prediction",
+      "local_path": "../ai_assistant",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Real-time-stock-market-prediction",
+      "type": "forecasting",
+      "repository": "https://github.com/anfederico/Real-time-stock-market-prediction",
+      "local_path": "../ai_assistant",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "TradingGym",
+      "type": "backtesting",
+      "repository": "https://github.com/Yvictor/TradingGym",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "QuantLib",
+      "type": "quantitative_finance",
+      "repository": "https://github.com/lballabio/QuantLib",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "Transformers",
+      "type": "nlp",
+      "repository": "https://github.com/huggingface/transformers",
+      "local_path": "../ai_assistant",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "PyTorch",
+      "type": "deep_learning",
+      "repository": "https://github.com/pytorch/pytorch",
+      "local_path": "../ai_assistant",
+      "criticality": "medium",
+      "customizations": []
+    },
+    {
+      "name": "SHAP",
+      "type": "explainable_ai",
+      "repository": "https://github.com/slundberg/shap",
+      "local_path": "../ai_assistant",
+      "criticality": "medium",
+      "customizations": []
+    }
+  ]
+}

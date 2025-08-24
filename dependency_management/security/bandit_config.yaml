@@ -1,0 +1,60 @@
+# Bandit configuration for the Algorithmic Trading System
+
+# Skips to ignore specific tests
+skips: 
+  - B101  # skip test for assert statements as they are used in tests
+  - B404  # skip test for subprocess import (used in controlled environments)
+
+# Tests to run (if empty, all tests will run)
+tests:
+
+# Confidence levels to report
+# (LOW, MEDIUM, HIGH)
+confidence: MEDIUM
+
+# Severity levels to report
+# (LOW, MEDIUM, HIGH)
+severity: LOW
+
+# Zero tolerance for errors
+# (if true, Bandit will return an error code if any issues are found)
+zero_tolerance: false
+
+# Exclude directories or files
+exclude_dirs:
+  - '.git'
+  - '.venv'
+  - 'venv'
+  - 'env'
+  - 'node_modules'
+  - 'build'
+  - 'dist'
+  - 'tests'
+  - 'test'
+
+# Include only specific files
+include:
+  - '*.py'
+
+# Per-file ignores
+# (useful for ignoring specific issues in specific files)
+per_file_ignores:
+  # Ignore assert statements in test files
+  'test_*.py':
+    - B101
+  # Ignore subprocess import in specific files
+  'scripts/*.py':
+    - B404
+    - B603
+
+# Baseline file to use
+# baseline:
+
+# Output format (txt, json, csv, html, yaml, custom)
+# format: txt
+
+# Output file to write results to
+# output_file:
+
+# Message format to use
+# msg_template:

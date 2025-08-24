@@ -19,162 +19,162 @@ The system incorporates advanced forecasting from **Stock-Prediction-Models** an
 **Architecture Principles**
 
 1. **Microservices Architecture**
-   - Service Decomposition: Each business capability is a separate service
-   - Independent Deployment: Services can be deployed independently
-   - Technology Diversity: Services can use different technologies
-   - Fault Isolation: Failure in one service doesn't affect others
-   - Automated Self-Healing: Microservices are designed with automated self-healing mechanisms to detect and restore normal functionality for faulty components, minimising downtime and preventing cascading failures.
+    - Service Decomposition: Each business capability is a separate service
+    - Independent Deployment: Services can be deployed independently
+    - Technology Diversity: Services can use different technologies
+    - Fault Isolation: Failure in one service doesn't affect others
+    - Automated Self-Healing: Microservices are designed with automated self-healing mechanisms to detect and restore normal functionality for faulty components, minimising downtime and preventing cascading failures.
 2. **Event-Driven Architecture**
-   - Asynchronous Communication: Services communicate via events
-   - Event Sourcing: All state changes are captured as events
-   - CQRS: Command Query Responsibility Segregation
-   - Event Streaming: Real-time event processing
+    - Asynchronous Communication: Services communicate via events
+    - Event Sourcing: All state changes are captured as events
+    - CQRS: Command Query Responsibility Segregation
+    - Event Streaming: Real-time event processing
 3. **Cloud-Native Design**
-   - Container-First: All services are containerised
-   - Kubernetes Native: Designed for Kubernetes orchestration
-   - 12-Factor App: Follows 12-factor application principles
-   - Infrastructure as Code: All infrastructure is code-defined
+    - Container-First: All services are containerised
+    - Kubernetes Native: Designed for Kubernetes orchestration
+    - 12-Factor App: Follows 12-factor application principles
+    - Infrastructure as Code: All infrastructure is code-defined
 4. **API-First Design**
-   - RESTful APIs: Standard REST interfaces
-   - GraphQL: Flexible query interface
-   - WebSocket: Real-time communication
-   - gRPC: High-performance inter-service communication
+    - RESTful APIs: Standard REST interfaces
+    - GraphQL: Flexible query interface
+    - WebSocket: Real-time communication
+    - gRPC: High-performance inter-service communication
 
 **Core Services and Capabilities**
 
 1. **Trading Engine**
-   - System supports multiple asset classes (stocks, ETFs, futures, options, forex, and crypto).
-   - Purpose: Execute trading strategies and manage orders
-   - Technology: Python/Rust for performance-critical paths
-   - Key Features:
-     - Order routing and execution
-     - Strategy execution
-     - Position management
-     - Trade settlement
-     - Paper and Live Trading Modes: Provides seamless integration with broker accounts (starting with Interactive Brokers) for both paper and live trading, with the ability to switch between modes within the user interface.
-     - Custom Technical Analysis:
-       - Volume-Weighted Indicators: The system includes a comprehensive suite of custom-developed, volume-weighted technical indicators (e.g., VW SMA, VW EMA, VW MACD, VW MFI) and market analysis metrics (e.g., Normalised ATR, Choppy Market Index, Buy/Sell Easier Day) built with TA-Lib and NumPy. These are fully integrated into the NautilusTrader engine for use in strategy development and analysis.
+    - System supports multiple asset classes (stocks, ETFs, futures, options, forex, and crypto).
+    - Purpose: Execute trading strategies and manage orders
+    - Technology: Python/Rust for performance-critical paths
+    - Key Features:
+        - Order routing and execution
+        - Strategy execution
+        - Position management
+        - Trade settlement
+        - Paper and Live Trading Modes: Provides seamless integration with broker accounts (starting with Interactive Brokers) for both paper and live trading, with the ability to switch between modes within the user interface.
+        - Custom Technical Analysis:
+            - Volume-Weighted Indicators: The system includes a comprehensive suite of custom-developed, volume-weighted technical indicators (e.g., VW SMA, VW EMA, VW MACD, VW MFI) and market analysis metrics (e.g., Normalised ATR, Choppy Market Index, Buy/Sell Easier Day) built with TA-Lib and NumPy. These are fully integrated into the NautilusTrader engine for use in strategy development and analysis.
 2. **Configure Paper and Live Trading**
-   - **Action**: Set up **NautilusTrader** for integration with Interactive Brokers.
-   - **Details**:
-     - Connect to both paper trading and live trading accounts via Interactive Brokers.
-     - Implement seamless switching between paper and live modes within the interface.
-     - Ensure compliance with broker-specific requirements and regulations.
-   - **Purpose**: Enables users to test strategies in a risk-free paper trading environment before transitioning to live trading.
-   - **Paper Trading**: A key objective of Phase 4 is to connect the entire integrated system to a paper trading account. The integration plan for this phase explicitly includes configuring NautilusTrader engine's pre-built Interactive Brokers integration to connect to a paper trading account.
-   - **Live Trading**: Phase 4 also introduces live trading capabilities. The plan includes enabling live trading in the NautilusTrader engine, expanding the API to manage live trading operations, and enabling live trading data feeds. The end goal of this phase is for a user to execute and monitor trades in a live trading account through the custom web application.
+    - **Action**: Set up **NautilusTrader** for integration with Interactive Brokers.
+    - **Details**:
+        - Connect to both paper trading and live trading accounts via Interactive Brokers.
+        - Implement seamless switching between paper and live modes within the interface.
+        - Ensure compliance with broker-specific requirements and regulations.
+    - **Purpose**: Enables users to test strategies in a risk-free paper trading environment before transitioning to live trading.
+    - **Paper Trading**: A key objective of Phase 4 is to connect the entire integrated system to a paper trading account. The integration plan for this phase explicitly includes configuring NautilusTrader engine's pre-built Interactive Brokers integration to connect to a paper trading account.
+    - **Live Trading**: Phase 4 also introduces live trading capabilities. The plan includes enabling live trading in the NautilusTrader engine, expanding the API to manage live trading operations, and enabling live trading data feeds. The end goal of this phase is for a user to execute and monitor trades in a live trading account through the custom web application.
 3. **Portfolio Manager**
-   - Purpose: Manage portfolios and asset allocation
-   - Technology: Python with NumPy/Pandas
-   - Key Features:
-     - Portfolio optimisation
-     - Asset allocation
-     - Performance attribution
-     - Rebalancing
+    - Purpose: Manage portfolios and asset allocation
+    - Technology: Python with NumPy/Pandas
+    - Key Features:
+        - Portfolio optimisation
+        - Asset allocation
+        - Performance attribution
+        - Rebalancing
 4. **Risk Manager**
-   - Purpose: Monitor and control trading risks
-   - Technology: Python with real-time processing
-   - Key Features:
-     - Real-time risk monitoring
-     - VaR calculations
-     - Exposure limits
-     - Stress testing
-   - Real-time Risk Dashboard: Visualises live risk metrics in the Next.js frontend.
+    - Purpose: Monitor and control trading risks
+    - Technology: Python with real-time processing
+    - Key Features:
+        - Real-time risk monitoring
+        - VaR calculations
+        - Exposure limits
+        - Stress testing
+    - Real-time Risk Dashboard: Visualises live risk metrics in the Next.js frontend.
 5. **Market Data Service**
-   - Purpose: Collect, process, and distribute market data
-   - Technology: Python/Go for high throughput
-   - Key Features:
-     - Real-time data feeds
-     - Historical data storage
-     - Data normalisation
-     - Market data distribution
-     - Multi-Source Data Feeds with Fallback: Implements a multi-source data feed strategy to ensure uninterrupted data availability. The system uses a primary source with a cascade of fallback providers for each asset class, managed automatically.
-     - Asset-Class Specific Fallback Chains: The fallback mechanism is configured per asset class (e.g., Stocks, Forex, Crypto) to use the most relevant data providers.
+    - Purpose: Collect, process, and distribute market data
+    - Technology: Python/Go for high throughput
+    - Key Features:
+        - Real-time data feeds
+        - Historical data storage
+        - Data normalisation
+        - Market data distribution
+        - Multi-Source Data Feeds with Fallback: Implements a multi-source data feed strategy to ensure uninterrupted data availability. The system uses a primary source with a cascade of fallback providers for each asset class, managed automatically.
+        - Asset-Class Specific Fallback Chains: The fallback mechanism is configured per asset class (e.g., Stocks, Forex, Crypto) to use the most relevant data providers.
 6. **Configure Data Feed and Fallback Mechanism**
-   - **Action**: Implement a multi-source data feed with fallback:
-     - **Primary**: Yahoo Finance.
-     - **Fallbacks**: Alpha Vantage, Finnhub, Investing.com, CME Group, Twelve Data, Polygon, Barchart, SpiderRock, TradingCharts, Oanda.
-   - **Details**: Use Kafka to stream data, with logic to switch sources on failure.
-   - **Purpose**: Ensures uninterrupted data availability.
-   - **Trading Instruments:** The system supports a wide range of asset classes to cater to diverse trading needs.
-     - Stocks & ETFs (global equities and exchange-traded funds).
-     - Stock Futures & Index Futures (e.g., E-mini S&P 500, Nasdaq-100).
-     - Stock Options & Index Options (e.g., calls, puts on equities and indices).
-     - Forex, Forex Futures, & Forex Options (e.g., EUR/USD, G10 currencies).
-     - Commodities, Commodity Futures, & Commodity Options (e.g., crude oil, gold, corn).
-     - Cryptocurrency, Cryptocurrency Futures, & Cryptocurrency Options (e.g., Bitcoin, Ethereum).
-   - **Data Sources for Live Trading**:
-     - Subscribe to Interactive Brokers' real-time market data and historical data once paper trading is validated.
-   - **Historical Data**:
-     - Use free sources for paper trading and
-     - Interactive Brokers for live trading.
-   - **Free Data Sources for Paper Trading**:
-     - **Stocks & ETFs**
-       - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
-       - Interactive Brokers
-       - Alpha Vantage: Free APIs for real-time and historical data, including fundamentals and technical indicators.
-       - Finnhub: Free-tier APIs for real-time stock prices and company fundamentals.
-       - Twelve Data
-       - Polygon.io
-     - **Stock Futures & Index Futures**
-       - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
-       - Interactive Brokers
-       - Investing.com: Free real-time/delayed quotes for global index futures (e.g., S&P 500, Nikkei 225).
-       - CME Group: Free delayed data for equity index futures (e.g., E-mini S&P 500).
-       - Barchart: Delayed futures prices for indices like Dow Jones and S&P 500.
-     - **Stock Options & Index Options**
-       - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
-       - Interactive Brokers
-       - Cboe Daily Market Statistics: Free delayed summary data for options trading volumes.
-       - SpiderRock: Free delayed options data via APIs (e.g., OPRA feeds).
-     - **Forex, Forex Futures, & Forex Options**
-       - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
-       - Interactive Brokers
-       - Oanda
-       - CME Group FX Data: Delayed data for G10 and emerging market forex futures.
-       - dxFeed: Multi-contributor forex data (real-time/delayed).
-     - **Commodity, Commodity Futures, & Commodity Options**
-       - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
-       - Interactive Brokers
-       - TradingCharts: Free delayed quotes for commodity futures (e.g., crude oil, gold).
-       - CME Group: Delayed data for commodities like oil and agricultural futures.
-     - **Cryptocurrency, Cryptocurrency Futures, & Cryptocurrency Options**
-       - Interactive Brokers
-       - Alpha Vantage: Free crypto data APIs for Bitcoin, Ethereum, etc.
-       - Coinbase
-       - Binance India
-   - **Data Feed Fallback Mechanism**:
-     - Data retrieval follows this order: Yahoo Finance → Alpha Vantage → Finnhub → Investing.com → CME Group → Twelve Data → Polygon → Barchart → SpiderRock → TradingCharts → Oanda.
-     - If one source fails, the system automatically switches to the next. This fallback mechanism should be created as per the asset class.
-   - **Options Data Requirements**
-     - Historical options chain data (min 5 years depth)
-     - Real-time implied volatility surfaces
-     - Dividend forecast integration
-   - **Test the Core Engine:** Run a simple, pre-built algorithm from the NautilusTrader library to validate that the entire pipeline is working: the engine can fetch data, run a backtest, and generate results.
+    - **Action**: Implement a multi-source data feed with fallback:
+        - **Primary**: Yahoo Finance.
+        - **Fallbacks**: Alpha Vantage, Finnhub, Investing.com, CME Group, Twelve Data, Polygon, Barchart, SpiderRock, TradingCharts, Oanda.
+    - **Details**: Use Kafka to stream data, with logic to switch sources on failure.
+    - **Purpose**: Ensures uninterrupted data availability.
+    - **Trading Instruments:** The system supports a wide range of asset classes to cater to diverse trading needs.
+        - Stocks & ETFs (global equities and exchange-traded funds).
+        - Stock Futures & Index Futures (e.g., E-mini S&P 500, Nasdaq-100).
+        - Stock Options & Index Options (e.g., calls, puts on equities and indices).
+        - Forex, Forex Futures, & Forex Options (e.g., EUR/USD, G10 currencies).
+        - Commodities, Commodity Futures, & Commodity Options (e.g., crude oil, gold, corn).
+        - Cryptocurrency, Cryptocurrency Futures, & Cryptocurrency Options (e.g., Bitcoin, Ethereum).
+    - **Data Sources for Live Trading**:
+        - Subscribe to Interactive Brokers' real-time market data and historical data once paper trading is validated.
+    - **Historical Data**:
+        - Use free sources for paper trading and
+        - Interactive Brokers for live trading.
+    - **Free Data Sources for Paper Trading**:
+        - **Stocks & ETFs**
+            - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
+            - Interactive Brokers
+            - Alpha Vantage: Free APIs for real-time and historical data, including fundamentals and technical indicators.
+            - Finnhub: Free-tier APIs for real-time stock prices and company fundamentals.
+            - Twelve Data
+            - Polygon.io
+        - **Stock Futures & Index Futures**
+            - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
+            - Interactive Brokers
+            - Investing.com: Free real-time/delayed quotes for global index futures (e.g., S&P 500, Nikkei 225).
+            - CME Group: Free delayed data for equity index futures (e.g., E-mini S&P 500).
+            - Barchart: Delayed futures prices for indices like Dow Jones and S&P 500.
+        - **Stock Options & Index Options**
+            - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
+            - Interactive Brokers
+            - Cboe Daily Market Statistics: Free delayed summary data for options trading volumes.
+            - SpiderRock: Free delayed options data via APIs (e.g., OPRA feeds).
+        - **Forex, Forex Futures, & Forex Options**
+            - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
+            - Interactive Brokers
+            - Oanda
+            - CME Group FX Data: Delayed data for G10 and emerging market forex futures.
+            - dxFeed: Multi-contributor forex data (real-time/delayed).
+        - **Commodity, Commodity Futures, & Commodity Options**
+            - Yahoo Finance: Free historical and delayed data for global equities and ETFs.
+            - Interactive Brokers
+            - TradingCharts: Free delayed quotes for commodity futures (e.g., crude oil, gold).
+            - CME Group: Delayed data for commodities like oil and agricultural futures.
+        - **Cryptocurrency, Cryptocurrency Futures, & Cryptocurrency Options**
+            - Interactive Brokers
+            - Alpha Vantage: Free crypto data APIs for Bitcoin, Ethereum, etc.
+            - Coinbase
+            - Binance India
+    - **Data Feed Fallback Mechanism**:
+        - Data retrieval follows this order: Yahoo Finance → Alpha Vantage → Finnhub → Investing.com → CME Group → Twelve Data → Polygon → Barchart → SpiderRock → TradingCharts → Oanda.
+        - If one source fails, the system automatically switches to the next. This fallback mechanism should be created as per the asset class.
+    - **Options Data Requirements**
+        - Historical options chain data (min 5 years depth)
+        - Real-time implied volatility surfaces
+        - Dividend forecast integration
+    - **Test the Core Engine:** Run a simple, pre-built algorithm from the NautilusTrader library to validate that the entire pipeline is working: the engine can fetch data, run a backtest, and generate results.
 7. **Order Management System (OMS)**
-   - Connects to various brokers, starting with Interactive Brokers, with basic order types (Market, Limit) as well as advanced and algorithmic order types (VWAP, TWAP).
-   - FIX Gateway for institutional connectivity.
-   - Purpose: Manage order lifecycle and execution
-   - Technology: Python with low-latency optimisations
-   - Key Features:
-     - Order validation
-     - Execution management
-     - Fill processing
-     - Compliance checks
+    - Connects to various brokers, starting with Interactive Brokers, with basic order types (Market, Limit) as well as advanced and algorithmic order types (VWAP, TWAP).
+    - FIX Gateway for institutional connectivity.
+    - Purpose: Manage order lifecycle and execution
+    - Technology: Python with low-latency optimisations
+    - Key Features:
+        - Order validation
+        - Execution management
+        - Fill processing
+        - Compliance checks
 8. **Market Scanner Service**
-   - **Purpose**: To provide real-time market scanning across a large universe of symbols based on user-defined criteria.
-   - **Technology**: Python/Go for high-throughput data processing.
-   - **Key Features**:
-     - Consumes real-time data streams from Kafka.
-     - Applies custom filters using technical indicators (e.g., TA-Lib).
-     - Streams filtered results to a dedicated, high-performance UI grid.
+    - **Purpose**: To provide real-time market scanning across a large universe of symbols based on user-defined criteria.
+    - **Technology**: Python/Go for high-throughput data processing.
+    - **Key Features**:
+        - Consumes real-time data streams from Kafka.
+        - Applies custom filters using technical indicators (e.g., TA-Lib).
+        - Streams filtered results to a dedicated, high-performance UI grid.
 9. **AI-Powered Strategy Development:** Users can develop strategies through multiple interfaces:
-   - **No-Code Strategy Builder:**
-     - A visual drag-and-drop interface via Blockly.
-     - It is designed to generate clean, human-readable Python code, creating a powerful learning pathway for users to transition from visual design to programmatic customisation.
-   - **AI-Assisted Development & Debugging Agent:** Assists with Python code for strategies and integrations.
-   - **Agentic AI Assistant:** Natural language commands for trading, research, and development assistance.
-   - **Python Studio:** Traditional Python-based coding environment.
+    - **No-Code Strategy Builder:**
+        - A visual drag-and-drop interface via Blockly.
+        - It is designed to generate clean, human-readable Python code, creating a powerful learning pathway for users to transition from visual design to programmatic customisation.
+    - **AI-Assisted Development & Debugging Agent:** Assists with Python code for strategies and integrations.
+    - **Agentic AI Assistant:** Natural language commands for trading, research, and development assistance.
+    - **Python Studio:** Traditional Python-based coding environment.
 10. **Agentic AI Assistant:**
     - Core user-interaction model via a Chatbot.
     - Uses an Agentic **Retrieval-Augmented Generation (RAG)** pipeline to process and query user-uploaded documents.
@@ -182,16 +182,16 @@ The system incorporates advanced forecasting from **Stock-Prediction-Models** an
     - Users can ask the AI to run a backtest, get portfolio status, or even place live trades.
     - **LLM-Driven Iterative Strategy Refinement:** Employs AI agents in a continuous feedback loop to analyse strategy performance, identify weaknesses, and autonomously generate optimised code, enabling full-lifecycle strategy improvement.
     - **AI Context Management with MCPs:** Utilises Model Context Protocols (MCPs) with LangChain and LangGraph to maintain conversation history and context across multiple user interactions, ensuring the AI assistant operates efficiently.
-      - **Action**: Implement Model Context Protocols (MCPs) to manage AI workflows and context.
-      - **Details**:
-        - Use **LangChain** and **LangGraph** to:
-          - Maintain conversation history and context across multiple user interactions.
-          - Define workflows for task execution (e.g., query → retrieval → response).
-        - Plan for optional integrations in future phases:
-          - **Hugging Face Transformers** for advanced NLP tasks.
-          - **PyTorch** for custom model training or fine-tuning.
-        - Test context retention with multi-turn conversations (e.g., “Run a backtest” followed by “Explain the results”).
-      - **Purpose**: Ensures the AI assistant operates efficiently, retains context, and scales for future enhancements.
+        - **Action**: Implement Model Context Protocols (MCPs) to manage AI workflows and context.
+        - **Details**:
+            - Use **LangChain** and **LangGraph** to:
+                - Maintain conversation history and context across multiple user interactions.
+                - Define workflows for task execution (e.g., query → retrieval → response).
+            - Plan for optional integrations in future phases:
+                - **Hugging Face Transformers** for advanced NLP tasks.
+                - **PyTorch** for custom model training or fine-tuning.
+            - Test context retention with multi-turn conversations (e.g., “Run a backtest” followed by “Explain the results”).
+        - **Purpose**: Ensures the AI assistant operates efficiently, retains context, and scales for future enhancements.
     - **Defined AI Workflows:** Employs LangGraph to define and manage stateful workflows for complex, multi-step task execution (e.g., query → data retrieval → analysis → response).
 11. **Enterprise Security and Risk Management:** Platform is built with,
     - **Zero-Trust architecture**
@@ -206,30 +206,30 @@ The system incorporates advanced forecasting from **Stock-Prediction-Models** an
 12. **Incorporate Custom Volume-Weighted Indicators**
     - **Action**: Extend the technical indicator framework with volume-weighted calculations using **TA-Lib** and **NumPy**.
     - **Details**:
-      - Develop custom volume-weighted technical indicators (e.g., VW SMA, VW EMA, VW MACD) using TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) and NumPy, as specified below:
-        - Beta vis-à-vis Market Index,
-        - Auto Correlation,
-        - Historical Annual Volatility,
-        - Intraday Annual Volatility,
-        - 55 Day VW SMA of Open (Entry),
-        - 13 Day VW SMA of Open (Entry),
-        - 5 Day VW SMA of High (Exit),
-        - 5 Day VW SMA of Low (Exit),
-        - 34 Day VW SMA of Open (Entry),
-        - 13 Day VW SMA of High (Exit),
-        - 13 Day VW SMA of Low (Exit),
-        - 13 Day VW EMA of Open,
-        - 5 Day VW EMA of HLC (High, Low, Close) Average (Trend Finder),
-        - VW MACD of HLC Average (12 Day, 26 Day, 9 Day),
-        - VW MACD Histogram of HLC Average,
-        - 14 Day VW MFI of HLC Average,
-        - 34 Day VW SMA of MFI (14) of HLC Average (Entry),
-        - 21 Day VW SMA of MFI (14) of HLC Average (Exit),
-        - Market Normalisation with 21 Day VW ATR for Positional Trades \[N\],
-        - Rupee Volatility / Risk \[N x Lot Size\], (Change this to Dollar Volatility for US SEs and to Pound Sterling for LSE)
-        - Contract Risk (Units) \[2N\],
-        - Max. Lots that can be Traded with a Unit of x Rs. \[No. of Lots\],
-        - 21 Day Average True Range Percent,
+        - Develop custom volume-weighted technical indicators (e.g., VW SMA, VW EMA, VW MACD) using TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) and NumPy, as specified below:
+            - Beta vis-à-vis Market Index,
+            - Auto Correlation,
+            - Historical Annual Volatility,
+            - Intraday Annual Volatility,
+            - 55 Day VW SMA of Open (Entry),
+            - 13 Day VW SMA of Open (Entry),
+            - 5 Day VW SMA of High (Exit),
+            - 5 Day VW SMA of Low (Exit),
+            - 34 Day VW SMA of Open (Entry),
+            - 13 Day VW SMA of High (Exit),
+            - 13 Day VW SMA of Low (Exit),
+            - 13 Day VW EMA of Open,
+            - 5 Day VW EMA of HLC (High, Low, Close) Average (Trend Finder),
+            - VW MACD of HLC Average (12 Day, 26 Day, 9 Day),
+            - VW MACD Histogram of HLC Average,
+            - 14 Day VW MFI of HLC Average,
+            - 34 Day VW SMA of MFI (14) of HLC Average (Entry),
+            - 21 Day VW SMA of MFI (14) of HLC Average (Exit),
+            - Market Normalisation with 21 Day VW ATR for Positional Trades \[N\],
+            - Rupee Volatility / Risk \[N x Lot Size\], (Change this to Dollar Volatility for US SEs and to Pound Sterling for LSE)
+            - Contract Risk (Units) \[2N\],
+            - Max. Lots that can be Traded with a Unit of x Rs. \[No. of Lots\],
+            - 21 Day Average True Range Percent,
 
 {
 
@@ -274,7 +274,6 @@ You should use ATRP (Normalised ATR) instead of the traditional, absolute dollar
 }
 
 - - - - Market Normalisation with 8 Day VW ATR for Intraday Trades \[N\],
-        
             - Rupee Volatility / Risk \[N x Lot Size\], (Change this to Dollar Volatility for US SEs and to Pound Sterling for LSE)
             - Contract Risk (Units) \[0.75N\],
             - Max. Lots that can be Traded with a Unit of x Rs. \[No. of Lots\],
@@ -294,7 +293,6 @@ Buy Strength & Sell Weakness:
 \- The Strongest Markets have the Highest values, while the Weakest Markets have the Lowest values.\]
 
 - - - - Strength / Weakness (Based on 8 Day Avg. HLC & ATR) for Intraday,
-        
             - High Low Range Average for ORB,
             - 8 Day SMA Average % Change,
             - 13 Day SMA Average % Change,
@@ -304,12 +302,10 @@ Buy Strength & Sell Weakness:
             - 21 Day Market Mode (Trending / Choppy),
             - 8 Day Choppy Market Index,
             - 8 Day Market Mode (Trending / Choppy)
-        
         - Use TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta’s (secondary wrapper) framework to extend existing indicators with volume weighting.
         - Leverage NumPy for efficient calculations of volume-weighted averages.
         - Integrate these into **NautilusTrader’s** strategy engine for use in trading logic.
         - Verify accuracy with historical data and unit tests.
-    
     - **Purpose**: Enhances trading strategies by incorporating volume data into technical analysis for more informed decisions.
 
 **The "Best-of-Breed" Integration Strategy**
@@ -321,122 +317,122 @@ This strategy selects top open-source projects for each component, interconnecte
 The system is built on a modern, open-source technology stack. This integration strategy provides a strong foundation, but significant custom development is required to meet all enterprise-grade requirements.
 
 1. **Core Trading Engine: NautilusTrader**
-   - **Role:** The undisputed choice for the institutional-grade engine handling backtesting, live trading, data management, and multi-asset support. It is a high-performance, production-grade algorithmic trading platform, providing quantitative traders with the ability to backtest portfolios of automated trading strategies on historical data with an event-driven engine, and also deploy those same strategies live, with no code changes. The platform is _AI-first_, designed to develop and deploy algorithmic trading strategies within a highly performant and robust Python-native environment. This helps to address the parity challenge of keeping the Python research/backtest environment consistent with the production live trading environment. It's design, architecture, and implementation philosophy prioritises software correctness and safety at the highest level, with the aim of supporting Python-native, mission-critical, trading system backtesting and live deployment workloads. The platform is also universal, and asset-class-agnostic — with any REST API or WebSocket feed able to be integrated via modular adapters. It supports high-frequency trading across a wide range of asset classes and instrument types including FX, Equities, Futures, Options, Crypto and Betting, enabling seamless operations across multiple venues simultaneously. The system integrates with TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) for indicators and OpenBB for data, enhancing the system’s strategy validation capabilities.
-   - **Rationale:** NautilusTrader provides superior performance for high-frequency trading, custom data integration via parquet, and an AI-first design, aligning with our Python-centric workflow. This establishes a powerful, two-stage research and validation pipeline: **VectorBT** will be used for broad, high-speed, vectorised research to identify promising strategies, while **NautilusTrader** will serve as the sole, high-fidelity, event-driven engine for realistic validation and live deployment. This approach eliminates architectural redundancy and solves the critical backtest-to-live parity challenge.
-     - <https://github.com/nautechsystems/nautilus_trader>
-     - <https://github.com/nautechsystems/nautilus_ibapi>
+    - **Role:** The undisputed choice for the institutional-grade engine handling backtesting, live trading, data management, and multi-asset support. It is a high-performance, production-grade algorithmic trading platform, providing quantitative traders with the ability to backtest portfolios of automated trading strategies on historical data with an event-driven engine, and also deploy those same strategies live, with no code changes. The platform is _AI-first_, designed to develop and deploy algorithmic trading strategies within a highly performant and robust Python-native environment. This helps to address the parity challenge of keeping the Python research/backtest environment consistent with the production live trading environment. It's design, architecture, and implementation philosophy prioritises software correctness and safety at the highest level, with the aim of supporting Python-native, mission-critical, trading system backtesting and live deployment workloads. The platform is also universal, and asset-class-agnostic — with any REST API or WebSocket feed able to be integrated via modular adapters. It supports high-frequency trading across a wide range of asset classes and instrument types including FX, Equities, Futures, Options, Crypto and Betting, enabling seamless operations across multiple venues simultaneously. The system integrates with TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) for indicators and OpenBB for data, enhancing the system’s strategy validation capabilities.
+    - **Rationale:** NautilusTrader provides superior performance for high-frequency trading, custom data integration via parquet, and an AI-first design, aligning with our Python-centric workflow. This establishes a powerful, two-stage research and validation pipeline: **VectorBT** will be used for broad, high-speed, vectorised research to identify promising strategies, while **NautilusTrader** will serve as the sole, high-fidelity, event-driven engine for realistic validation and live deployment. This approach eliminates architectural redundancy and solves the critical backtest-to-live parity challenge.
+        - <https://github.com/nautechsystems/nautilus_trader>
+        - <https://github.com/nautechsystems/nautilus_ibapi>
 2. **Data Pipeline**: While libraries like Unstructured.io and databases like **Qdrant** and **PostgreSQL** with **pgvector** will be used, the pipelines for data ingestion, resiliency, and fusion are custom logic that will be build.
-   - **Apache Kafka:**
-     - An open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
-     - Central event bus for real-time data, order flow, market ticks, AI decisions, and system events.
-     - Decouples all services, provides data replayability for robust testing, and scales to handle high-frequency data streams for professional traders.
-     - **Design Principle: Hierarchical Topic Architecture**
-       - To ensure long-term scalability and simplify data governance, the system will implement a structured, hierarchical naming convention for all Kafka topics (e.g., domain.action.entity.source.symbol).
-       - Consumer logic will be built to leverage wildcard subscriptions, allowing services to subscribe to broad or specific data streams efficiently (e.g., marketdata.tick.crypto.spot.binance.\*), which simplifies service configuration and scales more effectively than a flat topic structure.
-     - <https://github.com/apache/kafka>
-   - **Schema Registry:**
-     - Ensures data consistency across services.
-     - It provides a serving layer for your metadata.
-     - It stores a versioned history of all schemas based on a specified subject name strategy, provides multiple compatibility settings and allows evolution of schemas according to the configured compatibility settings and expanded support for these schema types.
-     - It provides serialisers that plug into Apache Kafka clients that handle schema storage and retrieval for Kafka messages that are sent in any of the supported formats.
-     - <https://github.com/confluentinc/schema-registry>
+    - **Apache Kafka:**
+        - An open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
+        - Central event bus for real-time data, order flow, market ticks, AI decisions, and system events.
+        - Decouples all services, provides data replayability for robust testing, and scales to handle high-frequency data streams for professional traders.
+        - **Design Principle: Hierarchical Topic Architecture**
+            - To ensure long-term scalability and simplify data governance, the system will implement a structured, hierarchical naming convention for all Kafka topics (e.g., domain.action.entity.source.symbol).
+            - Consumer logic will be built to leverage wildcard subscriptions, allowing services to subscribe to broad or specific data streams efficiently (e.g., marketdata.tick.crypto.spot.binance.\*), which simplifies service configuration and scales more effectively than a flat topic structure.
+        - <https://github.com/apache/kafka>
+    - **Schema Registry:**
+        - Ensures data consistency across services.
+        - It provides a serving layer for your metadata.
+        - It stores a versioned history of all schemas based on a specified subject name strategy, provides multiple compatibility settings and allows evolution of schemas according to the configured compatibility settings and expanded support for these schema types.
+        - It provides serialisers that plug into Apache Kafka clients that handle schema storage and retrieval for Kafka messages that are sent in any of the supported formats.
+        - <https://github.com/confluentinc/schema-registry>
 3. **Infrastructure**
-   - **Kubernetes:**
-     - Kubernetes, also known as K8s, is an open source system for managing [containerised applications](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) across multiple hosts.
-     - It provides basic mechanisms for the deployment, maintenance, and scaling of applications.
-     - It builds upon a decade and a half of experience at Google running production workloads at scale using a system called [Borg](https://research.google.com/pubs/pub43438.html?authuser=1), combined with best-of-breed ideas and practices from the community.
-     - <https://github.com/kubernetes/kubernetes>
-   - **Docker:**
-     - Docker is an open platform for developing, shipping, and running applications.
-     - It enables you to separate your applications from your infrastructure so you can deliver software quickly.
-     - With Docker, you can manage your infrastructure in the same ways you manage your applications.
-     - By taking advantage of Docker's methodologies for shipping, testing, and deploying code, you can significantly reduce the delay between writing code and running it in production.
-     - <https://github.com/docker-library/docker>
-   - **Istio:**
-     - Istio is an open-source service mesh that layers transparently onto existing distributed applications.
-     - Istio’s powerful features provide a uniform and more efficient way to secure, connect, and monitor services.
-     - It is the path to load balancing, service-to-service authentication, and monitoring – with few or no service code changes.
-     - It is an open platform for providing a uniform way to [integrate microservices](https://istio.io/latest/docs/examples/microservices-istio/), manage [traffic flow](https://istio.io/latest/docs/concepts/traffic-management/) across microservices, enforce policies and aggregate telemetry data. Istio's control plane provides an abstraction layer over the underlying cluster management platform, such as Kubernetes.
-     - Istio is composed of these components:
-       - **Envoy:** Sidecar proxies per microservice to handle ingress/egress traffic between services in the cluster and from a service to external services. The proxies form a _secure microservice mesh_ providing a rich set of functions like discovery, rich layer-7 routing, circuit breakers, policy enforcement and telemetry recording/reporting functions.
-       - **Note:** The service mesh is not an overlay network. It simplifies and enhances how microservices in an application talk to each other over the network provided by the underlying platform.
-       - **Istiod:** The Istio control plane. It provides service discovery, configuration and certificate management. It consists of the following sub-components:
-         - **Pilot:** Responsible for configuring the proxies at runtime.
-         - **Citadel:** Responsible for certificate issuance and rotation.
-         - **Galley:** Responsible for validating, ingesting, aggregating, transforming and distributing config within Istio.
-       - **Operator:** The component provides user friendly options to operate the Istio service mesh.
-     - <https://github.com/istio/istio>
-   - **NGINX:**
-     - NGINX (pronounced "engine x" or "en-jin-eks") is the world's most popular Web Server, high performance Load Balancer, Reverse Proxy, API Gateway and Content Cache.
-     - NGINX is comprised of individual modules, each extending core functionality by providing additional, configurable features.
-     - NGINX modules can be built and distributed as static or dynamic modules.
-     - Static modules are defined at build-time, compiled, and distributed in the resulting binaries.
-     - <https://github.com/nginx/nginx>
-   - **Helm:**
-     - Package management
-     - Helm is a tool for managing Charts. Charts are packages of pre-configured Kubernetes resources.
-     - Use Helm to:
-       - Find and use [popular software packaged as Helm Charts](https://artifacthub.io/packages/search?kind=0) to run in Kubernetes
-       - Share your own applications as Helm Charts
-       - Create reproducible builds of your Kubernetes applications
-       - Intelligently manage your Kubernetes manifest files
-       - Manage releases of Helm packages
-     - It is a tool that streamlines installing and managing Kubernetes applications. Think of it like apt/yum/homebrew for Kubernetes.
-     - Helm renders your templates and communicates with the Kubernetes API.
-     - It runs on your laptop, CI/CD, or wherever you want it to run.
-     - Charts are Helm packages that contain at least two things:
-       - A description of the package (Chart.yaml)
-       - One or more templates, which contain Kubernetes manifest files
-     - Charts can be stored on disk, or fetched from remote chart repositories (like Debian or RedHat packages).
-     - <https://github.com/helm/helm>
+    - **Kubernetes:**
+        - Kubernetes, also known as K8s, is an open source system for managing [containerised applications](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/) across multiple hosts.
+        - It provides basic mechanisms for the deployment, maintenance, and scaling of applications.
+        - It builds upon a decade and a half of experience at Google running production workloads at scale using a system called [Borg](https://research.google.com/pubs/pub43438.html?authuser=1), combined with best-of-breed ideas and practices from the community.
+        - <https://github.com/kubernetes/kubernetes>
+    - **Docker:**
+        - Docker is an open platform for developing, shipping, and running applications.
+        - It enables you to separate your applications from your infrastructure so you can deliver software quickly.
+        - With Docker, you can manage your infrastructure in the same ways you manage your applications.
+        - By taking advantage of Docker's methodologies for shipping, testing, and deploying code, you can significantly reduce the delay between writing code and running it in production.
+        - <https://github.com/docker-library/docker>
+    - **Istio:**
+        - Istio is an open-source service mesh that layers transparently onto existing distributed applications.
+        - Istio’s powerful features provide a uniform and more efficient way to secure, connect, and monitor services.
+        - It is the path to load balancing, service-to-service authentication, and monitoring – with few or no service code changes.
+        - It is an open platform for providing a uniform way to [integrate microservices](https://istio.io/latest/docs/examples/microservices-istio/), manage [traffic flow](https://istio.io/latest/docs/concepts/traffic-management/) across microservices, enforce policies and aggregate telemetry data. Istio's control plane provides an abstraction layer over the underlying cluster management platform, such as Kubernetes.
+        - Istio is composed of these components:
+            - **Envoy:** Sidecar proxies per microservice to handle ingress/egress traffic between services in the cluster and from a service to external services. The proxies form a _secure microservice mesh_ providing a rich set of functions like discovery, rich layer-7 routing, circuit breakers, policy enforcement and telemetry recording/reporting functions.
+            - **Note:** The service mesh is not an overlay network. It simplifies and enhances how microservices in an application talk to each other over the network provided by the underlying platform.
+            - **Istiod:** The Istio control plane. It provides service discovery, configuration and certificate management. It consists of the following sub-components:
+                - **Pilot:** Responsible for configuring the proxies at runtime.
+                - **Citadel:** Responsible for certificate issuance and rotation.
+                - **Galley:** Responsible for validating, ingesting, aggregating, transforming and distributing config within Istio.
+            - **Operator:** The component provides user friendly options to operate the Istio service mesh.
+        - <https://github.com/istio/istio>
+    - **NGINX:**
+        - NGINX (pronounced "engine x" or "en-jin-eks") is the world's most popular Web Server, high performance Load Balancer, Reverse Proxy, API Gateway and Content Cache.
+        - NGINX is comprised of individual modules, each extending core functionality by providing additional, configurable features.
+        - NGINX modules can be built and distributed as static or dynamic modules.
+        - Static modules are defined at build-time, compiled, and distributed in the resulting binaries.
+        - <https://github.com/nginx/nginx>
+    - **Helm:**
+        - Package management
+        - Helm is a tool for managing Charts. Charts are packages of pre-configured Kubernetes resources.
+        - Use Helm to:
+            - Find and use [popular software packaged as Helm Charts](https://artifacthub.io/packages/search?kind=0) to run in Kubernetes
+            - Share your own applications as Helm Charts
+            - Create reproducible builds of your Kubernetes applications
+            - Intelligently manage your Kubernetes manifest files
+            - Manage releases of Helm packages
+        - It is a tool that streamlines installing and managing Kubernetes applications. Think of it like apt/yum/homebrew for Kubernetes.
+        - Helm renders your templates and communicates with the Kubernetes API.
+        - It runs on your laptop, CI/CD, or wherever you want it to run.
+        - Charts are Helm packages that contain at least two things:
+            - A description of the package (Chart.yaml)
+            - One or more templates, which contain Kubernetes manifest files
+        - Charts can be stored on disk, or fetched from remote chart repositories (like Debian or RedHat packages).
+        - <https://github.com/helm/helm>
 4. **Programming Languages**
-   - **Python:** Primary language for business logic
-   - **Rust:** Performance-critical components
-   - **TypeScript:** Frontend and Node.js services
-   - **Go:** Infrastructure and tooling
-   - **SQL:** Database queries and procedures
+    - **Python:** Primary language for business logic
+    - **Rust:** Performance-critical components
+    - **TypeScript:** Frontend and Node.js services
+    - **Go:** Infrastructure and tooling
+    - **SQL:** Database queries and procedures
 5. **Agentic AI Assistant: LangChain, LangGraph, AI Knowledge & Context Hub (Archon), TradingAgents, OpenBB, and TA-Lib/ta-lib-python & Bukosabino/ta**
-   - **Role:** This combination will form the "brain" of the system.
-   - **Rationale:**
-     - **LangChain** will serve as the underlying framework for building the Agentic Retrieval-Augmented Generation (Agentic RAG) capabilities, document processing, and the tool integration that powers the agents, as recommended in your features document.
-       - <http://github.com/langchain-ai/langchain>
-     - **LangGraph** will manage the complex, asynchronous workflows between the AI Agents, Multi Agents, Agentic AI, data, and trading services and act as an Orchestrator.
-       - <https://github.com/langchain-ai/langgraph>
-     - **AI Knowledge & Context Hub: Archon**
-       - **Role:** Serves as the central "command center" and Model Context Protocol (MCP) server for all AI coding and development assistants. It is the shared library, project whiteboard, and task manager for the AI workforce.
-       - **Rationale:** Archon provides a persistent, shared "brain" to solve the "amnesia" problem for AI agents. It will ingest and manage the knowledge for all 60+ components of the ATS, allowing agents like OpenHands and Codename Goose to collaborate effectively and perform complex, stateful work with high accuracy. This aligns perfectly with the "Best-of-Breed" philosophy by providing a specialised tool for AI context management and significantly accelerates the development of reliable, system-aware AI-generated code. It allows multiple agents to collaborate and leverage the same information, providing smart search via advanced RAG strategies and real-time updates. This aligns perfectly with the multi-agent architecture.
-       - <https://github.com/coleam00/Archon>
-     - **TradingAgents** a multi-agent trading framework that mirrors the dynamics of real-world trading firms. By deploying specialised LLM-powered agents: from fundamental analysts, sentiment experts, and technical analysts, to trader, risk management team, the platform collaboratively evaluates market conditions and informs trading decisions. Moreover, these agents engage in dynamic discussions to pinpoint the optimal strategy. It provides a finance-specific foundation of Multi-Agents LLM Financial Trading Framework with specialised agent roles (analyst, researcher, risk manager) that directly map to the system requirements.
-       - <https://github.com/TauricResearch/TradingAgents>
-     - **OpenBB** Platform offers access to equity, options, crypto, forex, macro economy, fixed income, and more while also offering a broad range of extensions to enhance the user experience according to their needs.
-       - <http://github.com/OpenBB-finance/OpenBB>
-     - **TA-Lib/ta-lib-python** (primary wrapper) & **Bukosabino/ta** (secondary wrapper) provides a foundation for technical indicators, including custom volume-weighted ones.
-       - <https://github.com/TA-Lib/ta-lib-python>
-       - <https://github.com/bukosabino/ta>
-     - **OpenHands (formerly OpenDevin):** An AI-Assisted Development & Debugging Agent. It is a platform for software development agents powered by AI. It can do anything a human developer can: modify code, run commands, browse the web, call APIs, and even copy code snippets from StackOverflow. It is an AI agent specifically trained to assist with writing, debugging, and optimising Python code for trading strategies and system integrations, tailored to NautilusTrader, VectorBT, and custom APIs. It dramatically speeds up development, reduces bugs, and lowers the barrier to entry for quants who may be less familiar with the specific libraries being used. It transforms the AI from just a strategy generator into a full-fledged development partner.
-       - **Features:**
-         1. Speed up code reviews: Summarise pull requests, incorporate feedback, and push fixes so code reviews are quick and painless.
-         2. Refactor old code: Decompose monolithic code, refactor tech debt, and automate version bumps without breaking the build.
-         3. Expand test coverage: Generate tests for new features to elevate code quality and squash hidden bugs.
-         4. Fix failing pipelines: Fix broken tests without debugging or interrupting others for help.
-         5. Create prototypes: Turn ideas and concepts into working code you can test with customers.
-         6. Get to "done" faster: Offload all the engineering toil you don't want to do to OpenHands.
-         7. Deeply customisable: OpenHands is an open-source core, unlocking customisation for a variety of enterprise use cases.
-         8. Best in class coding accuracy: OpenHands is a top performer across a variety of software development benchmarks for agents, like SWE-bench.
-         9. Works where you do: Use OpenHands in your browser, as a CLI, via API, or in tools like GitHub, GitLab, Slack, Jira, and more.
-       - <https://github.com/All-Hands-AI/OpenHands>
-     - **Codename Goose:** an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and test with any LLM.
-       - **Features:**
-         1. Goose is your on-machine AI agent, capable of automating complex development tasks from start to finish. More than just code suggestions, goose can build entire projects from scratch, write and execute code, debug failures, orchestrate workflows, and interact with external APIs - autonomously.
-         2. Whether you're prototyping an idea, refining existing code, or managing intricate engineering pipelines, goose adapts to your workflow and executes tasks with precision.
-         3. Designed for maximum flexibility, goose works with any LLM and supports multi-model configuration to optimise performance and cost, seamlessly integrates with MCP servers, and is available as both a desktop app as well as CLI - making it the ultimate AI assistant for developers who want to move faster and focus on innovation.
-       - <https://github.com/block/goose>
-     - **A Collaborative, Two-Agent Architecture**
-       - The entire AI developer assistant framework will be centered around **Archon**, which will serve as the shared MCP server, providing a unified knowledge base and task management system for both OpenHands and Codename Goose.
-       - The key to making this work is to assign specialised, non-overlapping roles to each agent. Based on their documented strengths, we can define a clear hierarchy:
-       - **OpenHands: The "Specialist" Code-Level Agent**
-         - OpenHands will be the master craftsman for **fine-grained, code-centric tasks**. Its entire domain is the Python code that powers your strategies and services. It excels at tasks requiring deep code understanding.
-         - **Responsibilities**:
+    - **Role:** This combination will form the "brain" of the system.
+    - **Rationale:**
+        - **LangChain** will serve as the underlying framework for building the Agentic Retrieval-Augmented Generation (Agentic RAG) capabilities, document processing, and the tool integration that powers the agents, as recommended in your features document.
+            - <http://github.com/langchain-ai/langchain>
+        - **LangGraph** will manage the complex, asynchronous workflows between the AI Agents, Multi Agents, Agentic AI, data, and trading services and act as an Orchestrator.
+            - <https://github.com/langchain-ai/langgraph>
+        - **AI Knowledge & Context Hub: Archon**
+            - **Role:** Serves as the central "command center" and Model Context Protocol (MCP) server for all AI coding and development assistants. It is the shared library, project whiteboard, and task manager for the AI workforce.
+            - **Rationale:** Archon provides a persistent, shared "brain" to solve the "amnesia" problem for AI agents. It will ingest and manage the knowledge for all 60+ components of the ATS, allowing agents like OpenHands and Codename Goose to collaborate effectively and perform complex, stateful work with high accuracy. This aligns perfectly with the "Best-of-Breed" philosophy by providing a specialised tool for AI context management and significantly accelerates the development of reliable, system-aware AI-generated code. It allows multiple agents to collaborate and leverage the same information, providing smart search via advanced RAG strategies and real-time updates. This aligns perfectly with the multi-agent architecture.
+            - <https://github.com/coleam00/Archon>
+        - **TradingAgents** a multi-agent trading framework that mirrors the dynamics of real-world trading firms. By deploying specialised LLM-powered agents: from fundamental analysts, sentiment experts, and technical analysts, to trader, risk management team, the platform collaboratively evaluates market conditions and informs trading decisions. Moreover, these agents engage in dynamic discussions to pinpoint the optimal strategy. It provides a finance-specific foundation of Multi-Agents LLM Financial Trading Framework with specialised agent roles (analyst, researcher, risk manager) that directly map to the system requirements.
+            - <https://github.com/TauricResearch/TradingAgents>
+        - **OpenBB** Platform offers access to equity, options, crypto, forex, macro economy, fixed income, and more while also offering a broad range of extensions to enhance the user experience according to their needs.
+            - <http://github.com/OpenBB-finance/OpenBB>
+        - **TA-Lib/ta-lib-python** (primary wrapper) & **Bukosabino/ta** (secondary wrapper) provides a foundation for technical indicators, including custom volume-weighted ones.
+            - <https://github.com/TA-Lib/ta-lib-python>
+            - <https://github.com/bukosabino/ta>
+        - **OpenHands (formerly OpenDevin):** An AI-Assisted Development & Debugging Agent. It is a platform for software development agents powered by AI. It can do anything a human developer can: modify code, run commands, browse the web, call APIs, and even copy code snippets from StackOverflow. It is an AI agent specifically trained to assist with writing, debugging, and optimising Python code for trading strategies and system integrations, tailored to NautilusTrader, VectorBT, and custom APIs. It dramatically speeds up development, reduces bugs, and lowers the barrier to entry for quants who may be less familiar with the specific libraries being used. It transforms the AI from just a strategy generator into a full-fledged development partner.
+            - **Features:**
+                1. Speed up code reviews: Summarise pull requests, incorporate feedback, and push fixes so code reviews are quick and painless.
+                2. Refactor old code: Decompose monolithic code, refactor tech debt, and automate version bumps without breaking the build.
+                3. Expand test coverage: Generate tests for new features to elevate code quality and squash hidden bugs.
+                4. Fix failing pipelines: Fix broken tests without debugging or interrupting others for help.
+                5. Create prototypes: Turn ideas and concepts into working code you can test with customers.
+                6. Get to "done" faster: Offload all the engineering toil you don't want to do to OpenHands.
+                7. Deeply customisable: OpenHands is an open-source core, unlocking customisation for a variety of enterprise use cases.
+                8. Best in class coding accuracy: OpenHands is a top performer across a variety of software development benchmarks for agents, like SWE-bench.
+                9. Works where you do: Use OpenHands in your browser, as a CLI, via API, or in tools like GitHub, GitLab, Slack, Jira, and more.
+            - <https://github.com/All-Hands-AI/OpenHands>
+        - **Codename Goose:** an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and test with any LLM.
+            - **Features:**
+                1. Goose is your on-machine AI agent, capable of automating complex development tasks from start to finish. More than just code suggestions, goose can build entire projects from scratch, write and execute code, debug failures, orchestrate workflows, and interact with external APIs - autonomously.
+                2. Whether you're prototyping an idea, refining existing code, or managing intricate engineering pipelines, goose adapts to your workflow and executes tasks with precision.
+                3. Designed for maximum flexibility, goose works with any LLM and supports multi-model configuration to optimise performance and cost, seamlessly integrates with MCP servers, and is available as both a desktop app as well as CLI - making it the ultimate AI assistant for developers who want to move faster and focus on innovation.
+            - <https://github.com/block/goose>
+        - **A Collaborative, Two-Agent Architecture**
+            - The entire AI developer assistant framework will be centered around **Archon**, which will serve as the shared MCP server, providing a unified knowledge base and task management system for both OpenHands and Codename Goose.
+            - The key to making this work is to assign specialised, non-overlapping roles to each agent. Based on their documented strengths, we can define a clear hierarchy:
+            - **OpenHands: The "Specialist" Code-Level Agent**
+                - OpenHands will be the master craftsman for **fine-grained, code-centric tasks**. Its entire domain is the Python code that powers your strategies and services. It excels at tasks requiring deep code understanding.
+                - **Responsibilities**:
 
 Writing and debugging
 
@@ -451,7 +447,6 @@ Fixing bugs within a specific Python file or function.
 Assisting with code that integrates with VectorBT, TA-Lib, and OpenBB.
 
 - - - - **Codename Goose: The "General Contractor" Workflow Agent**
-        
                 - Goose will be the high-level orchestrator for **broad, multi-step, system-level engineering and DevOps workflows**. It excels at tasks that span multiple services, involve infrastructure, and require end-to-end autonomous execution.
                 - **Responsibilities**:
 
@@ -464,7 +459,6 @@ Assisting with code that integrates with VectorBT, TA-Lib, and OpenBB.
 **Data Migrations and Engineering**: Performing tasks like setting up a data pipeline to move historical data into ClickHouse or Apache Iceberg.
 
 - - - - **Revised System Architecture Diagram**
-        
                 - The master orchestrator, LangGraph, sits at the center. It receives tasks and delegates them to the appropriate agent. Goose, in turn, can call OpenHands for specialised code modifications.
 
 \`\`\`mermaid
@@ -518,7 +512,6 @@ D -->|Modifies Code in Repositories| G
 \`\`\`
 
 - - - - **Revised Integration Strategy & Plan**
-        
                 - To establish a collaborative AI core where LangGraph orchestrates tasks between Goose (for workflows) and OpenHands (for code), providing a unified experience through the Lobe Chat interface.
                 - **Build Strategy**
 
@@ -557,497 +550,496 @@ MCP & Custom APIs (4, 6): Goose will use MCP to connect to the system's core API
 Dynamic Tool Loading (5): This powerful feature means we can expand the system's capabilities just by adding new tools to a library, without having to reprogram the agent itself. Goose will find and use them as needed.
 
 - - - - - By implementing this collaborative, two-agent architecture, you are not creating redundancy; you are building a more sophisticated, capable, and specialised AI workforce to power your trading system.
+
 1. **Predictions**
-   - [**Stock Prediction Models**](https://github.com/huseinzol05/Stock-Prediction-Models)
-     - A collection of machine learning and deep learning models (e.g., ARIMA, LSTM, GANs) for stock forecasting.
-     - **This will be implemented using a dynamic meta-regressor or ensemble approach, which intelligently combines and adaptively weights predictions from various models.**
-     - This method provides more robust, interpretable forecasting results by adjusting model contributions based on real-time market conditions.
-     - These models improve forecasting accuracy for AI-driven trading strategies.
-     - Works well with TradingAgent for decision-making and OpenBB for data integration.
-     - <https://github.com/huseinzol05/Stock-Prediction-Models>
-   - [**LSTM – Neural Network for Time SeriesPrediction**](https://github.com/jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction)
-     - An LSTM model built with Keras for time series prediction, tested on sine waves and stock data.
-     - LSTMs excel at time series forecasting, enhancing prediction capabilities.
-     - Integrates seamlessly with TradingAgent’s AI framework and TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta’s (secondary wrapper) data processing.
-     - <https://github.com/jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction>
-   - [**Real time stock marketprediction**](https://github.com/victor369basu/Real-time-stock-market-prediction)
-     - A real-time prediction system using Tensorflow.js and Kafka for streaming data.
-     - Relevant for live trading, adding real-time forecasting capabilities.
-     - Complements NautilusTrader’s live trading and OpenBB’s data streams.
-     - <https://github.com/victor369basu/Real-time-stock-market-prediction>
+    - [**Stock Prediction Models**](https://github.com/huseinzol05/Stock-Prediction-Models)
+        - A collection of machine learning and deep learning models (e.g., ARIMA, LSTM, GANs) for stock forecasting.
+        - **This will be implemented using a dynamic meta-regressor or ensemble approach, which intelligently combines and adaptively weights predictions from various models.**
+        - This method provides more robust, interpretable forecasting results by adjusting model contributions based on real-time market conditions.
+        - These models improve forecasting accuracy for AI-driven trading strategies.
+        - Works well with TradingAgent for decision-making and OpenBB for data integration.
+        - <https://github.com/huseinzol05/Stock-Prediction-Models>
+    - [**LSTM – Neural Network for Time SeriesPrediction**](https://github.com/jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction)
+        - An LSTM model built with Keras for time series prediction, tested on sine waves and stock data.
+        - LSTMs excel at time series forecasting, enhancing prediction capabilities.
+        - Integrates seamlessly with TradingAgent’s AI framework and TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta’s (secondary wrapper) data processing.
+        - <https://github.com/jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction>
+    - [**Real time stock marketprediction**](https://github.com/victor369basu/Real-time-stock-market-prediction)
+        - A real-time prediction system using Tensorflow.js and Kafka for streaming data.
+        - Relevant for live trading, adding real-time forecasting capabilities.
+        - Complements NautilusTrader’s live trading and OpenBB’s data streams.
+        - <https://github.com/victor369basu/Real-time-stock-market-prediction>
 2. **Backtesting**
-   - **VectorBT**
-     - GPU-accelerated, vectorised backtesting.
-     - It allows to easily backtest strategies with a couple of lines of Python code.
-     - <https://github.com/polakowo/vectorbt>
-   - **TradingGym**
-     - It is a Python environment toolkit for training and backtesting the reinforcement learning (RL) agents for trading.
-     - Enhances AI-driven strategy optimisation, aligning with the system’s agentic RAFT goals.
-     - Complements TradingAgent and FinRL for RL-based strategies.
-     - <https://github.com/Yvictor/TradingGym>
+    - **VectorBT**
+        - GPU-accelerated, vectorised backtesting.
+        - It allows to easily backtest strategies with a couple of lines of Python code.
+        - <https://github.com/polakowo/vectorbt>
+    - **TradingGym**
+        - It is a Python environment toolkit for training and backtesting the reinforcement learning (RL) agents for trading.
+        - Enhances AI-driven strategy optimisation, aligning with the system’s agentic RAFT goals.
+        - Complements TradingAgent and FinRL for RL-based strategies.
+        - <https://github.com/Yvictor/TradingGym>
 3. **Options Analytics Engine: QuantLib**
-   - **Role:** The go-to open-source library for all sophisticated options pricing, risk analytics, and calculations for complex derivatives. Develop a dedicated microservice leveraging QuantLib for professional-grade options pricing and risk analytics.
-   - **Rationale:** QuantLib is the premier open-source library for quantitative finance. The service will expose critical functionality via a scalable FastAPI bridge. It will be integrated as a specialised service.
-   - **Key API Endpoints:**
-     - POST /options/price: Computes option prices using models like Black-Scholes or Heston.
-     - GET /options/greeks: Retrieves risk metrics (Delta, Gamma, Theta, Vega) for positions.
-     - GET /options/volatility: Calculates implied volatility surfaces for market analysis.
-     - The service will be integrated with the AI assistant to handle natural language queries.
-     - The service scales efficiently to handle high-frequency requests from both the UI and AI agents.
-     - Integration is enabled with the AI assistant for natural language queries (e.g., "Calculate the delta for TSLA puts expiring next month").
-   - **Purpose**: Delivers professional-grade options analytics to support sophisticated trading strategies and risk assessment.
-   - <https://github.com/lballabio/QuantLib>
-   - <https://www.quantlib.org/>
+    - **Role:** The go-to open-source library for all sophisticated options pricing, risk analytics, and calculations for complex derivatives. Develop a dedicated microservice leveraging QuantLib for professional-grade options pricing and risk analytics.
+    - **Rationale:** QuantLib is the premier open-source library for quantitative finance. The service will expose critical functionality via a scalable FastAPI bridge. It will be integrated as a specialised service.
+    - **Key API Endpoints:**
+        - POST /options/price: Computes option prices using models like Black-Scholes or Heston.
+        - GET /options/greeks: Retrieves risk metrics (Delta, Gamma, Theta, Vega) for positions.
+        - GET /options/volatility: Calculates implied volatility surfaces for market analysis.
+        - The service will be integrated with the AI assistant to handle natural language queries.
+        - The service scales efficiently to handle high-frequency requests from both the UI and AI agents.
+        - Integration is enabled with the AI assistant for natural language queries (e.g., "Calculate the delta for TSLA puts expiring next month").
+    - **Purpose**: Delivers professional-grade options analytics to support sophisticated trading strategies and risk assessment.
+    - <https://github.com/lballabio/QuantLib>
+    - <https://www.quantlib.org/>
 4. **User Interface: Next.js**
-   - **Role:** The unified "cockpit" that interacts with all backend services via a centralised API.
-   - **Rationale:** This is the modern standard for high-performance web applications and is specified in your features document. Use Next.js with react-financial-charts, Plotly Dash, ag-Grid, and a Real-time Risk Dashboard.
-   - <https://github.com/vercel/next.js>
+    - **Role:** The unified "cockpit" that interacts with all backend services via a centralised API.
+    - **Rationale:** This is the modern standard for high-performance web applications and is specified in your features document. Use Next.js with react-financial-charts, Plotly Dash, ag-Grid, and a Real-time Risk Dashboard.
+    - <https://github.com/vercel/next.js>
 5. **API & Orchestration Layer**:
-   - **FastAPI:**
-     - **Description:** It is a modern, fast (high-performance), web framework for building APIs with Python based on standard Python type hints.
-     - **Features:**
-       - It is a custom application that serves as the central bridge between the frontend, AI assistant, and backend trading engine.
-       - Fast to code: Increase the speed to develop features by about 200% to 300%.
-       - Fewer bugs: Reduce about 40% of human (developer) induced errors.
-       - Intuitive: Great editor support. Completion everywhere. Less time debugging.
-       - Easy: Designed to be easy to use and learn. Less time reading docs.
-       - Short: Minimise code duplication. Multiple features from each parameter declaration. Fewer bugs.
-       - Robust: Get production-ready code. With automatic interactive documentation.
-     - <https://github.com/fastapi/fastapi>
-   - **gRPC:**
-     - Low latency streaming for market data.
-     - High performance remote procedure call (RPC) framework that can run anywhere.
-     - It enables client and server applications to communicate transparently, and simplifies the building of connected systems.
-     - <https://github.com/grpc/grpc>
-   - **LangGraph:**
-     - Complex workflow orchestration.
+    - **FastAPI:**
+        - **Description:** It is a modern, fast (high-performance), web framework for building APIs with Python based on standard Python type hints.
+        - **Features:**
+            - It is a custom application that serves as the central bridge between the frontend, AI assistant, and backend trading engine.
+            - Fast to code: Increase the speed to develop features by about 200% to 300%.
+            - Fewer bugs: Reduce about 40% of human (developer) induced errors.
+            - Intuitive: Great editor support. Completion everywhere. Less time debugging.
+            - Easy: Designed to be easy to use and learn. Less time reading docs.
+            - Short: Minimise code duplication. Multiple features from each parameter declaration. Fewer bugs.
+            - Robust: Get production-ready code. With automatic interactive documentation.
+        - <https://github.com/fastapi/fastapi>
+    - **gRPC:**
+        - Low latency streaming for market data.
+        - High performance remote procedure call (RPC) framework that can run anywhere.
+        - It enables client and server applications to communicate transparently, and simplifies the building of connected systems.
+        - <https://github.com/grpc/grpc>
+    - **LangGraph:**
+        - Complex workflow orchestration.
 6. **Frameworks and Libraries**
-   - **GraphQL:**
-     - GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
-     - It provides a complete and understandable description of the data in your API, gives clients the power to ask for exactly what they need and nothing more, makes it easier to evolve APIs over time, and enables powerful developer tools.
-     - <https://github.com/redwoodjs/graphql>
-   - **React:**
-     - It is a library for web and native user interfaces.
-     - React is a JavaScript library for building user interfaces.
-       - **Declarative:** React makes it painless to create interactive UIs. Design simple views for each state in your application and React will efficiently update and render just the right components when your data changes. Declarative views make your code more predictable, simpler to understand, and easier to debug.
-       - **Component-Based:** Build encapsulated components that manage their own state, then compose them to make complex UIs. Since component logic is written in JavaScript instead of templates, you can easily pass rich data through your app and keep the state out of the DOM.
-       - **Learn Once, Write Anywhere:** We don't make assumptions about the rest of your technology stack, so you can develop new features in React without rewriting existing code. React can also render on the server using [Node](https://nodejs.org/en) and power mobile apps using [React Native](https://reactnative.dev/).
-     - <https://github.com/facebook/react>
-   - **Polars/Pandas/NumPy:** Data processing
-   - **Asyncio:** Asynchronous programming
+    - **GraphQL:**
+        - GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
+        - It provides a complete and understandable description of the data in your API, gives clients the power to ask for exactly what they need and nothing more, makes it easier to evolve APIs over time, and enables powerful developer tools.
+        - <https://github.com/redwoodjs/graphql>
+    - **React:**
+        - It is a library for web and native user interfaces.
+        - React is a JavaScript library for building user interfaces.
+            - **Declarative:** React makes it painless to create interactive UIs. Design simple views for each state in your application and React will efficiently update and render just the right components when your data changes. Declarative views make your code more predictable, simpler to understand, and easier to debug.
+            - **Component-Based:** Build encapsulated components that manage their own state, then compose them to make complex UIs. Since component logic is written in JavaScript instead of templates, you can easily pass rich data through your app and keep the state out of the DOM.
+            - **Learn Once, Write Anywhere:** We don't make assumptions about the rest of your technology stack, so you can develop new features in React without rewriting existing code. React can also render on the server using [Node](https://nodejs.org/en) and power mobile apps using [React Native](https://reactnative.dev/).
+        - <https://github.com/facebook/react>
+    - **Polars/Pandas/NumPy:** Data processing
+    - **Asyncio:** Asynchronous programming
 7. **Chatbot Interface: Lobe Chat**
-   - Modern design AI chat / LLMs UI framework.
-   - Supports multiple AI providers (OpenAI / Claude 4 / Gemini / DeepSeek / Ollama / Qwen).
-   - Knowledge Base (file upload / RAG ).
-   - One click install MCP Marketplace and Artifacts / Thinking.
-   - Supports speech synthesis, multi-modal, and extensible ([function call](https://lobehub.com/blog/openai-function-call)) plugin system.
-   - **Features:**
-     - Smooth Conversation Experience: Fluid responses ensure a smooth conversation experience. It fully supports Markdown rendering, including code highlighting, LaTex formulas, Mermaid flowcharts, and more.
-     - Exquisite UI Design: With a carefully designed interface, it offers an elegant appearance and smooth interaction. It supports light and dark themes and is mobile-friendly.
-     - Desktop App
-     - Smart Online Search
-     - Chain of Thought
-     - Branching Conversations
-     - File Upload / Knowledge Base
-     - [Multi-Model Service Provider Support](https://lobehub.com/docs/usage/features/multi-ai-providers)
-     - [Local Large Language Model (LLM) Support](https://lobehub.com/docs/usage/features/local-llm)
-     - [Model Visual Recognition](https://lobehub.com/docs/usage/features/vision)
-     - [Text to Image Generation](https://lobehub.com/docs/usage/features/text-to-image)
-     - [Plugin System (Function Calling)](https://lobehub.com/docs/usage/features/plugin-system)
-     - [Progressive Web App (PWA)](https://lobehub.com/docs/usage/features/pwa) support provides a more native-like experience.
-     - MCP Plugin One-Click Installation
-     - MCP Marketplace
-     - Artifacts Support
-   - <https://github.com/lobehub/lobe-chat>
+    - Modern design AI chat / LLMs UI framework.
+    - Supports multiple AI providers (OpenAI / Claude 4 / Gemini / DeepSeek / Ollama / Qwen).
+    - Knowledge Base (file upload / RAG ).
+    - One click install MCP Marketplace and Artifacts / Thinking.
+    - Supports speech synthesis, multi-modal, and extensible ([function call](https://lobehub.com/blog/openai-function-call)) plugin system.
+    - **Features:**
+        - Smooth Conversation Experience: Fluid responses ensure a smooth conversation experience. It fully supports Markdown rendering, including code highlighting, LaTex formulas, Mermaid flowcharts, and more.
+        - Exquisite UI Design: With a carefully designed interface, it offers an elegant appearance and smooth interaction. It supports light and dark themes and is mobile-friendly.
+        - Desktop App
+        - Smart Online Search
+        - Chain of Thought
+        - Branching Conversations
+        - File Upload / Knowledge Base
+        - [Multi-Model Service Provider Support](https://lobehub.com/docs/usage/features/multi-ai-providers)
+        - [Local Large Language Model (LLM) Support](https://lobehub.com/docs/usage/features/local-llm)
+        - [Model Visual Recognition](https://lobehub.com/docs/usage/features/vision)
+        - [Text to Image Generation](https://lobehub.com/docs/usage/features/text-to-image)
+        - [Plugin System (Function Calling)](https://lobehub.com/docs/usage/features/plugin-system)
+        - [Progressive Web App (PWA)](https://lobehub.com/docs/usage/features/pwa) support provides a more native-like experience.
+        - MCP Plugin One-Click Installation
+        - MCP Marketplace
+        - Artifacts Support
+    - <https://github.com/lobehub/lobe-chat>
 8. **Agentic RAG Pipeline: RAGFlow**
-   - RAG (Retrieval-Augmented Generation) engine based on deep document understanding.
-   - Streamlined RAG workflow for businesses of any scale, combining LLM (Large Language Models) to provide truthful question-answering capabilities, backed by well-founded citations from various complex formatted data.
-   - **Features:**
-     - Quality in, quality out:
-       - [Deep document understanding](https://github.com/infiniflow/ragflow/blob/main/deepdoc/README.md)\-based knowledge extraction from unstructured data with complicated formats.
-       - Finds "needle in a data haystack" of literally unlimited tokens.
-     - Template-based chunking:
-       - Intelligent and explainable.
-       - Plenty of template options to choose from.
-     - Grounded citations with reduced hallucinations:
-       - Visualisation of text chunking to allow human intervention.
-       - Quick view of the key references and traceable citations to support grounded answers.
-     - Compatibility with heterogeneous data sources:
-       - Supports heterogeneous data sources including standard documents (word, slides, excel, pdfs), web pages, and expanded alternative data like specialised online discussion forums, analyst reports, and regulatory filings.
-     - Automated and effortless RAG workflow:
-       - Streamlined RAG orchestration catered to both personal and large businesses.
-       - Configurable LLMs as well as embedding models.
-       - Multiple recall paired with fused re-ranking.
-       - Intuitive APIs for seamless integration with business.
-   - <https://github.com/infiniflow/ragflow>
+    - RAG (Retrieval-Augmented Generation) engine based on deep document understanding.
+    - Streamlined RAG workflow for businesses of any scale, combining LLM (Large Language Models) to provide truthful question-answering capabilities, backed by well-founded citations from various complex formatted data.
+    - **Features:**
+        - Quality in, quality out:
+            - [Deep document understanding](https://github.com/infiniflow/ragflow/blob/main/deepdoc/README.md)\-based knowledge extraction from unstructured data with complicated formats.
+            - Finds "needle in a data haystack" of literally unlimited tokens.
+        - Template-based chunking:
+            - Intelligent and explainable.
+            - Plenty of template options to choose from.
+        - Grounded citations with reduced hallucinations:
+            - Visualisation of text chunking to allow human intervention.
+            - Quick view of the key references and traceable citations to support grounded answers.
+        - Compatibility with heterogeneous data sources:
+            - Supports heterogeneous data sources including standard documents (word, slides, excel, pdfs), web pages, and expanded alternative data like specialised online discussion forums, analyst reports, and regulatory filings.
+        - Automated and effortless RAG workflow:
+            - Streamlined RAG orchestration catered to both personal and large businesses.
+            - Configurable LLMs as well as embedding models.
+            - Multiple recall paired with fused re-ranking.
+            - Intuitive APIs for seamless integration with business.
+    - <https://github.com/infiniflow/ragflow>
 9. **Database**:
-   - **PostgreSQL with pgvector:**
-     - **Description:** The system uses **PostgreSQL** with the **pgvector** extension enabled, allowing it to function as an all-in-one database for both traditional relational data and vector embeddings for the AI.
-     - **Features:**
-       - Open-source vector similarity search for Postgres
-       - Store your vectors with the rest of your data.
-       - Supports:
-         1. exact and approximate nearest neighbour search.
-         2. single-precision, half-precision, binary, and sparse vectors.
-         3. L2 distance, inner product, cosine distance, L1 distance, Hamming distance, and Jaccard distance.
-     - <https://github.com/pgvector/pgvector>
-   - **ClickHouse:**
-     - Column oriented database management system that allows generating analytical data reports in real-time.
-     - High-speed, large-scale time-series analytics.
-     - <https://github.com/ClickHouse/ClickHouse>
-   - **DuckDB:**
-     - Fast, in-process OLAP queries for research.
-     - High performance analytical database system.
-     - Designed to be fast, reliable, portable, and easy to use.
-     - Provides a rich SQL dialect, with support far beyond basic SQL.
-     - Supports arbitrary and nested correlated subqueries, window functions, collations, complex types (arrays, structs, maps), and [several extensions designed to make SQL easier to use](https://duckdb.org/docs/stable/sql/dialect/friendly_sql.html).
-     - <http://github.com/duckdb/duckdb>
-   - **Qdrant:**
-     - **Description:** Qdrant is a high-performance, massive-scale Vector Database and Vector Search Engine.
-     - **Features:**
-       - It provides a production-ready service with a convenient API to store, search, and manage points – vectors with an additional payload.
-       - It is tailored to extended filtering support.
-       - It makes it useful for all sorts of neural-network or semantic-based matching, faceted search, and other applications.
-       - Qdrant is written in Rust, which makes it fast and reliable even under high load.
-       - With Qdrant, embeddings or neural network encoders can be turned into full-fledged applications for matching, searching, recommending, and much more.
-     - <https://github.com/qdrant/qdrant>
-   - **Apache Iceberg:**
-     - Long-term, immutable data storage.
-     - High performance format for huge analytic tables.
-     - Iceberg brings the reliability and simplicity of SQL tables to big data, while making it possible for engines like Spark, Trino, Flink, Presto, Hive, and Impala to safely work with the same tables, at the same time.
-     - <https://github.com/apache/iceberg>
-   - **Redis:**
-     - Caching and session storage.
-     - For developers, who are building real-time data-driven applications, Redis is the preferred, fastest, and most feature-rich cache, data structure server, and document and vector query engine.
-     - Redis excels in various applications, including:
-       - Caching: Supports multiple eviction policies, key expiration, and hash-field expiration.
-       - Distributed Session Store: Offers flexible session data modeling (string, JSON, hash).
-       - Data Structure Server: Provides low-level data structures (strings, lists, sets, hashes, sorted sets, JSON, etc.) with high-level semantics (counters, queues, leaderboards, rate limiters) and supports transactions & scripting.
-       - NoSQL Data Store: Key-value, document, and time series data storage.
-       - Search and Query Engine: Indexing for hash/JSON documents, supporting vector search, full-text search, geospatial queries, ranking, and aggregations via Redis Query Engine.
-       - Event Store & Message Broker: Implements queues (lists), priority queues (sorted sets), event deduplication (sets), streams, and pub/sub with probabilistic stream processing capabilities.
-       - Vector Store for GenAI: Integrates with AI applications (e.g. LangGraph, mem0) for short-term memory, long-term memory, LLM response caching (semantic caching), and retrieval augmented generation (RAG).
-       - Real-Time Analytics: Powers personalisation, recommendations, fraud detection, and risk assessment.
-     - <https://github.com/redis/redis>
-   - **InfluxDB:**
-     - It is a scalable datastore for metrics, events, and real-time analytics.
-     - InfluxDB Core is a database built to collect, process, transform, and store event and time series data. It is ideal for use cases that require real-time ingest and fast query response times to build user interfaces, monitoring, and automation solutions.
-     - Common use cases include:
-       - Monitoring sensor data
-       - Server monitoring
-       - Application performance monitoring
-       - Network monitoring
-       - Financial market and trading analytics
-       - Behavioral analytics
-     - InfluxDB is optimised for scenarios where near real-time data monitoring is essential and queries need to return quickly to support user experiences such as dashboards and interactive user interfaces.
-     - InfluxDB Core’s feature highlights include:
-       - Diskless architecture with object storage support (or local disk with no dependencies)
-       - Fast query response times (under 10ms for last-value queries, or 30ms for distinct metadata)
-       - Embedded Python VM for plugins and triggers
-       - Parquet file persistence
-       - Compatibility with InfluxDB 1.x and 2.x write APIs
-       - Compatability with InfluxDB 1.x query API (InfluxQL)
-       - SQL query engine with support for FlightSQL and HTTP query API
-     - <https://github.com/influxdata/influxdb>
-   - **MinIO/S3:**
-     - MinIO is a high-performance, S3-compatible object storage solution released under the GNU AGPL v3.0 license.
-     - It is designed for speed and scalability.
-     - It powers AI/ML, analytics, and data-intensive workloads with industry-leading performance.
-     - <https://github.com/minio/minio>
+    - **PostgreSQL with pgvector:**
+        - **Description:** The system uses **PostgreSQL** with the **pgvector** extension enabled, allowing it to function as an all-in-one database for both traditional relational data and vector embeddings for the AI.
+        - **Features:**
+            - Open-source vector similarity search for Postgres
+            - Store your vectors with the rest of your data.
+            - Supports:
+                1. exact and approximate nearest neighbour search.
+                2. single-precision, half-precision, binary, and sparse vectors.
+                3. L2 distance, inner product, cosine distance, L1 distance, Hamming distance, and Jaccard distance.
+        - <https://github.com/pgvector/pgvector>
+    - **ClickHouse:**
+        - Column oriented database management system that allows generating analytical data reports in real-time.
+        - High-speed, large-scale time-series analytics.
+        - <https://github.com/ClickHouse/ClickHouse>
+    - **DuckDB:**
+        - Fast, in-process OLAP queries for research.
+        - High performance analytical database system.
+        - Designed to be fast, reliable, portable, and easy to use.
+        - Provides a rich SQL dialect, with support far beyond basic SQL.
+        - Supports arbitrary and nested correlated subqueries, window functions, collations, complex types (arrays, structs, maps), and [several extensions designed to make SQL easier to use](https://duckdb.org/docs/stable/sql/dialect/friendly_sql.html).
+        - <http://github.com/duckdb/duckdb>
+    - **Qdrant:**
+        - **Description:** Qdrant is a high-performance, massive-scale Vector Database and Vector Search Engine.
+        - **Features:**
+            - It provides a production-ready service with a convenient API to store, search, and manage points – vectors with an additional payload.
+            - It is tailored to extended filtering support.
+            - It makes it useful for all sorts of neural-network or semantic-based matching, faceted search, and other applications.
+            - Qdrant is written in Rust, which makes it fast and reliable even under high load.
+            - With Qdrant, embeddings or neural network encoders can be turned into full-fledged applications for matching, searching, recommending, and much more.
+        - <https://github.com/qdrant/qdrant>
+    - **Apache Iceberg:**
+        - Long-term, immutable data storage.
+        - High performance format for huge analytic tables.
+        - Iceberg brings the reliability and simplicity of SQL tables to big data, while making it possible for engines like Spark, Trino, Flink, Presto, Hive, and Impala to safely work with the same tables, at the same time.
+        - <https://github.com/apache/iceberg>
+    - **Redis:**
+        - Caching and session storage.
+        - For developers, who are building real-time data-driven applications, Redis is the preferred, fastest, and most feature-rich cache, data structure server, and document and vector query engine.
+        - Redis excels in various applications, including:
+            - Caching: Supports multiple eviction policies, key expiration, and hash-field expiration.
+            - Distributed Session Store: Offers flexible session data modeling (string, JSON, hash).
+            - Data Structure Server: Provides low-level data structures (strings, lists, sets, hashes, sorted sets, JSON, etc.) with high-level semantics (counters, queues, leaderboards, rate limiters) and supports transactions & scripting.
+            - NoSQL Data Store: Key-value, document, and time series data storage.
+            - Search and Query Engine: Indexing for hash/JSON documents, supporting vector search, full-text search, geospatial queries, ranking, and aggregations via Redis Query Engine.
+            - Event Store & Message Broker: Implements queues (lists), priority queues (sorted sets), event deduplication (sets), streams, and pub/sub with probabilistic stream processing capabilities.
+            - Vector Store for GenAI: Integrates with AI applications (e.g. LangGraph, mem0) for short-term memory, long-term memory, LLM response caching (semantic caching), and retrieval augmented generation (RAG).
+            - Real-Time Analytics: Powers personalisation, recommendations, fraud detection, and risk assessment.
+        - <https://github.com/redis/redis>
+    - **InfluxDB:**
+        - It is a scalable datastore for metrics, events, and real-time analytics.
+        - InfluxDB Core is a database built to collect, process, transform, and store event and time series data. It is ideal for use cases that require real-time ingest and fast query response times to build user interfaces, monitoring, and automation solutions.
+        - Common use cases include:
+            - Monitoring sensor data
+            - Server monitoring
+            - Application performance monitoring
+            - Network monitoring
+            - Financial market and trading analytics
+            - Behavioral analytics
+        - InfluxDB is optimised for scenarios where near real-time data monitoring is essential and queries need to return quickly to support user experiences such as dashboards and interactive user interfaces.
+        - InfluxDB Core’s feature highlights include:
+            - Diskless architecture with object storage support (or local disk with no dependencies)
+            - Fast query response times (under 10ms for last-value queries, or 30ms for distinct metadata)
+            - Embedded Python VM for plugins and triggers
+            - Parquet file persistence
+            - Compatibility with InfluxDB 1.x and 2.x write APIs
+            - Compatability with InfluxDB 1.x query API (InfluxQL)
+            - SQL query engine with support for FlightSQL and HTTP query API
+        - <https://github.com/influxdata/influxdb>
+    - **MinIO/S3:**
+        - MinIO is a high-performance, S3-compatible object storage solution released under the GNU AGPL v3.0 license.
+        - It is designed for speed and scalability.
+        - It powers AI/ML, analytics, and data-intensive workloads with industry-leading performance.
+        - <https://github.com/minio/minio>
 10. **Order Management & Execution Layer:**
     - **FIX Gateway:**
-      - Institutional-grade trading connectivity.
-      - The Financial Information eXchange (FIX) protocol is a messaging standard developed specifically for the real-time electronic exchange of securities transactions.
-      - FIX is a public-domain specification owned and maintained by FIX Protocol, Ltd (FPL).
-      - **QuickFIX/J:**
-        - Full featured messaging engine for the FIX protocol.
-        - It is a 100% Java open source implementation of the popular C++ QuickFIX engine.
-        - <https://github.com/quickfix-j/quickfixj>
-      - **FIX8:**
-        - A modern open-source C++ FIX framework featuring complete schema driven customisation, high performance and fast application development.
-        - Comprised of a compiler for generating C++ message and field encoders, decoders and instantiation tables.
-        - Runtime library to support the generated code and framework.
-        - Set of complete client/server test applications.
-        - <https://github.com/fix8/fix8>
+        - Institutional-grade trading connectivity.
+        - The Financial Information eXchange (FIX) protocol is a messaging standard developed specifically for the real-time electronic exchange of securities transactions.
+        - FIX is a public-domain specification owned and maintained by FIX Protocol, Ltd (FPL).
+        - **QuickFIX/J:**
+            - Full featured messaging engine for the FIX protocol.
+            - It is a 100% Java open source implementation of the popular C++ QuickFIX engine.
+            - <https://github.com/quickfix-j/quickfixj>
+        - **FIX8:**
+            - A modern open-source C++ FIX framework featuring complete schema driven customisation, high performance and fast application development.
+            - Comprised of a compiler for generating C++ message and field encoders, decoders and instantiation tables.
+            - Runtime library to support the generated code and framework.
+            - Set of complete client/server test applications.
+            - <https://github.com/fix8/fix8>
 11. **Feature Store**:
     - **Feast:**
-      - Open-source feature store for machine learning.
-      - Fastest path to manage existing infrastructure to productionise analytic data for model training and online inference.
-      - Allows ML platform teams to:
-        - Make features consistently available for training and serving by managing an offline store (to process historical data for scale-out batch scoring or model training), a low-latency online store (to power real-time prediction), and a battle-tested feature server (to serve pre-computed features online).
-        - Avoid data leakage by generating point-in-time correct feature sets so data scientists can focus on feature engineering rather than debugging error-prone dataset joining logic. This ensure that future feature values do not leak to models during training.
-        - Decouple ML from data infrastructure by providing a single data access layer that abstracts feature storage from feature retrieval, ensuring models remain portable as you move from training models to serving models, from batch models to realtime models, and from one data infra system to another.
-      - <https://github.com/feast-dev/feast>
+        - Open-source feature store for machine learning.
+        - Fastest path to manage existing infrastructure to productionise analytic data for model training and online inference.
+        - Allows ML platform teams to:
+            - Make features consistently available for training and serving by managing an offline store (to process historical data for scale-out batch scoring or model training), a low-latency online store (to power real-time prediction), and a battle-tested feature server (to serve pre-computed features online).
+            - Avoid data leakage by generating point-in-time correct feature sets so data scientists can focus on feature engineering rather than debugging error-prone dataset joining logic. This ensure that future feature values do not leak to models during training.
+            - Decouple ML from data infrastructure by providing a single data access layer that abstracts feature storage from feature retrieval, ensuring models remain portable as you move from training models to serving models, from batch models to realtime models, and from one data infra system to another.
+        - <https://github.com/feast-dev/feast>
     - **Tecton:**
-      - Consistent feature management for training and inference.
-      - <https://github.com/tecton-ai>
+        - Consistent feature management for training and inference.
+        - <https://github.com/tecton-ai>
 12. **Observability and Monitoring Stack**:
     - **Prometheus:**
-      - **Description**: It is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts when specified conditions are observed.
-      - **Features:**
-        - A multi-dimensional data model (time series defined by metric name and set of key/value dimensions).
-        - PromQL, a powerful and flexible query language to leverage this dimensionality.
-        - No dependency on distributed storage; single server nodes are autonomous.
-        - An HTTP pull model for time series collection.
-        - Pushing time series is supported via an intermediary gateway for batch jobs.
-        - Targets are discovered via service discovery or static configuration.
-        - Multiple modes of graphing and dashboarding support.
-        - Support for hierarchical and horizontal federation.
-      - <https://github.com/prometheus/prometheus>
+        - **Description**: It is a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts when specified conditions are observed.
+        - **Features:**
+            - A multi-dimensional data model (time series defined by metric name and set of key/value dimensions).
+            - PromQL, a powerful and flexible query language to leverage this dimensionality.
+            - No dependency on distributed storage; single server nodes are autonomous.
+            - An HTTP pull model for time series collection.
+            - Pushing time series is supported via an intermediary gateway for batch jobs.
+            - Targets are discovered via service discovery or static configuration.
+            - Multiple modes of graphing and dashboarding support.
+            - Support for hierarchical and horizontal federation.
+        - <https://github.com/prometheus/prometheus>
     - **Grafana:**
-      - **Description:** It is an open and composable observability and data visualisation platform. Visualise metrics, logs, and traces from multiple sources like Prometheus, Loki, Elasticsearch, InfluxDB, Postgres, and many more. Grafana allows you to query, visualise, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.
-      - **Features:**
-        - Visualisations: Fast and flexible client-side graphs with a multitude of options. Panel plugins offer many different ways to visualise metrics and logs.
-        - Dynamic Dashboards: Create dynamic & reusable dashboards with template variables that appear as dropdowns at the top of the dashboard.
-        - Explore Metrics: Explore your data through ad-hoc queries and dynamic drilldown. Split view and compare different time ranges, queries and data sources side by side.
-        - Explore Logs: Experience the magic of switching from metrics to logs with preserved label filters. Quickly search through all your logs or streaming them live.
-        - Alerting: Visually define alert rules for your most important metrics. Grafana will continuously evaluate and send notifications to systems like Slack, PagerDuty, VictorOps, OpsGenie.
-        - Mixed Data Sources: Mix different data sources in the same graph! You can specify a data source on a per-query basis. This works for even custom datasources.
-      - <https://github.com/grafana/grafana>
+        - **Description:** It is an open and composable observability and data visualisation platform. Visualise metrics, logs, and traces from multiple sources like Prometheus, Loki, Elasticsearch, InfluxDB, Postgres, and many more. Grafana allows you to query, visualise, alert on and understand your metrics no matter where they are stored. Create, explore, and share dashboards with your team and foster a data-driven culture.
+        - **Features:**
+            - Visualisations: Fast and flexible client-side graphs with a multitude of options. Panel plugins offer many different ways to visualise metrics and logs.
+            - Dynamic Dashboards: Create dynamic & reusable dashboards with template variables that appear as dropdowns at the top of the dashboard.
+            - Explore Metrics: Explore your data through ad-hoc queries and dynamic drilldown. Split view and compare different time ranges, queries and data sources side by side.
+            - Explore Logs: Experience the magic of switching from metrics to logs with preserved label filters. Quickly search through all your logs or streaming them live.
+            - Alerting: Visually define alert rules for your most important metrics. Grafana will continuously evaluate and send notifications to systems like Slack, PagerDuty, VictorOps, OpsGenie.
+            - Mixed Data Sources: Mix different data sources in the same graph! You can specify a data source on a per-query basis. This works for even custom datasources.
+        - <https://github.com/grafana/grafana>
     - **Grafana Tempo:**
-      - **Description:** High volume, minimal dependency distributed tracing for latency debugging. Distributed tracing helps teams quickly pinpoint performance issues and understand the flow of requests across services.
-      - **Features:**
-        - Cost-efficient, requiring only object storage to operate.
-        - Deeply integrated with Prometheus, Grafana, and Loki.
-        - The Traces Drilldown UI simplifies this process by offering a user-friendly interface to view and analyse trace data, making it easier to identify and resolve issues without needing to write complex queries.
-      - <https://github.com/grafana/tempo>
+        - **Description:** High volume, minimal dependency distributed tracing for latency debugging. Distributed tracing helps teams quickly pinpoint performance issues and understand the flow of requests across services.
+        - **Features:**
+            - Cost-efficient, requiring only object storage to operate.
+            - Deeply integrated with Prometheus, Grafana, and Loki.
+            - The Traces Drilldown UI simplifies this process by offering a user-friendly interface to view and analyse trace data, making it easier to identify and resolve issues without needing to write complex queries.
+        - <https://github.com/grafana/tempo>
     - **Memray:**
-      - **Description:** A memory profiler for Python from Bloomberg. It can track memory allocations in Python code, in native extension modules, and in the Python interpreter itself. It detects leaks in Python code. It can generate several different types of reports to help analyse the captured memory usage data. While commonly used as a CLI tool, it can also be used as a library to perform more fine-grained profiling tasks.
-      - **Justification:** In a high-performance trading system, memory leaks or inefficient memory usage can degrade performance over time and lead to system instability. Memray is invaluable for debugging these issues, especially in long-running services like the trading engine and AI assistant.
-      - **Features:**
-        - Traces every function call so it can accurately represent the call stack, unlike sampling profilers.
-        - Also handles native calls in C/C++ libraries so the entire call stack is present in the results.
-        - Blazing fast. Profiling slows the application only slightly. Tracking native code is somewhat slower, but this can be enabled or disabled on demand.
-        - It can generate various reports about the collected memory usage data, like flame graphs.
-        - Works with Python threads.
-        - Works with native-threads (e.g. C++ threads in C extensions).
-        - It can analyse allocations in applications to help discover the cause of high memory usage.
-        - It can find memory leaks and hotspots in code that cause a lot of allocations.
-      - <https://github.com/bloomberg/memray>
+        - **Description:** A memory profiler for Python from Bloomberg. It can track memory allocations in Python code, in native extension modules, and in the Python interpreter itself. It detects leaks in Python code. It can generate several different types of reports to help analyse the captured memory usage data. While commonly used as a CLI tool, it can also be used as a library to perform more fine-grained profiling tasks.
+        - **Justification:** In a high-performance trading system, memory leaks or inefficient memory usage can degrade performance over time and lead to system instability. Memray is invaluable for debugging these issues, especially in long-running services like the trading engine and AI assistant.
+        - **Features:**
+            - Traces every function call so it can accurately represent the call stack, unlike sampling profilers.
+            - Also handles native calls in C/C++ libraries so the entire call stack is present in the results.
+            - Blazing fast. Profiling slows the application only slightly. Tracking native code is somewhat slower, but this can be enabled or disabled on demand.
+            - It can generate various reports about the collected memory usage data, like flame graphs.
+            - Works with Python threads.
+            - Works with native-threads (e.g. C++ threads in C extensions).
+            - It can analyse allocations in applications to help discover the cause of high memory usage.
+            - It can find memory leaks and hotspots in code that cause a lot of allocations.
+        - <https://github.com/bloomberg/memray>
     - **Elasticsearch:**
-      - It is a distributed search and analytics engine, scalable data store and vector database optimised for speed and relevance on production-scale workloads.
-      - Elasticsearch is the foundation of Elastic’s open Stack platform.
-      - Search in near real-time over massive datasets, perform vector searches, integrate with generative AI applications, and much more.
-      - Use cases enabled by Elasticsearch include:
-        - [Retrieval Augmented Generation (RAG)](https://www.elastic.co/search-labs/blog/articles/retrieval-augmented-generation-rag)
-        - [Vector search](https://www.elastic.co/search-labs/blog/categories/vector-search)
-        - Full-text search
-        - Logs
-        - Metrics
-        - Application performance monitoring (APM)
-        - Security logs
-        - ... and more!
-      - <https://github.com/elastic/elasticsearch>
+        - It is a distributed search and analytics engine, scalable data store and vector database optimised for speed and relevance on production-scale workloads.
+        - Elasticsearch is the foundation of Elastic’s open Stack platform.
+        - Search in near real-time over massive datasets, perform vector searches, integrate with generative AI applications, and much more.
+        - Use cases enabled by Elasticsearch include:
+            - [Retrieval Augmented Generation (RAG)](https://www.elastic.co/search-labs/blog/articles/retrieval-augmented-generation-rag)
+            - [Vector search](https://www.elastic.co/search-labs/blog/categories/vector-search)
+            - Full-text search
+            - Logs
+            - Metrics
+            - Application performance monitoring (APM)
+            - Security logs
+            - ... and more!
+        - <https://github.com/elastic/elasticsearch>
     - **Grafna Loki:**
-      - Loki is a horizontally scalable, highly-available, multi-tenant log aggregation system inspired by [Prometheus](https://prometheus.io/).
-      - It is designed to be very cost effective and easy to operate.
-      - It does not index the contents of the logs, but rather a set of labels for each log stream.
-      - Compared to other log aggregation systems, Loki:
-        - does not do full text indexing on logs. By storing compressed, unstructured logs and only indexing metadata, Loki is simpler to operate and cheaper to run.
-        - indexes and groups log streams using the same labels you’re already using with Prometheus, enabling you to seamlessly switch between metrics and logs using the same labels that you’re already using with Prometheus.
-        - is an especially good fit for storing [Kubernetes](https://kubernetes.io/) Pod logs. Metadata such as Pod labels is automatically scraped and indexed.
-        - has native support in Grafana (needs Grafana v6.0).
-      - A Loki-based logging stack consists of 3 components:
-        - [Alloy](https://github.com/grafana/alloy) is agent, responsible for gathering logs and sending them to Loki.
-        - [Loki](https://github.com/grafana/loki) is the main service, responsible for storing logs and processing queries.
-        - [Grafana](https://github.com/grafana/grafana) for querying and displaying the logs.
-      - Note that Alloy replaced Promtail in the stack, because Promtail is considered to be feature complete, and future development for logs collection will be in [Grafana Alloy](https://github.com/grafana/alloy).
-      - Loki is like Prometheus, but for logs
-        - A multidimensional label-based approach to indexing.
-        - A single-binary, easy to operate system with no dependencies.
-      - Loki differs from Prometheus by focusing on logs instead of metrics, and delivering logs via push, instead of pull.
-      - <https://github.com/grafana/loki>
+        - Loki is a horizontally scalable, highly-available, multi-tenant log aggregation system inspired by [Prometheus](https://prometheus.io/).
+        - It is designed to be very cost effective and easy to operate.
+        - It does not index the contents of the logs, but rather a set of labels for each log stream.
+        - Compared to other log aggregation systems, Loki:
+            - does not do full text indexing on logs. By storing compressed, unstructured logs and only indexing metadata, Loki is simpler to operate and cheaper to run.
+            - indexes and groups log streams using the same labels you’re already using with Prometheus, enabling you to seamlessly switch between metrics and logs using the same labels that you’re already using with Prometheus.
+            - is an especially good fit for storing [Kubernetes](https://kubernetes.io/) Pod logs. Metadata such as Pod labels is automatically scraped and indexed.
+            - has native support in Grafana (needs Grafana v6.0).
+        - A Loki-based logging stack consists of 3 components:
+            - [Alloy](https://github.com/grafana/alloy) is agent, responsible for gathering logs and sending them to Loki.
+            - [Loki](https://github.com/grafana/loki) is the main service, responsible for storing logs and processing queries.
+            - [Grafana](https://github.com/grafana/grafana) for querying and displaying the logs.
+        - Note that Alloy replaced Promtail in the stack, because Promtail is considered to be feature complete, and future development for logs collection will be in [Grafana Alloy](https://github.com/grafana/alloy).
+        - Loki is like Prometheus, but for logs
+            - A multidimensional label-based approach to indexing.
+            - A single-binary, easy to operate system with no dependencies.
+        - Loki differs from Prometheus by focusing on logs instead of metrics, and delivering logs via push, instead of pull.
+        - <https://github.com/grafana/loki>
     - **Jaeger:**
-      - It is a Distributed Tracing System.
-      - Distributed tracing observability platforms, such as Jaeger, are essential for modern software applications that are architected as microservices.
-      - Jaeger maps the flow of requests and data as they traverse a distributed system.
-      - These requests may make calls to multiple services, which may introduce their own delays or errors.
-      - Jaeger connects the dots between these disparate components, helping to identify performance bottlenecks, troubleshoot errors, and improve overall application reliability.
-      - It utilises [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/"%20\t%20"_blank) framework as the base and extends it to implement Jaeger’s unique features.
-      - It brings significant improvements and changes, making Jaeger more flexible, extensible, and better aligned with the OpenTelemetry project.
-      - OpenTelemetry is the de-facto standard for application instrumentation providing the foundation for observability.
-      - Jaeger is now based on the cornerstone of this project, the OpenTelemetry Collector.
-      - It is a complete tracing platform that includes storage and the UI.
-      - OpenTelemetry Collector is usually an intermediate component in the collection pipelines that are used to receive, process, transform, and export different telemetry types.
-      - <https://github.com/jaegertracing/jaeger>
+        - It is a Distributed Tracing System.
+        - Distributed tracing observability platforms, such as Jaeger, are essential for modern software applications that are architected as microservices.
+        - Jaeger maps the flow of requests and data as they traverse a distributed system.
+        - These requests may make calls to multiple services, which may introduce their own delays or errors.
+        - Jaeger connects the dots between these disparate components, helping to identify performance bottlenecks, troubleshoot errors, and improve overall application reliability.
+        - It utilises [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/"%20\t%20"_blank) framework as the base and extends it to implement Jaeger’s unique features.
+        - It brings significant improvements and changes, making Jaeger more flexible, extensible, and better aligned with the OpenTelemetry project.
+        - OpenTelemetry is the de-facto standard for application instrumentation providing the foundation for observability.
+        - Jaeger is now based on the cornerstone of this project, the OpenTelemetry Collector.
+        - It is a complete tracing platform that includes storage and the UI.
+        - OpenTelemetry Collector is usually an intermediate component in the collection pipelines that are used to receive, process, transform, and export different telemetry types.
+        - <https://github.com/jaegertracing/jaeger>
     - **AlertManager:**
-      - The Alertmanager handles alerts sent by client applications such as the Prometheus server.
-      - It takes care of deduplicating, grouping, and routing them to the correct [receiver integrations](https://prometheus.io/docs/alerting/latest/configuration/#receiver) such as email, PagerDuty, OpsGenie, or many other [mechanisms](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) thanks to the webhook receiver.
-      - It also takes care of silencing and inhibition of alerts.
-      - <https://github.com/prometheus/alertmanager>
+        - The Alertmanager handles alerts sent by client applications such as the Prometheus server.
+        - It takes care of deduplicating, grouping, and routing them to the correct [receiver integrations](https://prometheus.io/docs/alerting/latest/configuration/#receiver) such as email, PagerDuty, OpsGenie, or many other [mechanisms](https://prometheus.io/docs/operating/integrations/#alertmanager-webhook-receiver) thanks to the webhook receiver.
+        - It also takes care of silencing and inhibition of alerts.
+        - <https://github.com/prometheus/alertmanager>
     - **ELK Stack:**
-      - It is an Elastic stack (ELK) powered by Docker and Compose.
-      - It gives you the ability to analyse any data set by using the searching/aggregation capabilities of Elasticsearch and the visualisation power of Kibana.
-      - <https://github.com/deviantony/docker-elk>
+        - It is an Elastic stack (ELK) powered by Docker and Compose.
+        - It gives you the ability to analyse any data set by using the searching/aggregation capabilities of Elasticsearch and the visualisation power of Kibana.
+        - <https://github.com/deviantony/docker-elk>
     - **AI-Powered Performance Prediction**
-      - **Description:** Integrates dedicated ML models to proactively predict system performance bottlenecks and latency issues.
-      - **Benefit:** Extends the monitoring stack from reactive alerting to predictive forecasting, allowing for pre-emptive adjustments to prevent slowdowns or failures.
+        - **Description:** Integrates dedicated ML models to proactively predict system performance bottlenecks and latency issues.
+        - **Benefit:** Extends the monitoring stack from reactive alerting to predictive forecasting, allowing for pre-emptive adjustments to prevent slowdowns or failures.
 13. **Enterprise Security and Risk Management:**
     - **Authentication & Authorisation**
-      - OAuth 2.0/OpenID Connect: Standard authentication
-      - JWT Tokens: Stateless authentication
-      - RBAC: Role-based access control
-      - API Keys: Service-to-service authentication
+        - OAuth 2.0/OpenID Connect: Standard authentication
+        - JWT Tokens: Stateless authentication
+        - RBAC: Role-based access control
+        - API Keys: Service-to-service authentication
     - **Data Protection**
-      - Encryption at Rest: AES-256 encryption
-      - Encryption in Transit: TLS 1.3
-      - Key Management: HashiCorp Vault
-      - Secret Management: Kubernetes secrets
-      - Formalised Backup Strategy: Adheres to the **3-2-1 backup rule** (3 copies of data, on 2 different media types, with 1 copy off-site) to ensure a resilient framework for data protection and recovery.
+        - Encryption at Rest: AES-256 encryption
+        - Encryption in Transit: TLS 1.3
+        - Key Management: HashiCorp Vault
+        - Secret Management: Kubernetes secrets
+        - Formalised Backup Strategy: Adheres to the **3-2-1 backup rule** (3 copies of data, on 2 different media types, with 1 copy off-site) to ensure a resilient framework for data protection and recovery.
     - **Network Security**
-      - Network Policies: Kubernetes network policies
-      - Service Mesh: Istio for service-to-service security
-      - Ingress Security: NGINX with security headers
-      - DDoS Protection: Rate limiting and throttling
+        - Network Policies: Kubernetes network policies
+        - Service Mesh: Istio for service-to-service security
+        - Ingress Security: NGINX with security headers
+        - DDoS Protection: Rate limiting and throttling
     - **Zero-Trust** architecture.
     - **User and Entity Behaviour Analytics (UEBA):**
-      - Implements dedicated UEBA capabilities to continuously analyse human and machine behaviour patterns, proactively identifying sophisticated threats based on deviations from established norms.
+        - Implements dedicated UEBA capabilities to continuously analyse human and machine behaviour patterns, proactively identifying sophisticated threats based on deviations from established norms.
     - **Threat Modelling by Design:**
-      - Mandates the application of generic threat modelling methodologies (e.g., STRIDE) during the design phase of all microservices to proactively identify vulnerabilities.
+        - Mandates the application of generic threat modelling methodologies (e.g., STRIDE) during the design phase of all microservices to proactively identify vulnerabilities.
     - Real-time risk hub.
     - Immutable audit trails in Apache Iceberg.
     - **Unleash:**
-      - **Description:** Feature Flags for dynamic toggling of strategies and kill-switches.
-      - **Features:**
-        - Powerful open-source solution for feature management.
-        - Streamlines development workflow.
-        - Accelerates software delivery.
-        - Empowers teams to control how and when they roll out new features to end users.
-        - Deploys code to production in smaller, more manageable releases at user’s own pace.
-        - Feature flags let users test their code with real production data, reducing the risk of negatively impacting the users' experience.
-        - Enables the users’ team to work on multiple features simultaneously without the need for separate feature branches.
-      - <https://github.com/Unleash/unleash>
+        - **Description:** Feature Flags for dynamic toggling of strategies and kill-switches.
+        - **Features:**
+            - Powerful open-source solution for feature management.
+            - Streamlines development workflow.
+            - Accelerates software delivery.
+            - Empowers teams to control how and when they roll out new features to end users.
+            - Deploys code to production in smaller, more manageable releases at user’s own pace.
+            - Feature flags let users test their code with real production data, reducing the risk of negatively impacting the users' experience.
+            - Enables the users’ team to work on multiple features simultaneously without the need for separate feature branches.
+        - <https://github.com/Unleash/unleash>
     - **Static Application Security Testing (SAST) with Bandit:**
-      - **Description:** Add a SAST tool like **Bandit** into the development lifecycle. This tool automatically scans Python code for common security vulnerabilities.
-      - **Justification:** This shifts security "left", finding and fixing potential vulnerabilities _before_ they ever reach production. It’s a critical component of a modern DevSecOps pipeline and essential for a system handling financial transactions.
-      - **Features:**
-        - Tool designed to find common security issues in Python code.
-        - Processes each file, builds an AST from it, and runs appropriate plugins against the AST nodes.
-        - After scanning all the files, it generates a report.
-      - <https://github.com/PyCQA/bandit>
+        - **Description:** Add a SAST tool like **Bandit** into the development lifecycle. This tool automatically scans Python code for common security vulnerabilities.
+        - **Justification:** This shifts security "left", finding and fixing potential vulnerabilities _before_ they ever reach production. It’s a critical component of a modern DevSecOps pipeline and essential for a system handling financial transactions.
+        - **Features:**
+            - Tool designed to find common security issues in Python code.
+            - Processes each file, builds an AST from it, and runs appropriate plugins against the AST nodes.
+            - After scanning all the files, it generates a report.
+        - <https://github.com/PyCQA/bandit>
 14. **Enhanced Data Visualisation:**
     - **React-financial-charts for advanced financial charting**
-      - **Description:** A React library for advanced financial charting, supporting candlestick, OHLC, and volume charts.
-      - **Features:**
-        - Customisable charts for stocks, options, and other assets.
-        - Interactive features like zooming and tooltips.
-        - Integrates with Next.js for dynamic UI updates.
-      - **Benefit:** Enhances the Next.js frontend with professional-grade financial visualisations, improving user experience for traders analysing market data.
-      - <https://github.com/react-financial/react-financial-charts>
+        - **Description:** A React library for advanced financial charting, supporting candlestick, OHLC, and volume charts.
+        - **Features:**
+            - Customisable charts for stocks, options, and other assets.
+            - Interactive features like zooming and tooltips.
+            - Integrates with Next.js for dynamic UI updates.
+        - **Benefit:** Enhances the Next.js frontend with professional-grade financial visualisations, improving user experience for traders analysing market data.
+        - <https://github.com/react-financial/react-financial-charts>
     - **Plotly Dash for interactive dashboards**
-      - **Description:** A Python framework for building interactive web-based dashboards, compatible with Next.js via API integration.
-      - **Features:**
-        - Interactive visualisations for market data, portfolio performance, and risk metrics.
-        - Supports real-time updates and user-driven data exploration.
-        - Integrates with pandas for seamless data handling.
-      - **Benefit:** Adds dynamic dashboards to complement TradingView charts, enhancing data exploration for traders and analysts.
-      - <https://github.com/plotly/dash>
+        - **Description:** A Python framework for building interactive web-based dashboards, compatible with Next.js via API integration.
+        - **Features:**
+            - Interactive visualisations for market data, portfolio performance, and risk metrics.
+            - Supports real-time updates and user-driven data exploration.
+            - Integrates with pandas for seamless data handling.
+        - **Benefit:** Adds dynamic dashboards to complement TradingView charts, enhancing data exploration for traders and analysts.
+        - <https://github.com/plotly/dash>
     - **"Glass Box" UI / Decision Event Explorer**
-      - **Description**: A dedicated UI component that provides a "glass box" view into the system's operations by visualising the flow of Kafka events associated with a user's actions.
-      - **Features**:
-        - Trace the complete, end-to-end causal chain for every trade, from the initial AI insight to the final broker confirmation.
-        - Provide a verifiable audit trail for compliance and a powerful debugging tool for strategy development.
-        - Provide interactive visualisations of qualitative data, such as dynamic sentiment trends and topic clouds, with clear graphical links between real-world events and market price movements.
-      - **Benefit**: Transforms the system's complexity into a transparent, auditable, and trustworthy strength, building profound user confidence.
+        - **Description**: A dedicated UI component that provides a "glass box" view into the system's operations by visualising the flow of Kafka events associated with a user's actions.
+        - **Features**:
+            - Trace the complete, end-to-end causal chain for every trade, from the initial AI insight to the final broker confirmation.
+            - Provide a verifiable audit trail for compliance and a powerful debugging tool for strategy development.
+            - Provide interactive visualisations of qualitative data, such as dynamic sentiment trends and topic clouds, with clear graphical links between real-world events and market price movements.
+        - **Benefit**: Transforms the system's complexity into a transparent, auditable, and trustworthy strength, building profound user confidence.
 15. **Hyperparameter Tuning:**
     - **Optuna:**
-      - **Description:** Best-in-class hyperparameter tuning framework to optimise strategies alongside the backtesting engine. It is an automatic hyperparameter optimisation software framework, designed for machine learning. It features an imperative, _define-by-run_ style user API, due to which the code written with Optuna enjoys high modularity, and the user of Optuna can dynamically construct the search spaces for the hyperparameters.
-      - **Features:**
-        - [Lightweight, versatile, and platform agnostic architecture](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/001_first.html): Handle a wide variety of tasks with a simple installation that has few requirements.
-        - [Pythonic search spaces](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/002_configurations.html): Define search spaces using familiar Python syntax including conditionals and loops.
-        - [Efficient optimisation algorithms](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/003_efficient_optimization_algorithms.html): Adopt state-of-the-art algorithms for sampling hyperparameters and efficiently pruning unpromising trials.
-        - [Easy parallelisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/004_distributed.html): Scale studies to tens or hundreds of workers with little or no changes to the code.
-        - [Quick visualisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/005_visualization.html): Inspect optimisation histories from a variety of plotting functions.
-      - <https://github.com/optuna/optuna>
+        - **Description:** Best-in-class hyperparameter tuning framework to optimise strategies alongside the backtesting engine. It is an automatic hyperparameter optimisation software framework, designed for machine learning. It features an imperative, _define-by-run_ style user API, due to which the code written with Optuna enjoys high modularity, and the user of Optuna can dynamically construct the search spaces for the hyperparameters.
+        - **Features:**
+            - [Lightweight, versatile, and platform agnostic architecture](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/001_first.html): Handle a wide variety of tasks with a simple installation that has few requirements.
+            - [Pythonic search spaces](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/002_configurations.html): Define search spaces using familiar Python syntax including conditionals and loops.
+            - [Efficient optimisation algorithms](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/003_efficient_optimization_algorithms.html): Adopt state-of-the-art algorithms for sampling hyperparameters and efficiently pruning unpromising trials.
+            - [Easy parallelisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/004_distributed.html): Scale studies to tens or hundreds of workers with little or no changes to the code.
+            - [Quick visualisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/005_visualization.html): Inspect optimisation histories from a variety of plotting functions.
+        - <https://github.com/optuna/optuna>
 16. **Portfolio Optimisation:**
     - **PyPortfolioOpt**
-      - **Description:** A Python library for portfolio optimisation, offering tools for asset allocation and risk management.
-      - **Features:**
-        - Supports mean-variance optimisation, Black-Litterman allocation, and risk parity.
-        - Calculates risk metrics like volatility and Sharpe ratio.
-        - Integrates with pandas for data input from OpenBB or NautilusTrader.
-      - **Benefit:** Enhances risk management by optimising portfolio allocations, complementing the existing risk checks.
-      - <https://github.com/robertmartin8/PyPortfolioOpt>
+        - **Description:** A Python library for portfolio optimisation, offering tools for asset allocation and risk management.
+        - **Features:**
+            - Supports mean-variance optimisation, Black-Litterman allocation, and risk parity.
+            - Calculates risk metrics like volatility and Sharpe ratio.
+            - Integrates with pandas for data input from OpenBB or NautilusTrader.
+        - **Benefit:** Enhances risk management by optimising portfolio allocations, complementing the existing risk checks.
+        - <https://github.com/robertmartin8/PyPortfolioOpt>
     - **Riskfolio-Lib for asset allocation and risk analysis**
-      - **Description:** A Python library for advanced portfolio optimisation and risk analysis.
-      - **Features:**
-        - Supports hierarchical risk parity, CVaR optimisation, and worst-case scenario analysis.
-        - Provides visualisation tools for risk contributions and portfolio weights.
-        - Integrates with pandas for data compatibility.
-      - **Benefit:** Adds sophisticated risk analysis tools, enhancing the system’s enterprise-grade risk management capabilities.
-      - <https://github.com/dcajasn/Riskfolio-Lib>
+        - **Description:** A Python library for advanced portfolio optimisation and risk analysis.
+        - **Features:**
+            - Supports hierarchical risk parity, CVaR optimisation, and worst-case scenario analysis.
+            - Provides visualisation tools for risk contributions and portfolio weights.
+            - Integrates with pandas for data compatibility.
+        - **Benefit:** Adds sophisticated risk analysis tools, enhancing the system’s enterprise-grade risk management capabilities.
+        - <https://github.com/dcajasn/Riskfolio-Lib>
 17. **Anomaly Detection:**
     - **PyOD for detecting anomalies in trading data and system performance**
-      - **Description:** A Python library for outlier detection, suitable for identifying anomalies in trading data or system performance.
-      - **Features:**
-        - Supports multiple anomaly detection algorithms (e.g., Isolation Forest, AutoEncoder).
-        - Integrates with pandas and NumPy for data processing.
-        - Provides visualisation tools for anomaly analysis.
-      - **Benefit:** Enhances system reliability by detecting unusual trading patterns or performance issues, complementing Prometheus and Grafana.
-      - <https://github.com/yzhao062/pyod>
+        - **Description:** A Python library for outlier detection, suitable for identifying anomalies in trading data or system performance.
+        - **Features:**
+            - Supports multiple anomaly detection algorithms (e.g., Isolation Forest, AutoEncoder).
+            - Integrates with pandas and NumPy for data processing.
+            - Provides visualisation tools for anomaly analysis.
+        - **Benefit:** Enhances system reliability by detecting unusual trading patterns or performance issues, complementing Prometheus and Grafana.
+        - <https://github.com/yzhao062/pyod>
 18. **Explainable AI:**
     - **SHAP for transparent AI-driven trading decisions**
-      - **Description:** A Python library for explainable AI, providing tools to interpret machine learning model predictions.
-      - **Features:**
-        - Generates SHAP values to explain model outputs (e.g., trading decisions).
-        - Supports visualisation of feature importance and decision impacts.
-        - Integrates with machine learning frameworks like scikit-learn and TensorFlow.
-      - **Benefit:** Improves transparency of AI-driven trading decisions, aligning with regulatory compliance and user trust.
-      - <https://github.com/shap/shap>
+        - **Description:** A Python library for explainable AI, providing tools to interpret machine learning model predictions.
+        - **Features:**
+            - Generates SHAP values to explain model outputs (e.g., trading decisions).
+            - Supports visualisation of feature importance and decision impacts.
+            - Integrates with machine learning frameworks like scikit-learn and TensorFlow.
+        - **Benefit:** Improves transparency of AI-driven trading decisions, aligning with regulatory compliance and user trust.
+        - <https://github.com/shap/shap>
 19. **No-Code Strategy Builder:**
     - **Blockly for visual programming of trading strategies**
-      - **Description:** A JavaScript library for visual programming, enabling drag-and-drop interfaces for building applications.
-      - **Features:**
-        - Supports custom block definitions for trading strategies (e.g., indicators, conditions, actions).
-        - Integrates with Next.js for web-based no-code interfaces.
-        - Generates executable code from visual blocks.
-      - **Benefit:** Enhances the no-code strategy builder, making the system accessible to non-programmers.
-      - <https://github.com/google/blockly>
+        - **Description:** A JavaScript library for visual programming, enabling drag-and-drop interfaces for building applications.
+        - **Features:**
+            - Supports custom block definitions for trading strategies (e.g., indicators, conditions, actions).
+            - Integrates with Next.js for web-based no-code interfaces.
+            - Generates executable code from visual blocks.
+        - **Benefit:** Enhances the no-code strategy builder, making the system accessible to non-programmers.
+        - <https://github.com/google/blockly>
 20. **Python Studio**: Traditional coding environment.
 21. **Advanced NLP for AI Assistant:**
     - **Hugging Face’s Transformers for advanced financial text analysis**
-      - **Description:** A Python library for state-of-the-art NLP models, including pre-trained transformers for financial applications.
-      - **Features:**
-        - Supports fine-tuning models like FinBERT for financial text analysis (e.g., news, earnings calls).
-        - Integrates with LangChain for enhanced AI assistant capabilities.
-        - Provides tools for sentiment analysis and text generation.
-      - **Benefit:** Enhances the AI assistant’s ability to process financial texts, improving decision-making and user interaction.
-      - <https://github.com/huggingface/transformers>
+        - **Description:** A Python library for state-of-the-art NLP models, including pre-trained transformers for financial applications.
+        - **Features:**
+            - Supports fine-tuning models like FinBERT for financial text analysis (e.g., news, earnings calls).
+            - Integrates with LangChain for enhanced AI assistant capabilities.
+            - Provides tools for sentiment analysis and text generation.
+        - **Benefit:** Enhances the AI assistant’s ability to process financial texts, improving decision-making and user interaction.
+        - <https://github.com/huggingface/transformers>
 22. **DeepLearning:**
     - **PyTorch:**
-      - **Description:** A deep learning framework. Tensors and Dynamic neural networks in Python with strong GPU acceleration.
-      - **Features:**
-        - Supports custom AI model development for trading strategies.
-        - Offers flexibility for building and training models tailored for the system.
-      - **Benefit:** It provides two high-level features,
-        - Tensor computation (like NumPy) with strong GPU acceleration.
-        - Deep neural networks built on a tape-based autograd system.
-      - <https://github.com/pytorch/pytorch>
+        - **Description:** A deep learning framework. Tensors and Dynamic neural networks in Python with strong GPU acceleration.
+        - **Features:**
+            - Supports custom AI model development for trading strategies.
+            - Offers flexibility for building and training models tailored for the system.
+        - **Benefit:** It provides two high-level features,
+            - Tensor computation (like NumPy) with strong GPU acceleration.
+            - Deep neural networks built on a tape-based autograd system.
+        - <https://github.com/pytorch/pytorch>
 23. **Reinforcement Learning:**
     - **FinRL for optimising trading strategies**
-      - **Description:** A Python framework for reinforcement learning in financial trading, offering pre-built models and environments.
-      - **Features:**
-        - Supports deep reinforcement learning for trading strategy optimisation.
-        - Integrates with OpenBB and TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) for data and indicator inputs.
-        - Provides environments for backtesting and live trading.
-      - **Benefit:**
-        - Enhances AI-driven strategy development and will be operationalised through a formal **RLOps framework.**
-        - This pipeline will automate the continuous training, integration, and delivery (CT/CI/CD) of deep reinforcement learning agents, ensuring they are constantly optimised and improved.
-      - <https://github.com/AI4Finance-Foundation/FinRL>
+        - **Description:** A Python framework for reinforcement learning in financial trading, offering pre-built models and environments.
+        - **Features:**
+            - Supports deep reinforcement learning for trading strategy optimisation.
+            - Integrates with OpenBB and TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) for data and indicator inputs.
+            - Provides environments for backtesting and live trading.
+        - **Benefit:**
+            - Enhances AI-driven strategy development and will be operationalised through a formal **RLOps framework.**
+            - This pipeline will automate the continuous training, integration, and delivery (CT/CI/CD) of deep reinforcement learning agents, ensuring they are constantly optimised and improved.
+        - <https://github.com/AI4Finance-Foundation/FinRL>
 24. **Custom Development/Integration:**
     - **Advanced Features:** Most advanced features require custom logic, including post-trade analytics, enterprise security guardrails, advanced risk management hub, the complete user interface, as well as the following:
-      - **AI-Powered Opportunity Detection**: Implement machine learning models to detect arbitrage or momentum opportunities in real time.
-      - **Adversarial Testing**: Simulate extreme market conditions to evaluate strategy robustness.
+        - **AI-Powered Opportunity Detection**: Implement machine learning models to detect arbitrage or momentum opportunities in real time.
+        - **Adversarial Testing**: Simulate extreme market conditions to evaluate strategy robustness.
 25. **Managing Updates to Cloned Repositories**
 
 To balance the benefits of upstream updates with the stability of your customised system, adopt a **selective update strategy** for cloned repositories (e.g., OpenHands, Codename Goose, LangChain, LangGraph, kafka, etc.).
 
 - - **Maintain Forked Repositories**:
-    
         - **Treat cloned repositories as forks, customised for your system (e.g., integrating OpenHands with Kafka).**
         - **Document customisations in a changelog to track differences.**
         - **Focus on improving your fork for domain-specific needs (e.g., SDLC workflows, compliance for Lawyer Agent).**
-    
     - **Monitor Upstream Repositories**:
       - **Use GitHub Actions to check for updates daily, notifying via Slack if changes are detected.**
       - **Example: Monitor OpenHands for security patches or new features.**
@@ -1076,7 +1068,7 @@ To balance the benefits of upstream updates with the stability of your customise
       - **Monthly: Integration status and deployment summary.**
       - **Emergency: Immediate notification and Integration for critical security issues only.**
 
-**Open-Source Repositories:**
+**Open-Source Repositories**
 
 1. <https://github.com/nautechsystems/nautilus_trader>
 2. <https://github.com/nautechsystems/nautilus_ibapi>
@@ -1144,28 +1136,25 @@ To balance the benefits of upstream updates with the stability of your customise
 64. <https://github.com/pytorch/pytorch>
 65. <https://github.com/AI4Finance-Foundation/FinRL>
 
-**Prioritisation Matrix:**
+**Initial Prompt**
 
-| **Feature/Component**                             | **Business Value** | **Technical Complexity** | **User Impact** | **Rationale**                                                                         |
-| ------------------------------------------------- | ------------------ | ------------------------ | --------------- | ------------------------------------------------------------------------------------- |
-| Dependency Management System                      | High               | Medium                   | High            | Essential for all subsequent development; low dependencies, high impact on stability. |
-| Core Trading Engine (NautilusTrader Validation)   | High               | High                     | High            | Foundational for trading; builds on dependency setup.                                 |
-| Security Validation (Zero-Trust, Fraud Detection) | High               | Medium                   | High            | Critical for enterprise readiness; early integration reduces risk.                    |
-| Database Setup (PostgreSQL/pgvector, ClickHouse)  | High               | Medium                   | Medium          | Core data storage; required for trading and AI.                                       |
-| API Gateway (FastAPI Basics)                      | High               | Medium                   | High            | Enables integration; depends on core engine and databases.                            |
-| Broker Integration (Interactive Brokers)          | High               | High                     | High            | Enables trading; depends on engine and API.                                           |
-| Frontend Basics (Next.js Dashboard)               | Medium             | Medium                   | High            | User-facing; depends on API.                                                          |
-| AI Assistant MVP (LangChain Basics)               | High               | High                     | High            | Differentiator; depends on API and databases.                                         |
-| ML Models (LSTM, FinRL Basics)                    | Medium             | High                     | Medium          | Enhances analytics; depends on data pipelines.                                        |
-| Advanced AI (RAGFlow, Transformers)               | Medium             | High                     | Medium          | Builds on AI MVP; deferred for stability.                                             |
-| Live Trading Expansion (Alpaca, OANDA)            | Medium             | High                     | High            | Extends trading; depends on core integrations.                                        |
-| Frontend Enhancements (Blockly, Charts)           | Medium             | Medium                   | High            | Improves UX; depends on API and AI.                                                   |
-| Observability (Prometheus, Grafana)               | High               | Medium                   | Medium          | Essential for production; deferred to later phases.                                   |
-| Advanced Security (RBAC, Iceberg)                 | High               | High                     | Low             | Builds on initial security; focuses on enterprise readiness.                          |
-| Advanced Analytics (PyOD, Riskfolio-Lib)          | Medium             | Medium                   | Medium          | Enhances risk; deferred for core stability.                                           |
-| Future-Ready Features (Voice Trading, AR)         | Low                | High                     | Medium          | Enhancements; low priority for initial MVP.                                           |
-| Broker Expansion (Coinbase, FIX)                  | Medium             | High                     | Medium          | Extends capabilities; deferred for optimisation.                                      |
-| System Optimisation (Memray, Tempo)               | Low                | Medium                   | Low             | Final polish; low priority until core is stable.                                      |
+You are an expert full-stack software engineering agent tasked with building a world-class, complex, enterprise-grade Algorithmic Trading System (ATS). The current system is approximately 20-25% complete, featuring a robust infrastructure (Docker, Kubernetes, monitoring stack) and partially implemented components (trading engine, AI assistant, security), as outlined in the "Current Status - Comprehensive Analysis" document. Your core mission is to develop the "Nautilus Trader" algorithmic trading platform from the ground up, following the detailed specifications, requirements, designs, tasks, and architecture provided in the attached documents: "Features, Phases & Integration Strategy - Algorithmic Trading System.docx" (base document for all features, phases, integration strategies, system overview, key characteristics, architecture principles, core services, data feeds, custom indicators, and phase-specific prompts/plans), "comprehensive_system_architecture.md" (updated comprehensive system architecture including overview, principles, components, data flows, technology stack, deployment, security, performance, integrations, monitoring, AI/ML, custom indicators, data feeds, frontend, enterprise readiness, phases, DR/BC, requirements/designs/tasks consolidations), "complete_requirements.md" (consolidated requirements across phases 0-6 with user stories and acceptance criteria), "complete_designs.md" (consolidated designs with high-level architectures, component breakdowns, and Mermaid diagrams per phase), and "complete_tasks.md" (450+ detailed tasks and sub-tasks across phases).
+
+**Project Overview and Guidelines**
+
+- **System Description**: Build a comprehensive, enterprise-grade algorithmic trading system using a "Best-of-Breed" integration strategy. Select and integrate leading open-source projects (60+) for modularity. Support non-technical users (no-code options, natural language via Agentic AI Assistant) and professionals (high-performance features). Architecture: Microservices with Apache Kafka event bus for decoupling, event-driven processing, scalability, and replayability. Core engine: NautilusTrader (Python/Rust) for multi-asset trading (stocks, ETFs, futures, options, forex, crypto). Key integrations: Forecasting (Stock-Prediction-Models, LSTM, Real-time-prediction), backtesting (VectorBT, TradingGym), portfolio/risk (PyPortfolioOpt, Riskfolio-Lib, PyOD), indicators (TA-Lib/ta-lib-python & Bukosabino/ta with 30+ custom volume-weighted), visualization (react-financial-charts, Plotly Dash), AI/ML (LangChain/LangGraph, TradingAgent, FinRL, SHAP, Transformers/PyTorch, QuantLib), no-code (Blockly), and more. Databases: PostgreSQL/pgvector (structured/vectors), ClickHouse (time-series), Qdrant (vectors), Apache Iceberg (immutable audits), Redis (cache/GenAI vectors), DuckDB (OLAP research), InfluxDB (metrics), MinIO/S3 (objects), Elasticsearch (search/logs/RAG). Features: Paper/live trading (IBKR start, expand to Alpaca/OANDA/Coinbase/FIX), multi-source data feeds with fallbacks, custom indicators (e.g., VW SMA, Normalized ATR, Choppy Market Index), Agentic AI (multi-agents, RAG, MCPs, iterative refinement), market scanner, "Glass Box" UI, voice/AR, marketplace scope, ultra-low latency (DMA, FPGAs), enterprise readiness (HA, UEBA, compliance).
+- **Key Characteristics**: High performance (microsecond latency), scalable (10k+ users, 1M+ msgs/sec), resilient (self-healing, multi-region), secure (zero-trust, MFA, Bandit SAST), observable (Prometheus/Grafana/Jaeger/Memray).
+- **Architecture Principles**: Microservices (decomposition, independent deployment, fault isolation, self-healing), event-driven (async Kafka, event sourcing, CQRS), cloud-native (Docker/Kubernetes/Helm/Istio/GitOps/12-Factor), API-first (REST/GraphQL/WebSocket/gRPC), security-first (STRIDE threat modeling), performance-optimized (lock-free, GPU), AI-integrated (agentic workflows, RLOps).
+- **Development Approach**: Incremental phases (0-6). Use placeholders (// @PLACEHOLDER: reason, req ID) for incomplete parts, create GitHub Issues. Follow analysis/compare/execute protocol: Analyze specs vs. code, compare diffs, execute builds/modifications. Enforce code standards: Python 3.12+, Rust for latency, linting (flake8), tests (Pytest). Manage deps in tiers with forks, automated monitoring (Renovate/Dependabot), CI/CD (GitHub Actions, Docker sandboxes), dashboard (React/Grafana).
+- **Tools and Environment**: You have access to a stateful code interpreter (Python 3.12 with libraries: numpy, pandas, sympy, etc.; no internet/pip). Use it to test code snippets, validate logic (e.g., custom indicators). For external info, use web/X search tools if needed (e.g., check upstream repo changes). Render citations inline for sources. Output code in proper format, commit to virtual repo structure.
+- **Workflow**: Start with Phase 0 (Dependency Management). For each phase: Review prompt/plan from base doc, requirements/designs/tasks from consolidations. Generate code, configs, docs. Test via interpreter. Handle errors, iterate. End phase with deliverables validation (e.g., run scans). Acknowledge readiness before proceeding.
+- **Output Format**: For code: Use markdown blocks (\`\`\`python:disable-run
+
+**Initial Task: Begin Phase 0**
+
+- Refer to rewritten Phase 0 Prompt and Integration Plan: Establish dep management for 60+ components. Fork tiers, automate monitoring (daily/weekly), notifications, pipelines, dashboard. Implement as per tasks/sub-tasks.
+- Proceed step-by-step: Initialize repo, fork deps, set workflows, etc. Use tools to verify (e.g., code_execution for script tests).
+- **Acknowledge:** Confirm that you have understood this directive and are ready to begin development.
 
 **Detailed Six Phase Prompt and Integration Plan**
 
@@ -1186,8 +1175,6 @@ This plan outlines the objectives and key outcomes for each of the six primary d
 - Start with Phase 0 and progress sequentially through Phase 6.
 - Use the existing system as the foundation, enhancing or modifying only where features are missing or misaligned.
 - Ensure all developments align with the microservices, event-driven, and cloud-native architecture.
-- Refer to attached documents ("/docs/complete_requirements.md", "/docs/complete_designs.md", "/docs/complete_tasks.md") for the respective phase’s detailed guidance.
-- Refer “/docs/comprehensive_system_architecture.md” file for the comprehensive details of System Architecture.
 - Ensure to use Docker for all dependencies. Do not install any dependencies and libraries globally.
 - **Documentation Context**
 
@@ -1224,24 +1211,113 @@ A phase is only considered complete when the automated scan passes and the place
 
 - **Acknowledge:** Confirm that you have understood this directive and are ready to begin development.
 
-**Initial Prompt**
+**Prioritisation Matrix**
 
-You are an expert full-stack software engineering agent tasked with building a world-class, complex, enterprise-grade Algorithmic Trading System (ATS). The current system is approximately 20-25% complete, featuring a robust infrastructure (Docker, Kubernetes, monitoring stack) and partially implemented components (trading engine, AI assistant, security), as outlined in the "Current Status - Comprehensive Analysis" document. Your core mission is to develop the "Nautilus Trader" algorithmic trading platform from the ground up, following the detailed specifications, requirements, designs, tasks, and architecture provided in the attached documents: "Features, Phases & Integration Strategy - Algorithmic Trading System.docx" (base document for all features, phases, integration strategies, system overview, key characteristics, architecture principles, core services, data feeds, custom indicators, and phase-specific prompts/plans), "comprehensive_system_architecture.md" (updated comprehensive system architecture including overview, principles, components, data flows, technology stack, deployment, security, performance, integrations, monitoring, AI/ML, custom indicators, data feeds, frontend, enterprise readiness, phases, DR/BC, requirements/designs/tasks consolidations), "complete_requirements.md" (consolidated requirements across phases 0-6 with user stories and acceptance criteria), "complete_designs.md" (consolidated designs with high-level architectures, component breakdowns, and Mermaid diagrams per phase), and "complete_tasks.md" (450+ detailed tasks and sub-tasks across phases).
+| **Feature/Component** | **Business Value** | **Technical Complexity** | **User Impact** | **Rationale** |
+| --- | --- | --- | --- | --- |
+| Dependency Management System | High | Medium | High | Essential for all subsequent development; low dependencies, high impact on stability. |
+| Core Trading Engine (NautilusTrader Validation) | High | High | High | Foundational for trading; builds on dependency setup. |
+| Security Validation (Zero-Trust, Fraud Detection) | High | Medium | High | Critical for enterprise readiness; early integration reduces risk. |
+| Database Setup (PostgreSQL/pgvector, ClickHouse) | High | Medium | Medium | Core data storage; required for trading and AI. |
+| API Gateway (FastAPI Basics) | High | Medium | High | Enables integration; depends on core engine and databases. |
+| Broker Integration (Interactive Brokers) | High | High | High | Enables trading; depends on engine and API. |
+| Frontend Basics (Next.js Dashboard) | Medium | Medium | High | User-facing; depends on API. |
+| AI Assistant MVP (LangChain Basics) | High | High | High | Differentiator; depends on API and databases. |
+| ML Models (LSTM, FinRL Basics) | Medium | High | Medium | Enhances analytics; depends on data pipelines. |
+| Advanced AI (RAGFlow, Transformers) | Medium | High | Medium | Builds on AI MVP; deferred for stability. |
+| Live Trading Expansion (Alpaca, OANDA) | Medium | High | High | Extends trading; depends on core integrations. |
+| Frontend Enhancements (Blockly, Charts) | Medium | Medium | High | Improves UX; depends on API and AI. |
+| Observability (Prometheus, Grafana) | High | Medium | Medium | Essential for production; deferred to later phases. |
+| Advanced Security (RBAC, Iceberg) | High | High | Low | Builds on initial security; focuses on enterprise readiness. |
+| Advanced Analytics (PyOD, Riskfolio-Lib) | Medium | Medium | Medium | Enhances risk; deferred for core stability. |
+| Future-Ready Features (Voice Trading, AR) | Low | High | Medium | Enhancements; low priority for initial MVP. |
+| Broker Expansion (Coinbase, FIX) | Medium | High | Medium | Extends capabilities; deferred for optimisation. |
+| System Optimisation (Memray, Tempo) | Low | Medium | Low | Final polish; low priority until core is stable. |
 
-**Project Overview and Guidelines**
+**Reference Documents for Nautilus Trader Development**
 
-- **System Description**: Build a comprehensive, enterprise-grade algorithmic trading system using a "Best-of-Breed" integration strategy. Select and integrate leading open-source projects (60+) for modularity. Support non-technical users (no-code options, natural language via Agentic AI Assistant) and professionals (high-performance features). Architecture: Microservices with Apache Kafka event bus for decoupling, event-driven processing, scalability, and replayability. Core engine: NautilusTrader (Python/Rust) for multi-asset trading (stocks, ETFs, futures, options, forex, crypto). Key integrations: Forecasting (Stock-Prediction-Models, LSTM, Real-time-prediction), backtesting (VectorBT, TradingGym), portfolio/risk (PyPortfolioOpt, Riskfolio-Lib, PyOD), indicators (TA-Lib/ta-lib-python & Bukosabino/ta with 30+ custom volume-weighted), visualization (react-financial-charts, Plotly Dash), AI/ML (LangChain/LangGraph, TradingAgent, FinRL, SHAP, Transformers/PyTorch, QuantLib), no-code (Blockly), and more. Databases: PostgreSQL/pgvector (structured/vectors), ClickHouse (time-series), Qdrant (vectors), Apache Iceberg (immutable audits), Redis (cache/GenAI vectors), DuckDB (OLAP research), InfluxDB (metrics), MinIO/S3 (objects), Elasticsearch (search/logs/RAG). Features: Paper/live trading (IBKR start, expand to Alpaca/OANDA/Coinbase/FIX), multi-source data feeds with fallbacks, custom indicators (e.g., VW SMA, Normalized ATR, Choppy Market Index), Agentic AI (multi-agents, RAG, MCPs, iterative refinement), market scanner, "Glass Box" UI, voice/AR, marketplace scope, ultra-low latency (DMA, FPGAs), enterprise readiness (HA, UEBA, compliance).
-- **Key Characteristics**: High performance (microsecond latency), scalable (10k+ users, 1M+ msgs/sec), resilient (self-healing, multi-region), secure (zero-trust, MFA, Bandit SAST), observable (Prometheus/Grafana/Jaeger/Memray).
-- **Architecture Principles**: Microservices (decomposition, independent deployment, fault isolation, self-healing), event-driven (async Kafka, event sourcing, CQRS), cloud-native (Docker/Kubernetes/Helm/Istio/GitOps/12-Factor), API-first (REST/GraphQL/WebSocket/gRPC), security-first (STRIDE threat modeling), performance-optimized (lock-free, GPU), AI-integrated (agentic workflows, RLOps).
-- **Development Approach**: Incremental phases (0-6). Use placeholders (// @PLACEHOLDER: reason, req ID) for incomplete parts, create GitHub Issues. Follow analysis/compare/execute protocol: Analyze specs vs. code, compare diffs, execute builds/modifications. Enforce code standards: Python 3.12+, Rust for latency, linting (flake8), tests (Pytest). Manage deps in tiers with forks, automated monitoring (Renovate/Dependabot), CI/CD (GitHub Actions, Docker sandboxes), dashboard (React/Grafana).
-- **Tools and Environment**: You have access to a stateful code interpreter (Python 3.12 with libraries: numpy, pandas, sympy, etc.; no internet/pip). Use it to test code snippets, validate logic (e.g., custom indicators). For external info, use web/X search tools if needed (e.g., check upstream repo changes). Render citations inline for sources. Output code in proper format, commit to virtual repo structure.
-- **Workflow**: Start with Phase 0 (Dependency Management). For each phase: Review prompt/plan from base doc, requirements/designs/tasks from consolidations. Generate code, configs, docs. Test via interpreter. Handle errors, iterate. End phase with deliverables validation (e.g., run scans). Acknowledge readiness before proceeding.
-- **Output Format**: For code: Use markdown blocks (\`\`\`python:disable-run
+To ensure comprehensive guidance for each phase of the Nautilus Trader algorithmic trading system development, the Agent should refer to the following documents, located in the specified paths, for detailed requirements, designs, tasks, and other critical specifications:
 
-**Initial Task: Begin Phase 0**
+- **System Requirements**:
+  - **Document**: Comprehensive System Requirements
+  - **Location**: /docs/complete_requirements.md
+  - **Description**: Contains consolidated requirements across Phases 0-6, including user stories and acceptance criteria for all system functionalities.
+- **System Designs**:
+  - **Document**: Comprehensive System Designs
+  - **Location**: /docs/complete_designs.md
+  - **Description**: Provides detailed designs with high-level architectures, component breakdowns, and Mermaid diagrams for each phase.
+- **System Tasks and Sub-Tasks**:
+  - **Document**: Comprehensive System Tasks
+  - **Location**: /docs/complete_tasks.md
+  - **Description**: Lists over 450 detailed tasks and sub-tasks across all phases, serving as a roadmap for implementation.
+- **System Architecture**:
+  - **Document**: Comprehensive System Architecture
+  - **Location**: /docs/comprehensive_system_architecture.md
+  - **Description**: Details the system’s architecture, including overview, principles, components, data flows, technology stack, deployment, security, performance, integrations, and more.
+- **Features, Phases, and Integration Strategy**:
+  - **Document**: Features, Phases & Integration Strategy - Algorithmic Trading System
+  - **Location**: /docs/01. Features, Phases & Integration Strategy - Algorithmic Trading System.md
+  - **Description**: Outlines all features, phased development approach, and integration strategies for the Nautilus Trader platform.
+- **Business Requirements**:
+  - **Document**: Business Requirements Document (BRD) - Algorithmic Trading System
+  - **Location**: /docs/02. Business Requirements Document (BRD) - Algorithmic Trading System.md
+  - **Description**: Defines the business objectives, stakeholder needs, and high-level requirements driving the platform’s development.
+- **Functional Requirements**:
+  - **Document**: Functional Requirements Document (FRD) - Algorithmic Trading System
+  - **Location**: /docs/03. Functional Requirements Document (FRD) - Algorithmic Trading System.md
+  - **Description**: Specifies functional requirements, including user interactions, system behaviors, and operational workflows.
+- **Product Requirements**:
+  - **Document**: Product Requirements Document (PRD) - Algorithmic Trading System
+  - **Location**: /docs/04. Product Requirements Document (PRD) - Algorithmic Trading System.md
+  - **Description**: Details product-specific requirements, focusing on features, user experience, and market fit.
+- **Functional Specification**:
+  - **Document**: Functional Specification Document (FSD) - Algorithmic Trading System
+  - **Location**: /docs/05. Functional Specification Document (FSD) - Algorithmic Trading System.md
+  - **Description**: Provides detailed functional specifications, including system inputs, outputs, and processing logic.
+- **Technical Specification**:
+  - **Document**: Technical Specification Document (TSD) - Algorithmic Trading System
+  - **Location**: /docs/06. Technical Specification Document (TSD) - Algorithmic Trading System.md
+  - **Description**: Outlines technical specifications, including technology stack, APIs, and integration details.
+- **System Design**:
+  - **Document**: System Design Document (SDD) - Algorithmic Trading System
+  - **Location**: /docs/07. System Design Document (SDD) - Algorithmic Trading System.md
+  - **Description**: Describes the system’s design, including architecture patterns, component interactions, and deployment strategies.
+- **Software Requirements Specification**:
+  - **Document**: Software Requirements Specification (SRS) - Algorithmic Trading System
+  - **Location**: /docs/08. Software Requirements Specification (SRS) - Algorithmic Trading System.md
+  - **Description**: Combines functional and non-functional requirements for software development, ensuring alignment with business goals.
+- **API Documentation**:
+  - **Document**: API Documentation - Algorithmic Trading System
+  - **Location**: /docs/09. API Documentation - Algorithmic Trading System.md
+  - **Description**: Details all APIs (REST, GraphQL, WebSocket, gRPC) for system interactions, including endpoints, schemas, and usage examples.
+- **Test Plan and Test Cases**:
+  - **Document**: Comprehensive Test Plan and Test Cases - Algorithmic Trading System
+  - **Location**: /docs/10. Comprehensive Test Plan and Test Cases - Algorithmic Trading System.md
+  - **Description**: Provides a comprehensive test plan with detailed test cases for unit, integration, and end-to-end testing across all phases.
+- **Configuration Management**:
+  - **Document**: Configuration Management Plan - Algorithmic Trading System
+  - **Location**: /docs/11. Configuration Management Plan - Algorithmic Trading System.md
+  - **Description**: Defines processes for managing system configurations, version control, and dependency updates.
+- **Data Flow**:
+  - **Document**: Data Flow Document - Algorithmic Trading System
+  - **Location**: /docs/12. Data Flow Document - Algorithmic Trading System.md
+  - **Description**: Maps data flows across system components, including Kafka event streams, database interactions, and API calls.
+- **Deployment Guide**:
+  - **Document**: Deployment Guide - Algorithmic Trading System
+  - **Location**: /docs/13. Deployment Guide - Algorithmic Trading System.md
+  - **Description**: Provides step-by-step instructions for deploying the system, including Kubernetes, Helm, and Istio configurations.
+- **User Documentation**:
+  - **Document**: User Documentation - Algorithmic Trading System
+  - **Location**: /docs/14. User Documentation - Algorithmic Trading System.md
+  - **Description**: Offers user guides, tutorials, and FAQs for platform users, covering trading, strategy building, and marketplace interactions.
 
-- Refer to rewritten Phase 0 Prompt and Integration Plan: Establish dep management for 60+ components. Fork tiers, automate monitoring (daily/weekly), notifications, pipelines, dashboard. Implement as per tasks/sub-tasks.
-- Proceed step-by-step: Initialize repo, fork deps, set workflows, etc. Use tools to verify (e.g., code_execution for script tests).
+**Usage Instructions:**
+
+- The above-mentioned documents must be referenced for each phase’s implementation, ensuring alignment with requirements, designs, and tasks.
+- Use /docs/complete_requirements.md, /docs/complete_designs.md, and /docs/complete_tasks.md as primary references for phase-specific details.
+- Cross-reference /docs/comprehensive_system_architecture.md for architectural guidance and /docs/01. Features, Phases & Integration Strategy - Algorithmic Trading System.md for overarching feature and integration strategies.
+- For specific documentation needs (e.g., APIs, testing, deployment), refer to the respective specialized documents.
+- Maintain traceability by linking code, configurations, and tests to document IDs and requirements (e.g., // @REFERENCE: req ID, doc path).
 - **Acknowledge:** Confirm that you have understood this directive and are ready to begin development.
 
 **Phase 0**
@@ -1792,9 +1868,9 @@ Be assigned to the "Placeholder Review" backlog.
     - Log all events to Iceberg, generate compliance reports via DuckDB.
     - Test: Verify audit trails, report accuracy.
   - **Testing and Validation:**
-    * Run E2E tests: Live trading, marketplace, AI-driven flows.
-    * Measure metrics: Uptime (99.999%), latency (<100μs), scalability.
-    * Use placeholders, follow incremental protocol.
+    - Run E2E tests: Live trading, marketplace, AI-driven flows.
+    - Measure metrics: Uptime (99.999%), latency (<100μs), scalability.
+    - Use placeholders, follow incremental protocol.
   - **Create Professional Trader Quick-Start Guide:** Develop and publish a "Pro-Desk Quick-Start" guide detailing how professional users can leverage advanced features like Kafka, ClickHouse, and the FIX Gateway from the start, including example commands and expected outputs.
 
 **Pro-Desk Quick-Start**
@@ -1823,17 +1899,19 @@ docker compose --profile pro up -d
 \`\`\`
 
 - - - - This command starts the core services plus Kafka, ClickHouse, a FIX gateway, and other professional tooling.
+
 1. **Connect to the Research Environment:**
-   - - - Open your browser and navigate to \`<http://localhost:8888\`> to access the JupyterHub environment.
+    - - - Open your browser and navigate to \`<http://localhost:8888\`> to access the JupyterHub environment.
 2. **Access Real-Time Market Data:**
-   - - - Use the provided Python library to connect to the Kafka bus and subscribe to topics like \`ticks.raw\` or \`market.l2.depth\` for microstructure analysis.
+    - - - Use the provided Python library to connect to the Kafka bus and subscribe to topics like \`ticks.raw\` or \`market.l2.depth\` for microstructure analysis.
 3. **Run GPU-Accelerated Backtests:**
-   - - - In a notebook, use the \`vectorbt\` integration to run portfolio-level backtests against historical data in seconds.
+    - - - In a notebook, use the \`vectorbt\` integration to run portfolio-level backtests against historical data in seconds.
 4. **Optimise Strategies via API:**
-   - - - Use the \`POST /optimise\` endpoint with an Optuna JSON specification to run large-scale hyperparameter tuning jobs.
+    - - - Use the \`POST /optimise\` endpoint with an Optuna JSON specification to run large-scale hyperparameter tuning jobs.
 5. **Route Live Orders via FIX:**
-   - - - Ensure your \`config/live.env\` is populated with your prime broker's FIX credentials.
-         - Set the environment variable \`LIVE_TRADING_MODE=FIX\` to route all orders from the AI or API directly to your liquidity provider.
+    - - - Ensure your \`config/live.env\` is populated with your prime broker's FIX credentials.
+            - Set the environment variable \`LIVE_TRADING_MODE=FIX\` to route all orders from the AI or API directly to your liquidity provider.
+
 - **Deliverables:** Kubernetes/Helm/Istio configs; observability stack; security enhancements; DR/BC plan; Unleash toggles; portfolio/risk modules; marketplace prototype; performance optimizations; compliance reports; test suites; documentation (Mermaid, runbooks); validated system.
 - **Acknowledge:** Confirm that you have understood this directive and are ready to begin development.
 
@@ -1939,5 +2017,4 @@ docker compose --profile pro up -d
     - Use placeholders, follow incremental protocol.
 - **Deliverables:** WebXR AR interfaces; voice trading modules; marketplace with monetization; HFT optimizations; advanced AI; blockchain prototypes; observability/compliance upgrades; security enhancements; test suites; documentation (Mermaid, guides); validated system.
 - **Acknowledge:** Confirm that you have understood this directive and are ready to begin development.
-
-
+- 

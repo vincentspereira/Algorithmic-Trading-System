@@ -15,4 +15,5 @@ __all__ = [
     "strategy_management",
     "trading",
     "users",
+    "websocket",
 ]

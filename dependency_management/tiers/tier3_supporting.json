@@ -1,0 +1,69 @@
+{
+  "tier": 3,
+  "name": "Supporting Dependencies",
+  "description": "Tier 3: Supporting components for the Algorithmic Trading System",
+  "dependencies": [
+    {
+      "name": "Blockly",
+      "type": "no_code",
+      "repository": "https://github.com/google/blockly",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "react-financial-charts",
+      "type": "visualization",
+      "repository": "https://github.com/reactivemarkets/react-financial-charts",
+      "local_path": "../frontend",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "Plotly Dash",
+      "type": "visualization",
+      "repository": "https://github.com/plotly/dash",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "Unstructured.io",
+      "type": "document_processing",
+      "repository": "https://github.com/Unstructured-IO/unstructured",
+      "local_path": "../ai_assistant",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "Qdrant",
+      "type": "vector_database",
+      "repository": "https://github.com/qdrant/qdrant",
+      "local_path": "../ai_assistant",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "PostgreSQL/pgvector",
+      "type": "database",
+      "repository": "https://github.com/pgvector/pgvector",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "DuckDB",
+      "type": "database",
+      "repository": "https://github.com/duckdb/duckdb",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "low",
+      "customizations": []
+    },
+    {
+      "name": "ClickHouse",
+      "type": "database",
+      "repository": "https://github.com/ClickHouse/ClickHouse",
+      "local_path": "../nautilus_trader_engine",
+      "criticality": "low",
+      "customizations": []
+    }
+  ]
+}

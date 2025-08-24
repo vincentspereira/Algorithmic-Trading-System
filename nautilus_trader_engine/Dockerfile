@@ -25,10 +25,8 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libblas-dev \
     liblapack-dev \
-    libatlas-base-dev \
     gfortran \
     unzip \
-    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Install TA-Lib C library
@@ -77,4 +75,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
 
 # Default command
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

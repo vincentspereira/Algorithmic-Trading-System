@@ -1,0 +1,53 @@
+{
+  "notification_channels": {
+    "teams": {
+      "enabled": true,
+      "webhook_url": "https://teams.webhook.office.com/webhookb2/PLACEHOLDER",
+      "priority_levels": ["critical", "high"]
+    },
+    "discord": {
+      "enabled": true,
+      "webhook_url": "https://discord.com/api/webhooks/PLACEHOLDER",
+      "priority_levels": ["critical", "high", "medium"]
+    },
+    "email": {
+      "enabled": true,
+      "smtp_server": "smtp.company.com",
+      "port": 587,
+      "sender": "dependency-monitor@company.com",
+      "recipients": [
+        "dev-team@company.com",
+        "security-team@company.com"
+      ],
+      "priority_levels": ["critical", "high", "medium", "low"]
+    }
+  },
+  "priority_mapping": {
+    "security_issue": "critical",
+    "major_version_update": "high",
+    "minor_version_update": "medium",
+    "patch_update": "low"
+  },
+  "escalation_policy": {
+    "critical": {
+      "initial_delay_minutes": 0,
+      "escalation_delay_minutes": 30,
+      "recipients": ["lead-developer", "security-team", "cto"]
+    },
+    "high": {
+      "initial_delay_minutes": 15,
+      "escalation_delay_minutes": 60,
+      "recipients": ["lead-developer", "dev-team"]
+    },
+    "medium": {
+      "initial_delay_minutes": 60,
+      "escalation_delay_minutes": 1440,
+      "recipients": ["dev-team"]
+    },
+    "low": {
+      "initial_delay_minutes": 1440,
+      "escalation_delay_minutes": 0,
+      "recipients": ["dev-team"]
+    }
+  }
+}

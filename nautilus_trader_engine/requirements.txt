@@ -1,5 +1,6 @@
 # Core NautilusTrader and trading dependencies
 nautilus_trader
+ib_insync
 kafka-python
 psycopg2-binary
 clickhouse-driver
@@ -22,6 +23,7 @@ uvicorn
 pydantic
 python-multipart
 aiofiles
+websockets
 
 # Database and async dependencies
 asyncpg
@@ -48,6 +50,10 @@ plotly
 dash
 jupyter
 ipykernel
+
+# GraphQL dependencies
+graphql-core
+graphene
 
 # Security and development tools
 bandit

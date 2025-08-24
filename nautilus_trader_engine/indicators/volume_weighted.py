@@ -13,7 +13,7 @@ specified in the Phase 5 requirements, including:
 
 import numpy as np
 import pandas as pd
-from typing import Union, Optional, Tupleme
+from typing import Union, Optional, Tuple
 import warnings
 from dataclasses import dataclass
 

@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Tier 1 testing environment
+  tier1-test:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./test_data:/app/test_data
+      - ./test_results:/app/test_results
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: |
+      bash -c "
+        pip install --upgrade pip &&
+        pip install -r /app/requirements.tier1.txt &&
+        python -m pytest tests/tier1/ -v --junitxml=/app/test_results/tier1_results.xml
+      "
+    depends_on:
+      - test-db
+      - test-kafka
+
+  # Tier 2 testing environment
+  tier2-test:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./test_data:/app/test_data
+      - ./test_results:/app/test_results
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: |
+      bash -c "
+        apt-get update && apt-get install -y build-essential &&
+        pip install --upgrade pip &&
+        pip install -r /app/requirements.tier2.txt &&
+        python -m pytest tests/tier2/ -v --junitxml=/app/test_results/tier2_results.xml
+      "
+    depends_on:
+      - test-db
+      - test-kafka
+
+  # Test database
+  test-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: test_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+    ports:
+      - "5433:5432"
+
+  # Test Kafka
+  test-kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_CFG_PROCESS_ROLES=broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    ports:
+      - "9092:9092"
+
+  # Test dashboard for monitoring results
+  test-dashboard:
+    image: grafana/grafana-enterprise
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
