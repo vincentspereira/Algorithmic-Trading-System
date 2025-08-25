@@ -11,14 +11,16 @@ Version: 1.0.0
 import json
 import logging
 import os
+import psutil
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 from github import Github
 from semantic_version import Version
+from monitoring.performance_optimizer import PerformanceOptimizer, PerformanceMetrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,6 +52,7 @@ class DependencyManager:
         self.config_path = config_path
         self.config = self._load_config()
         self.github = Github(os.getenv("GITHUB_TOKEN"))
+        self.performance_optimizer = PerformanceOptimizer()
     
     def _load_config(self) -> Dict:
         """Load dependency configuration"""
@@ -99,6 +102,49 @@ class DependencyManager:
     
     def _check_security_fixes(self, changelog: str) -> bool:
         """Check if changelog indicates security fixes"""
+        
+    def collect_performance_metrics(self, dependency: str) -> Dict[str, Any]:
+        """Collect performance metrics for a dependency"""
+        process = psutil.Process()
+        
+        # Collect current metrics
+        metrics = {
+            "cpu_usage": process.cpu_percent(interval=1.0),
+            "memory_usage": process.memory_info().rss / 1024 / 1024,  # MB
+            "disk_io": {
+                "read": process.io_counters().read_bytes / 1024 / 1024,  # MB
+                "write": process.io_counters().write_bytes / 1024 / 1024  # MB
+            }
+        }
+        
+        # Update performance optimizer
+        tier = self._get_dependency_tier(dependency)
+        if tier:
+            self.performance_optimizer.update_metrics(dependency, f"tier{tier.value}", metrics)
+            
+        return metrics
+        
+    def get_performance_recommendations(self, dependency: str) -> List[Dict[str, Any]]:
+        """Get performance optimization recommendations for a dependency"""
+        metrics = self.collect_performance_metrics(dependency)
+        recommendations = self.performance_optimizer.get_optimization_recommendations(
+            dependency,
+            metrics
+        )
+        
+        return [vars(rec) for rec in recommendations]
+        
+    def get_performance_report(self, dependency: str) -> Optional[Dict[str, Any]]:
+        """Get performance report for a dependency"""
+        return self.performance_optimizer.get_performance_report(dependency)
+        
+    def _get_dependency_tier(self, dependency: str) -> Optional[DependencyTier]:
+        """Get the tier of a dependency"""
+        for tier in DependencyTier:
+            tier_deps = self.config["tiers"][f"tier{tier.value}"]["dependencies"]
+            if any(dep["name"] == dependency for dep in tier_deps):
+                return tier
+        return None
         keywords = ["SECURITY", "CVE-", "VULNERABILITY"]
         return any(kw in changelog.upper() for kw in keywords)
     

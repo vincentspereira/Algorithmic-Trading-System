@@ -1,0 +1,15 @@
+{# slack_notification.j2 #}
+:{{ "red_circle" if priority == "critical" else "warning" if priority == "high" else "information_source" }}: *{{ title }}*
+
+{{ message }}
+
+*Priority:* {{ priority | upper }}
+*Tier:* {{ tier }}
+*Time:* {{ timestamp | datetime }}
+
+{% if details %}
+*Details:*
+{% for key, value in details.items() %}
+• {{ key | title }}: {{ value }}
+{% endfor %}
+{% endif %}

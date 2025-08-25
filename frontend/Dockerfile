@@ -1,6 +1,4 @@
 # Frontend Service Dockerfile
-# This is a placeholder file for future development
-
 # Multi-stage build for production optimization
 FROM node:18-alpine AS base
 
@@ -11,7 +9,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm install --legacy-peer-deps --production=false
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -37,12 +35,18 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Copy necessary files
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/next.config.js ./next.config.js
 
 USER nextjs
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
 
 # Expose port
 EXPOSE 3000

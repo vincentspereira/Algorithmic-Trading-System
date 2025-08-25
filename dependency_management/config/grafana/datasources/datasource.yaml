@@ -1,0 +1,51 @@
+# config file version
+apiVersion: 1
+
+# list of datasources to insert/update
+datasources:
+  # <string, required> name of the datasource. Required
+  - name: Prometheus
+    # <string, required> datasource type. Required
+    type: prometheus
+    # <string, required> access mode. direct or proxy. Required
+    access: proxy
+    # <string> url
+    url: http://prometheus:9090
+    # <bool> mark as default datasource. Max one per org
+    isDefault: true
+    # <map> fields that will be converted to json and stored in json_data
+    jsonData:
+      graphiteVersion: "1.1"
+      timeInterval: "5s"
+    version: 1
+    # <bool> allow users to edit datasources from the UI.
+    editable: false
+
+# list of dashboards to import
+dashboards:
+  - name: 'Dependency Health'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/dependency-health.json
+
+  - name: 'Security Overview'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/security-overview.json
+
+  - name: 'Resource Usage'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/resource-usage.json

@@ -1,6 +1,11 @@
 {
   "version": "1.0.0",
   "last_updated": "2025-08-24",
+  "base_paths": {
+    "repo_root": "./repos",
+    "dependency_root": "./dependencies",
+    "project_root": "~/Projects"
+  },
   "tiers": {
     "tier1": {
       "description": "Critical components core to trading engine and AI workflows",
@@ -10,6 +15,7 @@
           "repository": "https://github.com/nautechsystems/nautilus_trader",
           "fork": "https://github.com/vincentspereira/nautilus_trader",
           "version": "2.0.0",
+          "repo_path": "~/Projects/nautilus_trader",
           "customizations": ["Rust performance enhancements", "Volume-weighted indicators"],
           "integration_points": ["Trading Engine", "Order Management"],
           "monitoring_frequency": "daily",
@@ -20,21 +26,23 @@
           "name": "Apache Kafka",
           "repository": "https://github.com/apache/kafka",
           "version": "3.5.0",
+          "repo_path": "./dependencies/kafka",
           "customizations": ["Event sourcing patterns", "Custom serializers"],
           "integration_points": ["Event Bus", "Market Data", "Order Flow"],
-          "monitoring_frequency": "daily",
+          "monitoring_frequency": "daily", 
           "alert_channels": ["slack", "email"],
           "ccb_required": true
         }
       ]
     },
     "tier2": {
-      "description": "Important components for portfolio, risk, and ML functionality",
+      "description": "Important components for portfolio, risk, and ML functionality", 
       "dependencies": [
         {
           "name": "PyPortfolioOpt",
           "repository": "https://github.com/robertmartin8/PyPortfolioOpt",
           "version": "1.5.0",
+          "repo_path": "./dependencies/pyportfolioopt",
           "customizations": ["Custom risk models"],
           "integration_points": ["Portfolio Manager"],
           "monitoring_frequency": "daily",
@@ -48,6 +56,7 @@
         {
           "name": "Blockly",
           "repository": "https://github.com/google/blockly",
+          "repo_path": "./repos/blockly",
           "version": "10.0.0",
           "customizations": ["Trading blocks", "Strategy templates"],
           "integration_points": ["Strategy Builder UI"],
@@ -61,7 +70,8 @@
         {
           "name": "Kubernetes",
           "repository": "https://github.com/kubernetes/kubernetes",
-          "version": "1.27.0",
+          "version": "1.27.0", 
+          "repo_path": "./repos/kubernetes",
           "customizations": ["Custom controllers", "Trading-specific CRDs"],
           "integration_points": ["Infrastructure"],
           "monitoring_frequency": "weekly"

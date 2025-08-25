@@ -1,0 +1,9 @@
+aiohttp==3.8.4
+pydantic==2.0.2
+jinja2==3.1.2
+python-dotenv==1.0.0
+# aioslack requires cchardet which is not compatible with Python 3.11+
+# Use aiohttp with charset-normalizer instead
+requests>=2.31.0
+pymsteams==0.2.2
+aiosmtplib==2.0.1

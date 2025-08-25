@@ -1,0 +1,30 @@
+{# teams_notification.j2 #}
+{
+    "@type": "MessageCard",
+    "@context": "http://schema.org/extensions",
+    "themeColor": "{% if priority == 'critical' %}FF0000{% elif priority == 'high' %}FFA500{% else %}0078D7{% endif %}",
+    "summary": "{{ title }}",
+    "sections": [{
+        "activityTitle": "{{ title }}",
+        "activitySubtitle": "{{ timestamp | datetime }}",
+        "facts": [
+            {
+                "name": "Priority",
+                "value": "{{ priority | upper }}"
+            },
+            {
+                "name": "Tier",
+                "value": "{{ tier }}"
+            }
+            {% if details %}
+            {% for key, value in details.items() %}
+            ,{
+                "name": "{{ key | title }}",
+                "value": "{{ value }}"
+            }
+            {% endfor %}
+            {% endif %}
+        ],
+        "markdown": true
+    }]
+}

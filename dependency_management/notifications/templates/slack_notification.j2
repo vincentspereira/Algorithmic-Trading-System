@@ -1,0 +1,25 @@
+:warning: *Dependency Issue Alert*
+
+*Dependency:* {{ dependency }}
+*Tier:* {{ tier }}
+*Issue Type:* {{ type }}
+
+*Details:*
+{% if type == 'vulnerability' %}
+• Severity: {{ details.severity }}
+• Description: {{ details.description }}
+{% if details.affected_versions %}
+• Affected Versions: {{ ', '.join(details.affected_versions) }}
+{% endif %}
+{% if details.fix_versions %}
+• Fix Versions: {{ ', '.join(details.fix_versions) }}
+{% endif %}
+{% elif type == 'breaking_change' %}
+• Current Version: {{ details.current_version }}
+• Latest Version: {{ details.latest_version }}
+• Changelog: {{ details.changelog_url }}
+{% elif type == 'error' %}
+{{ details }}
+{% endif %}
+
+_Generated at: {{ timestamp }}_

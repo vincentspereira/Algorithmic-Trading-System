@@ -1,0 +1,280 @@
+{
+  "tiers": {
+    "tier1": {
+      "name": "Critical Core Components",
+      "monitoring_frequency": "daily",
+      "auto_update": false,
+      "requires_ccb_approval": true,
+      "dependencies": [
+        {
+          "name": "NautilusTrader",
+          "repo": "nautechsystems/nautilus_trader",
+          "fork": "vincentspereira/nautilus_trader",
+          "description": "Core trading engine with Python/Rust components",
+          "customizations": ["performance_optimizations", "event_streaming"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 2,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "LangChain",
+          "repo": "langchain-ai/langchain",
+          "fork": "vincentspereira/langchain",
+          "description": "AI/ML orchestration framework",
+          "customizations": ["trading_agents", "market_analysis"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 2,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "LangGraph",
+          "repo": "langchain-ai/langgraph",
+          "fork": "vincentspereira/langgraph",
+          "description": "Agent orchestration framework",
+          "customizations": ["trading_workflows"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 2,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "Apache Kafka",
+          "repo": "apache/kafka",
+          "fork": "vincentspereira/kafka",
+          "description": "Event streaming platform",
+          "customizations": ["trading_optimizations"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 2,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        }
+      ]
+    },
+    "tier2": {
+      "name": "Important Components",
+      "monitoring_frequency": "daily",
+      "auto_update": false,
+      "requires_ccb_approval": false,
+      "dependencies": [
+        {
+          "name": "PyPortfolioOpt",
+          "repo": "robertmartin8/PyPortfolioOpt",
+          "fork": "vincentspereira/PyPortfolioOpt",
+          "description": "Portfolio optimization library",
+          "customizations": ["real_time_optimization"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "Riskfolio-Lib",
+          "repo": "dcajasn/Riskfolio-Lib",
+          "fork": "vincentspereira/Riskfolio-Lib",
+          "description": "Portfolio optimization and risk management",
+          "customizations": ["risk_metrics"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "TA-Lib",
+          "repo": "mrjbq7/ta-lib",
+          "fork": "vincentspereira/ta-lib",
+          "description": "Technical analysis library",
+          "customizations": ["volume_weighted_indicators"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": true,
+            "require_up_to_date": true
+          }
+        }
+      ]
+    },
+    "tier3": {
+      "name": "Supporting Components",
+      "monitoring_frequency": "weekly",
+      "auto_update": true,
+      "requires_ccb_approval": false,
+      "dependencies": [
+        {
+          "name": "Blockly",
+          "repo": "google/blockly",
+          "fork": "vincentspereira/blockly",
+          "description": "Visual programming framework",
+          "customizations": ["trading_blocks"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": false,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "react-financial-charts",
+          "repo": "react-financial/react-financial-charts",
+          "fork": "vincentspereira/react-financial-charts",
+          "description": "Financial charting components",
+          "customizations": ["real_time_updates"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": false,
+            "require_up_to_date": true
+          }
+        }
+      ]
+    },
+    "tier4": {
+      "name": "Infrastructure Components",
+      "monitoring_frequency": "weekly",
+      "auto_update": true,
+      "requires_ccb_approval": false,
+      "dependencies": [
+        {
+          "name": "Prometheus",
+          "repo": "prometheus/prometheus",
+          "fork": "vincentspereira/prometheus",
+          "description": "Monitoring system",
+          "customizations": [],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": false,
+            "require_up_to_date": true
+          }
+        },
+        {
+          "name": "Grafana",
+          "repo": "grafana/grafana",
+          "fork": "vincentspereira/grafana",
+          "description": "Visualization platform",
+          "customizations": ["trading_dashboards"],
+          "branch_protection": {
+            "requires_pull_request": true,
+            "required_reviewers": 1,
+            "dismiss_stale_reviews": false,
+            "require_up_to_date": true
+          }
+        }
+      ]
+    }
+  },
+  "notification_channels": {
+    "slack": {
+      "enabled": true,
+      "channels": {
+        "tier1": "trading-core-deps",
+        "tier2": "trading-important-deps",
+        "tier3": "trading-support-deps",
+        "tier4": "trading-infra-deps"
+      }
+    },
+    "email": {
+      "enabled": true,
+      "lists": {
+        "tier1": ["core-team@company.com", "ccb@company.com"],
+        "tier2": ["dev-team@company.com"],
+        "tier3": ["dev-team@company.com"],
+        "tier4": ["infra-team@company.com"]
+      }
+    },
+    "teams": {
+      "enabled": true,
+      "channels": {
+        "tier1": "Trading Core Dependencies",
+        "tier2": "Trading Important Dependencies",
+        "tier3": "Trading Support Dependencies",
+        "tier4": "Trading Infrastructure"
+      }
+    }
+  },
+  "ccb_members": [
+    {
+      "name": "Technical Lead",
+      "email": "tech.lead@company.com",
+      "role": "approver"
+    },
+    {
+      "name": "Security Lead",
+      "email": "security.lead@company.com",
+      "role": "approver"
+    },
+    {
+      "name": "Operations Lead",
+      "email": "ops.lead@company.com",
+      "role": "approver"
+    }
+  ],
+  "monitoring_config": {
+    "vulnerability_scan": {
+      "enabled": true,
+      "schedule": {
+        "tier1": "0 */4 * * *",
+        "tier2": "0 0 * * *",
+        "tier3": "0 0 * * 0",
+        "tier4": "0 0 * * 0"
+      }
+    },
+    "update_check": {
+      "enabled": true,
+      "schedule": {
+        "tier1": "0 */6 * * *",
+        "tier2": "0 0 * * *",
+        "tier3": "0 0 * * 0",
+        "tier4": "0 0 * * 0"
+      }
+    },
+    "health_check": {
+      "enabled": true,
+      "schedule": {
+        "tier1": "*/15 * * * *",
+        "tier2": "0 */2 * * *",
+        "tier3": "0 */4 * * *",
+        "tier4": "0 */6 * * *"
+      }
+    }
+  },
+  "testing_config": {
+    "tier1": {
+      "requires_integration_tests": true,
+      "requires_performance_tests": true,
+      "requires_security_tests": true,
+      "auto_rollback_on_failure": true
+    },
+    "tier2": {
+      "requires_integration_tests": true,
+      "requires_performance_tests": false,
+      "requires_security_tests": true,
+      "auto_rollback_on_failure": true
+    },
+    "tier3": {
+      "requires_integration_tests": false,
+      "requires_performance_tests": false,
+      "requires_security_tests": true,
+      "auto_rollback_on_failure": false
+    },
+    "tier4": {
+      "requires_integration_tests": false,
+      "requires_performance_tests": false,
+      "requires_security_tests": true,
+      "auto_rollback_on_failure": false
+    }
+  }
+}

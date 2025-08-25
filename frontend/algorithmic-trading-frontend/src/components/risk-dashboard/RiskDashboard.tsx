@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, Chip } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 interface RiskMetrics {
@@ -97,15 +97,6 @@ const RiskDashboard: React.FC = () => {
     }
   };
 
-  const getRiskLevelColor = (level: string) => {
-    switch (level) {
-      case 'LOW': return 'bg-green-500';
-      case 'MEDIUM': return 'bg-yellow-500';
-      case 'HIGH': return 'bg-orange-500';
-      case 'CRITICAL': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
 
   const totalExposure = positions.reduce((sum, pos) => sum + Math.abs(pos.quantity * pos.current_price), 0);
   const totalPnL = positions.reduce((sum, pos) => sum + pos.pnl, 0);
@@ -114,40 +105,38 @@ const RiskDashboard: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Risk Management Dashboard</h1>
-        <Badge className={getRiskLevelColor(riskMetrics.risk_level)}>
-          {riskMetrics.risk_level}
-        </Badge>
+        <Chip 
+          label={riskMetrics.risk_level}
+          color={riskMetrics.risk_level === 'LOW' ? 'success' : 
+                 riskMetrics.risk_level === 'MEDIUM' ? 'warning' : 
+                 riskMetrics.risk_level === 'HIGH' ? 'error' : 
+                 'error'}
+        />
       </div>
 
       {/* Risk Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Value at Risk (95%)</CardTitle>
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${riskMetrics.value_at_risk_95.toFixed(2)}</div>
-            <p className="text-sm text-muted-foreground">Maximum expected loss</p>
+            <Typography variant="h6" gutterBottom>Value at Risk (95%)</Typography>
+            <Typography variant="h4">${riskMetrics.value_at_risk_95.toFixed(2)}</Typography>
+            <Typography variant="body2" color="textSecondary">Maximum expected loss</Typography>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Maximum Drawdown</CardTitle>
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(riskMetrics.max_drawdown * 100).toFixed(2)}%</div>
-            <p className="text-sm text-muted-foreground">Peak-to-trough decline</p>
+            <Typography variant="h6" gutterBottom>Maximum Drawdown</Typography>
+            <Typography variant="h4">{(riskMetrics.max_drawdown * 100).toFixed(2)}%</Typography>
+            <Typography variant="body2" color="textSecondary">Peak-to-trough decline</Typography>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Total Exposure</CardTitle>
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalExposure.toFixed(2)}</div>
-            <p className="text-sm text-muted-foreground">Current market exposure</p>
+            <Typography variant="h6" gutterBottom>Total Exposure</Typography>
+            <Typography variant="h4">${totalExposure.toFixed(2)}</Typography>
+            <Typography variant="body2" color="textSecondary">Current market exposure</Typography>
           </CardContent>
         </Card>
       </div>
@@ -155,11 +144,12 @@ const RiskDashboard: React.FC = () => {
       {/* Alerts Section */}
       {alerts.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Risk Alerts</h2>
-          <div className="space-y-2">
+          <Typography variant="h5" gutterBottom>Risk Alerts</Typography>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {alerts.map(alert => (
-              <Alert key={alert.id} variant={alert.type === 'CRITICAL' ? 'destructive' : 'default'}>
-                <AlertDescription>{alert.message}</AlertDescription>
+              <Alert key={alert.id} severity={alert.type === 'CRITICAL' ? 'error' : 'warning'}>
+                <AlertTitle>{alert.type}</AlertTitle>
+                {alert.message}
               </Alert>
             ))}
           </div>
@@ -168,20 +158,18 @@ const RiskDashboard: React.FC = () => {
 
       {/* Positions Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Current Positions</CardTitle>
-        </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <Typography variant="h6" gutterBottom>Current Positions</Typography>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%' }}>
               <thead>
                 <tr>
-                  <th className="text-left">Symbol</th>
-                  <th className="text-left">Quantity</th>
-                  <th className="text-left">Avg Price</th>
-                  <th className="text-left">Current Price</th>
-                  <th className="text-left">PnL</th>
-                  <th className="text-left">Stop Loss</th>
+                  <th style={{ textAlign: 'left' }}>Symbol</th>
+                  <th style={{ textAlign: 'left' }}>Quantity</th>
+                  <th style={{ textAlign: 'left' }}>Avg Price</th>
+                  <th style={{ textAlign: 'left' }}>Current Price</th>
+                  <th style={{ textAlign: 'left' }}>PnL</th>
+                  <th style={{ textAlign: 'left' }}>Stop Loss</th>
                 </tr>
               </thead>
               <tbody>
@@ -191,7 +179,7 @@ const RiskDashboard: React.FC = () => {
                     <td>{pos.quantity}</td>
                     <td>${pos.avg_price.toFixed(2)}</td>
                     <td>${pos.current_price.toFixed(2)}</td>
-                    <td className={pos.pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                    <td style={{ color: pos.pnl >= 0 ? '#4caf50' : '#f44336' }}>
                       ${pos.pnl.toFixed(2)}
                     </td>
                     <td>${pos.stop_loss.toFixed(2)}</td>
@@ -205,10 +193,8 @@ const RiskDashboard: React.FC = () => {
 
       {/* Historical Risk Chart */}
       <Card>
-        <CardHeader>
-          <CardTitle>Risk Metrics Over Time</CardTitle>
-        </CardHeader>
         <CardContent>
+          <Typography variant="h6" gutterBottom>Risk Metrics Over Time</Typography>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={historicalData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -216,4 +202,13 @@ const RiskDashboard: React.FC = () => {
               <YAxis />
               <Tooltip />
               <Line type="monotone" dataKey="value_at_risk" stroke="#8884d8" name="VaR (95%)" />
-              <Line type="monotone" dataKey="max_drawdown" stroke="#82ca9d" name="Max Drawdown
+              <Line type="monotone" dataKey="max_drawdown" stroke="#82ca9d" name="Max Drawdown" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default RiskDashboard;

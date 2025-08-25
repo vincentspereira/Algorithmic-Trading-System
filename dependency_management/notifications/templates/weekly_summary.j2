@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tier-section {
+            margin-bottom: 30px;
+        }
+        .tier-header {
+            background-color: #e9ecef;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .update-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #007bff;
+        }
+        .critical {
+            border-left-color: #dc3545;
+        }
+        .high {
+            border-left-color: #fd7e14;
+        }
+        .normal {
+            border-left-color: #28a745;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Weekly Dependency Status Summary</h2>
+        <p>Generated at: {{ timestamp }}</p>
+    </div>
+
+    <div class="content">
+        {% for tier, updates in updates_by_tier.items() %}
+        <div class="tier-section">
+            <div class="tier-header">
+                <h3>{{ tier }}</h3>
+            </div>
+
+            {% for status in updates %}
+            <div class="update-item {{ status.health_status }}">
+                <h4>{{ status.name }}</h4>
+                
+                <p><strong>Health Status:</strong> {{ status.health_status }}</p>
+                <p><strong>Last Check:</strong> {{ status.last_check.isoformat() }}</p>
+                
+                {% if status.vulnerabilities %}
+                <div class="vulnerabilities">
+                    <h5>Vulnerabilities:</h5>
+                    <ul>
+                    {% for vuln in status.vulnerabilities %}
+                        <li>
+                            <strong>{{ vuln.severity }}:</strong> {{ vuln.description }}
+                            {% if vuln.fix_versions %}
+                            (Fix in: {{ ', '.join(vuln.fix_versions) }})
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if status.available_update %}
+                <div class="updates">
+                    <h5>Available Update:</h5>
+                    <p>{{ status.current_version }} → {{ status.available_update.latest_version }}</p>
+                    {% if status.available_update.breaking_changes %}
+                    <p class="warning">Contains breaking changes!</p>
+                    {% endif %}
+                    {% if status.available_update.security_fixes %}
+                    <p class="warning">Contains security fixes!</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        <p>Dependency Management System</p>
+        <p>For more details, visit the dependency dashboard.</p>
+    </div>
+</body>
+</html>

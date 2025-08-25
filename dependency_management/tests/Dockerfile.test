@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    libc-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+COPY tests/requirements.txt tests/requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt -r tests/requirements.txt
+
+COPY . .
+
+# Make wait-for-it.sh executable
+RUN chmod +x tests/wait-for-it.sh
+
+# Use wait-for-it.sh as entrypoint
+ENTRYPOINT ["tests/wait-for-it.sh"]
+CMD ["pytest", "tests", "-v"]

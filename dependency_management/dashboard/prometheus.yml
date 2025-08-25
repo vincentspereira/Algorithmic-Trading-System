@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'dependency-dashboard'
+    static_configs:
+      - targets: ['dashboard:8001']  # Prometheus metrics port

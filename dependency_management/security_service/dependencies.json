@@ -1,0 +1,56 @@
+{
+    "dependencies": {},
+    "tiers": {
+        "1": {
+            "name": "Critical Infrastructure",
+            "scan_frequency": "daily",
+            "auto_update": false,
+            "dependencies": [
+                {
+                    "name": "python",
+                    "version": "3.11",
+                    "critical": true
+                },
+                {
+                    "name": "fastapi",
+                    "version": "0.103.0",
+                    "critical": true
+                }
+            ]
+        },
+        "2": {
+            "name": "Core Services",
+            "scan_frequency": "weekly",
+            "auto_update": true,
+            "dependencies": [
+                {
+                    "name": "SQLAlchemy",
+                    "version": "2.0.20",
+                    "critical": false
+                },
+                {
+                    "name": "asyncpg",
+                    "version": "0.28.0", 
+                    "critical": false
+                }
+            ]
+        },
+        "3": {
+            "name": "Support Services",
+            "scan_frequency": "bi-weekly",
+            "auto_update": true,
+            "dependencies": [
+                {
+                    "name": "pytest",
+                    "version": "7.4.0",
+                    "critical": false
+                },
+                {
+                    "name": "coverage",
+                    "version": "7.3.0",
+                    "critical": false
+                }
+            ]
+        }
+    }
+}

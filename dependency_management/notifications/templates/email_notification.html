@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .critical {
+            color: #dc3545;
+        }
+        .high {
+            color: #fd7e14;
+        }
+        .normal {
+            color: #28a745;
+        }
+        .details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2 class="{{ level }}">{{ '[' + level.upper() + ']' }} Dependency Issue Alert</h2>
+    </div>
+
+    <div class="content">
+        <p><strong>Dependency:</strong> {{ dependency }}</p>
+        <p><strong>Tier:</strong> {{ tier }}</p>
+        <p><strong>Issue Type:</strong> {{ type }}</p>
+
+        <div class="details">
+            <h3>Details:</h3>
+            {% if type == 'vulnerability' %}
+                <p><strong>Severity:</strong> {{ details.severity }}</p>
+                <p><strong>Description:</strong> {{ details.description }}</p>
+                {% if details.affected_versions %}
+                <p><strong>Affected Versions:</strong> {{ ', '.join(details.affected_versions) }}</p>
+                {% endif %}
+                {% if details.fix_versions %}
+                <p><strong>Fix Versions:</strong> {{ ', '.join(details.fix_versions) }}</p>
+                {% endif %}
+            {% elif type == 'breaking_change' %}
+                <p><strong>Current Version:</strong> {{ details.current_version }}</p>
+                <p><strong>Latest Version:</strong> {{ details.latest_version }}</p>
+                <p><strong>Changelog:</strong> <a href="{{ details.changelog_url }}">View Changes</a></p>
+            {% elif type == 'error' %}
+                <p>{{ details }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated at: {{ timestamp }}</p>
+        <p>Dependency Management System</p>
+    </div>
+</body>
+</html>

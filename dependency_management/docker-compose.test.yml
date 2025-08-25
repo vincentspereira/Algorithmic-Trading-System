@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile.test
+    volumes:
+      - ./:/app
+    environment:
+      - PYTHONPATH=/app
+      - API_URL=http://api:8000
+      - NOTIFICATION_URL=http://notification:8001
+      - SECURITY_URL=http://security:8002
+      - DASHBOARD_URL=http://dashboard:3000
+    depends_on:
+      api:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
+      security:
+        condition: service_healthy
+      dashboard:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - TEST_MODE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  notification:
+    build:
+      context: .
+      dockerfile: notification_service/Dockerfile
+    environment:
+      - TEST_MODE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  security:
+    build:
+      context: .
+      dockerfile: security_service/Dockerfile
+    environment:
+      - TEST_MODE=true
+      - NVD_API_KEY=${NVD_API_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    environment:
+      - TEST_MODE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

@@ -1,0 +1,100 @@
+{
+    "type": "message",
+    "attachments": [{
+        "contentType": "application/vnd.microsoft.card.adaptive",
+        "content": {
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "type": "AdaptiveCard",
+            "version": "1.0",
+            "body": [
+                {
+                    "type": "TextBlock",
+                    "text": "Dependency Issue Alert",
+                    "size": "large",
+                    "weight": "bolder"
+                },
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {
+                            "title": "Dependency",
+                            "value": "{{ dependency }}"
+                        },
+                        {
+                            "title": "Tier",
+                            "value": "{{ tier }}"
+                        },
+                        {
+                            "title": "Issue Type",
+                            "value": "{{ type }}"
+                        }
+                    ]
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "Details",
+                    "weight": "bolder",
+                    "spacing": "medium"
+                },
+                {% if type == 'vulnerability' %}
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {
+                            "title": "Severity",
+                            "value": "{{ details.severity }}"
+                        },
+                        {
+                            "title": "Description",
+                            "value": "{{ details.description }}"
+                        }
+                        {% if details.affected_versions %},
+                        {
+                            "title": "Affected Versions",
+                            "value": "{{ ', '.join(details.affected_versions) }}"
+                        }
+                        {% endif %}
+                        {% if details.fix_versions %},
+                        {
+                            "title": "Fix Versions",
+                            "value": "{{ ', '.join(details.fix_versions) }}"
+                        }
+                        {% endif %}
+                    ]
+                }
+                {% elif type == 'breaking_change' %}
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {
+                            "title": "Current Version",
+                            "value": "{{ details.current_version }}"
+                        },
+                        {
+                            "title": "Latest Version",
+                            "value": "{{ details.latest_version }}"
+                        },
+                        {
+                            "title": "Changelog",
+                            "value": "{{ details.changelog_url }}"
+                        }
+                    ]
+                }
+                {% elif type == 'error' %}
+                {
+                    "type": "TextBlock",
+                    "text": "{{ details }}",
+                    "wrap": true
+                }
+                {% endif %}
+            ],
+            "actions": [
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "View Details",
+                    "url": "{{ details.changelog_url if type == 'breaking_change' else '' }}"
+                }
+            ]
+        }
+    }]
+}
