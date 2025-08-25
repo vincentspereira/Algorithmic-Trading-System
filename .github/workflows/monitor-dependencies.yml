@@ -42,3 +42,15 @@ jobs:
             --email "vincyspereira@gmail.com" \
             --version-status version_status.json \
             --activity-status activity_status.json
+            
+      - name: Backup Configurations
+        if: always()
+        run: python scripts/backup_config.py
+        
+      - name: Upload Backup Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: configuration-backup
+          path: backups/
+          retention-days: 30
