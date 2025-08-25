@@ -1,0 +1,46 @@
+name: Test Dependency Monitor
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/monitor-dependencies.yml'
+      - 'scripts/**'
+      - 'dependency_management/**'
+  workflow_dispatch:
+
+jobs:
+  test-monitoring:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: pip install requests packaging
+          
+      - name: Test Tier 1 monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/check_version_lag.py --tier 1 --token "$GITHUB_TOKEN"
+          python scripts/check_upstream_activity.py --tier 1 --token "$GITHUB_TOKEN"
+          
+      - name: Test Tier 2 monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/check_version_lag.py --tier 2 --token "$GITHUB_TOKEN"
+          python scripts/check_upstream_activity.py --tier 2 --token "$GITHUB_TOKEN"
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: monitoring-results
+          path: |
+            version_status.json
+            activity_status.json
