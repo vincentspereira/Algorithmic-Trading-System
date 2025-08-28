@@ -12,22 +12,6 @@ import asyncio
 import time
 import psutil
 import argparse
-from typing import Dict, Any
-from datetime import datetime
-
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
-import uvicorn
-
-from metrics import get_metrics, initialize_metrics, time_api_request
-from kafka_manager import get_kafka_manager, initialize_kafka_manager, close_kafka_manager
-import os
-import logging
-import asyncio
-import time
-import psutil
-import argparse
 from typing import Dict, Any, Optional
 from datetime import datetime
 
@@ -36,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 import uvicorn
 
+# Import required modules
 from metrics import get_metrics, initialize_metrics, time_api_request
 from kafka_manager import get_kafka_manager, initialize_kafka_manager, close_kafka_manager
 from nautilus_trader_engine.api.routers import trading, strategy_management
@@ -46,41 +31,88 @@ from nautilus_trader_engine.config.database_config import (
     get_duckdb_config,
 )
 
+
+class ServiceConfiguration:
+    """Service configuration management"""
+    
+    def __init__(self):
+        self.title = "Nautilus Trader Engine"
+        self.description = "High-performance algorithmic trading engine for Phase 1 infrastructure"
+        self.version = "1.0.0"
+        self.docs_url = "/docs"
+        self.redoc_url = "/redoc"
+    
+    def get_cors_config(self) -> dict:
+        """Get CORS configuration"""
+        return {
+            "allow_origins": ["*"],  # Configure appropriately for production
+            "allow_credentials": True,
+            "allow_methods": ["*"],
+            "allow_headers": ["*"],
+        }
+
+
+class ServiceStatus:
+    """Service status tracking with better organization"""
+    
+    def __init__(self):
+        self.kafka_connected = False
+        self.kafka_streaming = False
+        self.postgres_connected = False
+        self.clickhouse_connected = False
+        self.duckdb_connected = False
+        self.ib_connected = False
+        self.redis_connected = False
+        self.last_health_check = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for API responses"""
+        return {
+            "kafka_connected": self.kafka_connected,
+            "kafka_streaming": self.kafka_streaming,
+            "postgres_connected": self.postgres_connected,
+            "clickhouse_connected": self.clickhouse_connected,
+            "duckdb_connected": self.duckdb_connected,
+            "ib_connected": self.ib_connected,
+            "redis_connected": self.redis_connected,
+            "last_health_check": self.last_health_check
+        }
+    
+    def is_healthy(self) -> bool:
+        """Check if all critical services are connected"""
+        return all([
+            self.kafka_connected,
+            self.postgres_connected,
+            self.clickhouse_connected,
+            self.duckdb_connected,
+            self.ib_connected
+        ])
+
+
 # Configure structured logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
+# Initialize configuration and status
+config = ServiceConfiguration()
+service_status = ServiceStatus()
+
 # Initialize FastAPI application
 app = FastAPI(
-    title="Nautilus Trader Engine",
-    description="High-performance algorithmic trading engine for Phase 1 infrastructure",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    title=config.title,
+    description=config.description,
+    version=config.version,
+    docs_url=config.docs_url,
+    redoc_url=config.redoc_url
 )
 
 # Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Global variables for service status
-service_status = {
-    "kafka_connected": False,
-    "kafka_streaming": False,
-    "postgres_connected": False,
-    "clickhouse_connected": False,
-    "duckdb_connected": False,
-    "last_health_check": None
-}
+app.add_middleware(CORSMiddleware, **config.get_cors_config())
 
 # Initialize metrics
 metrics = initialize_metrics()
 start_time = time.time()
+
 
 # Middleware for metrics collection
 @app.middleware("http")
@@ -104,6 +136,7 @@ async def metrics_middleware(request: Request, call_next):
     
     return response
 
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
@@ -114,7 +147,7 @@ async def startup_event():
     
     # Initialize Kafka manager
     kafka_initialized = await initialize_kafka_manager()
-    service_status["kafka_connected"] = kafka_initialized
+    service_status.kafka_connected = kafka_initialized
     
     if kafka_initialized:
         logger.info("Kafka integration initialized successfully")
@@ -122,12 +155,12 @@ async def startup_event():
         try:
             kafka_manager = await get_kafka_manager()
             streaming_started = await kafka_manager.start_streaming_service()
-            service_status["kafka_streaming"] = streaming_started
+            service_status.kafka_streaming = streaming_started
             if streaming_started:
                 logger.info("Kafka streaming service started")
         except Exception as e:
             logger.error(f"Failed to start Kafka streaming service: {e}")
-            service_status["kafka_streaming"] = False
+            service_status.kafka_streaming = False
     else:
         logger.warning("Kafka integration failed to initialize")
     
@@ -135,6 +168,7 @@ async def startup_event():
     await update_system_metrics()
     
     logger.info("Nautilus Trader Engine started successfully")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -150,13 +184,14 @@ async def shutdown_event():
     
     logger.info("Nautilus Trader Engine shutdown complete")
 
+
 async def initialize_connections():
     """Initialize database and service connections"""
     try:
         # Kafka connection check
         kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
         logger.info(f"Kafka servers configured: {kafka_servers}")
-        service_status["kafka_connected"] = True
+        service_status.kafka_connected = True
         metrics.update_db_connection_status("kafka", True)
 
         # Get database configurations
@@ -167,20 +202,20 @@ async def initialize_connections():
         # Log PostgreSQL configuration
         logger.info(f"PostgreSQL configured: {postgres_config['host']}/{postgres_config['db']} "
                     f"with pool size {postgres_config['pool_size']}")
-        service_status["postgres_connected"] = True
+        service_status.postgres_connected = True
         metrics.update_db_connection_status("postgres", True)
 
         # Log ClickHouse configuration
         logger.info(f"ClickHouse configured: {clickhouse_config['host']}")
-        service_status["clickhouse_connected"] = True
+        service_status.clickhouse_connected = True
         metrics.update_db_connection_status("clickhouse", True)
 
         # Log DuckDB configuration
         logger.info(f"DuckDB configured: {duckdb_config['path']}")
-        service_status["duckdb_connected"] = True
+        service_status.duckdb_connected = True
         metrics.update_db_connection_status("duckdb", True)
 
-        service_status["last_health_check"] = datetime.utcnow().isoformat()
+        service_status.last_health_check = datetime.utcnow().isoformat()
 
     except Exception as e:
         logger.error(f"Failed to initialize connections: {e}")
@@ -195,11 +230,11 @@ async def update_system_metrics():
         metrics.update_uptime(uptime)
         
         # Update system health
-        metrics.update_system_health("kafka", service_status["kafka_connected"])
-        metrics.update_system_health("postgres", service_status["postgres_connected"])
-        metrics.update_system_health("clickhouse", service_status["clickhouse_connected"])
-        metrics.update_system_health("duckdb", service_status["duckdb_connected"])
-        metrics.update_system_health("ib", service_status["ib_connected"])
+        metrics.update_system_health("kafka", service_status.kafka_connected)
+        metrics.update_system_health("postgres", service_status.postgres_connected)
+        metrics.update_system_health("clickhouse", service_status.clickhouse_connected)
+        metrics.update_system_health("duckdb", service_status.duckdb_connected)
+        metrics.update_system_health("ib", service_status.ib_connected)
         
         # Update resource usage
         process = psutil.Process()
@@ -228,24 +263,16 @@ async def health_check():
         await update_system_metrics()
         
         # Update last health check time
-        service_status["last_health_check"] = datetime.utcnow().isoformat()
+        service_status.last_health_check = datetime.utcnow().isoformat()
         
         # Check if all critical services are connected
-        all_connected = all([
-            service_status["kafka_connected"],
-            service_status["postgres_connected"],
-            service_status["clickhouse_connected"],
-            service_status["duckdb_connected"],
-            service_status["ib_connected"]
-        ])
-        
-        if all_connected:
+        if service_status.is_healthy():
             return JSONResponse(
                 status_code=200,
                 content={
                     "status": "healthy",
-                    "timestamp": service_status["last_health_check"],
-                    "services": service_status
+                    "timestamp": service_status.last_health_check,
+                    "services": service_status.to_dict()
                 }
             )
         else:
@@ -253,8 +280,8 @@ async def health_check():
                 status_code=503,
                 content={
                     "status": "unhealthy",
-                    "timestamp": service_status["last_health_check"],
-                    "services": service_status
+                    "timestamp": service_status.last_health_check,
+                    "services": service_status.to_dict()
                 }
             )
     except Exception as e:
@@ -276,7 +303,7 @@ async def get_status():
         "version": "1.0.0",
         "phase": "1",
         "environment": os.getenv("ENVIRONMENT", "development"),
-        "services": service_status,
+        "services": service_status.to_dict(),
         "configuration": {
             "kafka_servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092"),
             "postgres_host": os.getenv("POSTGRES_HOST", "postgres"),
@@ -446,7 +473,7 @@ async def backtest_status():
 async def kafka_status():
     """Get Kafka streaming status"""
     try:
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             return JSONResponse(
                 status_code=503,
                 content={
@@ -463,8 +490,8 @@ async def kafka_status():
             "status": "connected" if status.get("initialized") else "error",
             "kafka_streaming": status,
             "service_status": {
-                "kafka_connected": service_status["kafka_connected"],
-                "kafka_streaming": service_status["kafka_streaming"]
+                "kafka_connected": service_status.kafka_connected,
+                "kafka_streaming": service_status.kafka_streaming
             },
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -491,7 +518,7 @@ async def start_streaming(request: Dict[str, Any]):
         if not symbol:
             raise HTTPException(status_code=400, detail="Symbol is required")
         
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             raise HTTPException(status_code=503, detail="Kafka not connected")
         
         kafka_manager = await get_kafka_manager()
@@ -517,7 +544,7 @@ async def stop_streaming(request: Dict[str, Any]):
         if not symbol:
             raise HTTPException(status_code=400, detail="Symbol is required")
         
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             raise HTTPException(status_code=503, detail="Kafka not connected")
         
         kafka_manager = await get_kafka_manager()
@@ -538,7 +565,7 @@ async def stop_streaming(request: Dict[str, Any]):
 async def get_streaming_symbols():
     """Get list of currently streaming symbols"""
     try:
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             return {
                 "symbols": [],
                 "error": "Kafka not connected",
@@ -562,7 +589,7 @@ async def get_streaming_symbols():
 async def get_kafka_topics():
     """Get list of available Kafka topics"""
     try:
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             return {
                 "topics": [],
                 "error": "Kafka not connected",
@@ -586,7 +613,7 @@ async def get_kafka_topics():
 async def test_kafka_connection():
     """Test Kafka connection and functionality"""
     try:
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             return JSONResponse(
                 status_code=503,
                 content={
@@ -622,7 +649,7 @@ async def test_kafka_connection():
 async def publish_trading_signal(signal: Dict[str, Any]):
     """Publish a trading signal to Kafka"""
     try:
-        if not service_status["kafka_connected"]:
+        if not service_status.kafka_connected:
             raise HTTPException(status_code=503, detail="Kafka not connected")
         
         kafka_manager = await get_kafka_manager()
