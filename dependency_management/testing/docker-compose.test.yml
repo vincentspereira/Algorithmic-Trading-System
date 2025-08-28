@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  dependency-monitor-test:
+    build:
+      context: ../../services/dependency_management_service
+      dockerfile: Dockerfile
+    environment:
+      - TEST_MODE=true
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - TIER=all
+    volumes:
+      - ../../services/dependency_management_service:/app
+      - ./test-results:/app/test-results
+    networks:
+      - dependency-test-network
+    command: |
+      sh -c "
+        echo 'Starting dependency monitoring tests...'
+        python monitoring/check_dependencies.py --test
+        python test_dependency_system.py
+        echo 'Tests completed.'
+      "
+
+  test-database:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=dependency_test
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_password
+    networks:
+      - dependency-test-network
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  test-redis:
+    image: redis:7-alpine
+    networks:
+      - dependency-test-network
+    tmpfs:
+      - /data
+
+networks:
+  dependency-test-network:
+    driver: bridge
+
+volumes:
+  test-results:

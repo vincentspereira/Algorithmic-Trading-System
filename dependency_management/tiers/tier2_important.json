@@ -1,0 +1,107 @@
+{
+  "tier": "tier2",
+  "name": "Important Dependencies",
+  "description": "Important components for portfolio, risk, ML, and quantitative analysis - monitored daily",
+  "dependencies": [
+    {
+      "name": "PyPortfolioOpt",
+      "type": "portfolio_optimization",
+      "criticality": "important",
+      "repository": "https://github.com/robertmartin8/PyPortfolioOpt",
+      "fork": "https://github.com/vincentspereira/PyPortfolioOpt",
+      "customizations": ["Risk model enhancements"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "Riskfolio-Lib",
+      "type": "risk_management",
+      "criticality": "important",
+      "repository": "https://github.com/dcajasn/Riskfolio-Lib",
+      "fork": "https://github.com/vincentspereira/Riskfolio-Lib",
+      "customizations": ["Custom risk metrics"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "ta-lib-python",
+      "type": "technical_analysis",
+      "criticality": "important",
+      "repository": "https://github.com/TA-Lib/ta-lib-python",
+      "fork": "https://github.com/vincentspereira/ta-lib-python",
+      "customizations": ["Volume-weighted indicators"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "ta",
+      "type": "technical_analysis",
+      "criticality": "important",
+      "repository": "https://github.com/bukosabino/ta",
+      "fork": "https://github.com/vincentspereira/ta",
+      "customizations": ["Custom indicators"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "transformers",
+      "type": "nlp",
+      "criticality": "important",
+      "repository": "https://github.com/huggingface/transformers",
+      "fork": "https://github.com/vincentspereira/transformers",
+      "customizations": ["Financial NLP models"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "pytorch",
+      "type": "deep_learning",
+      "criticality": "important",
+      "repository": "https://github.com/pytorch/pytorch",
+      "fork": "https://github.com/vincentspereira/pytorch",
+      "customizations": ["Trading optimizations"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "FinRL",
+      "type": "reinforcement_learning",
+      "criticality": "important",
+      "repository": "https://github.com/AI4Finance-Foundation/FinRL",
+      "fork": "https://github.com/vincentspereira/FinRL",
+      "customizations": ["Trading environments"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "shap",
+      "type": "explainable_ai",
+      "criticality": "important",
+      "repository": "https://github.com/shap/shap",
+      "fork": "https://github.com/vincentspereira/shap",
+      "customizations": ["Financial model explanations"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "vectorbt",
+      "type": "backtesting",
+      "criticality": "important",
+      "repository": "https://github.com/polakowo/vectorbt",
+      "fork": "https://github.com/vincentspereira/vectorbt",
+      "customizations": ["GPU acceleration"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    },
+    {
+      "name": "QuantLib",
+      "type": "quantitative_finance",
+      "criticality": "important",
+      "repository": "https://github.com/lballabio/QuantLib",
+      "fork": "https://github.com/vincentspereira/QuantLib",
+      "customizations": ["Options pricing models"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "standard"
+    }
+  ]
+}

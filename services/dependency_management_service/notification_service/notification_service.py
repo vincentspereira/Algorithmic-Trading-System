@@ -60,10 +60,40 @@ class NotificationService:
         self.template_env = self._setup_templates()
         
     def _load_config(self) -> NotificationConfig:
-        """Load notification configuration"""
+        """Load notification configuration from file and environment"""
         config_path = os.path.join(os.path.dirname(__file__), "config", "notification_config.json")
-        with open(config_path, 'r') as f:
-            return NotificationConfig(**json.load(f))
+        
+        # Load base configuration from file
+        try:
+            with open(config_path, 'r') as f:
+                config_data = json.load(f)
+        except FileNotFoundError:
+            # Fallback configuration if file doesn't exist
+            config_data = {
+                "email_config": {},
+                "teams_webhook_url": None,
+                "slack_webhook_url": None,
+                "notification_preferences": {},
+                "email_recipients": {}
+            }
+        
+        # Override with environment variables
+        email_config = {
+            "smtp_server": os.getenv("EMAIL_HOST", "smtp.gmail.com"),
+            "smtp_port": int(os.getenv("EMAIL_PORT", "587")),
+            "username": os.getenv("EMAIL_HOST_USER"),
+            "password": os.getenv("EMAIL_HOST_PASSWORD"),
+            "sender": os.getenv("EMAIL_HOST_USER"),
+            "use_tls": os.getenv("EMAIL_USE_TLS", "true").lower() == "true",
+            "use_ssl": os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
+        } if os.getenv("EMAIL_HOST_USER") else None
+        
+        return NotificationConfig(
+            email_config=email_config,
+            teams_webhook_url=os.getenv("TEAMS_WEBHOOK_URL", config_data.get("teams_webhook_url")),
+            slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL", config_data.get("slack_webhook_url")),
+            notification_preferences=config_data.get("notification_preferences", {})
+        )
     
     def _setup_templates(self) -> jinja2.Environment:
         """Setup Jinja2 templates for notifications"""
@@ -134,6 +164,10 @@ class NotificationService:
     
     async def _send_email_notification(self, payload: NotificationPayload, recipient: str):
         """Send notification via email"""
+        if not self.config.email_config:
+            logger.warning("Email configuration not available, skipping email notification")
+            return
+            
         try:
             template = self.template_env.get_template("email_notification.j2")
             html_content = template.render(
@@ -141,30 +175,72 @@ class NotificationService:
                 message=payload.message,
                 priority=payload.priority,
                 tier=payload.tier,
-                details=payload.details
+                details=payload.details,
+                timestamp=payload.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC")
             )
             
-            msg = MIMEMultipart()
-            msg['Subject'] = f"[{payload.priority.upper()}] {payload.title}"
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = f"[{payload.priority.upper()}] Algorithmic Trading System - {payload.title}"
             msg['From'] = self.config.email_config["sender"]
             msg['To'] = recipient
+            msg['X-Priority'] = '1' if payload.priority == 'critical' else '3'
             
-            msg.attach(MIMEText(html_content, 'html'))
+            # Add HTML content
+            html_part = MIMEText(html_content, 'html')
+            msg.attach(html_part)
             
-            with smtplib.SMTP(
-                self.config.email_config["smtp_server"],
-                self.config.email_config["smtp_port"]
-            ) as server:
-                server.starttls()
-                server.login(
-                    self.config.email_config["username"],
-                    self.config.email_config["password"]
+            # Create plain text version as fallback
+            text_content = f"""
+{payload.title}
+
+Message: {payload.message}
+Priority: {payload.priority.upper()}
+Tier: {payload.tier}
+Time: {payload.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+Details:
+{chr(10).join([f"- {k}: {v}" for k, v in payload.details.items()])}
+
+---
+Algorithmic Trading System
+Dependency Management Alert
+            """.strip()
+            
+            text_part = MIMEText(text_content, 'plain')
+            msg.attach(text_part)
+            
+            # Send email
+            if self.config.email_config["use_ssl"]:
+                server = smtplib.SMTP_SSL(
+                    self.config.email_config["smtp_server"],
+                    self.config.email_config["smtp_port"]
                 )
+            else:
+                server = smtplib.SMTP(
+                    self.config.email_config["smtp_server"],
+                    self.config.email_config["smtp_port"]
+                )
+                
+            try:
+                if self.config.email_config["use_tls"] and not self.config.email_config["use_ssl"]:
+                    server.starttls()
+                    
+                if self.config.email_config["username"] and self.config.email_config["password"]:
+                    server.login(
+                        self.config.email_config["username"],
+                        self.config.email_config["password"]
+                    )
+                    
                 server.send_message(msg)
-            
-            logger.info(f"Sent email notification to {recipient}: {payload.title}")
+                logger.info(f"Successfully sent email notification to {recipient}: {payload.title}")
+                
+            finally:
+                server.quit()
+                
         except Exception as e:
-            logger.error(f"Failed to send email notification: {e}")
+            logger.error(f"Failed to send email notification to {recipient}: {e}")
+            # Optional: You could implement a retry mechanism here
 
 # Notification templates
 def create_update_notification(
@@ -210,5 +286,147 @@ def create_security_notification(
             "description": vulnerability["description"],
             "remediation": vulnerability["remediation"]
         },
-        recipients=["security-team", "team-leads"]  # Would come from config
+        recipients=[""]  # Would come from config
     )
+
+# Enhanced email notification methods
+class EmailNotificationService:
+    """Enhanced email notification service with batch and priority features"""
+    
+    def __init__(self, notification_service: NotificationService):
+        self.notification_service = notification_service
+        self.batch_notifications = []
+        
+    async def send_immediate_email(self, recipients: List[str], payload: NotificationPayload):
+        """Send immediate email notification to multiple recipients"""
+        tasks = []
+        for recipient in recipients:
+            tasks.append(self.notification_service._send_email_notification(payload, recipient))
+        await asyncio.gather(*tasks)
+        
+    async def send_critical_alert_email(self, dependency_name: str, issue_description: str, tier: int):
+        """Send critical alert email with high priority"""
+        config_data = self.notification_service.config.notification_preferences
+        recipients = self._get_recipients_for_priority("critical")
+        
+        payload = NotificationPayload(
+            title=f"🚨 CRITICAL ALERT: {dependency_name}",
+            message=issue_description,
+            priority="critical",
+            tier=tier,
+            timestamp=datetime.utcnow(),
+            details={
+                "dependency": dependency_name,
+                "issue_type": "critical_failure",
+                "action_required": "immediate",
+                "escalation_level": "tier1"
+            },
+            recipients=recipients
+        )
+        
+        await self.send_immediate_email(recipients, payload)
+        
+    async def send_security_alert_email(self, dependency_name: str, cve_details: Dict):
+        """Send security vulnerability alert email"""
+        recipients = self._get_recipients_for_priority("critical")
+        
+        payload = NotificationPayload(
+            title=f"🛡️ SECURITY ALERT: {dependency_name}",
+            message=f"Security vulnerability detected: {cve_details.get('cve_id', 'Unknown CVE')}",
+            priority="critical",
+            tier=1,  # Security issues are always tier 1
+            timestamp=datetime.utcnow(),
+            details={
+                "dependency": dependency_name,
+                "cve_id": cve_details.get("cve_id", "Unknown"),
+                "severity": cve_details.get("severity", "Unknown"),
+                "cvss_score": cve_details.get("cvss_score", "Unknown"),
+                "description": cve_details.get("description", "No description available"),
+                "remediation": cve_details.get("remediation", "Update to latest secure version")
+            },
+            recipients=recipients
+        )
+        
+        await self.send_immediate_email(recipients, payload)
+        
+    async def send_batch_summary_email(self, summary_period: str = "daily"):
+        """Send batch summary of accumulated notifications"""
+        if not self.batch_notifications:
+            return
+            
+        recipients = self._get_recipients_for_priority("medium")
+        
+        # Group notifications by tier and priority
+        grouped_notifications = {}
+        for notification in self.batch_notifications:
+            key = f"tier{notification['tier']}_{notification['priority']}"
+            if key not in grouped_notifications:
+                grouped_notifications[key] = []
+            grouped_notifications[key].append(notification)
+            
+        summary_details = {
+            "period": summary_period,
+            "total_notifications": len(self.batch_notifications),
+            "grouped_summary": grouped_notifications,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+        payload = NotificationPayload(
+            title=f"📊 {summary_period.title()} Dependency Summary",
+            message=f"Summary of {len(self.batch_notifications)} dependency notifications",
+            priority="medium",
+            tier=0,  # Summary notifications
+            timestamp=datetime.utcnow(),
+            details=summary_details,
+            recipients=recipients
+        )
+        
+        await self.send_immediate_email(recipients, payload)
+        
+        # Clear batch notifications after sending
+        self.batch_notifications.clear()
+        
+    def _get_recipients_for_priority(self, priority: str) -> List[str]:
+        """Get email recipients based on priority level"""
+        # This would typically come from configuration
+        recipients_map = {
+            "critical": ["vincyspereira@gmail.com", "admin@trading.com"],
+            "high": ["vincyspereira@gmail.com", "dev-team@trading.com"],
+            "medium": ["dev-team@trading.com"],
+            "low": ["dev-team@trading.com"]
+        }
+        return recipients_map.get(priority, ["vincyspereira@gmail.com"])
+        
+    def add_to_batch(self, notification_data: Dict):
+        """Add notification to batch queue for summary emails"""
+        self.batch_notifications.append(notification_data)
+        
+# Utility functions for creating specific notification types
+async def send_dependency_update_email(email_service: EmailNotificationService, 
+                                     dependency_name: str, 
+                                     old_version: str, 
+                                     new_version: str, 
+                                     tier: int,
+                                     breaking_changes: bool = False):
+    """Send dependency update notification email"""
+    priority = "high" if tier <= 2 or breaking_changes else "medium"
+    recipients = email_service._get_recipients_for_priority(priority)
+    
+    payload = NotificationPayload(
+        title=f"📦 Dependency Update: {dependency_name}",
+        message=f"Update available: {old_version} → {new_version}",
+        priority=priority,
+        tier=tier,
+        timestamp=datetime.utcnow(),
+        details={
+            "dependency": dependency_name,
+            "old_version": old_version,
+            "new_version": new_version,
+            "breaking_changes": breaking_changes,
+            "tier": tier,
+            "update_type": "major" if breaking_changes else "minor"
+        },
+        recipients=recipients
+    )
+    
+    await email_service.send_immediate_email(recipients, payload)

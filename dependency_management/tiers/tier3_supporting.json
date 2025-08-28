@@ -1,0 +1,67 @@
+{
+  "tier": "tier3",
+  "name": "Supporting Dependencies",
+  "description": "Supporting components for UI, no-code, and interfaces - monitored weekly",
+  "dependencies": [
+    {
+      "name": "react",
+      "type": "frontend_framework",
+      "criticality": "supporting",
+      "repository": "https://github.com/facebook/react",
+      "fork": "https://github.com/vincentspereira/react",
+      "customizations": ["Trading-specific components"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "batch"
+    },
+    {
+      "name": "next.js",
+      "type": "frontend_framework",
+      "criticality": "supporting",
+      "repository": "https://github.com/vercel/next.js",
+      "fork": "https://github.com/vincentspereira/next.js",
+      "customizations": ["Trading dashboard optimizations"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "batch"
+    },
+    {
+      "name": "blockly",
+      "type": "no_code",
+      "criticality": "supporting",
+      "repository": "https://github.com/google/blockly",
+      "fork": "https://github.com/vincentspereira/blockly",
+      "customizations": ["Trading block definitions"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "batch"
+    },
+    {
+      "name": "react-financial-charts",
+      "type": "visualization",
+      "criticality": "supporting",
+      "repository": "https://github.com/react-financial/react-financial-charts",
+      "fork": "https://github.com/vincentspereira/react-financial-charts",
+      "customizations": ["Custom chart types"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "batch"
+    },
+    {
+      "name": "dash",
+      "type": "visualization",
+      "criticality": "supporting",
+      "repository": "https://github.com/plotly/dash",
+      "fork": "https://github.com/vincentspereira/dash",
+      "customizations": ["Trading dashboards"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "batch"
+    },
+    {
+      "name": "lobe-chat",
+      "type": "ai_interface",
+      "criticality": "supporting",
+      "repository": "https://github.com/lobehub/lobe-chat",
+      "fork": "https://github.com/vincentspereira/lobe-chat",
+      "customizations": ["Trading assistant integration"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "batch"
+    }
+  ]
+}

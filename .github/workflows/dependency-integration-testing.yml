@@ -1,0 +1,301 @@
+name: Dependency Integration Testing
+
+on:
+  pull_request:
+    paths:
+      - 'requirements.txt'
+      - '**/requirements.txt'
+      - 'package*.json'
+      - '**/package*.json'
+      - 'services/dependency_management_service/dependencies.json'
+      - 'services/dependency_management_service/tiers/*.json'
+  workflow_dispatch:
+    inputs:
+      dependency_name:
+        description: 'Specific dependency to test'
+        required: false
+        type: string
+      tier:
+        description: 'Dependency tier to test'
+        required: false
+        type: choice
+        options:
+          - 'all'
+          - 'tier1'
+          - 'tier2'
+          - 'tier3'
+          - 'tier4'
+        default: 'all'
+
+jobs:
+  setup-test-matrix:
+    name: "Setup Test Matrix"
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Generate Test Matrix
+        id: generate-matrix
+        run: |
+          python << 'EOF'
+          import json
+          import os
+          
+          # Determine what to test based on trigger
+          test_tier = "${{ github.event.inputs.tier || 'all' }}"
+          specific_dep = "${{ github.event.inputs.dependency_name || '' }}"
+          
+          # Define test scenarios
+          matrix = {
+              "include": []
+          }
+          
+          # Core system integration tests
+          if test_tier in ['all', 'tier1']:
+              matrix["include"].extend([
+                  {
+                      "name": "NautilusTrader Integration",
+                      "tier": "tier1",
+                      "service": "nautilus_trader_engine",
+                      "test_type": "integration",
+                      "dependencies": ["nautilus_trader", "ib_insync"],
+                      "docker_compose": "infrastructure/docker/docker-compose.test.yml"
+                  },
+                  {
+                      "name": "Kafka Event Bus",
+                      "tier": "tier1", 
+                      "service": "kafka",
+                      "test_type": "integration",
+                      "dependencies": ["kafka-python", "confluent-kafka"],
+                      "docker_compose": "infrastructure/docker/docker-compose.test.yml"
+                  },
+                  {
+                      "name": "AI Assistant Integration",
+                      "tier": "tier1",
+                      "service": "ai_assistant",
+                      "test_type": "integration",
+                      "dependencies": ["langchain", "transformers"],
+                      "docker_compose": "ai_assistant/docker-compose.test.yml"
+                  }
+              ])
+          
+          if test_tier in ['all', 'tier2']:
+              matrix["include"].extend([
+                  {
+                      "name": "Portfolio Optimization",
+                      "tier": "tier2",
+                      "service": "portfolio_manager",
+                      "test_type": "unit",
+                      "dependencies": ["PyPortfolioOpt", "Riskfolio-Lib"],
+                      "docker_compose": "services/portfolio_manager_service/docker-compose.test.yml"
+                  },
+                  {
+                      "name": "Technical Analysis",
+                      "tier": "tier2",
+                      "service": "indicators",
+                      "test_type": "unit",
+                      "dependencies": ["TA-Lib", "ta", "pandas-ta"],
+                      "docker_compose": "nautilus_trader_engine/docker-compose.test.yml"
+                  }
+              ])
+          
+          if test_tier in ['all', 'tier3']:
+              matrix["include"].extend([
+                  {
+                      "name": "Frontend Dependencies",
+                      "tier": "tier3",
+                      "service": "frontend",
+                      "test_type": "build",
+                      "dependencies": ["react", "next.js"],
+                      "docker_compose": "frontend/docker-compose.test.yml"
+                  }
+              ])
+          
+          if test_tier in ['all', 'tier4']:
+              matrix["include"].extend([
+                  {
+                      "name": "Infrastructure Components",
+                      "tier": "tier4",
+                      "service": "infrastructure",
+                      "test_type": "smoke",
+                      "dependencies": ["prometheus", "grafana"],
+                      "docker_compose": "monitoring/docker-compose.test.yml"
+                  }
+              ])
+          
+          # Filter by specific dependency if provided
+          if specific_dep:
+              matrix["include"] = [
+                  test for test in matrix["include"] 
+                  if specific_dep.lower() in [dep.lower() for dep in test["dependencies"]]
+              ]
+          
+          print(f"Generated matrix with {len(matrix['include'])} test scenarios")
+          print(json.dumps(matrix, indent=2))
+          
+          # Set output for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"matrix={json.dumps(matrix)}\n")
+          EOF
+
+  integration-tests:
+    name: "${{ matrix.name }}"
+    needs: setup-test-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.setup-test-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Create Test Environment
+        run: |
+          # Create isolated test environment
+          mkdir -p test-results/${{ matrix.service }}
+          
+          # Copy service-specific test configuration
+          if [ -f "${{ matrix.docker_compose }}" ]; then
+            cp "${{ matrix.docker_compose }}" test-docker-compose.yml
+          else
+            echo "Warning: Docker compose file not found: ${{ matrix.docker_compose }}"
+            # Create minimal test compose
+            cat > test-docker-compose.yml << 'EOF'
+          version: '3.8'
+          services:
+            test-runner:
+              build: .
+              environment:
+                - TEST_TIER=${{ matrix.tier }}
+                - TEST_SERVICE=${{ matrix.service }}
+              volumes:
+                - .:/app
+              command: pytest tests/ -v
+          EOF
+          fi
+          
+      - name: Run ${{ matrix.test_type }} Tests
+        env:
+          TEST_TIER: ${{ matrix.tier }}
+          TEST_SERVICE: ${{ matrix.service }}
+          DEPENDENCY_NAMES: ${{ join(matrix.dependencies, ',') }}
+        run: |
+          case "${{ matrix.test_type }}" in
+            "integration")
+              echo "Running integration tests for ${{ matrix.service }}"
+              docker-compose -f test-docker-compose.yml up --build --abort-on-container-exit
+              ;;
+            "unit")
+              echo "Running unit tests for ${{ matrix.service }}"
+              docker-compose -f test-docker-compose.yml run --rm test-runner python -m pytest tests/unit/ -v
+              ;;
+            "build")
+              echo "Running build tests for ${{ matrix.service }}"
+              docker-compose -f test-docker-compose.yml build
+              ;;
+            "smoke")
+              echo "Running smoke tests for ${{ matrix.service }}"
+              docker-compose -f test-docker-compose.yml up -d
+              sleep 30  # Allow services to start
+              docker-compose -f test-docker-compose.yml exec -T test-runner python -c "print('Smoke test passed')"
+              ;;
+          esac
+          
+      - name: Collect Test Results
+        if: always()
+        run: |
+          # Collect logs and test results
+          docker-compose -f test-docker-compose.yml logs > test-results/${{ matrix.service }}/logs.txt
+          
+          # Extract test results if available
+          if docker-compose -f test-docker-compose.yml ps | grep test-runner; then
+            docker-compose -f test-docker-compose.yml exec -T test-runner find /app -name "*.xml" -o -name "test-*.json" | \
+              xargs -I {} docker cp test-runner:{} test-results/${{ matrix.service }}/
+          fi
+          
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.service }}
+          path: test-results/${{ matrix.service }}/
+          
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose -f test-docker-compose.yml down -v
+          docker system prune -f
+
+  test-summary:
+    name: "Test Summary"
+    needs: [setup-test-matrix, integration-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download All Test Results
+        uses: actions/download-artifact@v3
+        with:
+          path: all-test-results/
+          
+      - name: Generate Test Report
+        run: |
+          echo "# Dependency Integration Test Results" > test-summary.md
+          echo "" >> test-summary.md
+          echo "## Test Execution Summary" >> test-summary.md
+          echo "" >> test-summary.md
+          
+          # Count total tests
+          total_tests=$(echo '${{ needs.setup-test-matrix.outputs.matrix }}' | jq '.include | length')
+          echo "- **Total Test Scenarios:** $total_tests" >> test-summary.md
+          
+          # Check for any failures
+          if [ "${{ needs.integration-tests.result }}" != "success" ]; then
+            echo "- **Status:** ❌ Some tests failed" >> test-summary.md
+            echo "- **Action Required:** Review failed tests before merging" >> test-summary.md
+          else
+            echo "- **Status:** ✅ All tests passed" >> test-summary.md
+            echo "- **Dependencies:** Safe to update" >> test-summary.md
+          fi
+          
+          echo "" >> test-summary.md
+          echo "## Detailed Results" >> test-summary.md
+          echo "" >> test-summary.md
+          
+          # List all test artifacts
+          if [ -d "all-test-results" ]; then
+            for dir in all-test-results/*/; do
+              if [ -d "$dir" ]; then
+                service_name=$(basename "$dir")
+                echo "### $service_name" >> test-summary.md
+                if [ -f "$dir/logs.txt" ]; then
+                  echo "- Logs available in artifacts" >> test-summary.md
+                fi
+                echo "" >> test-summary.md
+              fi
+            done
+          fi
+          
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('test-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+            
+      - name: Set Job Summary
+        run: |
+          cat test-summary.md >> $GITHUB_STEP_SUMMARY

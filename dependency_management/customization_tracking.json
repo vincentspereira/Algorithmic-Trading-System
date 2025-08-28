@@ -1,0 +1,77 @@
+{
+  "customizations": [
+    {
+      "dependency": "TA-Lib",
+      "repository": "https://github.com/mrjbq7/ta-lib",
+      "local_path": "nautilus_trader_engine",
+      "customizations": [
+        {
+          "name": "Volume-Weighted Indicators",
+          "description": "Custom volume-weighted technical indicators (VW SMA, VW EMA, VW MACD, VW MFI)",
+          "files": [
+            "nautilus_trader_engine/indicators/volume_weighted_sma.py",
+            "nautilus_trader_engine/indicators/volume_weighted_ema.py",
+            "nautilus_trader_engine/indicators/volume_weighted_macd.py",
+            "nautilus_trader_engine/indicators/volume_weighted_mfi.py"
+          ],
+          "tracking_tags": ["// @PLACEHOLDER: VW indicator implementation, TSD-15"]
+        }
+      ]
+    },
+    {
+      "dependency": "NautilusTrader",
+      "repository": "https://github.com/nautechsystems/nautilus_trader",
+      "local_path": "nautilus_trader_engine",
+      "customizations": [
+        {
+          "name": "Multi-Asset Support Configuration",
+          "description": "Configuration for multi-asset trading support (stocks, ETFs, futures, options, forex, crypto)",
+          "files": [
+            "nautilus_trader_engine/config/multi_asset_config.py"
+          ],
+          "tracking_tags": ["// @PLACEHOLDER: Multi-asset configuration, REQ-023"]
+        }
+      ]
+    },
+    {
+      "dependency": "LangChain",
+      "repository": "https://github.com/langchain-ai/langchain",
+      "local_path": "ai_assistant",
+      "customizations": [
+        {
+          "name": "Custom Tools Integration",
+          "description": "Integration with custom trading tools and data sources",
+          "files": [
+            "ai_assistant/tools/trading_tools.py",
+            "ai_assistant/tools/data_tools.py"
+          ],
+          "tracking_tags": ["// @PLACEHOLDER: Custom tools integration, FRD-32"]
+        },
+        {
+          "name": "MCP Implementations",
+          "description": "Model Context Protocol implementations for enhanced AI capabilities",
+          "files": [
+            "ai_assistant/mcp/trading_mcp.py"
+          ],
+          "tracking_tags": ["// @PLACEHOLDER: MCP implementation, REQ-067"]
+        }
+      ]
+    }
+  ],
+  "conflict_detection": {
+    "enabled": true,
+    "strategies": [
+      "version_comparison",
+      "api_compatibility_check",
+      "dependency_tree_analysis"
+    ]
+  },
+  "versioning": {
+    "scheme": "semantic_versioning",
+    "format": "MAJOR.MINOR.PATCH-CUSTOMIZATION",
+    "examples": [
+      "1.2.3-VW_INDICATORS",
+      "2.1.0-MULTI_ASSET_SUPPORT"
+    ]
+  }
+}

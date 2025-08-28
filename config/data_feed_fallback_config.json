@@ -1,0 +1,197 @@
+{
+  \"data_feed_config\": {
+    \"primary_broker\": \"IBKR\",
+    \"fallback_enabled\": true,
+    \"fallback_timeout_seconds\": 30,
+    \"retry_attempts\": 3,
+    \"retry_delay_seconds\": 5
+  },
+  \"data_sources\": {
+    \"IBKR\": {
+      \"type\": \"primary_broker\",
+      \"priority\": 1,
+      \"enabled\": true,
+      \"paper_trading\": true,
+      \"live_trading\": false,
+      \"connection\": {
+        \"host\": \"localhost\",
+        \"port\": 7497,
+        \"client_id\": 1
+      },
+      \"data_types\": [\"real_time\", \"historical\", \"fundamental\"],
+      \"asset_classes\": [\"stocks\", \"options\", \"futures\", \"forex\", \"bonds\"],
+      \"cost\": \"free_paper_trading\",
+      \"rate_limits\": {
+        \"requests_per_second\": 50,
+        \"daily_limit\": \"unlimited\"
+      }
+    },
+    \"yahoo_finance\": {
+      \"type\": \"fallback\",
+      \"priority\": 2,
+      \"enabled\": true,
+      \"api_key_required\": false,
+      \"data_types\": [\"delayed\", \"historical\"],
+      \"asset_classes\": [\"stocks\", \"etfs\", \"indices\", \"forex\", \"crypto\"],
+      \"delay_minutes\": 15,
+      \"cost\": \"free\",
+      \"rate_limits\": {
+        \"requests_per_second\": 2,
+        \"daily_limit\": \"unlimited\"
+      }
+    },
+    \"alpha_vantage\": {
+      \"type\": \"additional_broker\",
+      \"priority\": 3,
+      \"enabled\": false,
+      \"api_key_required\": true,
+      \"api_key_env\": \"ALPHA_VANTAGE_API_KEY\",
+      \"base_url\": \"https://www.alphavantage.co/query\",
+      \"data_types\": [\"real_time\", \"historical\", \"fundamental\"],
+      \"asset_classes\": [\"stocks\", \"forex\", \"crypto\"],
+      \"cost\": \"free_tier\",
+      \"rate_limits\": {
+        \"requests_per_minute\": 5,
+        \"daily_limit\": 500
+      },
+      \"upgrade_options\": {
+        \"premium\": {
+          \"cost_per_month\": 49.99,
+          \"requests_per_minute\": 75,
+          \"daily_limit\": \"unlimited\"
+        }
+      }
+    },
+    \"finnhub\": {
+      \"type\": \"fallback\",
+      \"priority\": 4,
+      \"enabled\": false,
+      \"api_key_required\": true,
+      \"api_key_env\": \"FINNHUB_API_KEY\",
+      \"base_url\": \"https://finnhub.io/api/v1\",
+      \"data_types\": [\"real_time\", \"historical\", \"news\"],
+      \"asset_classes\": [\"stocks\", \"forex\", \"crypto\"],
+      \"cost\": \"free_tier\",
+      \"rate_limits\": {
+        \"requests_per_minute\": 60,
+        \"daily_limit\": \"unlimited\"
+      },
+      \"upgrade_options\": {
+        \"starter\": {
+          \"cost_per_month\": 19.99,
+          \"requests_per_minute\": 300
+        },
+        \"professional\": {
+          \"cost_per_month\": 99.99,
+          \"requests_per_minute\": 600
+        }
+      }
+    },
+    \"twelve_data\": {
+      \"type\": \"fallback\",
+      \"priority\": 5,
+      \"enabled\": false,
+      \"api_key_required\": true,
+      \"api_key_env\": \"TWELVE_DATA_API_KEY\",
+      \"base_url\": \"https://api.twelvedata.com\",
+      \"data_types\": [\"real_time\", \"historical\"],
+      \"asset_classes\": [\"stocks\", \"etfs\", \"forex\", \"crypto\"],
+      \"cost\": \"free_tier\",
+      \"rate_limits\": {
+        \"requests_per_minute\": 8,
+        \"daily_limit\": 800
+      },
+      \"upgrade_options\": {
+        \"basic\": {
+          \"cost_per_month\": 29.99,
+          \"requests_per_minute\": 300,
+          \"daily_limit\": \"unlimited\"
+        }
+      }
+    }
+  },
+  \"fallback_rules\": {
+    \"paper_trading_mode\": {
+      \"sequence\": [\"IBKR\", \"yahoo_finance\"],
+      \"description\": \"For paper trading, use IBKR paper data with Yahoo Finance fallback\"
+    },
+    \"live_trading_mode\": {
+      \"sequence\": [\"IBKR\", \"alpha_vantage\", \"finnhub\", \"twelve_data\", \"yahoo_finance\"],
+      \"description\": \"For live trading, use IBKR with multiple paid fallbacks\"
+    },
+    \"by_asset_class\": {
+      \"stocks\": [\"IBKR\", \"yahoo_finance\", \"alpha_vantage\", \"finnhub\"],
+      \"forex\": [\"IBKR\", \"alpha_vantage\", \"twelve_data\"],
+      \"crypto\": [\"yahoo_finance\", \"finnhub\", \"twelve_data\"],
+      \"options\": [\"IBKR\"],
+      \"futures\": [\"IBKR\"]
+    },
+    \"by_data_type\": {
+      \"real_time\": [\"IBKR\", \"alpha_vantage\", \"finnhub\"],
+      \"historical\": [\"IBKR\", \"yahoo_finance\", \"alpha_vantage\", \"twelve_data\"],
+      \"fundamental\": [\"IBKR\", \"alpha_vantage\"],
+      \"news\": [\"finnhub\"]
+    }
+  },
+  \"error_handling\": {
+    \"connection_timeout\": 30,
+    \"read_timeout\": 60,
+    \"max_retries\": 3,
+    \"retry_backoff_factor\": 2,
+    \"circuit_breaker\": {
+      \"failure_threshold\": 5,
+      \"reset_timeout\": 300,
+      \"fallback_on_circuit_open\": true
+    }
+  },
+  \"monitoring\": {
+    \"log_fallback_events\": true,
+    \"alert_on_primary_failure\": true,
+    \"track_data_source_performance\": true,
+    \"metrics\": {
+      \"latency\": true,
+      \"success_rate\": true,
+      \"fallback_frequency\": true,
+      \"cost_tracking\": true
+    }
+  },
+  \"cost_optimization\": {
+    \"prefer_free_sources\": true,
+    \"rate_limit_management\": true,
+    \"cache_duration_minutes\": 1,
+    \"batch_requests\": true,
+    \"smart_fallback\": {
+      \"description\": \"Use cheapest available source that meets quality requirements\",
+      \"quality_threshold\": 0.95,
+      \"cost_weight\": 0.3,
+      \"latency_weight\": 0.4,
+      \"reliability_weight\": 0.3
+    }
+  },
+  \"future_integrations\": {
+    \"oanda\": {
+      \"type\": \"additional_broker\",
+      \"specialization\": \"forex\",
+      \"planned\": true,
+      \"priority\": 6
+    },
+    \"coinbase\": {
+      \"type\": \"additional_broker\",
+      \"specialization\": \"crypto\",
+      \"planned\": true,
+      \"priority\": 7
+    },
+    \"polygon\": {
+      \"type\": \"fallback\",
+      \"specialization\": \"real_time_stocks\",
+      \"planned\": false,
+      \"priority\": 8
+    },
+    \"quandl\": {
+      \"type\": \"fallback\",
+      \"specialization\": \"alternative_data\",
+      \"planned\": false,
+      \"priority\": 9
+    }
+  }
+}

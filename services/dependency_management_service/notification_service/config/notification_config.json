@@ -1,0 +1,52 @@
+{
+  "email_config": {
+    "smtp_server": "${EMAIL_HOST}",
+    "smtp_port": "${EMAIL_PORT}",
+    "username": "${EMAIL_HOST_USER}",
+    "password": "${EMAIL_HOST_PASSWORD}",
+    "sender": "${EMAIL_HOST_USER}",
+    "use_tls": true,
+    "use_ssl": false
+  },
+  "teams_webhook_url": "${TEAMS_WEBHOOK_URL}",
+  "slack_webhook_url": "${SLACK_WEBHOOK_URL}",
+  "discord_webhook_url": "${DISCORD_WEBHOOK_URL}",
+  "notification_preferences": {
+    "admin": ["email", "teams", "slack"],
+    "dev-team": ["email", "teams"],
+    "security-team": ["email", "teams", "discord"],
+    "operations": ["email", "teams"],
+    "tier1-alerts": ["email", "teams", "discord"],
+    "tier2-alerts": ["email", "teams"],
+    "tier3-alerts": ["teams"],
+    "tier4-alerts": ["teams"]
+  },
+  "email_recipients": {
+    "critical": ["vincyspereira@gmail.com", "admin@trading.com"],
+    "high": ["vincyspereira@gmail.com", "dev-team@trading.com"],
+    "medium": ["dev-team@trading.com"],
+    "low": ["dev-team@trading.com"]
+  },
+  "notification_rules": {
+    "tier1": {
+      "channels": ["email", "teams", "discord"],
+      "immediate": true,
+      "escalation_minutes": 30
+    },
+    "tier2": {
+      "channels": ["email", "teams"],
+      "immediate": true,
+      "escalation_minutes": 60
+    },
+    "tier3": {
+      "channels": ["email", "teams"],
+      "immediate": false,
+      "batch_interval_hours": 4
+    },
+    "tier4": {
+      "channels": ["teams"],
+      "immediate": false,
+      "batch_interval_hours": 24
+    }
+  }
+}

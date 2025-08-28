@@ -11,10 +11,10 @@ from pathlib import Path
 def test_tier_files_exist():
     """Test that all tier files exist."""
     tier_files = [
-        'dependency_management/tiers/tier1_critical.json',
-        'dependency_management/tiers/tier2_important.json',
-        'dependency_management/tiers/tier3_supporting.json',
-        'dependency_management/tiers/tier4_infrastructure.json'
+        '../../dependency_management/tiers/tier1_critical.json',
+        '../../dependency_management/tiers/tier2_important.json',
+        '../../dependency_management/tiers/tier3_supporting.json',
+        '../../dependency_management/tiers/tier4_infrastructure.json'
     ]
     
     print("Testing tier files...")
@@ -52,13 +52,13 @@ def test_tier_files_exist():
 def test_config_files_exist():
     """Test that configuration files exist."""
     config_files = [
-        'dependency_management/monitoring/dependency_monitor.yml',
-        'dependency_management/monitoring/check_dependencies.py',
-        'dependency_management/notifications/notification_config.json',
-        'dependency_management/testing/docker-compose.test.yml',
-        'dependency_management/dashboards/dependency_health_dashboard.json',
-        'dependency_management/security/bandit_config.yaml',
-        'dependency_management/customization_tracking.json'
+        '../../dependency_management/monitoring/dependency_monitor.yml',
+        '../../dependency_management/monitoring/check_dependencies.py',
+        '../../dependency_management/notifications/notification_config.json',
+        '../../dependency_management/testing/docker-compose.test.yml',
+        '../../dependency_management/dashboards/dependency_health_dashboard.json',
+        '../../dependency_management/security/bandit_config.yaml',
+        '../../dependency_management/customization_tracking.json'
     ]
     
     print("\nTesting configuration files...")
@@ -74,10 +74,10 @@ def test_config_files_exist():
 def test_documentation_files_exist():
     """Test that documentation files exist."""
     doc_files = [
-        'dependency_management/README.md',
-        'dependency_management/tiers/README.md',
-        'dependency_management/placeholder_protocol.md',
-        'dependency_management/incremental_development_protocol.md'
+        '../../dependency_management/README.md',
+        '../../dependency_management/tiers/README.md',
+        '../../dependency_management/placeholder_protocol.md',
+        '../../dependency_management/incremental_development_protocol.md'
     ]
     
     print("\nTesting documentation files...")
@@ -92,7 +92,7 @@ def test_documentation_files_exist():
 
 def test_updated_main_documentation():
     """Test that the main dependency management documentation was updated."""
-    main_doc = 'docs/DEPENDENCY_MANAGEMENT.md'
+    main_doc = '../../docs/DEPENDENCY_MANAGEMENT.md'
     
     print("\nTesting main documentation update...")
     if Path(main_doc).exists():

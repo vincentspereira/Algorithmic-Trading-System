@@ -1,0 +1,87 @@
+{
+  "tier": "tier4",
+  "name": "Infrastructure Dependencies",
+  "description": "Infrastructure components including databases, monitoring, and deployment tools - monitored weekly",
+  "dependencies": [
+    {
+      "name": "prometheus",
+      "type": "monitoring",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/prometheus/prometheus",
+      "fork": "https://github.com/vincentspereira/prometheus",
+      "customizations": ["Trading metrics"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "grafana",
+      "type": "monitoring",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/grafana/grafana",
+      "fork": "https://github.com/vincentspereira/grafana",
+      "customizations": ["Trading dashboards"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "jaeger",
+      "type": "distributed_tracing",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/jaegertracing/jaeger",
+      "fork": "https://github.com/vincentspereira/jaeger",
+      "customizations": ["Trading trace optimization"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "ClickHouse",
+      "type": "database",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/ClickHouse/ClickHouse",
+      "fork": "https://github.com/vincentspereira/ClickHouse",
+      "customizations": ["Time-series optimizations"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "pgvector",
+      "type": "vector_database",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/pgvector/pgvector",
+      "fork": "https://github.com/vincentspereira/pgvector",
+      "customizations": ["AI vector operations"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "redis",
+      "type": "database",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/redis/redis",
+      "fork": "https://github.com/vincentspereira/redis",
+      "customizations": ["Caching optimizations"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "kubernetes",
+      "type": "orchestration",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/kubernetes/kubernetes",
+      "fork": "https://github.com/vincentspereira/kubernetes",
+      "customizations": ["Trading workload scheduling"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    },
+    {
+      "name": "bandit",
+      "type": "security_scanning",
+      "criticality": "infrastructure",
+      "repository": "https://github.com/PyCQA/bandit",
+      "fork": "https://github.com/vincentspereira/bandit",
+      "customizations": ["Trading-specific security rules"],
+      "monitoring_schedule": "weekly",
+      "alert_threshold": "summary"
+    }
+  ]
+}

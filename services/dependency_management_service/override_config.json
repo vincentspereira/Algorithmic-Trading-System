@@ -1,0 +1,104 @@
+{
+  "approval_required": {
+    "tier1": ["emergency", "critical", "high"],
+    "tier2": ["emergency", "critical"],
+    "tier3": ["emergency"],
+    "tier4": ["emergency"]
+  },
+  "auto_approve": {
+    "security_patches": true,
+    "minor_updates": false,
+    "major_updates": false,
+    "patch_updates": true
+  },
+  "notification_settings": {
+    "channels": ["teams", "email", "github"],
+    "escalation_timeout": 3600,
+    "approval_timeout": 86400,
+    "retry_attempts": 3,
+    "retry_delay": 300
+  },
+  "authorized_users": {
+    "approvers": ["admin", "lead_dev", "devops_lead", "security_lead"],
+    "requesters": ["developer", "qa", "analyst", "devops"],
+    "emergency": ["admin", "devops_lead", "security_lead"],
+    "read_only": ["intern", "auditor"]
+  },
+  "tier_policies": {
+    "tier1": {
+      "max_concurrent_overrides": 2,
+      "cooldown_period_hours": 4,
+      "requires_dual_approval": true,
+      "emergency_contacts": ["admin", "devops_lead"]
+    },
+    "tier2": {
+      "max_concurrent_overrides": 5,
+      "cooldown_period_hours": 2,
+      "requires_dual_approval": false,
+      "emergency_contacts": ["lead_dev"]
+    },
+    "tier3": {
+      "max_concurrent_overrides": 10,
+      "cooldown_period_hours": 1,
+      "requires_dual_approval": false,
+      "emergency_contacts": ["developer"]
+    },
+    "tier4": {
+      "max_concurrent_overrides": 20,
+      "cooldown_period_hours": 0,
+      "requires_dual_approval": false,
+      "emergency_contacts": ["devops"]
+    }
+  },
+  "action_policies": {
+    "force_update": {
+      "requires_justification": true,
+      "min_justification_length": 50,
+      "requires_approval": true,
+      "max_expiry_hours": 24
+    },
+    "rollback": {
+      "requires_justification": true,
+      "min_justification_length": 100,
+      "requires_approval": false,
+      "max_expiry_hours": 72
+    },
+    "pause_monitoring": {
+      "requires_justification": true,
+      "min_justification_length": 30,
+      "requires_approval": false,
+      "max_expiry_hours": 168
+    },
+    "defer": {
+      "requires_justification": true,
+      "min_justification_length": 20,
+      "requires_approval": false,
+      "max_expiry_hours": 720
+    }
+  },
+  "security_settings": {
+    "audit_all_actions": true,
+    "encrypt_sensitive_data": true,
+    "session_timeout_minutes": 60,
+    "max_failed_attempts": 3,
+    "lockout_duration_minutes": 15,
+    "require_mfa_for_emergency": true
+  },
+  "integration_settings": {
+    "github_integration": {
+      "create_issues": true,
+      "labels": ["override", "dependency-management"],
+      "assign_to_team": "dependency-team"
+    },
+    "teams_integration": {
+      "webhook_url": "${TEAMS_WEBHOOK_URL}",
+      "channel": "dependency-overrides",
+      "mention_users": true
+    },
+    "email_integration": {
+      "smtp_server": "smtp.company.com",
+      "from_address": "dependency-system@company.com",
+      "escalation_list": ["devops-team@company.com"]
+    }
+  }
+}

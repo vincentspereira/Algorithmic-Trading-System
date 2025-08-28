@@ -1,0 +1,84 @@
+name: Weekly Dependency Monitoring
+
+on:
+  schedule:
+    # Weekly monitoring for Tier 3 & 4 (supporting & infrastructure)
+    - cron: '0 6 * * 1'  # 6 AM UTC on Mondays
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  tier3-monitoring:
+    name: "Monitor Tier 3 (Supporting) Dependencies"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          pip install requests packaging
+          
+      - name: Run Tier 3 Monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPENDENCY_TIER: "tier3"
+        run: |
+          cd services/dependency_management_service
+          python monitoring/check_dependencies.py
+
+  tier4-monitoring:
+    name: "Monitor Tier 4 (Infrastructure) Dependencies"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          pip install requests packaging
+          
+      - name: Run Tier 4 Monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPENDENCY_TIER: "tier4"
+        run: |
+          cd services/dependency_management_service
+          python monitoring/check_dependencies.py
+
+  consolidate-results:
+    name: "Consolidate Weekly Results"
+    needs: [tier3-monitoring, tier4-monitoring]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          
+      - name: Generate Consolidated Report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          cd services/dependency_management_service
+          python scripts/consolidate_weekly_results.py

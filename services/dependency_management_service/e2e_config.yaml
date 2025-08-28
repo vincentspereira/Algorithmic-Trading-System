@@ -1,0 +1,254 @@
+# End-to-End Regression Testing Configuration
+
+test_environment:
+  docker_compose_file: "docker-compose.e2e.yml"
+  services:
+    - "dependency-monitor"
+    - "notification-service"
+    - "security-scanner"
+    - "dashboard"
+    - "override-controller"
+  health_check_timeout: 60
+  startup_delay: 30
+
+tier_tests:
+  tier1:
+    critical_dependencies:
+      - "nautilus_trader"
+      - "kafka"
+      - "langchain"
+      - "langgraph"
+      - "fastapi"
+      - "schema-registry"
+      - "TradingAgents"
+      - "grpc"
+      - "graphql"
+    test_scenarios:
+      - "dependency_update_simulation"
+      - "security_vulnerability_response"
+      - "critical_rollback_test"
+      - "high_availability_test"
+      - "event_sourcing_validation"
+      - "api_contract_validation"
+    max_failure_tolerance: 0
+    sla_requirements:
+      response_time_ms: 100
+      availability_percent: 99.99
+      
+  tier2:
+    important_dependencies:
+      - "OpenBB"
+      - "ta-lib-python"
+      - "ta"
+      - "Stock-Prediction-Models"
+      - "LSTM-Neural-Network-for-Time-Series-Prediction"
+      - "Real-time-stock-market-prediction"
+      - "vectorbt"
+      - "TradingGym"
+      - "QuantLib"
+      - "PyPortfolioOpt"
+      - "Riskfolio-Lib"
+      - "pyod"
+      - "shap"
+      - "transformers"
+      - "pytorch"
+      - "FinRL"
+    test_scenarios:
+      - "feature_degradation_test"
+      - "performance_impact_test"
+      - "compatibility_matrix_test"
+      - "ml_model_validation"
+      - "backtesting_accuracy"
+    max_failure_tolerance: 1
+    sla_requirements:
+      response_time_ms: 500
+      availability_percent: 99.9
+      
+  tier3:
+    supporting_dependencies:
+      - "react"
+      - "next.js"
+      - "blockly"
+      - "react-financial-charts"
+      - "dash"
+      - "lobe-chat"
+      - "ragflow"
+      - "memray"
+      - "Archon"
+      - "OpenHands"
+      - "goose"
+    test_scenarios:
+      - "ui_functionality_test"
+      - "no_code_builder_test"
+      - "user_experience_test"
+      - "frontend_integration_test"
+      - "visualization_rendering_test"
+    max_failure_tolerance: 2
+    sla_requirements:
+      response_time_ms: 2000
+      availability_percent: 99.0
+      
+  tier4:
+    infrastructure_dependencies:
+      - "kubernetes"
+      - "docker"
+      - "istio"
+      - "nginx"
+      - "helm"
+      - "pgvector"
+      - "ClickHouse"
+      - "duckdb"
+      - "qdrant"
+      - "redis"
+      - "influxdb"
+      - "minio"
+      - "prometheus"
+      - "grafana"
+      - "tempo"
+      - "elasticsearch"
+      - "loki"
+      - "jaeger"
+      - "alertmanager"
+      - "unleash"
+      - "bandit"
+    test_scenarios:
+      - "monitoring_functionality_test"
+      - "infrastructure_resilience_test"
+      - "operational_overhead_test"
+      - "scaling_test"
+      - "disaster_recovery_test"
+    max_failure_tolerance: 3
+    sla_requirements:
+      response_time_ms: 5000
+      availability_percent: 99.5
+
+integration_points:
+  kafka_event_flow:
+    test_events:
+      - "dependency.tier1.update"
+      - "dependency.tier2.update"
+      - "dependency.security.alert"
+      - "dependency.override.request"
+      - "dependency.status.health"
+      - "dependency.audit.log"
+    expected_responses:
+      - "notification.teams.sent"
+      - "notification.discord.sent"
+      - "notification.github.issue.created"
+      - "dashboard.update.received"
+      - "audit.log.created"
+      - "override.workflow.triggered"
+    timeout_seconds: 30
+    
+  api_contracts:
+    dependency_monitor: "http://localhost:8000"
+    notification_service: "http://localhost:8001"
+    security_scanner: "http://localhost:8002"
+    dashboard: "http://localhost:3000"
+    override_controller: "http://localhost:8081"
+    
+  database_consistency:
+    postgres: "postgresql://test:test@localhost:5432/dependency_test"
+    clickhouse: "http://localhost:8123"
+    redis: "redis://localhost:6379"
+    
+  external_integrations:
+    github_api: "https://api.github.com"
+    teams_webhook: "${TEAMS_WEBHOOK_URL}"
+    discord_webhook: "${DISCORD_WEBHOOK_URL}"
+    cve_database: "https://cve.circl.lu/api"
+
+performance_benchmarks:
+  dependency_scan_time:
+    max_seconds: 300
+    tier1_max_seconds: 60
+    tier2_max_seconds: 120
+    tier3_max_seconds: 180
+    tier4_max_seconds: 300
+    
+  notification_delivery:
+    max_seconds: 30
+    critical_alert_max_seconds: 5
+    standard_alert_max_seconds: 30
+    
+  dashboard_load_time:
+    max_seconds: 5
+    initial_load_max_seconds: 10
+    refresh_max_seconds: 2
+    
+  api_response_time:
+    max_milliseconds: 500
+    health_check_max_ms: 100
+    dependency_list_max_ms: 1000
+    override_request_max_ms: 2000
+
+test_data:
+  mock_dependencies:
+    - name: "test-dependency-1"
+      tier: "tier1"
+      version: "1.0.0"
+      latest_version: "1.1.0"
+      vulnerabilities: []
+    - name: "test-dependency-2"
+      tier: "tier2"
+      version: "2.0.0"
+      latest_version: "2.0.1"
+      vulnerabilities:
+        - cve_id: "CVE-2025-TEST-001"
+          severity: "HIGH"
+          cvss_score: 7.5
+          
+  mock_vulnerabilities:
+    - cve_id: "CVE-2025-REGRESSION-001"
+      dependency: "nautilus_trader"
+      severity: "CRITICAL"
+      cvss_score: 9.2
+      description: "Test critical vulnerability for regression testing"
+    - cve_id: "CVE-2025-REGRESSION-002"
+      dependency: "kafka"
+      severity: "HIGH"
+      cvss_score: 8.1
+      description: "Test high severity vulnerability for regression testing"
+      
+  mock_updates:
+    - dependency: "fastapi"
+      old_version: "0.104.0"
+      new_version: "0.105.0"
+      type: "minor"
+      breaking_changes: false
+    - dependency: "langchain"
+      old_version: "0.1.0"
+      new_version: "0.2.0"
+      type: "minor"
+      breaking_changes: true
+      migration_required: true
+
+reporting:
+  output_formats:
+    - "json"
+    - "html"
+    - "junit_xml"
+  report_directory: "test-results"
+  include_performance_metrics: true
+  include_error_details: true
+  include_test_coverage: true
+  
+notifications:
+  on_failure:
+    enabled: true
+    channels:
+      - "teams"
+      - "github_issue"
+    escalation_timeout_minutes: 30
+    
+  on_success:
+    enabled: true
+    channels:
+      - "teams"
+    summary_only: true
+
+security:
+  test_mode_only: true
+  mock_external_calls: true
+  sanitize_sensitive_data: true
+  audit_test_execution: true

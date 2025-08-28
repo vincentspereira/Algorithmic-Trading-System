@@ -1,0 +1,87 @@
+{
+  "tier": "tier1",
+  "name": "Critical Dependencies",
+  "description": "Core components essential to trading operations - monitored daily",
+  "dependencies": [
+    {
+      "name": "nautilus_trader",
+      "type": "trading_engine",
+      "criticality": "critical",
+      "repository": "https://github.com/nautechsystems/nautilus_trader",
+      "fork": "https://github.com/vincentspereira/nautilus_trader",
+      "customizations": ["Rust performance enhancements", "Volume-weighted indicators"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "nautilus_ibapi", 
+      "type": "trading_engine",
+      "criticality": "critical",
+      "repository": "https://github.com/nautechsystems/nautilus_ibapi",
+      "fork": "https://github.com/vincentspereira/nautilus_ibapi",
+      "customizations": [],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "kafka",
+      "type": "event_bus",
+      "criticality": "critical", 
+      "repository": "https://github.com/apache/kafka",
+      "fork": "https://github.com/vincentspereira/kafka",
+      "customizations": ["Event sourcing patterns", "Custom serializers"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "schema-registry",
+      "type": "event_bus",
+      "criticality": "critical",
+      "repository": "https://github.com/confluentinc/schema-registry", 
+      "fork": "https://github.com/vincentspereira/schema-registry",
+      "customizations": [],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "langchain",
+      "type": "ai_framework",
+      "criticality": "critical",
+      "repository": "https://github.com/langchain-ai/langchain",
+      "fork": "https://github.com/vincentspereira/langchain",
+      "customizations": ["Trading tools integration", "Custom MCPs"],
+      "monitoring_schedule": "daily", 
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "langgraph",
+      "type": "ai_framework", 
+      "criticality": "critical",
+      "repository": "https://github.com/langchain-ai/langgraph",
+      "fork": "https://github.com/vincentspereira/langgraph",
+      "customizations": ["Trading workflows", "State management"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "fastapi",
+      "type": "api_framework",
+      "criticality": "critical",
+      "repository": "https://github.com/fastapi/fastapi",
+      "fork": "https://github.com/vincentspereira/fastapi", 
+      "customizations": ["Trading-specific middleware", "Performance optimizations"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    },
+    {
+      "name": "grpc",
+      "type": "api_framework",
+      "criticality": "critical",
+      "repository": "https://github.com/grpc/grpc",
+      "fork": "https://github.com/vincentspereira/grpc",
+      "customizations": ["High-frequency optimizations"],
+      "monitoring_schedule": "daily",
+      "alert_threshold": "immediate"
+    }
+  ]
+}

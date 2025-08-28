@@ -1,0 +1,94 @@
+{
+  "notification_channels": {
+    "teams": {
+      "enabled": true,
+      "webhook_url": "${TEAMS_WEBHOOK}",
+      "alert_types": ["critical", "security", "weekly_summary"],
+      "format": "adaptive_card"
+    },
+    "discord": {
+      "enabled": true,
+      "webhook_url": "${DISCORD_WEBHOOK}",
+      "alert_types": ["critical", "security"],
+      "format": "embed"
+    },
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.company.com",
+      "alert_types": ["escalation"],
+      "recipients": ["devops@company.com"]
+    },
+    "slack": {
+      "enabled": false,
+      "webhook_url": "${SLACK_WEBHOOK}",
+      "alert_types": ["standard", "weekly_summary"],
+      "format": "blocks"
+    }
+  },
+  "alert_rules": {
+    "tier1": {
+      "immediate_notification": true,
+      "escalation_timeout": 1800,
+      "channels": ["teams", "discord", "email"]
+    },
+    "tier2": {
+      "immediate_notification": true,
+      "escalation_timeout": 3600,
+      "channels": ["teams", "discord"]
+    },
+    "tier3": {
+      "immediate_notification": false,
+      "batch_notification": true,
+      "channels": ["teams"]
+    },
+    "tier4": {
+      "immediate_notification": false,
+      "batch_notification": true,
+      "channels": ["teams"]
+    }
+  },
+  "security_alerts": {
+    "critical": {
+      "immediate_notification": true,
+      "channels": ["teams", "discord", "email"],
+      "escalation_timeout": 900
+    },
+    "high": {
+      "immediate_notification": true,
+      "channels": ["teams", "discord"],
+      "escalation_timeout": 1800
+    },
+    "medium": {
+      "immediate_notification": false,
+      "daily_summary": true,
+      "channels": ["teams"]
+    },
+    "low": {
+      "immediate_notification": false,
+      "weekly_summary": true,
+      "channels": ["teams"]
+    }
+  },
+  "templates": {
+    "critical_alert": {
+      "title": "🚨 Critical Dependency Alert",
+      "priority": "high",
+      "color": "#FF0000"
+    },
+    "security_alert": {
+      "title": "🛡️ Security Vulnerability Detected",
+      "priority": "urgent",
+      "color": "#FF4500"
+    },
+    "update_available": {
+      "title": "📦 Dependency Update Available",
+      "priority": "normal",
+      "color": "#0078D4"
+    },
+    "weekly_summary": {
+      "title": "📊 Weekly Dependency Report",
+      "priority": "normal",
+      "color": "#28A745"
+    }
+  }
+}

@@ -1,0 +1,234 @@
+version: '3.8'
+
+services:
+  # Core dependency management service
+  dependency-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: e2e-dependency-monitor
+    ports:
+      - "8000:8000"
+    environment:
+      - TEST_MODE=true
+      - POSTGRES_URL=postgresql://test:test@test-database:5432/dependency_test
+      - REDIS_URL=redis://test-redis:6379
+      - KAFKA_BOOTSTRAP_SERVERS=test-kafka:9092
+    depends_on:
+      - test-database
+      - test-redis
+      - test-kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - e2e-test-network
+
+  # Notification service
+  notification-service:
+    build:
+      context: ./notification_service
+      dockerfile: Dockerfile
+    container_name: e2e-notification-service
+    ports:
+      - "8001:8001"
+    environment:
+      - TEST_MODE=true
+      - TEAMS_WEBHOOK_URL=${TEAMS_WEBHOOK_URL:-http://mock-webhook:3001/teams}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-http://mock-webhook:3001/discord}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Security scanner service
+  security-scanner:
+    build:
+      context: ./security_service
+      dockerfile: Dockerfile
+    container_name: e2e-security-scanner
+    ports:
+      - "8002:8002"
+    environment:
+      - TEST_MODE=true
+      - CVE_DATABASE_URL=http://mock-cve-db:3002/api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Dashboard service
+  dashboard:
+    build:
+      context: ./dashboard/frontend
+      dockerfile: Dockerfile
+    container_name: e2e-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=test
+      - NEXT_PUBLIC_API_URL=http://dependency-monitor:8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Manual override controller
+  override-controller:
+    build:
+      context: .
+      dockerfile: Dockerfile.override
+    container_name: e2e-override-controller
+    ports:
+      - "8081:8081"
+    environment:
+      - TEST_MODE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Test database
+  test-database:
+    image: postgres:15-alpine
+    container_name: e2e-test-database
+    environment:
+      - POSTGRES_DB=dependency_test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d dependency_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Test Redis
+  test-redis:
+    image: redis:7-alpine
+    container_name: e2e-test-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Test Kafka
+  test-kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: e2e-test-kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: test-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://test-kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    ports:
+      - "9092:9092"
+    depends_on:
+      - test-zookeeper
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Zookeeper for Kafka
+  test-zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: e2e-test-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: ["CMD", "echo", "ruok", "|", "nc", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - e2e-test-network
+
+  # Mock webhook service for testing notifications
+  mock-webhook:
+    image: nginx:alpine
+    container_name: e2e-mock-webhook
+    ports:
+      - "3001:80"
+    volumes:
+      - ./test-fixtures/mock-webhook.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - e2e-test-network
+
+  # Mock CVE database for testing
+  mock-cve-db:
+    image: nginx:alpine
+    container_name: e2e-mock-cve-db
+    ports:
+      - "3002:80"
+    volumes:
+      - ./test-fixtures/mock-cve-responses:/usr/share/nginx/html:ro
+    networks:
+      - e2e-test-network
+
+  # Test runner container
+  e2e-test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: e2e-test-runner
+    environment:
+      - PYTHONPATH=/app
+      - TEST_MODE=true
+    volumes:
+      - ./test-results:/app/test-results
+      - ./e2e_regression_tests.py:/app/e2e_regression_tests.py
+      - ./e2e_config.yaml:/app/e2e_config.yaml
+    depends_on:
+      dependency-monitor:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      security-scanner:
+        condition: service_healthy
+      dashboard:
+        condition: service_healthy
+      override-controller:
+        condition: service_healthy
+    command: ["python", "e2e_regression_tests.py", "--skip-setup"]
+    networks:
+      - e2e-test-network
+    profiles:
+      - testing
+
+networks:
+  e2e-test-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  test_results:

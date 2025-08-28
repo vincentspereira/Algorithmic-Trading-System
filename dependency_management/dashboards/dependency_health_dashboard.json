@@ -1,0 +1,101 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Dependency Health Dashboard",
+    "tags": ["dependencies", "monitoring", "health"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Dependency Status Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dependency_health_status",
+            "legendFormat": "{{tier}} - {{dependency}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 2}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Security Alerts by Severity",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (severity) (dependency_security_alerts)",
+            "legendFormat": "{{severity}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Updates Available by Tier",
+        "type": "bargauge",
+        "targets": [
+          {
+            "expr": "sum by (tier) (dependency_updates_available)",
+            "legendFormat": "{{tier}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Dependency Update Timeline",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "dependency_last_updated",
+            "legendFormat": "{{dependency}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+      },
+      {
+        "id": 5,
+        "title": "Failed Update Attempts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "dependency_failed_updates",
+            "legendFormat": "{{dependency}} - {{reason}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 6,
+        "title": "Monitoring Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dependency_monitor_health",
+            "legendFormat": "Monitor Status"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}
