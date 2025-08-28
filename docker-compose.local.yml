@@ -120,6 +120,17 @@ services:
     networks:
       - trading-net
 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      - kafka
+      - redis
+      - clickhouse
+    networks:
+      - trading-net
+
 networks:
   trading-net:
     driver: bridge

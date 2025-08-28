@@ -210,6 +210,7 @@ Comprehensive documentation is available in the `/docs` directory:
 - **[API Documentation](docs/09.%20API%20Documentation%20-%20Algorithmic%20Trading%20System.markdown)**: Complete API reference
 - **[Deployment Guide](docs/13.%20Deployment%20Guide%20-%20Algorithmic%20Trading%20System.markdown)**: Production deployment
 - **[Security Setup](docs/SECURITY_SETUP.md)**: Enterprise security configuration
+- **[Dependency Management System](docs/dependency_management_system.md)**: Detailed documentation on dependency management.
 
 ## 🔧 Development
 

@@ -1,0 +1,36 @@
+name: Update Integration Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-updated-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and run services
+        run: docker-compose -f docker-compose.local.yml up --build -d
+
+      - name: Wait for services to be healthy
+        run: | 
+          # Add a delay or health check here to ensure services are up before running tests
+          sleep 60 # Adjust as needed
+
+      - name: Run tests
+        run: docker-compose -f docker-compose.local.yml run --rm test
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Tests failed for the updated dependency. Please check the logs."
+          # In a real scenario, you might integrate with Slack/Teams/GitHub API to post a comment
+
+      - name: Teardown services
+        if: always()
+        run: docker-compose -f docker-compose.local.yml down

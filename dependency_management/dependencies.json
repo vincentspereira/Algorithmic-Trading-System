@@ -1,81 +1,90 @@
 {
-  "version": "1.0.0",
-  "last_updated": "2025-08-24",
-  "base_paths": {
-    "repo_root": "./repos",
-    "dependency_root": "./dependencies",
-    "project_root": "~/Projects"
-  },
+  "version": "1.1.0",
+  "last_updated": "2025-08-27",
   "tiers": {
     "tier1": {
-      "description": "Critical components core to trading engine and AI workflows",
+      "description": "Critical components core to trading, AI, and API workflows",
       "dependencies": [
-        {
-          "name": "NautilusTrader",
-          "repository": "https://github.com/nautechsystems/nautilus_trader",
-          "fork": "https://github.com/vincentspereira/nautilus_trader",
-          "version": "2.0.0",
-          "repo_path": "~/Projects/nautilus_trader",
-          "customizations": ["Rust performance enhancements", "Volume-weighted indicators"],
-          "integration_points": ["Trading Engine", "Order Management"],
-          "monitoring_frequency": "daily",
-          "alert_channels": ["slack", "email", "teams"],
-          "ccb_required": true
-        },
-        {
-          "name": "Apache Kafka",
-          "repository": "https://github.com/apache/kafka",
-          "version": "3.5.0",
-          "repo_path": "./dependencies/kafka",
-          "customizations": ["Event sourcing patterns", "Custom serializers"],
-          "integration_points": ["Event Bus", "Market Data", "Order Flow"],
-          "monitoring_frequency": "daily", 
-          "alert_channels": ["slack", "email"],
-          "ccb_required": true
-        }
+        {"name": "nautilus_trader", "repository": "https://github.com/nautechsystems/nautilus_trader", "fork": "https://github.com/vincentspereira/nautilus_trader", "version": "latest", "customizations": ["Rust performance enhancements", "Volume-weighted indicators"]},
+        {"name": "nautilus_ibapi", "repository": "https://github.com/nautechsystems/nautilus_ibapi", "fork": "https://github.com/vincentspereira/nautilus_ibapi", "version": "latest", "customizations": []},
+        {"name": "kafka", "repository": "https://github.com/apache/kafka", "fork": "https://github.com/vincentspereira/kafka", "version": "latest", "customizations": ["Event sourcing patterns", "Custom serializers"]},
+        {"name": "schema-registry", "repository": "https://github.com/confluentinc/schema-registry", "fork": "https://github.com/vincentspereira/schema-registry", "version": "latest", "customizations": []},
+        {"name": "langchain", "repository": "https://github.com/langchain-ai/langchain", "fork": "https://github.com/vincentspereira/langchain", "version": "latest", "customizations": []},
+        {"name": "langgraph", "repository": "https://github.com/langchain-ai/langgraph", "fork": "https://github.com/vincentspereira/langgraph", "version": "latest", "customizations": []},
+        {"name": "TradingAgents", "repository": "https://github.com/TauricResearch/TradingAgents", "fork": "https://github.com/vincentspereira/TradingAgents", "version": "latest", "customizations": []},
+        {"name": "fastapi", "repository": "https://github.com/fastapi/fastapi", "fork": "https://github.com/vincentspereira/fastapi", "version": "latest", "customizations": []},
+        {"name": "grpc", "repository": "https://github.com/grpc/grpc", "fork": "https://github.com/vincentspereira/grpc", "version": "latest", "customizations": []},
+        {"name": "graphql", "repository": "https://github.com/redwoodjs/graphql", "fork": "https://github.com/vincentspereira/graphql", "version": "latest", "customizations": []}
       ]
     },
     "tier2": {
-      "description": "Important components for portfolio, risk, and ML functionality", 
+      "description": "Important components for portfolio, risk, ML, and quantitative analysis",
       "dependencies": [
-        {
-          "name": "PyPortfolioOpt",
-          "repository": "https://github.com/robertmartin8/PyPortfolioOpt",
-          "version": "1.5.0",
-          "repo_path": "./dependencies/pyportfolioopt",
-          "customizations": ["Custom risk models"],
-          "integration_points": ["Portfolio Manager"],
-          "monitoring_frequency": "daily",
-          "alert_channels": ["slack"]
-        }
+        {"name": "OpenBB", "repository": "https://github.com/OpenBB-finance/OpenBB", "fork": "https://github.com/vincentspereira/OpenBB", "version": "latest", "customizations": []},
+        {"name": "ta-lib-python", "repository": "https://github.com/TA-Lib/ta-lib-python", "fork": "https://github.com/vincentspereira/ta-lib-python", "version": "latest", "customizations": []},
+        {"name": "ta", "repository": "https://github.com/bukosabino/ta", "fork": "https://github.com/vincentspereira/ta", "version": "latest", "customizations": []},
+        {"name": "Stock-Prediction-Models", "repository": "https://github.com/huseinzol05/Stock-Prediction-Models", "fork": "https://github.com/vincentspereira/Stock-Prediction-Models", "version": "latest", "customizations": []},
+        {"name": "LSTM-Neural-Network-for-Time-Series-Prediction", "repository": "https://github.com/jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction", "fork": "https://github.com/vincentspereira/LSTM-Neural-Network-for-Time-Series-Prediction", "version": "latest", "customizations": []},
+        {"name": "Real-time-stock-market-prediction", "repository": "https://github.com/victor369basu/Real-time-stock-market-prediction", "fork": "https://github.com/vincentspereira/Real-time-stock-market-prediction", "version": "latest", "customizations": []},
+        {"name": "vectorbt", "repository": "https://github.com/polakowo/vectorbt", "fork": "https://github.com/vincentspereira/vectorbt", "version": "latest", "customizations": []},
+        {"name": "TradingGym", "repository": "https://github.com/Yvictor/TradingGym", "fork": "https://github.com/vincentspereira/TradingGym", "version": "latest", "customizations": []},
+        {"name": "QuantLib", "repository": "https://github.com/lballabio/QuantLib", "fork": "https://github.com/vincentspereira/QuantLib", "version": "latest", "customizations": []},
+        {"name": "feast", "repository": "https://github.com/feast-dev/feast", "fork": "https://github.com/vincentspereira/feast", "version": "latest", "customizations": []},
+        {"name": "tecton", "repository": "https://github.com/tecton-ai/tecton", "fork": "https://github.com/vincentspereira/tecton", "version": "latest", "customizations": []},
+        {"name": "optuna", "repository": "https://github.com/optuna/optuna", "fork": "https://github.com/vincentspereira/optuna", "version": "latest", "customizations": []},
+        {"name": "PyPortfolioOpt", "repository": "https://github.com/robertmartin8/PyPortfolioOpt", "fork": "https://github.com/vincentspereira/PyPortfolioOpt", "version": "latest", "customizations": []},
+        {"name": "Riskfolio-Lib", "repository": "https://github.com/dcajasn/Riskfolio-Lib", "fork": "https://github.com/vincentspereira/Riskfolio-Lib", "version": "latest", "customizations": []},
+        {"name": "pyod", "repository": "https://github.com/yzhao062/pyod", "fork": "https://github.com/vincentspereira/pyod", "version": "latest", "customizations": []},
+        {"name": "shap", "repository": "https://github.com/shap/shap", "fork": "https://github.com/vincentspereira/shap", "version": "latest", "customizations": []},
+        {"name": "transformers", "repository": "https://github.com/huggingface/transformers", "fork": "https://github.com/vincentspereira/transformers", "version": "latest", "customizations": []},
+        {"name": "pytorch", "repository": "https://github.com/pytorch/pytorch", "fork": "https://github.com/vincentspereira/pytorch", "version": "latest", "customizations": []},
+        {"name": "FinRL", "repository": "https://github.com/AI4Finance-Foundation/FinRL", "fork": "https://github.com/vincentspereira/FinRL", "version": "latest", "customizations": []}
       ]
     },
     "tier3": {
-      "description": "Supporting components for UI and AI interfaces",
+      "description": "Supporting components for UI, no-code, and other interfaces",
       "dependencies": [
-        {
-          "name": "Blockly",
-          "repository": "https://github.com/google/blockly",
-          "repo_path": "./repos/blockly",
-          "version": "10.0.0",
-          "customizations": ["Trading blocks", "Strategy templates"],
-          "integration_points": ["Strategy Builder UI"],
-          "monitoring_frequency": "weekly"
-        }
+        {"name": "Archon", "repository": "https://github.com/coleam00/Archon", "fork": "https://github.com/vincentspereira/Archon", "version": "latest", "customizations": []},
+        {"name": "OpenHands", "repository": "https://github.com/All-Hands-AI/OpenHands", "fork": "https://github.com/vincentspereira/OpenHands", "version": "latest", "customizations": []},
+        {"name": "goose", "repository": "https://github.com/block/goose", "fork": "https://github.com/vincentspereira/goose", "version": "latest", "customizations": []},
+        {"name": "next.js", "repository": "https://github.com/vercel/next.js", "fork": "https://github.com/vincentspereira/next.js", "version": "latest", "customizations": []},
+        {"name": "react", "repository": "https://github.com/facebook/react", "fork": "https://github.com/vincentspereira/react", "version": "latest", "customizations": []},
+        {"name": "lobe-chat", "repository": "https://github.com/lobehub/lobe-chat", "fork": "https://github.com/vincentspereira/lobe-chat", "version": "latest", "customizations": []},
+        {"name": "ragflow", "repository": "https://github.com/infiniflow/ragflow", "fork": "https://github.com/vincentspereira/ragflow", "version": "latest", "customizations": []},
+        {"name": "memray", "repository": "https://github.com/bloomberg/memray", "fork": "https://github.com/vincentspereira/memray", "version": "latest", "customizations": []},
+        {"name": "react-financial-charts", "repository": "https://github.com/react-financial/react-financial-charts", "fork": "https://github.com/vincentspereira/react-financial-charts", "version": "latest", "customizations": []},
+        {"name": "dash", "repository": "https://github.com/plotly/dash", "fork": "https://github.com/vincentspereira/dash", "version": "latest", "customizations": []},
+        {"name": "blockly", "repository": "https://github.com/google/blockly", "fork": "https://github.com/vincentspereira/blockly", "version": "latest", "customizations": []}
       ]
     },
     "tier4": {
-      "description": "Infrastructure components",
+      "description": "Infrastructure components including databases, monitoring, and deployment tools",
       "dependencies": [
-        {
-          "name": "Kubernetes",
-          "repository": "https://github.com/kubernetes/kubernetes",
-          "version": "1.27.0", 
-          "repo_path": "./repos/kubernetes",
-          "customizations": ["Custom controllers", "Trading-specific CRDs"],
-          "integration_points": ["Infrastructure"],
-          "monitoring_frequency": "weekly"
-        }
+        {"name": "kubernetes", "repository": "https://github.com/kubernetes/kubernetes", "fork": "https://github.com/vincentspereira/kubernetes", "version": "latest", "customizations": []},
+        {"name": "docker", "repository": "https://github.com/docker-library/docker", "fork": "https://github.com/vincentspereira/docker", "version": "latest", "customizations": []},
+        {"name": "istio", "repository": "https://github.com/istio/istio", "fork": "https://github.com/vincentspereira/istio", "version": "latest", "customizations": []},
+        {"name": "nginx", "repository": "https://github.com/nginx/nginx", "fork": "https://github.com/vincentspereira/nginx", "version": "latest", "customizations": []},
+        {"name": "helm", "repository": "https://github.com/helm/helm", "fork": "https://github.com/vincentspereira/helm", "version": "latest", "customizations": []},
+        {"name": "pgvector", "repository": "https://github.com/pgvector/pgvector", "fork": "https://github.com/vincentspereira/pgvector", "version": "latest", "customizations": []},
+        {"name": "ClickHouse", "repository": "https://github.com/ClickHouse/ClickHouse", "fork": "https://github.com/vincentspereira/ClickHouse", "version": "latest", "customizations": []},
+        {"name": "duckdb", "repository": "https://github.com/duckdb/duckdb", "fork": "https://github.com/vincentspereira/duckdb", "version": "latest", "customizations": []},
+        {"name": "qdrant", "repository": "https://github.com/qdrant/qdrant", "fork": "https://github.com/vincentspereira/qdrant", "version": "latest", "customizations": []},
+        {"name": "iceberg", "repository": "https://github.com/apache/iceberg", "fork": "https://github.com/vincentspereira/iceberg", "version": "latest", "customizations": []},
+        {"name": "redis", "repository": "https://github.com/redis/redis", "fork": "https://github.com/vincentspereira/redis", "version": "latest", "customizations": []},
+        {"name": "influxdb", "repository": "https://github.com/influxdata/influxdb", "fork": "https://github.com/vincentspereira/influxdb", "version": "latest", "customizations": []},
+        {"name": "minio", "repository": "https://github.com/minio/minio", "fork": "https://github.com/vincentspereira/minio", "version": "latest", "customizations": []},
+        {"name": "quickfixj", "repository": "https://github.com/quickfix-j/quickfixj", "fork": "https://github.com/vincentspereira/quickfixj", "version": "latest", "customizations": []},
+        {"name": "fix8", "repository": "https://github.com/fix8/fix8", "fork": "https://github.com/vincentspereira/fix8", "version": "latest", "customizations": []},
+        {"name": "prometheus", "repository": "https://github.com/prometheus/prometheus", "fork": "https://github.com/vincentspereira/prometheus", "version": "latest", "customizations": []},
+        {"name": "grafana", "repository": "https://github.com/grafana/grafana", "fork": "https://github.com/vincentspereira/grafana", "version": "latest", "customizations": []},
+        {"name": "tempo", "repository": "https://github.com/grafana/tempo", "fork": "https://github.com/vincentspereira/tempo", "version": "latest", "customizations": []},
+        {"name": "elasticsearch", "repository": "https://github.com/elastic/elasticsearch", "fork": "https://github.com/vincentspereira/elasticsearch", "version": "latest", "customizations": []},
+        {"name": "loki", "repository": "https://github.com/grafana/loki", "fork": "https://github.com/vincentspereira/loki", "version": "latest", "customizations": []},
+        {"name": "jaeger", "repository": "https://github.com/jaegertracing/jaeger", "fork": "https://github.com/vincentspereira/jaeger", "version": "latest", "customizations": []},
+        {"name": "alertmanager", "repository": "https://github.com/prometheus/alertmanager", "fork": "https://github.com/vincentspereira/alertmanager", "version": "latest", "customizations": []},
+        {"name": "docker-elk", "repository": "https://github.com/deviantony/docker-elk", "fork": "https://github.com/vincentspereira/docker-elk", "version": "latest", "customizations": []},
+        {"name": "unleash", "repository": "https://github.com/Unleash/unleash", "fork": "https://github.com/vincentspereira/unleash", "version": "latest", "customizations": []},
+        {"name": "bandit", "repository": "https://github.com/PyCQA/bandit", "fork": "https://github.com/vincentspereira/bandit", "version": "latest", "customizations": []}
       ]
     }
   }

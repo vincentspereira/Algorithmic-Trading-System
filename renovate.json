@@ -1,0 +1,105 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": [
+        "nautechsystems/nautilus_trader",
+        "nautechsystems/nautilus_ibapi",
+        "apache/kafka",
+        "confluentinc/schema-registry",
+        "langchain-ai/langchain",
+        "langchain-ai/langgraph",
+        "TauricResearch/TradingAgents",
+        "fastapi/fastapi",
+        "grpc/grpc",
+        "redwoodjs/graphql"
+      ],
+      "schedule": "at any time",
+      "automerge": false,
+      "labels": ["tier1", "dependencies"]
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": [
+        "OpenBB-finance/OpenBB",
+        "TA-Lib/ta-lib-python",
+        "bukosabino/ta",
+        "huseinzol05/Stock-Prediction-Models",
+        "jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction",
+        "victor369basu/Real-time-stock-market-prediction",
+        "polakowo/vectorbt",
+        "Yvictor/TradingGym",
+        "lballabio/QuantLib",
+        "feast-dev/feast",
+        "tecton-ai/tecton",
+        "optuna/optuna",
+        "robertmartin8/PyPortfolioOpt",
+        "dcajasn/Riskfolio-Lib",
+        "yzhao062/pyod",
+        "shap/shap",
+        "huggingface/transformers",
+        "pytorch/pytorch",
+        "AI4Finance-Foundation/FinRL"
+      ],
+      "schedule": "before 9am on monday",
+      "automerge": true,
+      "labels": ["tier2", "dependencies"]
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": [
+        "coleam00/Archon",
+        "All-Hands-AI/OpenHands",
+        "block/goose",
+        "vercel/next.js",
+        "facebook/react",
+        "lobehub/lobe-chat",
+        "infiniflow/ragflow",
+        "bloomberg/memray",
+        "react-financial/react-financial-charts",
+        "plotly/dash",
+        "google/blockly"
+      ],
+      "schedule": "before 9am on the first day of the month",
+      "automerge": true,
+      "labels": ["tier3", "dependencies"]
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": [
+        "kubernetes/kubernetes",
+        "docker-library/docker",
+        "istio/istio",
+        "nginx/nginx",
+        "helm/helm",
+        "pgvector/pgvector",
+        "ClickHouse/ClickHouse",
+        "duckdb/duckdb",
+        "qdrant/qdrant",
+        "apache/iceberg",
+        "redis/redis",
+        "influxdata/influxdb",
+        "minio/minio",
+        "quickfix-j/quickfixj",
+        "fix8/fix8",
+        "prometheus/prometheus",
+        "grafana/grafana",
+        "grafana/tempo",
+        "elastic/elasticsearch",
+        "grafana/loki",
+        "jaegertracing/jaeger",
+        "prometheus/alertmanager",
+        "deviantony/docker-elk",
+        "Unleash/unleash",
+        "PyCQA/bandit"
+      ],
+      "schedule": "before 9am on the first day of the month",
+      "automerge": true,
+      "labels": ["tier4", "dependencies"]
+    }
+  ]
+}
