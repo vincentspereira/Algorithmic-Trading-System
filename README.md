@@ -1,6 +1,24 @@
 # Algorithmic Trading System
 
-An enterprise-grade algorithmic trading system built using a microservices architecture with Docker containerization. This comprehensive platform integrates advanced trading capabilities, real-time data processing, AI-powered analytics, and enterprise security features.
+A comprehensive, enterprise-grade algorithmic trading system built from the ground up using a "Best-of-Breed" integration strategy. This platform selects the best open-source projects for each major component to create a powerful, modular foundation that caters to both non-technical users (via no-code options) and professional traders/analysts (via enterprise-grade features), leveraging AI Agents and Agentic AI extensively.
+
+## 🎯 System Philosophy
+
+The architecture is designed as distinct microservices communicating through an Apache Kafka event bus. This event-driven approach decouples services, provides data replayability for robust testing, and scales to handle high-frequency data streams for professional traders. The system's standout feature is a sophisticated **Agentic AI Assistant**, which acts as the platform's "brain," enabling users to manage trading, research, and analysis via natural language commands.
+
+### Core Trading Engine
+- **NautilusTrader**: High-performance Python/Rust-based platform for event-driven backtesting and live trading across all asset classes
+- **Multi-Asset Support**: Stocks, ETFs, futures, options, forex, commodities, and cryptocurrencies
+- **Seamless Trading Modes**: Paper and live trading integration with Interactive Brokers (primary broker)
+
+### Best-of-Breed Integrations
+- **AI Framework**: TradingAgent (multi-agent decisions), OpenBB (financial data), LangChain/LangGraph (workflows)
+- **Technical Analysis**: TA-Lib/ta-lib-python (primary) & Bukosabino/ta (secondary) with custom volume-weighted indicators
+- **Forecasting**: Stock-Prediction-Models, LSTM-Neural-Network, Real-time-stock-market-prediction
+- **Backtesting**: VectorBT (GPU-accelerated), TradingGym (simulated environments)
+- **Portfolio Optimization**: PyPortfolioOpt, Riskfolio-Lib
+- **Visualization**: react-financial-charts, Plotly Dash
+- **AI/ML**: SHAP (explainable AI), FinRL (reinforcement learning), Transformers, PyTorch, QuantLib
 
 ## 🚀 System Status: 95% Complete - Production Ready
 
@@ -77,6 +95,22 @@ The system has achieved **95% completion** across all 5 development phases with 
 - **🔍 Distributed Tracing**: End-to-end request tracking
 
 ## 🚀 Key Features
+
+### Multi-Source Data Feeds with Fallback
+- **Primary Broker**: Interactive Brokers (IBKR) for paper and live trading
+- **Automated Fallback**: Yahoo Finance → Alpha Vantage → Finnhub → Twelve Data → Additional sources
+- **Asset-Class Specific**: Optimized data provider chains per instrument type
+- **Uninterrupted Availability**: Automatic source switching on failure
+- **Free Paper Trading**: Zero-cost data sources during testing phase
+
+### Custom Volume-Weighted Technical Indicators
+- **40+ Custom Indicators**: Built with TA-Lib and NumPy for enhanced accuracy
+- **Volume-Weighted Averages**: VW SMA/EMA (5/13/21/34/55 day) for entry/exit signals
+- **Advanced Momentum**: VW MACD, VW MFI with histogram analysis
+- **Risk Management**: 21/8 Day VW ATR, Normalized ATR for position sizing
+- **Market Strength**: Turtle Trading methodology for cross-market ranking
+- **Regime Detection**: Choppy Market Index for trend vs. range identification
+- **Statistical Measures**: Beta, auto-correlation, volatility calculations
 
 ### Trading & Analytics
 - **📈 Multi-Asset Support**: Stocks, ETFs, Options, Futures, Forex, Crypto

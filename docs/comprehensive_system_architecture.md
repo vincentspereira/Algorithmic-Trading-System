@@ -85,23 +85,78 @@
 
 ## System Overview
 
-Nautilus Trader is a comprehensive, enterprise-grade algorithmic trading platform designed from the ground up to support high-frequency trading (HFT), portfolio management, risk analysis, market scanning, and AI-driven decision-making across multiple asset classes, including stocks, ETFs, futures, options, forex, commodities, and cryptocurrencies. The platform's core philosophy is a "Best-of-Breed" integration strategy, meticulously selecting the best open-source projects for each major component to create a powerful, modular foundation. This approach ensures optimal performance, scalability, and extensibility while minimizing vendor lock-in.
+## System Overview
 
-The system caters to a diverse user base: non-technical retail investors benefit from simplicity, no-code/low-code options (e.g., Blockly for strategy building), and natural language interfaces via the Agentic AI Assistant; professional traders, quantitative analysts, and institutional users access enterprise-grade features like microsecond-level latency, FIX protocol connectivity, multi-region high availability (HA), immutable audit trails, and advanced analytics. The Agentic AI Assistant acts as the platform's "brain," enabling users to manage trading, research, analysis, and operations through natural language commands, multi-agent collaboration, and proactive insights.
+This project aims to build a comprehensive, enterprise-grade algorithmic trading system from the ground up. The platform's core philosophy is a "Best-of-Breed" integration strategy, selecting the best open-source projects for each major component to create a powerful, modular foundation. The system caters to both non-technical users (via simplicity and no-code options) and professional traders/analysts (via enterprise-grade features), leveraging AI Agents and Agentic AI extensively.
 
-At its core, the trading engine is NautilusTrader, a high-performance Python-based platform with Rust components for event-driven backtesting, live trading, and strategy execution. It supports seamless transitions between paper and live trading modes, integrated with brokers starting with Interactive Brokers (IBKR) and expanding to Alpaca, OANDA, Coinbase, and others via a broker abstraction layer. The architecture is built as a set of distinct microservices communicating through an Apache Kafka event bus, promoting decoupling, asynchronous processing, data replayability for robust testing and auditing, and horizontal scalability to handle high-frequency data streams (>1M messages/second).
+The architecture is designed as a set of distinct microservices that communicate through an Apache Kafka event bus. This event-driven approach decouples services, provides data replayability for robust testing, and scales to handle high-frequency data streams for professional traders. The system's standout feature is a sophisticated Agentic AI Assistant, which acts as the platform's "brain," enabling users to manage trading, research, and analysis via natural language commands.
 
-Key integrations include:
-- **Forecasting and Predictions**: Stock-Prediction-Models, LSTM-Neural-Network-for-Time-Series-Prediction, and Real-time-stock-market-prediction for real-time and historical predictions.
-- **Backtesting and Strategy Development**: VectorBT for GPU-accelerated backtesting, TradingGym for simulated environments.
-- **Portfolio and Risk Management**: PyPortfolioOpt and Riskfolio-Lib for optimization, PyOD for anomaly detection.
-- **Technical Analysis**: TA-Lib/ta-lib-python (primary) and Bukosabino/ta (secondary) wrappers for indicators, extended with custom volume-weighted metrics.
-- **Visualization**: react-financial-charts and Plotly Dash for interactive charts and dashboards.
-- **AI/ML Enhancements**: SHAP for explainable AI, FinRL for reinforcement learning (RL), Transformers and PyTorch for advanced NLP, QuantLib for options analytics.
-- **No-Code Tools**: Blockly for visual strategy building with a "no-code to clean code" pipeline.
-- **Agentic AI**: TradingAgent for multi-agent decision-making, LangChain/LangGraph for workflows, OpenBB for financial data integration.
+The core trading engine is NautilusTrader, a high-performance, Python-based platform with Rust components, designed for event-driven backtesting and live trading across all asset classes. The Agentic AI Assistant leverages TradingAgent for multi-agent decision-making, OpenBB for financial data integration, and TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) for technical analysis, forming a robust AI-driven trading brain.
 
-The system supports multi-asset classes with asset-specific data feeds, fallback mechanisms for uninterrupted availability, and custom features like volume-weighted indicators (e.g., VW SMA, VW EMA, VW MACD, VW MFI), market normalization (e.g., Normalized ATR, Choppy Market Index), and "Buy/Sell Easier Day" metrics. It incorporates real-time risk dashboards, "Glass Box" UI for transparent event visualization, market microstructure analysis (order book analytics, liquidity detection, market impact estimation), iterative strategy refinement via AI feedback loops, voice trading, augmented reality (AR) interfaces, a Customer Service Bot, and scoping for a Strategy Marketplace with copy trading.
+The system incorporates advanced forecasting from Stock-Prediction-Models and LSTM-Neural-Network-for-Time-Series-Prediction, with real-time predictions enabled by Real-time-stock-market-prediction for live trading. VectorBT provides GPU-accelerated backtesting, while TradingGym complement NautilusTrader for flexible strategy development and simulated environments. Additional features include portfolio optimisation (PyPortfolioOpt, Riskfolio-Lib), anomaly detection (PyOD), no-code strategy building (Blockly), visualisation (react-financial-charts, Plotly Dash), explainable AI (SHAP), reinforcement learning (FinRL), and advanced NLP (Transformers, PyTorch), alongside options analytics (QuantLib).
+
+### Supported Trading Instruments
+The system supports a wide range of asset classes to cater to diverse trading needs:
+- **Stocks & ETFs**: Global equities and exchange-traded funds
+- **Stock Futures & Index Futures**: E-mini S&P 500, Nasdaq-100, global index futures
+- **Stock Options & Index Options**: Calls, puts on equities and indices
+- **Forex, Forex Futures, & Forex Options**: EUR/USD, G10 currencies, emerging markets
+- **Commodities, Commodity Futures, & Commodity Options**: Crude oil, gold, corn, agricultural products
+- **Cryptocurrency, Cryptocurrency Futures, & Cryptocurrency Options**: Bitcoin, Ethereum, altcoins
+
+### Multi-Source Data Feeds with Fallback
+Implements a multi-source data feed strategy to ensure uninterrupted data availability. The system uses a primary source with a cascade of fallback providers for each asset class, managed automatically:
+
+**Data Feed Hierarchy**:
+1. **Primary**: Interactive Brokers (IBKR) - Paper and Live Trading Data
+2. **Fallback 1**: Yahoo Finance (Free)
+3. **Fallback 2**: Alpha Vantage (Additional broker + backup data)
+4. **Fallback 3**: Finnhub (Optional backup)
+5. **Fallback 4**: Twelve Data (Optional backup)
+6. **Fallback 5**: Investing.com, CME Group, Polygon, Barchart, SpiderRock, TradingCharts, Oanda
+
+**Asset-Class Specific Fallback Chains**: The fallback mechanism is configured per asset class (e.g., Stocks, Forex, Crypto) to use the most relevant data providers, ensuring optimal data quality and availability for each instrument type.
+
+### Custom Technical Analysis Framework
+The system includes a comprehensive suite of custom-developed, volume-weighted technical indicators (e.g., VW SMA, VW EMA, VW MACD, VW MFI) and market analysis metrics (e.g., Normalised ATR, Choppy Market Index, Buy/Sell Easier Day) built with TA-Lib and NumPy. These are fully integrated into the NautilusTrader engine for use in strategy development and analysis.
+
+**Custom Volume-Weighted Indicators Include**:
+- 55/34/13/5 Day Volume-Weighted SMAs and EMAs for entry/exit signals
+- VW MACD and MACD Histogram for momentum analysis
+- Volume-Weighted Money Flow Index (MFI) for money flow analysis
+- Market normalization with 21/8 Day VW ATR for position sizing
+- Turtle Trading strength/weakness indicators for market ranking
+- Choppy Market Index for trend vs. range-bound market identification
+- Beta calculations, auto-correlation, and volatility measurements
+
+### Enterprise Security and Risk Management
+Platform is built with:
+- **Zero-Trust Architecture**: Every request requires authentication and authorization
+- **Real-time Risk Hub**: Pre-trade checks and account-level circuit breakers
+- **Role-based Access Control (RBAC)**: Granular permission management
+- **Immutable Audit Trails**: Apache Iceberg for compliance logging
+- **Feature Flags**: Unleash for dynamic toggling of strategies and kill-switches
+- **Static Application Security Testing (SAST)**: Bandit for Python vulnerability scanning
+- **User and Entity Behaviour Analytics (UEBA)**: Threat detection and monitoring
+- **Threat Modelling by Design**: STRIDE methodology for security assessment
+- **Formalised Backup Strategy**: Comprehensive data protection and recovery
+
+### AI-Powered Strategy Development
+Users can develop strategies through multiple interfaces:
+- **No-Code Strategy Builder**: Visual drag-and-drop interface via Blockly
+- **AI-Assisted Development & Debugging Agent**: Assists with Python code for strategies
+- **Agentic AI Assistant**: Natural language commands for trading, research, and development
+- **Python Studio**: Traditional Python-based coding environment
+- **LLM-Driven Iterative Strategy Refinement**: AI agents in continuous feedback loops for strategy optimization
+
+### Agentic AI Assistant Architecture
+- **Core Interface**: Chatbot-based user interaction model
+- **RAG Pipeline**: Agentic Retrieval-Augmented Generation for document processing
+- **Multi-Agent Network**: Specialized agents (Analyst, Researcher, Risk Manager, Compliance)
+- **Kafka Communication**: All inter-agent communication via Apache Kafka event bus
+- **AI Context Management**: Model Context Protocols (MCPs) with LangChain and LangGraph
+- **Defined Workflows**: Stateful workflows for complex, multi-step task execution
+- **Natural Language Trading**: Users can run backtests, check portfolio status, or place live trades via conversation
 
 ### Key Characteristics
 - **High Performance**: Microsecond-level latency for trading operations, achieved through Rust optimizations, lock-free data structures, cache-line alignment, FPGAs/SmartNICs, and Direct Market Access (DMA) with server co-location.
