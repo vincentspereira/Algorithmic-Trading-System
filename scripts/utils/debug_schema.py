@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Debug schema attributes"""
+"""
+This script is used to debug the GraphQL schema.
+
+It creates a GraphQL API, prints the schema type and attributes,
+and executes a simple query to test the schema.
+"""
 
 from nautilus_trader_engine.api.graphql_api import create_graphql_api
 

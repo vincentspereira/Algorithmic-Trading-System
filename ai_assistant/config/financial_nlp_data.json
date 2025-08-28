@@ -1,0 +1,21 @@
+{
+    "financial_terms": [
+        "earnings", "revenue", "profit", "loss", "dividend", "stock", "share",
+        "market", "trading", "investment", "portfolio", "risk", "return",
+        "volatility", "bull", "bear", "growth", "value", "momentum",
+        "pe_ratio", "eps", "ebitda", "roe", "roa", "debt_to_equity"
+    ],
+    "entity_types": [
+        "COMPANY", "TICKER", "PERSON", "MONEY", "PERCENT", "DATE", "FINANCIAL_TERM"
+    ],
+    "sentiment_labels": [
+        "bullish", "bearish", "neutral", "positive", "negative", "uncertain"
+    ],
+    "risk_levels": [
+        "low", "medium", "high", "critical"
+    ],
+    "document_categories": [
+        "earnings_report", "news_article", "analyst_report", "sec_filing",
+        "press_release", "research_note", "market_commentary", "economic_data"
+    ]
+}

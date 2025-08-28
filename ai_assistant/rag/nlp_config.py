@@ -124,7 +124,9 @@ class NLPConfig:
         logger.info(f"NLP Configuration initialized for {environment} environment")
     
     def _load_configuration(self) -> Dict[str, Any]:
-        """Load configuration from file or create default"""
+        """
+        Load configuration from file or create default
+        """
         # Start with default configuration
         config = self._get_default_config()
         
@@ -138,6 +140,19 @@ class NLPConfig:
             except Exception as e:
                 logger.warning(f"Failed to load config from {self.config_path}: {e}")
         
+        # Load financial domain data from external JSON
+        financial_data_path = Path(__file__).parent / "config" / "financial_nlp_data.json"
+        if financial_data_path.exists():
+            try:
+                with open(financial_data_path, 'r') as f:
+                    financial_data = json.load(f)
+                    config["financial_domain"] = financial_data
+                logger.info(f"Financial domain data loaded from {financial_data_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load financial domain data from {financial_data_path}: {e}")
+        else:
+            logger.warning(f"Financial domain data file not found: {financial_data_path}")
+
         # Apply environment-specific overrides
         config = self._apply_environment_overrides(config)
         
@@ -278,27 +293,7 @@ class NLPConfig:
                     "feature_ranges": {}
                 }
             },
-            "financial_domain": {
-                "financial_terms": [
-                    "earnings", "revenue", "profit", "loss", "dividend", "stock", "share",
-                    "market", "trading", "investment", "portfolio", "risk", "return",
-                    "volatility", "bull", "bear", "growth", "value", "momentum",
-                    "pe_ratio", "eps", "ebitda", "roe", "roa", "debt_to_equity"
-                ],
-                "entity_types": [
-                    "COMPANY", "TICKER", "PERSON", "MONEY", "PERCENT", "DATE", "FINANCIAL_TERM"
-                ],
-                "sentiment_labels": [
-                    "bullish", "bearish", "neutral", "positive", "negative", "uncertain"
-                ],
-                "risk_levels": [
-                    "low", "medium", "high", "critical"
-                ],
-                "document_categories": [
-                    "earnings_report", "news_article", "analyst_report", "sec_filing",
-                    "press_release", "research_note", "market_commentary", "economic_data"
-                ]
-            },
+            "financial_domain": {},
             "integration": {
                 "rag_pipeline": {
                     "enabled": True,

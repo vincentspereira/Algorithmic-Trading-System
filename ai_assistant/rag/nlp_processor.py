@@ -209,6 +209,19 @@ class NLPProcessor:
             except Exception as e:
                 logger.warning(f"Failed to load config from {config_path}: {e}")
         
+        # Load financial domain data from external JSON
+        financial_data_path = Path(__file__).parent.parent / "config" / "financial_nlp_data.json"
+        if financial_data_path.exists():
+            try:
+                with open(financial_data_path, 'r') as f:
+                    financial_data = json.load(f)
+                    default_config["financial_terms"] = financial_data.get("financial_terms", [])
+                    # Add other financial domain data as needed
+            except Exception as e:
+                logger.warning(f"Failed to load financial terms from {financial_data_path}: {e}")
+        else:
+            logger.warning(f"Financial domain data file not found: {financial_data_path}")
+
         return default_config
     
     def _initialize_models(self):
@@ -829,7 +842,7 @@ class NLPProcessor:
         indicators = {
             "mentions_earnings": bool(re.search(r'\bearnings?\b', text, re.IGNORECASE)),
             "mentions_revenue": bool(re.search(r'\brevenue\b', text, re.IGNORECASE)),
-            "mentions_profit": bool(re.search(r'\bprofit\b', text, re.IGNORECASE)),
+            "mentions_profit": bool(re.search(r'\bloss\b', text, re.IGNORECASE)),
             "mentions_loss": bool(re.search(r'\bloss\b', text, re.IGNORECASE)),
             "mentions_growth": bool(re.search(r'\bgrowth\b', text, re.IGNORECASE)),
             "mentions_decline": bool(re.search(r'\bdecline\b', text, re.IGNORECASE)),
@@ -956,7 +969,7 @@ class NLPProcessor:
         key_points = []
         
         # Look for bullet points or numbered lists
-        bullet_pattern = r'[•\-\*]\s*(.+)'
+        bullet_pattern = r'[•\-\*\]\s*(.+)'
         number_pattern = r'\d+\.\s*(.+)'
         
         for pattern in [bullet_pattern, number_pattern]:
@@ -1017,42 +1030,48 @@ class NLPProcessor:
         """
         results = []
         
-        try:
-            if operation == "sentiment":
-                for text in texts:
+        for text in texts:
+            try:
+                if operation == "sentiment":
                     result = self.analyze_sentiment(text, **kwargs)
+                    results.append({
+                        "text": text,
+                        "sentiment": result.sentiment.value,
+                        "confidence": result.confidence,
+                        "processing_time": result.processing_time
+                    })
+                
+                elif operation == "classification":
+                    result = self.classify_document(text, **kwargs)
+                    results.append({
+                        "text": text,
+                        "category": result.category.value,
+                        "confidence": result.confidence,
+                        "processing_time": result.processing_time
+                    })
+                
+                elif operation == "risk":
+                    result = self.assess_risk(text)
+                    results.append({
+                        "text": text,
+                        "risk_level": result.risk_level.value,
+                        "confidence": result.confidence,
+                        "processing_time": result.processing_time
+                    })
+                
+                elif operation == "comprehensive":
+                    result = self.comprehensive_analysis(text, **kwargs)
                     results.append(result)
-            
-            elif operation == "entities":
-                for text in texts:
-                    result = self.extract_entities(text, **kwargs)
-                    results.append(result)
-            
-            elif operation == "summarize":
-                for text in texts:
-                    result = self.summarize_text(text, **kwargs)
-                    results.append(result)
-            
-            elif operation == "qa":
-                question = kwargs.get("question", "")
-                for text in texts:
-                    result = self.answer_question(question, text, **kwargs)
-                    results.append(result)
-            
-            else:
-                raise ValueError(f"Unsupported operation: {operation}")
-        
-        except Exception as e:
-            logger.error(f"Error in batch processing: {e}")
-            # Return error results for all texts
-            for text in texts:
-                results.append(NLPResult(
-                    text=text,
-                    model_used="error",
-                    confidence=0.0,
-                    processing_time=0.0,
-                    metadata={"error": str(e)}
-                ))
+                
+                else:
+                    raise ValueError(f"Unsupported operation: {operation}")
+                    
+            except Exception as e:
+                logger.error(f"Error analyzing text: {e}")
+                results.append({
+                    "text": text,
+                    "error": str(e)
+                })
         
         return results
     

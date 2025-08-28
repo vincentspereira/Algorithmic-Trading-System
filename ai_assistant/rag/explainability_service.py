@@ -53,6 +53,7 @@ logger = logging.getLogger(__name__)
 # Suppress SHAP warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='shap')
 
+from .utils.explanation_utils import create_forecasting_summary, generate_forecasting_recommendations
 
 class ExplanationType(Enum):
     """Types of explanations supported"""
@@ -551,7 +552,18 @@ class ExplainabilityService:
         input_data: np.ndarray,
         original_prediction: float
     ) -> CounterfactualResult:
-        """Generate counterfactual explanation"""
+        """
+        Generate counterfactual explanation
+        
+        Args:
+            model_name: Name of registered model
+            model_info: Model information
+            input_data: Input data
+            original_prediction: Original prediction
+            
+        Returns:
+            CounterfactualResult object
+        """
         
         feature_names = model_info["feature_names"]
         predict_function = model_info["predict_function"]
@@ -669,8 +681,8 @@ class ExplainabilityService:
                 "model_name": model_name,
                 "prediction": prediction_result,
                 "explanations": {},
-                "summary": self._create_forecasting_summary(explanations, prediction_result),
-                "recommendations": self._generate_forecasting_recommendations(explanations)
+                "summary": create_forecasting_summary(explanations, prediction_result),
+                "recommendations": generate_forecasting_recommendations(explanations)
             }
             
             # Convert explanations to serializable format
@@ -708,71 +720,6 @@ class ExplainabilityService:
                 "summary": "Error occurred during explanation generation"
             }
     
-    def _create_forecasting_summary(
-        self,
-        explanations: Dict[ExplanationType, ExplanationResult],
-        prediction_result: Dict[str, Any]
-    ) -> str:
-        """Create a human-readable summary of forecasting explanations"""
-        
-        summary_parts = []
-        
-        # Add prediction summary
-        if "predictions" in prediction_result:
-            pred_value = prediction_result["predictions"]
-            if isinstance(pred_value, (list, np.ndarray)):
-                pred_value = pred_value[0] if len(pred_value) > 0 else "N/A"
-            summary_parts.append(f"Predicted value: {pred_value:.3f}")
-        
-        # Add feature importance summary
-        if ExplanationType.FEATURE_IMPORTANCE in explanations:
-            importance_result = explanations[ExplanationType.FEATURE_IMPORTANCE]
-            top_feature = importance_result.top_features[0] if importance_result.top_features else None
-            if top_feature:
-                summary_parts.append(f"Most important factor: {top_feature[0]} (impact: {top_feature[1]:.3f})")
-        
-        # Add decision path summary
-        if ExplanationType.DECISION_PATH in explanations:
-            decision_result = explanations[ExplanationType.DECISION_PATH]
-            if decision_result.decision_rules:
-                summary_parts.append(f"Key decision: {decision_result.decision_rules[0]}")
-        
-        return ". ".join(summary_parts) if summary_parts else "No explanation summary available"
-    
-    def _generate_forecasting_recommendations(
-        self,
-        explanations: Dict[ExplanationType, ExplanationResult]
-    ) -> List[str]:
-        """Generate actionable recommendations based on explanations"""
-        
-        recommendations = []
-        
-        # Feature importance recommendations
-        if ExplanationType.FEATURE_IMPORTANCE in explanations:
-            importance_result = explanations[ExplanationType.FEATURE_IMPORTANCE]
-            if importance_result.top_features:
-                top_feature = importance_result.top_features[0]
-                recommendations.append(
-                    f"Monitor {top_feature[0]} closely as it has the highest impact on predictions"
-                )
-        
-        # Counterfactual recommendations
-        if ExplanationType.COUNTERFACTUAL in explanations:
-            counterfactual_result = explanations[ExplanationType.COUNTERFACTUAL]
-            if counterfactual_result.change_impact:
-                most_sensitive = max(counterfactual_result.change_impact.items(), key=lambda x: x[1])
-                recommendations.append(
-                    f"Small changes in {most_sensitive[0]} could significantly affect predictions"
-                )
-        
-        # General recommendations
-        recommendations.extend([
-            "Consider multiple time horizons for robust forecasting",
-            "Validate predictions with domain expertise",
-            "Monitor model performance over time"
-        ])
-        
-        return recommendations[:5]  # Limit to 5 recommendations
     
     def get_model_registry(self) -> Dict[str, Dict[str, Any]]:
         """Get information about registered models"""

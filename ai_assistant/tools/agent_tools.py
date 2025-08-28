@@ -615,8 +615,8 @@ def format_backtest_results(response_data: Dict[str, Any]) -> str:
 
 # RAG Pipeline Integration
 try:
-    from .rag_pipeline import RAGPipeline
-    from .rag_config import get_config
+    from ai_assistant.rag.rag_pipeline import RAGPipeline
+    from ai_assistant.rag.rag_config import get_config
     
     # Initialize RAG pipeline (will be lazy-loaded)
     _rag_pipeline = None
@@ -2086,11 +2086,11 @@ def predict_stock_price_tool(
 
 # NLP and Explainability Integration
 try:
-    from .nlp_processor import NLPProcessor, create_nlp_processor
-    from .financial_nlp_models import FinancialNLPModels, create_financial_nlp_models
-    from .explainability_service import ExplainabilityService, create_explainability_service
-    from .explanation_visualizer import ExplanationVisualizer, create_explanation_visualizer
-    from .nlp_config import get_config as get_nlp_config
+    from ai_assistant.rag.nlp_processor import NLPProcessor, create_nlp_processor
+    from ai_assistant.rag.financial_nlp_models import FinancialNLPModels, create_financial_nlp_models
+    from ai_assistant.rag.explainability_service import ExplainabilityService, create_explainability_service
+    from ai_assistant.rag.explanation_visualizer import ExplanationVisualizer, create_explanation_visualizer
+    from ai_assistant.rag.nlp_config import get_config as get_nlp_config
     
     NLP_AVAILABLE = True
     logger.info("NLP and explainability services available")

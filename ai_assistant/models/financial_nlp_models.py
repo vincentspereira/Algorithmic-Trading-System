@@ -164,7 +164,18 @@ class FinancialTokenizer:
     
     def _load_financial_vocabulary(self) -> Set[str]:
         """Load financial domain vocabulary"""
-        financial_terms = {
+        # Load from external JSON file
+        financial_data_path = Path(__file__).parent.parent / "config" / "financial_nlp_data.json"
+        if financial_data_path.exists():
+            try:
+                with open(financial_data_path, 'r') as f:
+                    financial_data = json.load(f)
+                    return set(financial_data.get("financial_terms", []))
+            except Exception as e:
+                logger.warning(f"Failed to load financial terms from {financial_data_path}: {e}")
+        
+        # Fallback to hardcoded if file not found or error
+        return {
             # Market terms
             "bullish", "bearish", "volatility", "liquidity", "momentum",
             "resistance", "support", "breakout", "pullback", "correction",
@@ -197,8 +208,6 @@ class FinancialTokenizer:
             "sec", "finra", "basel", "dodd_frank", "mifid", "gdpr",
             "compliance", "audit", "disclosure", "fiduciary"
         }
-        
-        return financial_terms
     
     def _get_financial_special_tokens(self) -> List[str]:
         """Get special tokens for financial domain"""
@@ -333,7 +342,7 @@ class FinBERTModel:
                 sentiment_scores = {result['label'].lower(): result['score'] for result in results}
                 
                 # Get the highest scoring sentiment
-                best_result = max(results, key=lambda x: x['score'])
+                best_result = max(results, key=lambda x: x['score'])}
                 sentiment_label = best_result['label'].lower()
                 confidence = best_result['score']
             else:
@@ -456,6 +465,24 @@ class FinancialDocumentClassifier:
     
     def _load_category_keywords(self) -> Dict[FinancialCategory, List[str]]:
         """Load keywords for each document category"""
+        # Load from external JSON file
+        financial_data_path = Path(__file__).parent.parent / "config" / "financial_nlp_data.json"
+        if financial_data_path.exists():
+            try:
+                with open(financial_data_path, 'r') as f:
+                    financial_data = json.load(f)
+                    # Convert list of strings to dictionary with Enum keys
+                    category_keywords = {}
+                    for category_str, keywords in financial_data.get("document_categories", {}).items():
+                        try:
+                            category_keywords[FinancialCategory[category_str.upper()]] = keywords
+                        except KeyError:
+                            logger.warning(f"Unknown FinancialCategory: {category_str}")
+                    return category_keywords
+            except Exception as e:
+                logger.warning(f"Failed to load document categories from {financial_data_path}: {e}")
+        
+        # Fallback to hardcoded if file not found or error
         return {
             FinancialCategory.EARNINGS_REPORT: [
                 "earnings", "quarterly", "revenue", "eps", "guidance", "conference call",
@@ -605,6 +632,24 @@ class FinancialRiskAssessor:
     
     def _load_risk_keywords(self) -> Dict[RiskLevel, List[str]]:
         """Load risk keywords by level"""
+        # Load from external JSON file
+        financial_data_path = Path(__file__).parent.parent / "config" / "financial_nlp_data.json"
+        if financial_data_path.exists():
+            try:
+                with open(financial_data_path, 'r') as f:
+                    financial_data = json.load(f)
+                    # Convert list of strings to dictionary with Enum keys
+                    risk_keywords = {}
+                    for risk_str, keywords in financial_data.get("risk_levels", {}).items():
+                        try:
+                            risk_keywords[RiskLevel[risk_str.upper()]] = keywords
+                        except KeyError:
+                            logger.warning(f"Unknown RiskLevel: {risk_str}")
+                    return risk_keywords
+            except Exception as e:
+                logger.warning(f"Failed to load risk levels from {financial_data_path}: {e}")
+        
+        # Fallback to hardcoded if file not found or error
         return {
             RiskLevel.LOW: [
                 "stable", "consistent", "reliable", "predictable", "steady",
