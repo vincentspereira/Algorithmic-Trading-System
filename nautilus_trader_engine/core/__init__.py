@@ -70,3 +70,6 @@ __all__ = [
     'get_infrastructure', 'initialize_infrastructure',
     'start_infrastructure', 'stop_infrastructure'
 ]
+
+# Core trading engine modules
+# Trading modules will be loaded on demand

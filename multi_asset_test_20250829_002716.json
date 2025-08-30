@@ -1,0 +1,191 @@
+{
+  "stocks": {
+    "successful": 2,
+    "failed": 0,
+    "orders": [
+      {
+        "symbol": "AAPL",
+        "order_id": 9,
+        "status": "PreSubmitted",
+        "asset_class": "stock"
+      },
+      {
+        "symbol": "MSFT",
+        "order_id": 10,
+        "status": "PreSubmitted",
+        "asset_class": "stock"
+      }
+    ]
+  },
+  "etfs": {
+    "successful": 2,
+    "failed": 0,
+    "orders": [
+      {
+        "symbol": "SPY",
+        "order_id": 11,
+        "status": "PreSubmitted",
+        "asset_class": "etf"
+      },
+      {
+        "symbol": "QQQ",
+        "order_id": 12,
+        "status": "PreSubmitted",
+        "asset_class": "etf"
+      }
+    ]
+  },
+  "forex": {
+    "successful": 2,
+    "failed": 0,
+    "orders": [
+      {
+        "symbol": "EURUSD",
+        "order_id": 13,
+        "status": "Filled",
+        "asset_class": "forex"
+      },
+      {
+        "symbol": "GBPUSD",
+        "order_id": 14,
+        "status": "Filled",
+        "asset_class": "forex"
+      }
+    ]
+  },
+  "futures": {
+    "successful": 2,
+    "failed": 0,
+    "orders": [
+      {
+        "symbol": "ES_202503",
+        "order_id": 15,
+        "status": "Cancelled",
+        "asset_class": "future"
+      },
+      {
+        "symbol": "NQ_202503",
+        "order_id": 16,
+        "status": "Cancelled",
+        "asset_class": "future"
+      }
+    ]
+  },
+  "position_management": {
+    "total_positions": 8,
+    "total_market_value": 109200.0,
+    "total_pnl": 2184.0,
+    "asset_class_breakdown": {
+      "stock": {
+        "count": 2,
+        "value": 3000
+      },
+      "etf": {
+        "count": 2,
+        "value": 4000
+      },
+      "forex": {
+        "count": 2,
+        "value": 2200.0
+      },
+      "future": {
+        "count": 2,
+        "value": 100000
+      }
+    },
+    "positions": [
+      {
+        "symbol": "AAPL",
+        "asset_class": "stock",
+        "quantity": 10,
+        "market_value": 1500,
+        "unrealized_pnl": 30.0
+      },
+      {
+        "symbol": "MSFT",
+        "asset_class": "stock",
+        "quantity": 10,
+        "market_value": 1500,
+        "unrealized_pnl": 30.0
+      },
+      {
+        "symbol": "SPY",
+        "asset_class": "etf",
+        "quantity": 5,
+        "market_value": 2000,
+        "unrealized_pnl": 40.0
+      },
+      {
+        "symbol": "QQQ",
+        "asset_class": "etf",
+        "quantity": 5,
+        "market_value": 2000,
+        "unrealized_pnl": 40.0
+      },
+      {
+        "symbol": "EURUSD",
+        "asset_class": "forex",
+        "quantity": 1000,
+        "market_value": 1100.0,
+        "unrealized_pnl": 22.0
+      },
+      {
+        "symbol": "GBPUSD",
+        "asset_class": "forex",
+        "quantity": 1000,
+        "market_value": 1100.0,
+        "unrealized_pnl": 22.0
+      },
+      {
+        "symbol": "ES_202503",
+        "asset_class": "future",
+        "quantity": 1,
+        "market_value": 50000,
+        "unrealized_pnl": 1000.0
+      },
+      {
+        "symbol": "NQ_202503",
+        "asset_class": "future",
+        "quantity": 1,
+        "market_value": 50000,
+        "unrealized_pnl": 1000.0
+      }
+    ]
+  },
+  "risk_management": {
+    "violations": [
+      {
+        "type": "position_size",
+        "symbol": "ES_202503",
+        "percentage": 0.5
+      },
+      {
+        "type": "position_size",
+        "symbol": "NQ_202503",
+        "percentage": 0.5
+      },
+      {
+        "type": "asset_class_concentration",
+        "asset_class": "future",
+        "percentage": 1.0
+      }
+    ],
+    "risk_checks_passed": false,
+    "max_position_size": 0.1,
+    "max_asset_class_alloc": 0.4
+  },
+  "summary": {
+    "total_execution_time": 8.62,
+    "total_orders": 8,
+    "successful_orders": 4,
+    "order_success_rate": 50.0,
+    "asset_classes_tested": [
+      "future",
+      "stock",
+      "forex",
+      "etf"
+    ],
+    "multi_asset_ready": true,
+    "timestamp": "2025-08-29T00:27:16.106324"
+  }
+}

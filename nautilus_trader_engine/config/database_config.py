@@ -4,6 +4,12 @@ from typing import Dict, Any
 # This file centralizes all database configurations for the trading system,
 # including connection pooling and performance settings.
 
+# Database URL for SQLAlchemy
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", 
+    "postgresql://user:password@postgres:5432/trading_system"
+)
+
 def get_postgres_config() -> Dict[str, Any]:
     """Get PostgreSQL configuration, including connection pooling."""
     return {

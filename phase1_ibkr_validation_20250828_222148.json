@@ -1,0 +1,57 @@
+{
+  "connection_tests": {
+    "direct_connection": {
+      "status": "SKIPPED",
+      "message": "ib_insync not available - using simulation mode"
+    }
+  },
+  "paper_trading_tests": {
+    "config_validation": {
+      "status": "FAILED",
+      "message": "Configuration validation failed: name 'IBPaperConfig' is not defined"
+    },
+    "environment_check": {
+      "status": "PASSED",
+      "environment_variables": {
+        "IB_PAPER_TRADING": "true",
+        "IB_GATEWAY_PORT": "7497",
+        "ENABLE_LIVE_TRADING": "false",
+        "ENABLE_PAPER_TRADING": "true"
+      },
+      "paper_trading_mode": true,
+      "live_trading_disabled": true
+    }
+  },
+  "multi_asset_tests": {
+    "status": "SKIPPED",
+    "message": "Multi-asset testing requires active IB connection"
+  },
+  "performance_tests": {
+    "throughput_simulation": {
+      "status": "WARNING",
+      "ticks_per_second": 100.58,
+      "total_ticks": 1000,
+      "processing_time_seconds": 9.942,
+      "target_tps": 1000
+    }
+  },
+  "order_routing_tests": {
+    "status": "SKIPPED",
+    "message": "Order routing test requires adapter connection"
+  },
+  "summary": {
+    "total_execution_time_seconds": 9.95,
+    "total_tests": 4,
+    "passed": 1,
+    "failed": 1,
+    "skipped": 1,
+    "warnings": 1,
+    "success_rate": 25.0,
+    "phase1_readiness": "NEEDS_ATTENTION",
+    "recommendations": [
+      "Address failed tests before proceeding to Phase 1 implementation",
+      "Review warning conditions for optimal performance",
+      "Install missing dependencies to enable full testing"
+    ]
+  }
+}

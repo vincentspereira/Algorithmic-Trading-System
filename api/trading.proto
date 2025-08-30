@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package trading;
+
+// Trading service for high-performance order execution
+service TradingService {
+    // Order management
+    rpc SubmitOrder(OrderRequest) returns (OrderResponse);
+    rpc CancelOrder(CancelRequest) returns (CancelResponse);
+    rpc GetOrderStatus(OrderStatusRequest) returns (OrderStatusResponse);
+    
+    // Market data streaming
+    rpc StreamMarketData(MarketDataRequest) returns (stream MarketDataUpdate);
+    rpc StreamIndicators(IndicatorRequest) returns (stream IndicatorUpdate);
+    
+    // Portfolio operations
+    rpc GetPositions(PositionsRequest) returns (PositionsResponse);
+    rpc GetPortfolioSummary(PortfolioRequest) returns (PortfolioResponse);
+}
+
+// Messages
+message OrderRequest {
+    string symbol = 1;
+    string side = 2;  // BUY or SELL
+    double quantity = 3;
+    string order_type = 4;  // MARKET, LIMIT, STOP
+    optional double price = 5;
+    optional double stop_price = 6;
+    string time_in_force = 7;
+    string user_id = 8;
+}
+
+message OrderResponse {
+    bool success = 1;
+    string order_id = 2;
+    string message = 3;
+    int64 timestamp = 4;
+}
+
+message CancelRequest {
+    string order_id = 1;
+    string user_id = 2;
+}
+
+message CancelResponse {
+    bool success = 1;
+    string message = 2;
+    int64 timestamp = 3;
+}
+
+message MarketDataRequest {
+    repeated string symbols = 1;
+    string interval = 2;
+}
+
+message MarketDataUpdate {
+    string symbol = 1;
+    double price = 2;
+    double volume = 3;
+    int64 timestamp = 4;
+    double bid = 5;
+    double ask = 6;
+}
+
+message IndicatorRequest {
+    string symbol = 1;
+    repeated string indicator_types = 2;
+}
+
+message IndicatorUpdate {
+    string symbol = 1;
+    string indicator_name = 2;
+    string signal = 3;
+    double strength = 4;
+    double confidence = 5;
+    int64 timestamp = 6;
+}

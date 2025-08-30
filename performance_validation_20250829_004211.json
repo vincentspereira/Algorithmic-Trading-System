@@ -1,0 +1,120 @@
+{
+  "execution_latency": {
+    "status": "WARNING",
+    "measurements": {
+      "average_latency_us": 1403.62,
+      "min_latency_us": 790.2,
+      "max_latency_us": 2758.0,
+      "p95_latency_us": 3274.64,
+      "target_latency_us": 100,
+      "meets_target": false
+    }
+  },
+  "throughput_capacity": {
+    "status": "PASSED",
+    "measurements": {
+      "calculation_tps": 1396427.66,
+      "data_structure_tps": 1678621.25,
+      "concurrent_tps": 4180462.18,
+      "target_tps": 1000000,
+      "max_measured_tps": 4180462.18
+    }
+  },
+  "order_processing": {
+    "status": "PASSED",
+    "measurements": {
+      "orders_processed": 924,
+      "orders_per_second": 710479.57,
+      "avg_processing_time_us": 1.41,
+      "total_duration_ms": 1.41,
+      "target_processing_time_us": 100
+    }
+  },
+  "data_processing": {
+    "status": "PASSED",
+    "measurements": {
+      "data_points_processed": 50000,
+      "data_points_per_second": 594602.44,
+      "avg_processing_time_us": 1.68,
+      "total_duration_ms": 84.09,
+      "target_dps": 100000
+    }
+  },
+  "concurrent_operations": {
+    "status": "PASSED",
+    "measurements": {
+      "total_operations": 8000,
+      "num_workers": 8,
+      "total_ops_per_second": 252320.56,
+      "avg_worker_ops_per_second": 277346.27,
+      "min_worker_ops_per_second": 211685.01,
+      "max_worker_ops_per_second": 297991.53,
+      "total_duration_ms": 31.71,
+      "concurrency_efficiency": 11.37
+    },
+    "worker_results": [
+      {
+        "worker_id": 0,
+        "operations_completed": 1000,
+        "duration": 0.0038397000171244144,
+        "ops_per_second": 260437.01214682622
+      },
+      {
+        "worker_id": 1,
+        "operations_completed": 1000,
+        "duration": 0.0033996999263763428,
+        "ops_per_second": 294143.607275915
+      },
+      {
+        "worker_id": 2,
+        "operations_completed": 1000,
+        "duration": 0.0034087999956682324,
+        "ops_per_second": 293358.36695340305
+      },
+      {
+        "worker_id": 3,
+        "operations_completed": 1000,
+        "duration": 0.004723999998532236,
+        "ops_per_second": 211685.0127668721
+      },
+      {
+        "worker_id": 4,
+        "operations_completed": 1000,
+        "duration": 0.003439699998125434,
+        "ops_per_second": 290723.02832949953
+      },
+      {
+        "worker_id": 5,
+        "operations_completed": 1000,
+        "duration": 0.003474900033324957,
+        "ops_per_second": 287778.06279599655
+      },
+      {
+        "worker_id": 6,
+        "operations_completed": 1000,
+        "duration": 0.00353789993096143,
+        "ops_per_second": 282653.5570575758
+      },
+      {
+        "worker_id": 7,
+        "operations_completed": 1000,
+        "duration": 0.003355800057761371,
+        "ops_per_second": 297991.5319111987
+      }
+    ]
+  },
+  "summary": {
+    "total_execution_time": 1.89,
+    "total_tests": 5,
+    "passed": 4,
+    "warnings": 1,
+    "failed": 0,
+    "performance_assessment": {
+      "latency_target_met": false,
+      "throughput_acceptable": true,
+      "overall_performance": "GOOD"
+    },
+    "ready_for_production": false,
+    "timestamp": "2025-08-29T00:42:11.887169"
+  }
+}

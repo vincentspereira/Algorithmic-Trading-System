@@ -1,0 +1,144 @@
+{
+  "test_metadata": {
+    "timestamp": "2025-08-29T15:02:00.578008",
+    "total_tests": 18,
+    "passed_tests": 11,
+    "overall_success_rate": 61.111111111111114,
+    "overall_status": "PARTIAL"
+  },
+  "api_module_results": {
+    "rest_api": {
+      "status": "FAILED",
+      "tests": [
+        {
+          "name": "main_app_import",
+          "success": false,
+          "details": "3 validation errors for Settings\nSECRET_KEY\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_USER\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_PASSWORD\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type",
+          "timestamp": "2025-08-29T15:01:55.991622"
+        },
+        {
+          "name": "router_auth",
+          "success": false,
+          "details": "3 validation errors for Settings\nSECRET_KEY\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_USER\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_PASSWORD\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type",
+          "timestamp": "2025-08-29T15:01:57.345780"
+        },
+        {
+          "name": "router_trading",
+          "success": true,
+          "details": "Router trading imported",
+          "timestamp": "2025-08-29T15:01:59.058141"
+        },
+        {
+          "name": "router_backtest",
+          "success": false,
+          "details": "No module named 'nautilus_trader_engine.api.utils.auth'",
+          "timestamp": "2025-08-29T15:01:59.207878"
+        },
+        {
+          "name": "router_features",
+          "success": false,
+          "details": "No module named 'nautilus_trader_engine.api.utils.auth'",
+          "timestamp": "2025-08-29T15:01:59.325497"
+        },
+        {
+          "name": "router_optimization",
+          "success": false,
+          "details": "No module named 'nautilus_trader_engine.api.utils.auth'",
+          "timestamp": "2025-08-29T15:01:59.755882"
+        },
+        {
+          "name": "config_import",
+          "success": false,
+          "details": "3 validation errors for Settings\nSECRET_KEY\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_USER\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_PASSWORD\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type",
+          "timestamp": "2025-08-29T15:01:59.763898"
+        },
+        {
+          "name": "models_import",
+          "success": true,
+          "details": "Trading models imported",
+          "timestamp": "2025-08-29T15:01:59.775687"
+        }
+      ],
+      "success_rate": 25.0
+    },
+    "graphql_api": {
+      "status": "READY",
+      "tests": [
+        {
+          "name": "core_modules",
+          "success": true,
+          "details": "Core GraphQL modules imported",
+          "timestamp": "2025-08-29T15:02:00.553599"
+        },
+        {
+          "name": "cache_key_generation",
+          "success": true,
+          "details": "Cache key generation working",
+          "timestamp": "2025-08-29T15:02:00.553918"
+        },
+        {
+          "name": "query_analyzer",
+          "success": true,
+          "details": "Query analyzer initialized correctly",
+          "timestamp": "2025-08-29T15:02:00.554084"
+        },
+        {
+          "name": "metrics",
+          "success": true,
+          "details": "GraphQL metrics creation working",
+          "timestamp": "2025-08-29T15:02:00.554211"
+        }
+      ],
+      "success_rate": 100.0
+    },
+    "websocket_api": {
+      "status": "FAILED",
+      "tests": [
+        {
+          "name": "router_import",
+          "success": false,
+          "details": "cannot import name 'DataFeedManager' from 'nautilus_trader_engine.data_feeds' (unknown location)",
+          "timestamp": "2025-08-29T15:02:00.571317"
+        }
+      ],
+      "success_rate": 0.0
+    },
+    "grpc_api": {
+      "status": "READY",
+      "tests": [
+        {
+          "name": "proto_marketdata_service",
+          "success": true,
+          "details": "Proto file exists with service definition",
+          "timestamp": "2025-08-29T15:02:00.572388"
+        },
+        {
+          "name": "proto_trading_service",
+          "success": true,
+          "details": "Proto file exists with service definition",
+          "timestamp": "2025-08-29T15:02:00.572978"
+        },
+        {
+          "name": "generation_script",
+          "success": true,
+          "details": "gRPC generation script exists",
+          "timestamp": "2025-08-29T15:02:00.573300"
+        },
+        {
+          "name": "generated_stubs",
+          "success": true,
+          "details": "Generated directory with 3 files",
+          "timestamp": "2025-08-29T15:02:00.573829"
+        },
+        {
+          "name": "service_methods",
+          "success": true,
+          "details": "Found methods: ['SubmitOrder', 'CancelOrder', 'StreamMarketData', 'GetPositions']",
+          "timestamp": "2025-08-29T15:02:00.574510"
+        }
+      ],
+      "success_rate": 100.0
+    }
+  },
+  "phase1_readiness": "PARTIAL"
+}

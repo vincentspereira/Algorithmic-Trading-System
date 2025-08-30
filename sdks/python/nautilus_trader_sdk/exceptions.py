@@ -58,7 +58,7 @@ class NetworkError(NautilusTraderError):
     """Network-related errors"""
     pass
 
-class TimeoutError(NautilusTraderError):
+class RequestTimeoutError(NautilusTraderError):
     """Request timeout errors"""
     pass
 
@@ -169,7 +169,7 @@ STATUS_CODE_EXCEPTIONS = {
     500: APIError,
     502: NetworkError,
     503: NetworkError,
-    504: TimeoutError
+    504: RequestTimeoutError
 }
 
 def create_exception_from_response(status_code: int, message: str, response_data: Optional[Dict] = None) -> NautilusTraderError:

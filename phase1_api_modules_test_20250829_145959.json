@@ -1,0 +1,144 @@
+{
+  "test_metadata": {
+    "timestamp": "2025-08-29T14:59:59.855163",
+    "total_tests": 18,
+    "passed_tests": 11,
+    "overall_success_rate": 61.111111111111114,
+    "overall_status": "PARTIAL"
+  },
+  "api_module_results": {
+    "rest_api": {
+      "status": "FAILED",
+      "tests": [
+        {
+          "name": "main_app_import",
+          "success": false,
+          "details": "3 validation errors for Settings\nSECRET_KEY\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_USER\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_PASSWORD\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type",
+          "timestamp": "2025-08-29T14:59:55.303237"
+        },
+        {
+          "name": "router_auth",
+          "success": false,
+          "details": "email-validator is not installed, run `pip install pydantic[email]`",
+          "timestamp": "2025-08-29T14:59:56.212815"
+        },
+        {
+          "name": "router_trading",
+          "success": true,
+          "details": "Router trading imported",
+          "timestamp": "2025-08-29T14:59:58.098999"
+        },
+        {
+          "name": "router_backtest",
+          "success": false,
+          "details": "cannot import name 'DATABASE_URL' from 'nautilus_trader_engine.config.database_config' (C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\config\\database_config.py)",
+          "timestamp": "2025-08-29T14:59:58.166713"
+        },
+        {
+          "name": "router_features",
+          "success": false,
+          "details": "No module named 'duckdb'",
+          "timestamp": "2025-08-29T14:59:58.171129"
+        },
+        {
+          "name": "router_optimization",
+          "success": false,
+          "details": "cannot import name 'DATABASE_URL' from 'nautilus_trader_engine.config.database_config' (C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\config\\database_config.py)",
+          "timestamp": "2025-08-29T14:59:58.663323"
+        },
+        {
+          "name": "config_import",
+          "success": false,
+          "details": "3 validation errors for Settings\nSECRET_KEY\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_USER\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type\nPOSTGRES_PASSWORD\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.11/v/string_type",
+          "timestamp": "2025-08-29T14:59:58.669151"
+        },
+        {
+          "name": "models_import",
+          "success": true,
+          "details": "Trading models imported",
+          "timestamp": "2025-08-29T14:59:58.681921"
+        }
+      ],
+      "success_rate": 25.0
+    },
+    "graphql_api": {
+      "status": "READY",
+      "tests": [
+        {
+          "name": "core_modules",
+          "success": true,
+          "details": "Core GraphQL modules imported",
+          "timestamp": "2025-08-29T14:59:59.841038"
+        },
+        {
+          "name": "cache_key_generation",
+          "success": true,
+          "details": "Cache key generation working",
+          "timestamp": "2025-08-29T14:59:59.841782"
+        },
+        {
+          "name": "query_analyzer",
+          "success": true,
+          "details": "Query analyzer initialized correctly",
+          "timestamp": "2025-08-29T14:59:59.841898"
+        },
+        {
+          "name": "metrics",
+          "success": true,
+          "details": "GraphQL metrics creation working",
+          "timestamp": "2025-08-29T14:59:59.842025"
+        }
+      ],
+      "success_rate": 100.0
+    },
+    "websocket_api": {
+      "status": "FAILED",
+      "tests": [
+        {
+          "name": "router_import",
+          "success": false,
+          "details": "No module named 'nautilus_trader_engine.kafka_manager'",
+          "timestamp": "2025-08-29T14:59:59.850258"
+        }
+      ],
+      "success_rate": 0.0
+    },
+    "grpc_api": {
+      "status": "READY",
+      "tests": [
+        {
+          "name": "proto_marketdata_service",
+          "success": true,
+          "details": "Proto file exists with service definition",
+          "timestamp": "2025-08-29T14:59:59.851200"
+        },
+        {
+          "name": "proto_trading_service",
+          "success": true,
+          "details": "Proto file exists with service definition",
+          "timestamp": "2025-08-29T14:59:59.851848"
+        },
+        {
+          "name": "generation_script",
+          "success": true,
+          "details": "gRPC generation script exists",
+          "timestamp": "2025-08-29T14:59:59.852160"
+        },
+        {
+          "name": "generated_stubs",
+          "success": true,
+          "details": "Generated directory with 3 files",
+          "timestamp": "2025-08-29T14:59:59.852697"
+        },
+        {
+          "name": "service_methods",
+          "success": true,
+          "details": "Found methods: ['SubmitOrder', 'CancelOrder', 'StreamMarketData', 'GetPositions']",
+          "timestamp": "2025-08-29T14:59:59.853336"
+        }
+      ],
+      "success_rate": 100.0
+    }
+  },
+  "phase1_readiness": "PARTIAL"
+}

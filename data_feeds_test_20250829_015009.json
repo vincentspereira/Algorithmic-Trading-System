@@ -1,0 +1,97 @@
+{
+  "test_results": {
+    "interactive_brokers": {
+      "status": "FAILED",
+      "latency_ms": 2534.84,
+      "data_received": false,
+      "error": "No data returned"
+    },
+    "yahoo_finance": {
+      "status": "PASSED",
+      "latency_ms": 5661.61,
+      "data_received": true,
+      "sample_price": 232.49000549316406
+    },
+    "alpha_vantage": {
+      "status": "FAILED",
+      "latency_ms": 0.01,
+      "data_received": false,
+      "error": "No data returned"
+    },
+    "polygon_io": {
+      "status": "FAILED",
+      "latency_ms": 0.01,
+      "data_received": false,
+      "error": "No data returned"
+    },
+    "cached_data": {
+      "status": "FAILED",
+      "latency_ms": 0.01,
+      "data_received": false,
+      "error": "No data returned"
+    }
+  },
+  "health_report": {
+    "interactive_brokers": {
+      "enabled": true,
+      "priority": 1,
+      "uptime_percentage": 0.0,
+      "avg_latency_ms": 0.0,
+      "total_requests": 3,
+      "successes": 0,
+      "failures": 3,
+      "last_success": null,
+      "last_failure": "2025-08-29T01:50:09.696685",
+      "status": "unhealthy"
+    },
+    "yahoo_finance": {
+      "enabled": true,
+      "priority": 2,
+      "uptime_percentage": 100.0,
+      "avg_latency_ms": 55.87,
+      "total_requests": 3,
+      "successes": 3,
+      "failures": 0,
+      "last_success": "2025-08-29T01:50:09.832070",
+      "last_failure": null,
+      "status": "healthy"
+    },
+    "alpha_vantage": {
+      "enabled": true,
+      "priority": 3,
+      "uptime_percentage": 100.0,
+      "avg_latency_ms": 0.0,
+      "total_requests": 0,
+      "successes": 0,
+      "failures": 0,
+      "last_success": null,
+      "last_failure": null,
+      "status": "healthy"
+    },
+    "polygon_io": {
+      "enabled": true,
+      "priority": 4,
+      "uptime_percentage": 100.0,
+      "avg_latency_ms": 0.0,
+      "total_requests": 0,
+      "successes": 0,
+      "failures": 0,
+      "last_success": null,
+      "last_failure": null,
+      "status": "healthy"
+    },
+    "cached_data": {
+      "enabled": true,
+      "priority": 5,
+      "uptime_percentage": 100.0,
+      "avg_latency_ms": 0.0,
+      "total_requests": 0,
+      "successes": 0,
+      "failures": 0,
+      "last_success": null,
+      "last_failure": null,
+      "status": "healthy"
+    }
+  },
+  "timestamp": "2025-08-29T01:50:09.835732"
+}

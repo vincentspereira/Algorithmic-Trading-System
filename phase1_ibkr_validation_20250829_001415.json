@@ -1,0 +1,164 @@
+{
+  "connection_tests": {
+    "direct_connection": {
+      "status": "PASSED",
+      "message": "Successfully connected to IB Gateway/TWS",
+      "details": {
+        "host": "127.0.0.1",
+        "port": 7497,
+        "client_id": 0,
+        "account_id": "DUK221396",
+        "connection_time": 1756422838.152406
+      }
+    },
+    "account_info": {
+      "status": "PASSED",
+      "account_summary": "[AccountValue(account='DUK221396', tag='AccountType', value='INDIVIDUAL', currency='', modelCode=''), AccountValue(account='DUK221396', tag='Cushion', value='1', currency='', modelCode=''), AccountValue(account='DUK221396', tag='DayTradesRemaining', value='-1', currency='', modelCode='')]"
+    },
+    "adapter_connection": {
+      "status": "PASSED",
+      "message": "Adapter connection successful",
+      "adapter_type": "IBKRAdapter",
+      "paper_trading": true
+    }
+  },
+  "paper_trading_tests": {
+    "config_validation": {
+      "status": "PASSED",
+      "config": {
+        "name": "IB_PAPER",
+        "port": 7497,
+        "account_id": "DUK221396",
+        "venue": "IB"
+      }
+    },
+    "environment_check": {
+      "status": "PASSED",
+      "environment_variables": {
+        "IB_PAPER_TRADING": "true",
+        "IB_GATEWAY_PORT": "7497",
+        "ENABLE_LIVE_TRADING": "false",
+        "ENABLE_PAPER_TRADING": "true"
+      },
+      "paper_trading_mode": true,
+      "live_trading_disabled": true
+    }
+  },
+  "multi_asset_tests": {
+    "stocks": {
+      "total_tested": 2,
+      "supported": 2,
+      "results": [
+        {
+          "symbol": "AAPL",
+          "status": "SUPPORTED",
+          "contract_details": 1,
+          "primary_exchange": "NASDAQ"
+        },
+        {
+          "symbol": "MSFT",
+          "status": "SUPPORTED",
+          "contract_details": 1,
+          "primary_exchange": "NASDAQ"
+        }
+      ]
+    },
+    "etfs": {
+      "total_tested": 2,
+      "supported": 2,
+      "results": [
+        {
+          "symbol": "SPY",
+          "status": "SUPPORTED",
+          "contract_details": 1,
+          "primary_exchange": "ARCA"
+        },
+        {
+          "symbol": "QQQ",
+          "status": "SUPPORTED",
+          "contract_details": 1,
+          "primary_exchange": "NASDAQ"
+        }
+      ]
+    },
+    "forex": {
+      "total_tested": 2,
+      "supported": 2,
+      "results": [
+        {
+          "symbol": "EUR",
+          "status": "SUPPORTED",
+          "contract_details": 1,
+          "primary_exchange": ""
+        },
+        {
+          "symbol": "GBP",
+          "status": "SUPPORTED",
+          "contract_details": 1,
+          "primary_exchange": ""
+        }
+      ]
+    },
+    "futures": {
+      "total_tested": 2,
+      "supported": 0,
+      "results": [
+        {
+          "symbol": "ES",
+          "status": "NOT_FOUND",
+          "message": "No contract details found"
+        },
+        {
+          "symbol": "NQ",
+          "status": "NOT_FOUND",
+          "message": "No contract details found"
+        }
+      ]
+    }
+  },
+  "performance_tests": {
+    "connection_latency": {
+      "status": "PASSED",
+      "average_latency_ms": 0.91,
+      "max_latency_ms": 1.05,
+      "min_latency_ms": 0.78,
+      "target_latency_ms": 100,
+      "successful_tests": 3,
+      "total_tests": 5
+    },
+    "throughput_simulation": {
+      "status": "WARNING",
+      "ticks_per_second": 221.6,
+      "total_ticks": 1000,
+      "processing_time_seconds": 4.513,
+      "target_tps": 1000
+    }
+  },
+  "order_routing_tests": {
+    "order_submission": {
+      "status": "PASSED",
+      "order_id": "1",
+      "instrument": "AAPL",
+      "quantity": 100,
+      "side": "BUY",
+      "type": "MARKET"
+    },
+    "order_status": {
+      "status": "PASSED",
+      "order_status": "SUBMITTED"
+    }
+  },
+  "summary": {
+    "total_execution_time_seconds": 17.86,
+    "total_tests": 9,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 1,
+    "success_rate": 88.9,
+    "phase1_readiness": "READY",
+    "recommendations": [
+      "Review warning conditions for optimal performance"
+    ]
+  }
+}

@@ -1,0 +1,1612 @@
+{
+  "test_start": "2025-08-29T14:36:54.049968",
+  "total_tests": 80,
+  "successful_tests": 80,
+  "failed_tests": 0,
+  "test_details": {
+    "synthetic": {
+      "trend_indicators": [
+        {
+          "indicator": "SMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.93,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.02542355517457013,
+            "confidence": 0,
+            "metadata": {
+              "period": 20
+            }
+          },
+          "data_quality": {
+            "valid_values": "181",
+            "total_values": 200,
+            "validity_ratio": 0.905,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "EMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.382,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.016162045099763742,
+            "confidence": 0,
+            "metadata": {
+              "period": 20
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "VWMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.737,
+          "error_message": null,
+          "signal": "SELL",
+          "strength": 0.026575953092239656,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "VW_EMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.5680000000000001,
+          "error_message": null,
+          "signal": "SELL",
+          "strength": 0.010005277938734916,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "Hull_MA_21",
+          "status": "SUCCESS",
+          "execution_time": 79.953,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.006728245124170895,
+            "confidence": 0.9,
+            "metadata": {
+              "period": 20,
+              "zero_lag": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "178",
+            "total_values": 200,
+            "validity_ratio": 0.89,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "KAMA_20",
+          "status": "SUCCESS",
+          "execution_time": 15.685,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.01578900123516918,
+            "confidence": 0.3219987757295816,
+            "metadata": {
+              "period": 20,
+              "adaptive": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "181",
+            "total_values": 200,
+            "validity_ratio": 0.905,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "DEMA_21",
+          "status": "SUCCESS",
+          "execution_time": 0.623,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.018801082692411902,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 20,
+              "lag_reduction": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "TEMA_21",
+          "status": "SUCCESS",
+          "execution_time": 0.768,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.01047492052983663,
+            "confidence": 0.85,
+            "metadata": {
+              "period": 20
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "McGinley_Dynamic",
+          "status": "SUCCESS",
+          "execution_time": 16.833000000000002,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.007150646324740272,
+            "confidence": 0.85,
+            "metadata": {
+              "period": 20,
+              "auto_adjusting": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Zero_Lag_EMA",
+          "status": "SUCCESS",
+          "execution_time": 0.8109999999999999,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.011138096811709448,
+            "confidence": 0.85,
+            "metadata": {
+              "period": 20,
+              "zero_lag": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "191",
+            "total_values": 200,
+            "validity_ratio": 0.955,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Linear_Regression",
+          "status": "SUCCESS",
+          "execution_time": 39.743,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.0059918786850691845,
+            "confidence": 0.75,
+            "metadata": {
+              "period": 20,
+              "linear_fit": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "181",
+            "total_values": 200,
+            "validity_ratio": 0.905,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        }
+      ],
+      "momentum_indicators": [
+        {
+          "indicator": "RSI_14",
+          "status": "SUCCESS",
+          "execution_time": 2.35,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0,
+            "metadata": {
+              "period": 14,
+              "current": 42.083261579794296,
+              "sma": 49.05222505871684,
+              "max": 54.667297722181274,
+              "min": 42.083261579794296
+            }
+          },
+          "data_quality": {
+            "valid_values": "187",
+            "total_values": 200,
+            "validity_ratio": 0.935,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "VW_RSI_14",
+          "status": "SUCCESS",
+          "execution_time": 14.135,
+          "error_message": null,
+          "signal": "NEUTRAL",
+          "strength": 0.0,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "MACD",
+          "status": "SUCCESS",
+          "execution_time": 0.8540000000000001,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.45872898181825256,
+            "confidence": 0
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "VW_MACD",
+          "status": "SUCCESS",
+          "execution_time": 1.117,
+          "error_message": null,
+          "signal": "SELL",
+          "strength": 0.27781864605689705,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "Stochastic",
+          "status": "SUCCESS",
+          "execution_time": 1.202,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.7,
+            "confidence": 0.8
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Williams_R",
+          "status": "SUCCESS",
+          "execution_time": 0.712,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "STRONG_BUY",
+            "strength": 0.9,
+            "confidence": 0.75,
+            "metadata": {
+              "period": 14,
+              "current_value": -90.99383929485988
+            }
+          },
+          "data_quality": {
+            "valid_values": "187",
+            "total_values": 200,
+            "validity_ratio": 0.935,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "CCI",
+          "status": "SUCCESS",
+          "execution_time": 51.788000000000004,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.7,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 20,
+              "current_value": -125.5617297523259
+            }
+          },
+          "data_quality": {
+            "valid_values": "181",
+            "total_values": 200,
+            "validity_ratio": 0.905,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Awesome_Oscillator",
+          "status": "SUCCESS",
+          "execution_time": 0.763,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.31268604914849635,
+            "confidence": 0.7,
+            "metadata": {
+              "short_period": 5,
+              "long_period": 34
+            }
+          },
+          "data_quality": {
+            "valid_values": "167",
+            "total_values": 200,
+            "validity_ratio": 0.835,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Fisher_Transform",
+          "status": "SUCCESS",
+          "execution_time": 18.159000000000002,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": NaN,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 10
+            }
+          },
+          "data_quality": {
+            "valid_values": "1",
+            "total_values": 200,
+            "validity_ratio": 0.005,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        }
+      ],
+      "volatility_indicators": [
+        {
+          "indicator": "Bollinger_Bands",
+          "status": "SUCCESS",
+          "execution_time": 0.977,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.15359087779986696,
+            "confidence": 0
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "ATR_14",
+          "status": "SUCCESS",
+          "execution_time": 2.709,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.011914633875688951,
+            "confidence": 0,
+            "metadata": {
+              "period": 14,
+              "current": 3.049761460745401,
+              "sma": 3.0865364120388263
+            }
+          },
+          "data_quality": {
+            "valid_values": "187",
+            "total_values": 200,
+            "validity_ratio": 0.935,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "VW_ATR_14",
+          "status": "SUCCESS",
+          "execution_time": 3.0869999999999997,
+          "error_message": null,
+          "signal": "BUY",
+          "strength": 0.001364955453214987,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "VW_ATRP_14",
+          "status": "SUCCESS",
+          "execution_time": 3.3040000000000003,
+          "error_message": null,
+          "signal": "NEUTRAL",
+          "strength": 0.0,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "Keltner_Channels",
+          "status": "SUCCESS",
+          "execution_time": 3.0370000000000004,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.3130074251248326,
+            "confidence": 0.8
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Donchian_Channels",
+          "status": "SUCCESS",
+          "execution_time": 1.746,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.8755409378010055,
+            "confidence": 0.9
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Historical_Volatility",
+          "status": "SUCCESS",
+          "execution_time": 1.6969999999999998,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.7,
+            "metadata": {
+              "volatility_percentile": 24.11764705882353
+            }
+          },
+          "data_quality": {
+            "valid_values": "170",
+            "total_values": 200,
+            "validity_ratio": 0.85,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "ADX",
+          "status": "SUCCESS",
+          "execution_time": 6.936999999999999,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.8
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        }
+      ],
+      "volume_indicators": [
+        {
+          "indicator": "VWAP",
+          "status": "SUCCESS",
+          "execution_time": 1.434,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.0008775703947419293,
+            "confidence": 0,
+            "metadata": {
+              "current_price": 92.66298115295517,
+              "vwap": 92.74437086710711
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "OBV",
+          "status": "SUCCESS",
+          "execution_time": 2.157,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.6924391359572841,
+            "confidence": 0,
+            "metadata": {
+              "current": 4950256.565812757,
+              "sma": 2924924.424542318
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Enhanced_VWAP",
+          "status": "SUCCESS",
+          "execution_time": 2.2880000000000003,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.85
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Enhanced_OBV",
+          "status": "SUCCESS",
+          "execution_time": 17.851,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.8,
+            "confidence": 0.7
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "AD_Line",
+          "status": "SUCCESS",
+          "execution_time": 1.952,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 1.0,
+            "confidence": 0.75,
+            "metadata": {
+              "accumulation_distribution": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "MFI_14",
+          "status": "SUCCESS",
+          "execution_time": 3.447,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 14,
+              "volume_rsi": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "187",
+            "total_values": 200,
+            "validity_ratio": 0.935,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "CMF_20",
+          "status": "SUCCESS",
+          "execution_time": 1.2650000000000001,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.32208040363311824,
+            "confidence": 0.75,
+            "metadata": {
+              "period": 20,
+              "buying_pressure": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "181",
+            "total_values": 200,
+            "validity_ratio": 0.905,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Volume_ROC",
+          "status": "SUCCESS",
+          "execution_time": 1.166,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.1932262181247616,
+            "confidence": 0.6,
+            "metadata": {
+              "period": 12,
+              "volume_momentum": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "200",
+            "total_values": 200,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "PVT",
+          "status": "SUCCESS",
+          "execution_time": 2.013,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.8545875867643811,
+            "confidence": 0.7,
+            "metadata": {
+              "volume_trend": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "199",
+            "total_values": 200,
+            "validity_ratio": 0.995,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "EMV",
+          "status": "SUCCESS",
+          "execution_time": 1.655,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 1.67642769707373e-06,
+            "confidence": 0.6,
+            "metadata": {
+              "period": 14,
+              "price_volume": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "186",
+            "total_values": 200,
+            "validity_ratio": 0.93,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        }
+      ],
+      "candlestick_patterns": {
+        "status": "SUCCESS",
+        "execution_time": 150.253,
+        "patterns_detected": 59,
+        "unique_patterns": 10,
+        "strongest_signals": [
+          {
+            "pattern": "White Marubozu",
+            "type": "bullish_continuation",
+            "strength": 0.9,
+            "confidence": 0.85,
+            "reliability": 0.75
+          },
+          {
+            "pattern": "White Marubozu",
+            "type": "bullish_continuation",
+            "strength": 0.9,
+            "confidence": 0.85,
+            "reliability": 0.75
+          },
+          {
+            "pattern": "Shooting Star",
+            "type": "bearish_reversal",
+            "strength": 0.8,
+            "confidence": 0.8,
+            "reliability": 0.7
+          },
+          {
+            "pattern": "Hammer",
+            "type": "bullish_reversal",
+            "strength": 0.8,
+            "confidence": 0.8,
+            "reliability": 0.72
+          },
+          {
+            "pattern": "Hammer",
+            "type": "bullish_reversal",
+            "strength": 0.8,
+            "confidence": 0.8,
+            "reliability": 0.72
+          }
+        ],
+        "pattern_counts": {
+          "Spinning Top": 24,
+          "Inverted Hammer": 5,
+          "Long Legged Doji": 8,
+          "Dragonfly Doji": 7,
+          "Gravestone Doji": 6,
+          "Shooting Star": 1,
+          "Hanging Man": 2,
+          "Hammer": 3,
+          "White Marubozu": 2,
+          "Standard Doji": 1
+        }
+      },
+      "comprehensive_analysis": {
+        "status": "SUCCESS",
+        "execution_time": 359.272,
+        "total_indicators_calculated": 30,
+        "indicators_by_category": {
+          "trend": 8,
+          "momentum": 8,
+          "volatility": 6,
+          "volume": 4,
+          "patterns": 4
+        },
+        "volume_weighted_count": 12,
+        "strong_signals_count": 3,
+        "sentiment_analysis": {
+          "bullish": 33.33333333333333,
+          "bearish": 46.666666666666664,
+          "neutral": 20.0
+        },
+        "top_signals": [
+          {
+            "indicator": "Donchian Channels (20)",
+            "signal": "SELL",
+            "strength": 0.8755409378010055,
+            "confidence": 0.9,
+            "category": "volatility",
+            "volume_weighted": false
+          },
+          {
+            "indicator": "White Marubozu",
+            "signal": "BUY",
+            "strength": 0.9,
+            "confidence": 0.85,
+            "category": "patterns",
+            "volume_weighted": false
+          },
+          {
+            "indicator": "White Marubozu",
+            "signal": "BUY",
+            "strength": 0.9,
+            "confidence": 0.85,
+            "category": "patterns",
+            "volume_weighted": false
+          }
+        ]
+      }
+    },
+    "real_market": {
+      "trend_indicators": [
+        {
+          "indicator": "SMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.46799999999999997,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.028767534557237875,
+            "confidence": 0,
+            "metadata": {
+              "period": 20
+            }
+          },
+          "data_quality": {
+            "valid_values": "232",
+            "total_values": 251,
+            "validity_ratio": 0.9243027888446215,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "EMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.24899999999999997,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.02855522765920114,
+            "confidence": 0,
+            "metadata": {
+              "period": 20
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "VWMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.628,
+          "error_message": null,
+          "signal": "BUY",
+          "strength": 0.03542310478716669,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "VW_EMA_20",
+          "status": "SUCCESS",
+          "execution_time": 0.514,
+          "error_message": null,
+          "signal": "BUY",
+          "strength": 0.06227230438405639,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "Hull_MA_21",
+          "status": "SUCCESS",
+          "execution_time": 86.325,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.00831741719492304,
+            "confidence": 0.9,
+            "metadata": {
+              "period": 20,
+              "zero_lag": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "229",
+            "total_values": 251,
+            "validity_ratio": 0.9123505976095617,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "KAMA_20",
+          "status": "SUCCESS",
+          "execution_time": 18.496,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.03159197792902293,
+            "confidence": 0.561453563735842,
+            "metadata": {
+              "period": 20,
+              "adaptive": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "232",
+            "total_values": 251,
+            "validity_ratio": 0.9243027888446215,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "DEMA_21",
+          "status": "SUCCESS",
+          "execution_time": 0.584,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.0008293937023964179,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 20,
+              "lag_reduction": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "TEMA_21",
+          "status": "SUCCESS",
+          "execution_time": 0.7829999999999999,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.004785945020745721,
+            "confidence": 0.85,
+            "metadata": {
+              "period": 20
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "McGinley_Dynamic",
+          "status": "SUCCESS",
+          "execution_time": 23.101,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.06773532766955052,
+            "confidence": 0.85,
+            "metadata": {
+              "period": 20,
+              "auto_adjusting": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Zero_Lag_EMA",
+          "status": "SUCCESS",
+          "execution_time": 0.9779999999999999,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.004445957149090037,
+            "confidence": 0.85,
+            "metadata": {
+              "period": 20,
+              "zero_lag": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "242",
+            "total_values": 251,
+            "validity_ratio": 0.9641434262948207,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Linear_Regression",
+          "status": "SUCCESS",
+          "execution_time": 43.747,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.013477934553541465,
+            "confidence": 0.75,
+            "metadata": {
+              "period": 20,
+              "linear_fit": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "232",
+            "total_values": 251,
+            "validity_ratio": 0.9243027888446215,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        }
+      ],
+      "momentum_indicators": [
+        {
+          "indicator": "RSI_14",
+          "status": "SUCCESS",
+          "execution_time": 1.905,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0,
+            "metadata": {
+              "period": 14,
+              "current": 66.08667642210605,
+              "sma": 64.02073968470849,
+              "max": 69.74359244737146,
+              "min": 58.22666093217582
+            }
+          },
+          "data_quality": {
+            "valid_values": "238",
+            "total_values": 251,
+            "validity_ratio": 0.9482071713147411,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "VW_RSI_14",
+          "status": "SUCCESS",
+          "execution_time": 16.028000000000002,
+          "error_message": null,
+          "signal": "NEUTRAL",
+          "strength": 0.0,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "MACD",
+          "status": "SUCCESS",
+          "execution_time": 0.6679999999999999,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.04248047941473462,
+            "confidence": 0
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "VW_MACD",
+          "status": "SUCCESS",
+          "execution_time": 1.095,
+          "error_message": null,
+          "signal": "BUY",
+          "strength": 0.5797722359195926,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "Stochastic",
+          "status": "SUCCESS",
+          "execution_time": 1.589,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.7,
+            "confidence": 0.8
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Williams_R",
+          "status": "SUCCESS",
+          "execution_time": 0.906,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.75,
+            "metadata": {
+              "period": 14,
+              "current_value": -25.78830374419049
+            }
+          },
+          "data_quality": {
+            "valid_values": "238",
+            "total_values": 251,
+            "validity_ratio": 0.9482071713147411,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "CCI",
+          "status": "SUCCESS",
+          "execution_time": 69.524,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 20,
+              "current_value": 71.91788799914742
+            }
+          },
+          "data_quality": {
+            "valid_values": "232",
+            "total_values": 251,
+            "validity_ratio": 0.9243027888446215,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Awesome_Oscillator",
+          "status": "SUCCESS",
+          "execution_time": 0.703,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 1.0,
+            "confidence": 0.7,
+            "metadata": {
+              "short_period": 5,
+              "long_period": 34
+            }
+          },
+          "data_quality": {
+            "valid_values": "218",
+            "total_values": 251,
+            "validity_ratio": 0.8685258964143426,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Fisher_Transform",
+          "status": "SUCCESS",
+          "execution_time": 20.149,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": NaN,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 10
+            }
+          },
+          "data_quality": {
+            "valid_values": "1",
+            "total_values": 251,
+            "validity_ratio": 0.00398406374501992,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        }
+      ],
+      "volatility_indicators": [
+        {
+          "indicator": "Bollinger_Bands",
+          "status": "SUCCESS",
+          "execution_time": 0.93,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "ATR_14",
+          "status": "SUCCESS",
+          "execution_time": 2.418,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.2799735334985023,
+            "confidence": 0,
+            "metadata": {
+              "period": 14,
+              "current": 3.7608064923967635,
+              "sma": 5.223150352611296
+            }
+          },
+          "data_quality": {
+            "valid_values": "238",
+            "total_values": 251,
+            "validity_ratio": 0.9482071713147411,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "VW_ATR_14",
+          "status": "SUCCESS",
+          "execution_time": 4.128,
+          "error_message": null,
+          "signal": "BUY",
+          "strength": 0.06475584486628917,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "VW_ATRP_14",
+          "status": "SUCCESS",
+          "execution_time": 4.777,
+          "error_message": null,
+          "signal": "NEUTRAL",
+          "strength": 0.0,
+          "volume_weighted": true
+        },
+        {
+          "indicator": "Keltner_Channels",
+          "status": "SUCCESS",
+          "execution_time": 4.838,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.413455218839729,
+            "confidence": 0.8
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Donchian_Channels",
+          "status": "SUCCESS",
+          "execution_time": 1.101,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.9131418999518427,
+            "confidence": 0.9
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Historical_Volatility",
+          "status": "SUCCESS",
+          "execution_time": 3.263,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.7,
+            "metadata": {
+              "volatility_percentile": 50.2262443438914
+            }
+          },
+          "data_quality": {
+            "valid_values": "221",
+            "total_values": 251,
+            "validity_ratio": 0.8804780876494024,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "ADX",
+          "status": "SUCCESS",
+          "execution_time": 7.694,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.8739420766299759,
+            "confidence": 0.8
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        }
+      ],
+      "volume_indicators": [
+        {
+          "indicator": "VWAP",
+          "status": "SUCCESS",
+          "execution_time": 1.008,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.05815704694758519,
+            "confidence": 0,
+            "metadata": {
+              "current_price": 232.1956024169922,
+              "vwap": 219.43397068213616
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "OBV",
+          "status": "SUCCESS",
+          "execution_time": 2.412,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.12407483277254933,
+            "confidence": 0,
+            "metadata": {
+              "current": "426165167",
+              "sma": 379125263.35
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Enhanced_VWAP",
+          "status": "SUCCESS",
+          "execution_time": 1.656,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.85
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "Enhanced_OBV",
+          "status": "SUCCESS",
+          "execution_time": 21.356,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.7
+          },
+          "data_quality": {
+            "non_series_result": true
+          }
+        },
+        {
+          "indicator": "AD_Line",
+          "status": "SUCCESS",
+          "execution_time": 0.9380000000000001,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.10170872343472631,
+            "confidence": 0.75,
+            "metadata": {
+              "accumulation_distribution": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "MFI_14",
+          "status": "SUCCESS",
+          "execution_time": 2.4819999999999998,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "NEUTRAL",
+            "strength": 0.0,
+            "confidence": 0.8,
+            "metadata": {
+              "period": 14,
+              "volume_rsi": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "238",
+            "total_values": 251,
+            "validity_ratio": 0.9482071713147411,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "CMF_20",
+          "status": "SUCCESS",
+          "execution_time": 1.173,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.3526481743754597,
+            "confidence": 0.75,
+            "metadata": {
+              "period": 20,
+              "buying_pressure": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "232",
+            "total_values": 251,
+            "validity_ratio": 0.9243027888446215,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "Volume_ROC",
+          "status": "SUCCESS",
+          "execution_time": 1.365,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "SELL",
+            "strength": 0.9561391128887997,
+            "confidence": 0.6,
+            "metadata": {
+              "period": 12,
+              "volume_momentum": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "251",
+            "total_values": 251,
+            "validity_ratio": 1.0,
+            "has_nan": "False",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "PVT",
+          "status": "SUCCESS",
+          "execution_time": 1.26,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 0.5312820847331536,
+            "confidence": 0.7,
+            "metadata": {
+              "volume_trend": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "250",
+            "total_values": 251,
+            "validity_ratio": 0.9960159362549801,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        },
+        {
+          "indicator": "EMV",
+          "status": "SUCCESS",
+          "execution_time": 1.631,
+          "error_message": null,
+          "signal_analysis": {
+            "signal": "BUY",
+            "strength": 5.797058266252074e-08,
+            "confidence": 0.6,
+            "metadata": {
+              "period": 14,
+              "price_volume": true
+            }
+          },
+          "data_quality": {
+            "valid_values": "237",
+            "total_values": 251,
+            "validity_ratio": 0.9442231075697212,
+            "has_nan": "True",
+            "has_inf": "False"
+          }
+        }
+      ],
+      "candlestick_patterns": {
+        "status": "SUCCESS",
+        "execution_time": 189.591,
+        "patterns_detected": 91,
+        "unique_patterns": 15,
+        "strongest_signals": [
+          {
+            "pattern": "Bearish Engulfing",
+            "type": "bearish_reversal",
+            "strength": 0.85,
+            "confidence": 0.8,
+            "reliability": 0.75
+          },
+          {
+            "pattern": "Bearish Engulfing",
+            "type": "bearish_reversal",
+            "strength": 0.85,
+            "confidence": 0.8,
+            "reliability": 0.75
+          },
+          {
+            "pattern": "Bullish Engulfing",
+            "type": "bullish_reversal",
+            "strength": 0.85,
+            "confidence": 0.8,
+            "reliability": 0.75
+          },
+          {
+            "pattern": "Bearish Engulfing",
+            "type": "bearish_reversal",
+            "strength": 0.85,
+            "confidence": 0.8,
+            "reliability": 0.75
+          },
+          {
+            "pattern": "Bullish Engulfing",
+            "type": "bullish_reversal",
+            "strength": 0.85,
+            "confidence": 0.8,
+            "reliability": 0.75
+          }
+        ],
+        "pattern_counts": {
+          "Bearish Engulfing": 12,
+          "Gravestone Doji": 7,
+          "Hammer": 1,
+          "Bullish Harami": 7,
+          "Bullish Engulfing": 13,
+          "Piercing Line": 2,
+          "Dragonfly Doji": 8,
+          "Spinning Top": 17,
+          "Bearish Harami": 7,
+          "Three White Soldiers": 4,
+          "Standard Doji": 2,
+          "Dark Cloud Cover": 2,
+          "Long Legged Doji": 6,
+          "Shooting Star": 2,
+          "Hanging Man": 1
+        }
+      },
+      "comprehensive_analysis": {
+        "status": "SUCCESS",
+        "execution_time": 440.88500000000005,
+        "total_indicators_calculated": 30,
+        "indicators_by_category": {
+          "trend": 8,
+          "momentum": 8,
+          "volatility": 6,
+          "volume": 4,
+          "patterns": 4
+        },
+        "volume_weighted_count": 12,
+        "strong_signals_count": 2,
+        "sentiment_analysis": {
+          "bullish": 50.0,
+          "bearish": 20.0,
+          "neutral": 30.0
+        },
+        "top_signals": [
+          {
+            "indicator": "Donchian Channels (20)",
+            "signal": "BUY",
+            "strength": 0.9131418999518427,
+            "confidence": 0.9,
+            "category": "volatility",
+            "volume_weighted": false
+          },
+          {
+            "indicator": "Volume Weighted Stochastic (14,3)",
+            "signal": "STRONG_SELL",
+            "strength": 0.9,
+            "confidence": 0.85,
+            "category": "momentum",
+            "volume_weighted": true
+          }
+        ]
+      }
+    }
+  },
+  "performance_metrics": {},
+  "indicator_summary": {},
+  "test_end": "2025-08-29T14:37:01.272967",
+  "success_rate": 100.0,
+  "status": "\ud83d\udfe2 EXCELLENT"
+}

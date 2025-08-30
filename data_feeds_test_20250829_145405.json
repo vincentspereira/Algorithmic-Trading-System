@@ -1,0 +1,72 @@
+{
+  "test_metadata": {
+    "timestamp": "2025-08-29T14:54:05.748462",
+    "phase": "Phase 1",
+    "test_type": "multi_source_data_feeds",
+    "phase1_ready": true
+  },
+  "test_results": {
+    "yahoo_finance": {
+      "AAPL": {
+        "symbol": "AAPL",
+        "price": 232.82000732421875,
+        "volume": 4651006,
+        "timestamp": "2025-08-29T00:00:00-04:00",
+        "latency_ms": 680.8476448059082,
+        "source": "yahoo_finance",
+        "status": "SUCCESS"
+      },
+      "MSFT": {
+        "symbol": "MSFT",
+        "price": 505.7950134277344,
+        "volume": 1827975,
+        "timestamp": "2025-08-29T00:00:00-04:00",
+        "latency_ms": 97.02301025390625,
+        "source": "yahoo_finance",
+        "status": "SUCCESS"
+      },
+      "SPY": {
+        "symbol": "SPY",
+        "price": 646.14501953125,
+        "volume": 7908491,
+        "timestamp": "2025-08-29T00:00:00-04:00",
+        "latency_ms": 124.44734573364258,
+        "source": "yahoo_finance",
+        "status": "SUCCESS"
+      }
+    },
+    "alpha_vantage": {
+      "status": "NO_API_KEY"
+    },
+    "fallback_logic": {
+      "source_availability": {
+        "IBKR": {
+          "available": false,
+          "status": "ERROR",
+          "error": "This event loop is already running"
+        },
+        "YAHOO": {
+          "available": true,
+          "status": "DATA_AVAILABLE"
+        },
+        "ALPHA_VANTAGE": {
+          "available": false,
+          "status": "NO_API_KEY"
+        }
+      },
+      "fallback_order": [
+        "interactive_brokers",
+        "yahoo_finance",
+        "alpha_vantage",
+        "polygon_io",
+        "cached_data"
+      ]
+    }
+  },
+  "summary": {
+    "yahoo_finance_working": true,
+    "alpha_vantage_working": false,
+    "primary_fallback_available": true,
+    "phase1_status": "READY"
+  }
+}

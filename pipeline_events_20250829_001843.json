@@ -1,0 +1,41 @@
+[
+  {
+    "event_type": "order_placed",
+    "timestamp": "2025-08-29T00:18:41.064672",
+    "action": "SELL",
+    "quantity": 100,
+    "order_id": 4
+  },
+  {
+    "event_type": "order_placed",
+    "timestamp": "2025-08-29T00:18:42.068502",
+    "action": "SELL",
+    "quantity": 100,
+    "order_id": 5
+  },
+  {
+    "event_type": "order_placed",
+    "timestamp": "2025-08-29T00:18:43.071952",
+    "action": "SELL",
+    "quantity": 100,
+    "order_id": 6
+  },
+  {
+    "event_type": "pipeline_start",
+    "timestamp": "2025-08-29T00:18:43.072852",
+    "test_id": "phase1_pipeline"
+  },
+  {
+    "event_type": "data_ingestion_complete",
+    "timestamp": "2025-08-29T00:18:43.072863",
+    "sources": [
+      "ibkr",
+      "yahoo"
+    ]
+  },
+  {
+    "event_type": "algorithm_complete",
+    "timestamp": "2025-08-29T00:18:43.072867",
+    "signals": 3
+  }
+]

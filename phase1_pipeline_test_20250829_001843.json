@@ -1,0 +1,60 @@
+{
+  "data_ingestion": {
+    "ibkr_data": {
+      "status": "PASSED",
+      "symbol": "AAPL",
+      "price": NaN
+    },
+    "yahoo_data": {
+      "status": "PASSED",
+      "rows": 5,
+      "latest_price": 232.55999755859375
+    }
+  },
+  "algorithm_execution": {
+    "status": "PASSED",
+    "data_points": 100,
+    "signals_generated": 49,
+    "test_signals": 3
+  },
+  "order_routing": {
+    "status": "PASSED",
+    "orders_executed": 3,
+    "details": [
+      {
+        "action": "SELL",
+        "quantity": 100,
+        "order_id": 4,
+        "status": "PreSubmitted"
+      },
+      {
+        "action": "SELL",
+        "quantity": 100,
+        "order_id": 5,
+        "status": "PreSubmitted"
+      },
+      {
+        "action": "SELL",
+        "quantity": 100,
+        "order_id": 6,
+        "status": "PreSubmitted"
+      }
+    ]
+  },
+  "event_logging": {
+    "status": "PASSED",
+    "events_logged": 6,
+    "log_file": "pipeline_events_20250829_001843.json"
+  },
+  "summary": {
+    "total_execution_time": 11.9,
+    "total_tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0,
+    "pipeline_ready": true,
+    "events_logged": 6,
+    "timestamp": "2025-08-29T00:18:43.075231"
+  }
+}

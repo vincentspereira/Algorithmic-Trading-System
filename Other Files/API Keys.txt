@@ -1,0 +1,20 @@
+1)	Alpha Vantage: AEVDQ5FZ01DMW4L2
+2)	Finnhub: d0vjl3hr01qkepd0m0d0d0vjl3hr01qkepd0m0dg
+3)	Twelve Data: f0e7e71826b24884b41c7de8ccfcfdca
+4)	Polygon.io: SUIpnMuKMcP45715IaNGEFeUznElhb7m
+5)	Quandl / Nasdaq Data Link: bx2hhqdJVmtsjQQMDNHz
+6)	Binance: aiGTlY4WyuplQ24LWUKyBf4Qts6hrR1mEQ3Ec6X2Ws4vGNV6487JlNybgVDufX5x
+7)	Oanda: 1dd93de1a9c003c1d93625e94eee5a8c-e34698a0a68c067941e0ed7aedd6643f
+8)	FXCM: b72d44300191b1d04fd90591487b6f859c5f9762
+
+9)	NewsAPI.org: aa72619e244048899b1c76b8ef983940
+10)	Brave Search API
+
+
+IB API Details for Paper Trading Account:
+-	Host: 127.0.0.1
+-	Port: 7497 (Paper Trading port)
+-	Client ID: 0
+-	IBKR Account No.: DUK221396
+-	The `ibapi` folder is located at the following address: “C:/TWS API/source/pythonclient”	
+

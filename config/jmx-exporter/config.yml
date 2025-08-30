@@ -1,0 +1,29 @@
+hostPattern:
+  - localhost.*
+  - kafka:*
+  - 127.0.0.1:*
+
+rules:
+  - pattern: kafka.cluster<type=(.+), name=(.+), partition=(.+)><>Value
+    name: kafka_cluster_$1_$2
+    labels:
+      partition: "$3"
+  - pattern: kafka.cluster<type=(.+), name=(.+)><>Value
+    name: kafka_cluster_$1_$2
+  - pattern: kafka.controller<type=(.+), name=(.+)><>Value
+    name: kafka_controller_$1_$2
+  - pattern: kafka.server<type=(.+), name=(.+)><>Value
+    name: kafka_server_$1_$2
+  - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+)><>Value
+    name: kafka_server_$1_$2
+    labels:
+      clientId: "$3"
+  - pattern: kafka.server<type=(.+), name=(.+), topic=(.+)><>Value
+    name: kafka_server_$1_$2
+    labels:
+      topic: "$3"
+  - pattern: kafka.server<type=(.+), name=(.+), topic=(.+), partition=(.+)><>Value
+    name: kafka_server_$1_$2
+    labels:
+      topic: "$3"
+      partition: "$4"
