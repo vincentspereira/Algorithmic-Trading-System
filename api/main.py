@@ -41,7 +41,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from nautilus_trader_engine.indicators.comprehensive_indicators import ComprehensiveIndicators
 from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 from nautilus_trader_engine.core.order_management import OrderManager
-from nautilus_trader_engine.core.risk_management import RiskManager
+from services.kafka_service import KafkaService
 
 # Configure structured logging
 structlog.configure(
@@ -250,8 +250,8 @@ security = HTTPBearer()
 connection_manager = ConnectionManager()
 indicators_engine = ComprehensiveIndicators()
 data_feed_manager = DataFeedManager()
-order_manager = OrderManager()
-risk_manager = RiskManager()
+
+kafka_service = KafkaService(bootstrap_servers='kafka:29092')
 
 # Redis for caching (if available)
 try:
@@ -555,66 +555,63 @@ async def get_available_indicators(user: dict = Depends(verify_token)):
 # ORDER MANAGEMENT ENDPOINTS
 # ===========================================
 
+@app.post("/api/v1/trading-events", response_model=APIResponse)
+async def post_trading_event(request: OrderRequest, user: dict = Depends(verify_token)):
+    """Post a trading event to Kafka"""
+    try:
+        if "trade" not in user.get("permissions", []):
+            raise HTTPException(status_code=403, detail="Trading permission required")
+        
+        event = request.dict()
+        event["user_id"] = user["user_id"]
+        event["timestamp"] = datetime.now().isoformat()
+
+        await kafka_service.kafka_client.send_message('trading_events', event)
+
+        return APIResponse(success=True, message="Trading event sent to Kafka")
+
+    except Exception as e:
+        logger.error("Failed to send trading event to Kafka", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to send trading event to Kafka: {str(e)}")
+
 @app.post("/api/v1/orders", response_model=APIResponse)
 async def submit_order(
     request: OrderRequest,
     user: dict = Depends(verify_token)
 ):
-    """Submit a new trading order"""
+    """Submit a new trading order by sending it to Kafka for processing"""
     try:
         # Check user permissions
         if "trade" not in user.get("permissions", []):
             raise HTTPException(status_code=403, detail="Trading permission required")
         
-        # Risk management check
-        risk_check = await risk_manager.validate_order(
-            symbol=request.symbol.symbol,
-            side=request.side,
-            quantity=request.quantity,
-            price=request.price,
-            user_id=user["user_id"]
-        )
-        
-        if not risk_check["approved"]:
-            raise HTTPException(status_code=400, detail=f"Order rejected: {risk_check['reason']}")
-        
-        # Submit order
-        order_result = await order_manager.submit_order(
-            symbol=request.symbol.symbol,
-            order_type=request.order_type,
-            side=request.side,
-            quantity=request.quantity,
-            price=request.price,
-            stop_price=request.stop_price,
-            time_in_force=request.time_in_force,
-            user_id=user["user_id"]
-        )
-        
+        # Prepare the order event for Kafka
+        order_event = request.dict()
+        order_event["user_id"] = user["user_id"]
+        order_event["timestamp"] = datetime.now().isoformat()
+        order_event["request_id"] = str(uuid.uuid4()) # Add a unique request ID for traceability
+
+        # Send the order request to a Kafka topic for asynchronous processing
+        await kafka_service.kafka_client.send_message('order_requests', order_event)
+
         # Update metrics
         order_submissions.labels(
             order_type=request.order_type,
-            status="submitted" if order_result["success"] else "failed"
+            status="sent_to_kafka"
         ).inc()
         
-        # Broadcast order update via WebSocket
-        await connection_manager.broadcast_all({
-            "type": "order_update",
-            "data": order_result,
-            "timestamp": datetime.now().isoformat()
-        })
-        
         return APIResponse(
-            success=order_result["success"],
-            data=order_result,
-            message=f"Order {order_result.get('order_id', 'unknown')} {'submitted' if order_result['success'] else 'failed'}"
+            success=True,
+            data={"request_id": order_event["request_id"]},
+            message="Order request sent to Kafka for asynchronous processing."
         )
         
     except HTTPException:
         raise
     except Exception as e:
         order_submissions.labels(order_type=request.order_type, status="error").inc()
-        logger.error("Order submission failed", error=str(e), symbol=request.symbol.symbol)
-        raise HTTPException(status_code=500, detail=f"Order submission failed: {str(e)}")
+        logger.error("Failed to send order request to Kafka", error=str(e), symbol=request.symbol.symbol)
+        raise HTTPException(status_code=500, detail=f"Failed to send order request to Kafka: {str(e)}")
 
 @app.get("/api/v1/orders")
 async def get_orders(
@@ -879,8 +876,8 @@ async def startup_event():
     
     # Initialize services
     await data_feed_manager.initialize()
-    await order_manager.initialize()
-    await risk_manager.initialize()
+    
+    await kafka_service.start()
     
     # Start background tasks
     asyncio.create_task(market_data_streamer())
@@ -902,8 +899,8 @@ async def shutdown_event():
     
     # Cleanup services
     await data_feed_manager.cleanup()
-    await order_manager.cleanup()
-    await risk_manager.cleanup()
+    
+    await kafka_service.stop()
     
     logger.info("API shutdown completed")
 

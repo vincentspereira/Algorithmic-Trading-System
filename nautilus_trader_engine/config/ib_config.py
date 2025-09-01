@@ -1,47 +1,81 @@
-"""
-ib_config.py
+import os
+from nautilus_trader.adapters.interactive_brokers.common import IB
+from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersDataClientConfig
+from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersExecClientConfig
+from nautilus_trader.config import TradingNodeConfig, CacheConfig, MessageBusConfig, LiveDataEngineConfig, LiveRiskEngineConfig, LiveExecEngineConfig, PortfolioConfig
+from nautilus_trader.model.identifiers import TraderId, Venue
 
-Configuration for the Interactive Brokers adapter.
-
-This file defines settings for connecting to the IB Gateway/TWS for both paper
-and live trading environments. It includes connection parameters, account
-details, and symbol mappings.
-"""
-
-from nautilus_trader.config import PaperTradingConfig, LiveTradingConfig, TradingNodeConfig
-from nautilus_trader.model.identifiers import Venue
+from shared.config import settings
 
 # Common settings for both paper and live trading
-class IBCommonConfig:
-    HOST = "127.0.0.1"
-    CLIENT_ID_BASE = 100
-    VENUE = Venue("IB")
-    # Add symbol mappings as needed
-    # Example: {"NautilusSymbol": "IBSymbol"}
-    SYMBOL_MAP = {
-        "EUR/USD": "EUR.CASH",
-        "AAPL-STK-SMART": "AAPL",
-    }
+IB_HOST = settings.IB_HOST
+VENUE = Venue("IB")
+# Add symbol mappings as needed
+# Example: {"NautilusSymbol": "IBSymbol"}
+SYMBOL_MAP = {
+    "EUR/USD": "EUR.CASH",
+    "AAPL-STK-SMART": "AAPL",
+}
 
-# Paper Trading Configuration
-class IBPaperConfig(PaperTradingConfig, IBCommonConfig):
+def get_ib_paper_trading_config() -> TradingNodeConfig:
     """
-    Configuration for paper trading with Interactive Brokers TWS.
+    Returns the trading node configuration for paper trading.
     """
-    NAME = "IB_PAPER"
-    PORT = 7497  # Default TWS paper trading port
-    CLIENT_ID = IBCommonConfig.CLIENT_ID_BASE + 1
-    ACCOUNT_ID = "DU1234567"  # Replace with your paper trading account ID
+    return TradingNodeConfig(
+        trader_id=TraderId("PaperTrader-001"),
+        cache=CacheConfig(),
+        message_bus=MessageBusConfig(),
+        data_engine=LiveDataEngineConfig(),
+        risk_engine=LiveRiskEngineConfig(),
+        exec_engine=LiveExecEngineConfig(),
+        portfolio=PortfolioConfig(),
+        data_clients={
+            IB: InteractiveBrokersDataClientConfig(
+                host=IB_HOST,
+                port=settings.IB_PAPER_PORT,
+                client_id=settings.IB_PAPER_CLIENT_ID,
+                account=settings.IB_PAPER_ACCOUNT,
+            ),
+        },
+        exec_clients={
+            IB: InteractiveBrokersExecClientConfig(
+                host=IB_HOST,
+                port=settings.IB_PAPER_PORT,
+                client_id=settings.IB_PAPER_CLIENT_ID,
+                account=settings.IB_PAPER_ACCOUNT,
+            ),
+        },
+    )
 
-# Live Trading Configuration
-class IBLiveConfig(LiveTradingConfig, IBCommonConfig):
+def get_ib_live_trading_config() -> TradingNodeConfig:
     """
-    Configuration for live trading with Interactive Brokers TWS/Gateway.
+    Returns the trading node configuration for live trading.
     """
-    NAME = "IB_LIVE"
-    PORT = 7496  # Default TWS live trading port
-    CLIENT_ID = IBCommonConfig.CLIENT_ID_BASE + 2
-    ACCOUNT_ID = "U1234567"  # Replace with your live trading account ID
+    return TradingNodeConfig(
+        trader_id=TraderId("LiveTrader-001"),
+        cache=CacheConfig(),
+        message_bus=MessageBusConfig(),
+        data_engine=LiveDataEngineConfig(),
+        risk_engine=LiveRiskEngineConfig(),
+        exec_engine=LiveExecEngineConfig(),
+        portfolio=PortfolioConfig(),
+        data_clients={
+            IB: InteractiveBrokersDataClientConfig(
+                host=IB_HOST,
+                port=settings.IB_LIVE_PORT,
+                client_id=settings.IB_LIVE_CLIENT_ID,
+                account=settings.IB_LIVE_ACCOUNT,
+            ),
+        },
+        exec_clients={
+            IB: InteractiveBrokersExecClientConfig(
+                host=IB_HOST,
+                port=settings.IB_LIVE_PORT,
+                client_id=settings.IB_LIVE_CLIENT_ID,
+                account=settings.IB_LIVE_ACCOUNT,
+            ),
+        },
+    )
 
 def get_ib_trading_node_config(mode: str) -> TradingNodeConfig:
     """
@@ -51,14 +85,14 @@ def get_ib_trading_node_config(mode: str) -> TradingNodeConfig:
     :return: A TradingNodeConfig instance for the selected mode.
     """
     if mode.lower() == "paper":
-        return TradingNodeConfig(
-            name=IBPaperConfig.NAME,
-            connection_config=IBPaperConfig(),
-        )
+        return get_ib_paper_trading_config()
     elif mode.lower() == "live":
-        return TradingNodeConfig(
-            name=IBLiveConfig.NAME,
-            connection_config=IBLiveConfig(),
-        )
+        return get_ib_live_trading_config()
     else:
         raise ValueError("Invalid mode specified. Choose 'paper' or 'live'.")
+
+class IBPaperConfig:
+    pass
+
+class IBLiveConfig:
+    pass

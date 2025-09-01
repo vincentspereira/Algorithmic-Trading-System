@@ -7,16 +7,32 @@ import uuid
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 
+from nautilus_trader_engine.brokers.ibapi import IBClient
+from nautilus_trader_engine.config.ib_config import IBPaperConfig, IBLiveConfig
+
 class OrderManager:
     """Mock order manager for testing the API"""
     
-    def __init__(self):
+    def __init__(self, use_ibkr: bool = False, ib_config: Optional[Any] = None):
         self.orders = {}
         self.positions = {}
         self.initialized = False
+        self.use_ibkr = use_ibkr
+        self.ib_client = None
+        self.ib_config = ib_config
         
     async def initialize(self):
         """Initialize the order manager"""
+        if self.use_ibkr:
+            if self.ib_config is None:
+                raise ValueError("IBKR configuration must be provided when use_ibkr is True")
+            self.ib_client = IBClient(
+                host=self.ib_config.HOST,
+                port=self.ib_config.PORT,
+                client_id=self.ib_config.CLIENT_ID,
+                account_id=self.ib_config.ACCOUNT_ID
+            )
+            await self.ib_client.connect()
         self.initialized = True
         
     async def cleanup(self):

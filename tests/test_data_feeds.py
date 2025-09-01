@@ -4,22 +4,18 @@ Test script for data feeds functionality
 This script validates the data feed implementation and security scan setup.
 """
 
-import sys
-import os
 import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-# Add the nautilus_trader_engine directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'nautilus_trader_engine'))
-
-from data_feeds import (
+from nautilus_trader_engine.data_feeds import (
     DataFeedManager, 
     AssetClass, 
     DataSource, 
     DataRequest, 
     DataResponse,
-    get_data
+    get_data,
+    RateLimitManager
 )
 
 

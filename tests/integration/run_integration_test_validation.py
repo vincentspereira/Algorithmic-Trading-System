@@ -139,7 +139,7 @@ class IntegrationTestValidator:
     def validate_mock_configuration(self) -> Dict[str, Any]:
         """Validate mock configuration and setup"""
         try:
-            from test_config_mock import MockApiClient, MockWebSocketClient, setup_mock_environment
+            from .test_config_mock import MockApiClient, MockWebSocketClient, setup_mock_environment
             
             # Test mock API client
             mock_api = MockApiClient()

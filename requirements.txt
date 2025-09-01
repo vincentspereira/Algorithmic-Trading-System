@@ -1,76 +1,14 @@
-# Core AI Assistant Dependencies
-langchain>=0.1.0
-langchain-community>=0.0.20
-langchain-openai>=0.0.8
-openai>=1.12.0
-pydantic>=2.5.0
-python-dotenv>=1.0.0
-
 # Data Processing and Analysis
 pandas>=2.1.0
 numpy>=1.24.0
 scipy>=1.11.0
 scikit-learn>=1.3.0
+alpha_vantage>=2.3.1
 
 # Database and Storage
 psycopg2-binary>=2.9.7
 sqlalchemy>=2.0.0
 redis>=5.0.0
-
-# Web Framework and API
-fastapi>=0.104.0
-uvicorn>=0.24.0
-httpx>=0.25.0
-requests>=2.31.0
-
-# Trading and Financial Data
-yfinance>=0.2.18
-pandas-ta>=0.3.14b0
-ta-lib>=0.4.28
-ccxt>=4.1.0
-
-# Backtesting and Trading Engine
-nautilus_trader>=1.190.0
-backtrader>=1.9.78.123
-
-# NLP and Machine Learning - NEW ADDITIONS
-# Core NLP Libraries
-transformers>=4.36.0
-torch>=2.1.0
-tokenizers>=0.15.0
-datasets>=2.14.0
-accelerate>=0.25.0
-
-# Financial NLP Models
-# Note: ProsusAI/finbert will be downloaded automatically by transformers
-
-# Explainability and Interpretability
-shap>=0.44.0
-lime>=0.2.0.1
-eli5>=0.13.0
-
-# Visualization and Plotting
-matplotlib>=3.7.0
-seaborn>=0.12.0
-plotly>=5.17.0
-kaleido>=0.2.1
-wordcloud>=1.9.2
-
-# Text Processing and NLP Utilities
-nltk>=3.8.1
-spacy>=3.7.0
-textblob>=0.17.1
-beautifulsoup4>=4.12.0
-regex>=2023.10.3
-
-# Network Analysis (for entity relationships)
-networkx>=3.2.1
-
-# Additional ML and Data Science
-xgboost>=2.0.0
-lightgbm>=4.1.0
-catboost>=1.2.0
-optuna>=3.4.0
 
 # Caching and Performance
 joblib>=1.3.0
@@ -93,11 +31,9 @@ pytest-cov>=4.1.0
 black>=23.9.0
 flake8>=6.1.0
 mypy>=1.6.0
-
-# Security and Authentication
-cryptography>=41.0.0
-passlib>=1.7.4
-python-jose>=3.3.0
+schedule>=1.2.0
+aioresponses>=0.7.4
+nautilus-ibapi>=10.30.1
 
 # Async and Concurrency
 asyncio>=3.4.3
@@ -121,12 +57,3 @@ ipywidgets>=8.1.0
 pre-commit>=3.5.0
 isort>=5.12.0
 bandit>=1.7.5
-
-# API Documentation
-swagger-ui-bundle>=0.0.9
-
-# GraphQL dependencies
-graphene==2.1.9
-flask-graphql==2.0.1
-graphql-core==2.3.2
-graphql-relay==2.0.1

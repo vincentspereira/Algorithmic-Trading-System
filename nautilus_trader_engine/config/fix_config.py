@@ -1,24 +1,27 @@
-# FIX Connection and Session Configuration
+
+from typing import Dict, Any
+
+from shared.config import settings
 
 FIX_SETTINGS = {
     'default': {
-        'ConnectionType': 'initiator',
-        'ReconnectInterval': 60,
-        'FileStorePath': '/var/lib/quickfixj/client',
-        'FileLogPath': '/var/lib/quickfixj/logs/client',
-        'StartTime': '00:00:00',
-        'EndTime': '00:00:00',
-        'HeartBtInt': 30,
-        'CheckLatency': 'Y',
-        'Validation': 'Y',
+        'ConnectionType': settings.FIX_CONNECTION_TYPE,
+        'ReconnectInterval': settings.FIX_RECONNECT_INTERVAL,
+        'FileStorePath': settings.FIX_FILE_STORE_PATH,
+        'FileLogPath': settings.FIX_FILE_LOG_PATH,
+        'StartTime': settings.FIX_START_TIME,
+        'EndTime': settings.FIX_END_TIME,
+        'HeartBtInt': settings.FIX_HEART_BT_INT,
+        'CheckLatency': settings.FIX_CHECK_LATENCY,
+        'Validation': settings.FIX_VALIDATION,
     },
     'session': {
-        'BeginString': 'FIX.4.4',
-        'DefaultApplVerID': 'FIX.4.4',
-        'TargetCompID': 'SERVER',
-        'SenderCompID': 'CLIENT1',
-        'SocketConnectHost': 'fix-gateway',
-        'SocketConnectPort': 9876,
+        'BeginString': settings.FIX_BEGIN_STRING,
+        'DefaultApplVerID': settings.FIX_DEFAULT_APPL_VER_ID,
+        'TargetCompID': settings.FIX_TARGET_COMP_ID,
+        'SenderCompID': settings.FIX_SENDER_COMP_ID,
+        'SocketConnectHost': settings.FIX_SOCKET_CONNECT_HOST,
+        'SocketConnectPort': settings.FIX_SOCKET_CONNECT_PORT,
     }
 }
 

@@ -1,0 +1,4 @@
+{
+  "enable_rollback": true,
+  "dry_run_mode": true
+}

@@ -1538,10 +1538,7 @@ class ComplianceEngine:
             
         except Exception as e:
             self.logger.error(f"Failed to resolve violation {violation_id}: {e}")
-            raiseol,
-                quantity=check.quantity,
-                action_taken=rule.action
-            )
+            raise
             
             # Store violation
             self._violations[violation.violation_id] = violation

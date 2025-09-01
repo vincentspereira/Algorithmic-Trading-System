@@ -1,0 +1,10 @@
+
+{
+  "repositories": [
+    {
+      "name": "nautilus_trader",
+      "path": "./nautilus_trader_engine",
+      "upstream_url": "https://github.com/nautechsystems/nautilus_trader.git"
+    }
+  ]
+}

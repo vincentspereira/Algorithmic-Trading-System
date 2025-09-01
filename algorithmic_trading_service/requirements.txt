@@ -1,4 +1,9 @@
-fastapi
-uvicorn
-typer
-requests
+# Trading and Financial Data
+yfinance>=0.2.18
+pandas-ta>=0.3.14b0
+ta-lib>=0.4.28
+ccxt>=4.1.0
+
+# Backtesting and Trading Engine
+nautilus_trader>=1.190.0
+backtrader>=1.9.78.123

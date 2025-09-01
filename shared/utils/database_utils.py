@@ -173,7 +173,7 @@ class PostgreSQLConnectionManager:
         finally:
             await session.close()
     
-    @retry(max_attempts=3, exceptions=(psycopg2.OperationalError,))
+    @retry(max_attempts=3, retry_exceptions=(psycopg2.OperationalError,))
     def test_connection(self) -> bool:
         """
         Test database connection
@@ -228,7 +228,7 @@ class RedisConnectionManager:
             self.initialize_pool()
         return self.client
     
-    @retry(max_attempts=3, exceptions=(redis.ConnectionError,))
+    @retry(max_attempts=3, retry_exceptions=(redis.ConnectionError,))
     def test_connection(self) -> bool:
         """
         Test Redis connection

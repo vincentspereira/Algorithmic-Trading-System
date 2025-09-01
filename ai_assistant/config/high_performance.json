@@ -1,0 +1,6 @@
+{
+  "llm_provider": "ollama",
+  "ollama_model": "llama2",
+  "max_tokens": 1000,
+  "max_execution_time": 30
+}

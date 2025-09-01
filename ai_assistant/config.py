@@ -1,6 +1,10 @@
 
 import os
+import json
+import logging
 from typing import Dict
+
+logger = logging.getLogger(__name__)
 
 class AppConfig:
     """Configuration class for managing application settings"""
@@ -34,6 +38,28 @@ class AppConfig:
 
         # CORS Configuration
         self.allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080,http://localhost:3210").split(",")
+        
+        # MCP Configuration
+        self.enable_sequential_thinking = False
+        self.max_file_size = 1048576 # Default 1MB
+
+        self._load_mcp_config()
+
+    def _load_mcp_config(self):
+        mcp_config_name = os.getenv("MCP_CONFIG")
+        if mcp_config_name:
+            config_path = os.path.join(os.path.dirname(__file__), f"{mcp_config_name}.json")
+            if os.path.exists(config_path):
+                logger.info(f"Loading MCP configuration from {config_path}")
+                with open(config_path, 'r') as f:
+                    mcp_config = json.load(f)
+                    for key, value in mcp_config.items():
+                        if hasattr(self, key):
+                            setattr(self, key, value)
+                        else:
+                            logger.warning(f"Unknown configuration key in {mcp_config_name}.json: {key}")
+            else:
+                logger.warning(f"MCP configuration file not found: {config_path}")
 
     def get_phase2_headers(self) -> Dict[str, str]:
         """Get headers for Phase 2 API requests"""

@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import requests
 import websockets
-from test_config_mock import MockIntegrationTestBase, setup_mock_environment
+from .test_config_mock import MockIntegrationTestBase, setup_mock_environment
 from unittest.mock import Mock, patch, AsyncMock
 import logging
 

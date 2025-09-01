@@ -1,39 +1,39 @@
-
-import os
 from typing import Dict
+
+from shared.config import settings
 
 class AppConfig:
     """Configuration class for managing application settings"""
 
     def __init__(self):
         # Phase 2 API Configuration
-        self.phase2_api_base_url = os.getenv("PHASE2_API_BASE_URL", "http://localhost:8001")
-        self.phase2_api_key = os.getenv("PHASE2_API_KEY", "")
+        self.phase2_api_base_url = settings.PHASE2_API_BASE_URL
+        self.phase2_api_key = settings.PHASE2_API_KEY
 
         # AI Assistant Configuration
-        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
-        self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.langchain_api_key = os.getenv("LANGCHAIN_API_KEY", "")
+        self.openai_api_key = settings.OPENAI_API_KEY
+        self.ollama_base_url = settings.OLLAMA_BASE_URL
+        self.langchain_api_key = settings.LANGCHAIN_API_KEY
 
         # LLM Configuration
-        self.llm_provider = os.getenv("LLM_PROVIDER", "openai").lower()  # "openai" or "ollama"
-        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
-        self.ollama_model = os.getenv("OLLAMA_MODEL", "llama2")
-        self.max_tokens = int(os.getenv("MAX_TOKENS", "2000"))
-        self.temperature = float(os.getenv("TEMPERATURE", "0.7"))
+        self.llm_provider = settings.LLM_PROVIDER.lower()
+        self.openai_model = settings.OPENAI_MODEL
+        self.ollama_model = settings.OLLAMA_MODEL
+        self.max_tokens = settings.MAX_TOKENS
+        self.temperature = settings.TEMPERATURE
 
         # Memory Configuration
-        self.memory_window_size = int(os.getenv("MEMORY_WINDOW_SIZE", "10"))
-        self.max_iterations = int(os.getenv("MAX_ITERATIONS", "15"))
-        self.max_execution_time = int(os.getenv("MAX_EXECUTION_TIME", "60"))
+        self.memory_window_size = settings.MEMORY_WINDOW_SIZE
+        self.max_iterations = settings.MAX_ITERATIONS
+        self.max_execution_time = settings.MAX_EXECUTION_TIME
 
         # Service Configuration
-        self.service_port = int(os.getenv("AI_ASSISTANT_PORT", "8002"))
-        self.service_host = os.getenv("AI_ASSISTANT_HOST", "0.0.0.0")
-        self.debug_mode = os.getenv("DEBUG", "false").lower() == "true"
+        self.service_port = settings.AI_ASSISTANT_PORT
+        self.service_host = settings.AI_ASSISTANT_HOST
+        self.debug_mode = settings.DEBUG_MODE
 
         # CORS Configuration
-        self.allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080,http://localhost:3210").split(",")
+        self.allowed_origins = settings.ALLOWED_ORIGINS.split(",")
 
     def get_phase2_headers(self) -> Dict[str, str]:
         """Get headers for Phase 2 API requests"""

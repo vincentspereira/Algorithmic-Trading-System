@@ -1,41 +1,44 @@
-import os
+
 from typing import Dict, Any
+
+from database.app.core.config import db_settings
 
 # This file centralizes all database configurations for the trading system,
 # including connection pooling and performance settings.
 
 # Database URL for SQLAlchemy
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", 
-    "postgresql://user:password@postgres:5432/trading_system"
+DATABASE_URL = (
+    f"postgresql://{db_settings.POSTGRES_USER}:"
+    f"{db_settings.POSTGRES_PASSWORD}@{db_settings.POSTGRES_HOST}:"
+    f"{db_settings.POSTGRES_PORT}/{db_settings.POSTGRES_DATABASE}"
 )
 
 def get_postgres_config() -> Dict[str, Any]:
     """Get PostgreSQL configuration, including connection pooling."""
     return {
-        "host": os.getenv("POSTGRES_HOST", "postgres"),
-        "port": int(os.getenv("POSTGRES_PORT", 5432)),
-        "user": os.getenv("POSTGRES_USER", "user"),
-        "password": os.getenv("POSTGRES_PASSWORD", "password"),
-        "db": os.getenv("POSTGRES_DB", "trading_system"),
+        "host": db_settings.POSTGRES_HOST,
+        "port": db_settings.POSTGRES_PORT,
+        "user": db_settings.POSTGRES_USER,
+        "password": db_settings.POSTGRES_PASSWORD,
+        "db": db_settings.POSTGRES_DATABASE,
         # Connection pooling settings
-        "pool_size": int(os.getenv("POSTGRES_POOL_SIZE", 5)),
-        "max_overflow": int(os.getenv("POSTGRES_MAX_OVERFLOW", 10)),
-        "timeout": int(os.getenv("POSTGRES_TIMEOUT", 30)),
+        "pool_size": db_settings.POSTGRES_POOL_SIZE,
+        "max_overflow": db_settings.POSTGRES_MAX_OVERFLOW,
+        "timeout": db_settings.CONNECTION_TIMEOUT,
     }
 
 def get_clickhouse_config() -> Dict[str, Any]:
     """Get ClickHouse configuration."""
     return {
-        "host": os.getenv("CLICKHOUSE_HOST", "clickhouse"),
-        "port": int(os.getenv("CLICKHOUSE_PORT", 8123)),
-        "user": os.getenv("CLICKHOUSE_USER", "default"),
-        "password": os.getenv("CLICKHOUSE_PASSWORD", ""),
-        "database": os.getenv("CLICKHOUSE_DB", "default"),
+        "host": db_settings.CLICKHOUSE_HOST,
+        "port": db_settings.CLICKHOUSE_PORT,
+        "user": db_settings.CLICKHOUSE_USER,
+        "password": db_settings.CLICKHOUSE_PASSWORD,
+        "database": db_settings.CLICKHOUSE_DATABASE,
     }
 
 def get_duckdb_config() -> Dict[str, str]:
     """Get DuckDB configuration."""
     return {
-        "path": os.getenv("DUCKDB_DATABASE_PATH", "/app/data/duckdb/trading_research.duckdb")
+        "path": db_settings.DUCKDB_DATABASE_PATH
     }
