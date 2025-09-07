@@ -334,13 +334,16 @@ class CacheCoherencyManager:
             self.logger.error(f"Error in periodic coherency check: {e}")
     
     def _hash_value(self, value: Any) -> str:
-        """Generate hash of value for version comparison"""
+        """Generate hash of value for version comparison using JSON and SHA-256 (safer than pickle and MD5)"""
         try:
-            import pickle
-            serialized = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
-            return hashlib.md5(serialized).hexdigest()
+            import json
+            import hashlib
+            # Use JSON serialization which is safer than pickle
+            serialized = json.dumps(value, separators=(',', ':'), default=str).encode('utf-8')
+            return hashlib.sha256(serialized).hexdigest()
         except Exception:
-            return hashlib.md5(str(value).encode('utf-8')).hexdigest()
+            # Fallback to string representation with SHA-256
+            return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
     
     def get_stats(self) -> Dict[str, Any]:
         """Get coherency statistics"""

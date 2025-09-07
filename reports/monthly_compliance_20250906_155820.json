@@ -1,0 +1,159 @@
+{
+  "report_info": {
+    "name": "Monthly Compliance Report",
+    "type": "monthly_compliance",
+    "period_start": "2025-09-06T14:58:20.428423",
+    "period_end": "2025-09-06T15:58:20.428436",
+    "generated_at": "2025-09-06T15:58:20.474243"
+  },
+  "executive_summary": {
+    "reporting_period": "2025-09-06 to 2025-09-06",
+    "total_system_events": 8,
+    "compliance_events": 1,
+    "compliance_rate": 0.875,
+    "overall_status": "COMPLIANT"
+  },
+  "compliance_metrics": {
+    "total_metrics_calculated": 10,
+    "metrics_summary": {
+      "total_metrics": 10,
+      "normal_metrics": 9,
+      "warning_metrics": 1,
+      "critical_metrics": 0,
+      "metrics_by_category": {
+        "total": 4,
+        "avg": 1,
+        "violations": 1,
+        "violation": 1,
+        "failed": 1,
+        "unique": 1,
+        "system": 1
+      }
+    },
+    "detailed_metrics": [
+      {
+        "metric_id": "total_trades",
+        "name": "Total Trades",
+        "description": "Total number of trades executed",
+        "value": 5,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.478309",
+        "metadata": {}
+      },
+      {
+        "metric_id": "avg_trade_size",
+        "name": "Average Trade Size",
+        "description": "Average size of executed trades",
+        "value": 6260.0,
+        "unit": "currency",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.478393",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_violations",
+        "name": "Total Compliance Violations",
+        "description": "Total number of compliance violations",
+        "value": 1,
+        "unit": "count",
+        "threshold": 10.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.480049",
+        "metadata": {}
+      },
+      {
+        "metric_id": "violations_warning",
+        "name": "Violations - Warning",
+        "description": "Number of warning compliance violations",
+        "value": 1,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.480075",
+        "metadata": {}
+      },
+      {
+        "metric_id": "violation_resolution_rate",
+        "name": "Violation Resolution Rate",
+        "description": "Percentage of violations that have been resolved",
+        "value": 0.0,
+        "unit": "percentage",
+        "threshold": 90.0,
+        "status": "warning",
+        "calculation_date": "2025-09-06 15:58:20.480086",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_security_events",
+        "name": "Total Security Events",
+        "description": "Total number of security-related events",
+        "value": 0,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.481364",
+        "metadata": {}
+      },
+      {
+        "metric_id": "failed_login_attempts",
+        "name": "Failed Login Attempts",
+        "description": "Number of failed login attempts",
+        "value": 0,
+        "unit": "count",
+        "threshold": 100.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.482494",
+        "metadata": {}
+      },
+      {
+        "metric_id": "unique_ip_addresses",
+        "name": "Unique IP Addresses",
+        "description": "Number of unique IP addresses accessing the system",
+        "value": 1,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.482504",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_system_errors",
+        "name": "Total System Errors",
+        "description": "Total number of system errors",
+        "value": 0,
+        "unit": "count",
+        "threshold": 50.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.483640",
+        "metadata": {}
+      },
+      {
+        "metric_id": "system_error_rate",
+        "name": "System Error Rate",
+        "description": "Percentage of events that are system errors",
+        "value": 0.0,
+        "unit": "percentage",
+        "threshold": 5.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 15:58:20.484985",
+        "metadata": {}
+      }
+    ]
+  },
+  "violations_analysis": {
+    "total_violations": 1,
+    "violations_by_type": {
+      "position_limit": 1
+    },
+    "violations_by_severity": {
+      "warning": 1
+    },
+    "resolution_rate": 0.0
+  },
+  "recommendations": [
+    "No significant compliance issues identified. Continue current monitoring practices."
+  ]
+}

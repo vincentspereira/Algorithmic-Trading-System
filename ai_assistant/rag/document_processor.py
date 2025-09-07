@@ -211,15 +211,15 @@ class DocumentProcessor:
     
     def _calculate_checksum(self, content: str) -> str:
         """
-        Calculate MD5 checksum of content
+        Calculate SHA-256 checksum of content
         
         Args:
             content: Content to hash
             
         Returns:
-            MD5 checksum string
+            SHA-256 checksum string
         """
-        return hashlib.md5(content.encode('utf-8')).hexdigest()
+        return hashlib.sha256(content.encode('utf-8')).hexdigest()
     
     def process_file(self, file_path: Union[str, Path]) -> List[DocumentChunk]:
         """

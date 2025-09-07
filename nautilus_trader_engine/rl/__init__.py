@@ -7,22 +7,38 @@ This package provides the necessary components to integrate FinRL with the Nauti
 ecosystem, enabling the development, training, and deployment of RL-based trading strategies.
 """
 
-__all__ = [
-    "finrl_config",
-    "environment",
-    "agents",
-    "reward_functions",
-    "training",
-    "utils",
-    "blockly_integration",
-]
+try:
+    from . import (
+        finrl_config,
+        environment,
+        agents,
+        reward_functions,
+        training,
+        utils,
+        blockly_integration,
+    )
+    __all__ = [
+        "finrl_config",
+        "environment",
+        "agents",
+        "reward_functions",
+        "training",
+        "utils",
+        "blockly_integration",
+    ]
+except ImportError as e:
+    print(f"Warning: RL components not available due to missing dependencies: {e}")
+    __all__ = []
 
-from . import (
-    finrl_config,
-    environment,
-    agents,
-    reward_functions,
-    training,
-    utils,
-    blockly_integration,
-)
+try:
+    from . import (
+        finrl_config,
+        environment,
+        agents,
+        reward_functions,
+        training,
+        utils,
+        blockly_integration,
+    )
+except ImportError as e:
+    print(f"Warning: RL components not available due to missing dependencies: {e}")

@@ -10,7 +10,6 @@ from enum import IntEnum
 from typing import Any, Dict, Optional, Union, List
 from dataclasses import dataclass
 import json
-import pickle
 import logging
 
 
@@ -142,27 +141,6 @@ class JSONSerializer(Serializer):
             return str(obj)
 
 
-class PickleSerializer(Serializer):
-    """Pickle serializer for Python objects"""
-    
-    def __init__(self, protocol: int = pickle.HIGHEST_PROTOCOL):
-        self.protocol = protocol
-    
-    def serialize(self, obj: Any) -> bytes:
-        """Serialize object using pickle"""
-        try:
-            return pickle.dumps(obj, protocol=self.protocol)
-        except Exception as e:
-            raise ValueError(f"Pickle serialization failed: {e}")
-    
-    def deserialize(self, data: bytes, obj_type: type = object) -> Any:
-        """Deserialize pickle bytes to object"""
-        try:
-            return pickle.loads(data)
-        except Exception as e:
-            raise ValueError(f"Pickle deserialization failed: {e}")
-
-
 class BinarySerializer(Serializer):
     """High-performance binary serializer for trading data"""
     
@@ -176,41 +154,30 @@ class BinarySerializer(Serializer):
         }
     
     def serialize(self, obj: Any) -> bytes:
-        """Serialize object to binary format"""
-        if hasattr(obj, '__dict__'):
-            # Use pickle for complex objects
-            return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
-        else:
-            # Use struct for simple types
-            return self._serialize_primitive(obj)
+        """Serialize object to binary format using JSON (safer than pickle)"""
+        try:
+            # Use JSON serialization which is safer than pickle
+            json_str = json.dumps(obj, default=self._json_default, separators=(',', ':'))
+            return json_str.encode('utf-8')
+        except Exception as e:
+            raise ValueError(f"Binary serialization failed: {e}")
     
-    def deserialize(self, data: bytes, obj_type: type = object) -> Any:
+    def deserialize(self, data: bytes, obj_type: type = dict) -> Any:
         """Deserialize binary data to object"""
         try:
-            return pickle.loads(data)
-        except:
-            # Fallback to primitive deserialization
-            return self._deserialize_primitive(data, obj_type)
+            json_str = data.decode('utf-8')
+            return json.loads(json_str)
+        except Exception as e:
+            raise ValueError(f"Binary deserialization failed: {e}")
     
-    def _serialize_primitive(self, obj: Any) -> bytes:
-        """Serialize primitive types"""
-        if isinstance(obj, (int, float)):
-            return struct.pack('<d', float(obj))
-        elif isinstance(obj, str):
-            encoded = obj.encode('utf-8')
-            return struct.pack('<I', len(encoded)) + encoded
+    def _json_default(self, obj):
+        """Handle non-serializable objects"""
+        if hasattr(obj, '__dict__'):
+            return obj.__dict__
+        elif hasattr(obj, '_asdict'):  # namedtuple
+            return obj._asdict()
         else:
-            return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
-    
-    def _deserialize_primitive(self, data: bytes, obj_type: type) -> Any:
-        """Deserialize primitive types"""
-        if obj_type == float:
-            return struct.unpack('<d', data)[0]
-        elif obj_type == str:
-            length = struct.unpack('<I', data[:4])[0]
-            return data[4:4+length].decode('utf-8')
-        else:
-            return pickle.loads(data)
+            return str(obj)
 
 
 class ZeroCopySerializer:
@@ -225,7 +192,6 @@ class ZeroCopySerializer:
         self.buffer_size = buffer_size
         self.serializers = {
             'json': JSONSerializer(),
-            'pickle': PickleSerializer(),
             'binary': BinarySerializer()
         }
         
@@ -331,13 +297,7 @@ class ZeroCopySerializer:
                            MessageType.MARKET_DATA_TRADE]:
             return self.serializers['binary']
         
-        # Use pickle for complex objects
-        elif message_type in [MessageType.ORDER_NEW,
-                             MessageType.RISK_CHECK,
-                             MessageType.AI_PREDICTION]:
-            return self.serializers['pickle']
-        
-        # Use JSON for human-readable messages
+        # Use JSON for all other messages (safer than pickle)
         else:
             return self.serializers['json']
     

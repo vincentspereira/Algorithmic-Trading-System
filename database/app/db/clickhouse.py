@@ -10,7 +10,7 @@ except ImportError:
     ClickHouseError = None
     CLICKHOUSE_AVAILABLE = False
 
-from app.core.config import db_settings
+from database.app.core.config import db_settings
 
 logger = logging.getLogger(__name__)
 

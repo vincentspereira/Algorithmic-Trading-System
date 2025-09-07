@@ -12,9 +12,21 @@ import os
 from contextlib import asynccontextmanager, contextmanager
 from typing import Any, AsyncGenerator, Dict, Generator, Optional, Union
 
-import psycopg2
-import redis
-import duckdb
+# Optional database imports
+try:
+    import psycopg2
+except ImportError:
+    psycopg2 = None
+
+try:
+    import redis
+except ImportError:
+    redis = None
+
+try:
+    import duckdb
+except ImportError:
+    duckdb = None
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
@@ -173,7 +185,7 @@ class PostgreSQLConnectionManager:
         finally:
             await session.close()
     
-    @retry(max_attempts=3, retry_exceptions=(psycopg2.OperationalError,))
+    @retry(max_attempts=3, retry_exceptions=(psycopg2.OperationalError,) if psycopg2 else (Exception,))
     def test_connection(self) -> bool:
         """
         Test database connection

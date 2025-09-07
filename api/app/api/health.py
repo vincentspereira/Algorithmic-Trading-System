@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import APIRouter
 from prometheus_client import generate_latest
 
-from app.websockets import ConnectionManager
+from api.app.websockets import ConnectionManager
 from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 
 router = APIRouter()

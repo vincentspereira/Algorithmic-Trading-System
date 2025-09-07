@@ -2,7 +2,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from app.db.redis import RedisManager
+from database.app.db.redis import RedisManager
 
 @pytest.fixture
 def redis_manager():

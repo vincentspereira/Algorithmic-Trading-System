@@ -5,7 +5,7 @@ from typing import Optional, Any
 import redis
 import structlog
 
-from app.core.config import api_settings
+from api.app.core.config import api_settings
 
 logger = structlog.get_logger()
 

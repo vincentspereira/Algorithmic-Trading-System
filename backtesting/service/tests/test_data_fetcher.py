@@ -1,4 +1,3 @@
-
 import asyncio
 from datetime import datetime
 from unittest.mock import MagicMock, patch
@@ -6,14 +5,15 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
 
-from data.data_fetcher import DataFetcher
-from app.models import DataRequest
+# Fix the import - use DataService instead of DataFetcher
+from backtesting.service.data_service import DataService, DataRequest
 
 @pytest.fixture
 def data_fetcher():
     with patch('redis.Redis') as mock_redis:
         with patch('kafka.KafkaConsumer'), patch('kafka.KafkaProducer'):
-            fetcher = DataFetcher()
+            # Create DataService instance instead of DataFetcher
+            fetcher = DataService()
             fetcher.redis = mock_redis.return_value
             return fetcher
 

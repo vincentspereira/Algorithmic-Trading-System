@@ -378,7 +378,7 @@ class NLPProcessor:
     def _get_cache_key(self, text: str, model_type: str, **kwargs) -> str:
         """Generate cache key for text and parameters"""
         content = f"{text}_{model_type}_{json.dumps(kwargs, sort_keys=True)}"
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.sha256(content.encode()).hexdigest()
     
     def _get_from_cache(self, cache_key: str) -> Optional[Any]:
         """Get result from cache if available and not expired"""

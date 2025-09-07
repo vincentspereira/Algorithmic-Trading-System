@@ -1,0 +1,205 @@
+{
+  "report_info": {
+    "name": "Daily Trading Report",
+    "type": "daily_trading",
+    "period_start": "2025-09-06T18:19:20.802224",
+    "period_end": "2025-09-06T19:19:20.802236",
+    "generated_at": "2025-09-06T19:19:20.810199"
+  },
+  "trading_summary": {
+    "total_trades": 5,
+    "total_orders": 0,
+    "order_to_trade_ratio": 0.0,
+    "unique_traders": 1,
+    "trading_volume": 31300.0
+  },
+  "compliance_summary": {
+    "total_metrics": 10,
+    "warning_metrics": 1,
+    "critical_metrics": 0,
+    "metrics": [
+      {
+        "metric_id": "total_trades",
+        "name": "Total Trades",
+        "description": "Total number of trades executed",
+        "value": 5,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.813736",
+        "metadata": {}
+      },
+      {
+        "metric_id": "avg_trade_size",
+        "name": "Average Trade Size",
+        "description": "Average size of executed trades",
+        "value": 6260.0,
+        "unit": "currency",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.813818",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_violations",
+        "name": "Total Compliance Violations",
+        "description": "Total number of compliance violations",
+        "value": 1,
+        "unit": "count",
+        "threshold": 10.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.814923",
+        "metadata": {}
+      },
+      {
+        "metric_id": "violations_warning",
+        "name": "Violations - Warning",
+        "description": "Number of warning compliance violations",
+        "value": 1,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.814945",
+        "metadata": {}
+      },
+      {
+        "metric_id": "violation_resolution_rate",
+        "name": "Violation Resolution Rate",
+        "description": "Percentage of violations that have been resolved",
+        "value": 0.0,
+        "unit": "percentage",
+        "threshold": 90.0,
+        "status": "warning",
+        "calculation_date": "2025-09-06 19:19:20.814956",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_security_events",
+        "name": "Total Security Events",
+        "description": "Total number of security-related events",
+        "value": 0,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.816311",
+        "metadata": {}
+      },
+      {
+        "metric_id": "failed_login_attempts",
+        "name": "Failed Login Attempts",
+        "description": "Number of failed login attempts",
+        "value": 0,
+        "unit": "count",
+        "threshold": 100.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.818022",
+        "metadata": {}
+      },
+      {
+        "metric_id": "unique_ip_addresses",
+        "name": "Unique IP Addresses",
+        "description": "Number of unique IP addresses accessing the system",
+        "value": 1,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.818034",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_system_errors",
+        "name": "Total System Errors",
+        "description": "Total number of system errors",
+        "value": 0,
+        "unit": "count",
+        "threshold": 50.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.820033",
+        "metadata": {}
+      },
+      {
+        "metric_id": "system_error_rate",
+        "name": "System Error Rate",
+        "description": "Percentage of events that are system errors",
+        "value": 0.0,
+        "unit": "percentage",
+        "threshold": 5.0,
+        "status": "normal",
+        "calculation_date": "2025-09-06 19:19:20.821570",
+        "metadata": {}
+      }
+    ]
+  },
+  "detailed_events": [
+    {
+      "event_id": "1c14c1b8-4b94-4b04-9760-a9637bb5a22e",
+      "event_type": "trade_execution",
+      "timestamp": "2025-09-06T19:19:20.774668",
+      "user_id": "trader_001",
+      "action": "execute_trade",
+      "details": {
+        "symbol": "STOCK4",
+        "quantity": 140,
+        "price": 54.0,
+        "amount": 7560.0,
+        "side": "buy"
+      }
+    },
+    {
+      "event_id": "1c2bdc84-5a19-41a7-b119-b2f8442e72bd",
+      "event_type": "trade_execution",
+      "timestamp": "2025-09-06T19:19:20.766646",
+      "user_id": "trader_001",
+      "action": "execute_trade",
+      "details": {
+        "symbol": "STOCK3",
+        "quantity": 130,
+        "price": 53.0,
+        "amount": 6890.0,
+        "side": "sell"
+      }
+    },
+    {
+      "event_id": "20f989ef-2407-44d4-9454-2a7ac6a9d57c",
+      "event_type": "trade_execution",
+      "timestamp": "2025-09-06T19:19:20.759143",
+      "user_id": "trader_001",
+      "action": "execute_trade",
+      "details": {
+        "symbol": "STOCK2",
+        "quantity": 120,
+        "price": 52.0,
+        "amount": 6240.0,
+        "side": "buy"
+      }
+    },
+    {
+      "event_id": "2392ab5c-c4d7-4730-ba24-7471e5fef850",
+      "event_type": "trade_execution",
+      "timestamp": "2025-09-06T19:19:20.750507",
+      "user_id": "trader_001",
+      "action": "execute_trade",
+      "details": {
+        "symbol": "STOCK1",
+        "quantity": 110,
+        "price": 51.0,
+        "amount": 5610.0,
+        "side": "sell"
+      }
+    },
+    {
+      "event_id": "0968e147-7d39-496a-8718-badb3c32207e",
+      "event_type": "trade_execution",
+      "timestamp": "2025-09-06T19:19:20.742879",
+      "user_id": "trader_001",
+      "action": "execute_trade",
+      "details": {
+        "symbol": "STOCK0",
+        "quantity": 100,
+        "price": 50.0,
+        "amount": 5000.0,
+        "side": "buy"
+      }
+    }
+  ]
+}

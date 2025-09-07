@@ -49,10 +49,12 @@ class CacheEntry:
             self.tags = set()
     
     def _calculate_size(self) -> int:
-        """Calculate approximate size of cached value"""
+        """Calculate approximate size of cached value using JSON serialization (safer than pickle)"""
         try:
-            import pickle
-            return len(pickle.dumps(self.value))
+            import json
+            # Use JSON serialization which is safer than pickle
+            serialized = json.dumps(self.value, separators=(',', ':'), default=str)
+            return len(serialized.encode('utf-8'))
         except:
             return len(str(self.value).encode('utf-8'))
     

@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phase 1 Comprehensive Test Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .summary { display: flex; justify-content: space-around; margin: 20px 0; }
+        .metric { text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .passed { background-color: #d4edda; }
+        .failed { background-color: #f8d7da; }
+        .skipped { background-color: #fff3cd; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .defect-critical { background-color: #dc3545; color: white; }
+        .defect-high { background-color: #fd7e14; color: white; }
+        .defect-medium { background-color: #ffc107; }
+        .defect-low { background-color: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Phase 1 Comprehensive Test Report</h1>
+        <p>Generated: 2025-09-05 17:45:05</p>
+        <p>Duration: 0.00 seconds</p>
+    </div>
+    
+    <div class="summary">
+        <div class="metric passed">
+            <h3>2</h3>
+            <p>Passed</p>
+        </div>
+        <div class="metric failed">
+            <h3>22</h3>
+            <p>Failed</p>
+        </div>
+        <div class="metric skipped">
+            <h3>21</h3>
+            <p>Skipped</p>
+        </div>
+        <div class="metric">
+            <h3>4.4%</h3>
+            <p>Pass Rate</p>
+        </div>
+    </div>
+    
+    <h2>Test Results by Type</h2>
+    <table>
+        <tr><th>Test Type</th><th>Total</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Pass Rate</th></tr>
+
+        <tr>
+            <td>Unit</td>
+            <td>18</td>
+            <td>0</td>
+            <td>5</td>
+            <td>13</td>
+            <td>0.0%</td>
+        </tr>
+
+        <tr>
+            <td>Integration</td>
+            <td>9</td>
+            <td>1</td>
+            <td>6</td>
+            <td>2</td>
+            <td>11.1%</td>
+        </tr>
+
+        <tr>
+            <td>System</td>
+            <td>10</td>
+            <td>1</td>
+            <td>3</td>
+            <td>6</td>
+            <td>10.0%</td>
+        </tr>
+
+        <tr>
+            <td>Uat</td>
+            <td>8</td>
+            <td>0</td>
+            <td>8</td>
+            <td>0</td>
+            <td>0.0%</td>
+        </tr>
+
+    </table>
+    
+    <h2>Defects Summary</h2>
+    <table>
+        <tr><th>Severity</th><th>Count</th></tr>
+<tr class="defect-critical"><td>CRITICAL</td><td>0</td></tr><tr class="defect-high"><td>HIGH</td><td>9</td></tr><tr class="defect-medium"><td>MEDIUM</td><td>13</td></tr><tr class="defect-low"><td>LOW</td><td>0</td></tr>
+    </table>
+    
+    <h2>Recommendations</h2>
+    <ul>
+<li>Overall pass rate is 4.4%. Recommend addressing failed tests before production deployment.</li><li>21 tests were skipped. Implement missing test files for complete coverage.</li><li>Component coverage is 63.6%. Add tests for: Audit Trail, Portfolio Management, Compliance, Risk Management, Technical Indicators</li>
+    </ul>
+    
+    <h2>Detailed Test Results</h2>
+    <table>
+        <tr><th>Test Name</th><th>Type</th><th>Status</th><th>Duration</th><th>Error</th></tr>
+
+        <tr class="failed">
+            <td>NautilusTrader Integration</td>
+            <td>unit</td>
+            <td>FAILED</td>
+            <td>3.08s</td>
+            <td>ERROR: file or directory not found: C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Alg</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Order Management</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: nautilus_trader_engine/order_management/test_*.py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Risk Management</td>
+            <td>unit</td>
+            <td>FAILED</td>
+            <td>3.16s</td>
+            <td>ERROR: file or directory not found: C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Alg</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Portfolio Management</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: nautilus_trader_engine/portfolio/test_*.py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>PostgreSQL Integration</td>
+            <td>unit</td>
+            <td>FAILED</td>
+            <td>4.56s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>ClickHouse Integration</td>
+            <td>unit</td>
+            <td>FAILED</td>
+            <td>4.40s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Redis Integration</td>
+            <td>unit</td>
+            <td>FAILED</td>
+            <td>4.13s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Qdrant Integration</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: database/tests/test_qdrant.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>REST API</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: api/tests/test_rest_api.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>GraphQL API</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: api/tests/test_graphql_api.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>WebSocket API</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: api/tests/test_websocket_api.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>gRPC API</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: api/tests/test_grpc_api.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Authentication</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: security/tests/test_auth.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Authorization</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: security/tests/test_rbac.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Encryption</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: security/tests/test_encryption.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Volume-Weighted Indicators</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: nautilus_trader_engine/indicators/test_*.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Market Data Service</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: market_data_service/tests/test_*.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Data Normalization</td>
+            <td>unit</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: tests/test_data_normalization.py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>End-to-End Trading Workflow</td>
+            <td>integration</td>
+            <td>FAILED</td>
+            <td>304.91s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Database Integration Suite</td>
+            <td>integration</td>
+            <td>FAILED</td>
+            <td>5.03s</td>
+            <td>C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\_pytest\unraisableexception.</td>
+        </tr>
+
+        <tr class="failed">
+            <td>API Integration Suite</td>
+            <td>integration</td>
+            <td>FAILED</td>
+            <td>5.43s</td>
+            <td>C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\_pytest\unraisableexception.</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Kafka Event Bus</td>
+            <td>integration</td>
+            <td>FAILED</td>
+            <td>5.35s</td>
+            <td>C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\_pytest\unraisableexception.</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Event Processing</td>
+            <td>integration</td>
+            <td>FAILED</td>
+            <td>4.92s</td>
+            <td>C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\_pytest\unraisableexception.</td>
+        </tr>
+
+        <tr class="passed">
+            <td>Data Pipeline Integration</td>
+            <td>integration</td>
+            <td>PASSED</td>
+            <td>4.23s</td>
+            <td></td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Market Data Flow</td>
+            <td>integration</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: tests/integration/test_market_data_flow.py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Zero-Trust Architecture</td>
+            <td>integration</td>
+            <td>FAILED</td>
+            <td>5.71s</td>
+            <td>C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\_pytest\unraisableexception.</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>RBAC Integration</td>
+            <td>integration</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: tests/integration/test_rbac_integration.py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Complete Trading System</td>
+            <td>system</td>
+            <td>FAILED</td>
+            <td>5.03s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Multi-Asset Trading</td>
+            <td>system</td>
+            <td>FAILED</td>
+            <td>4.92s</td>
+            <td>C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\_pytest\unraisableexception.</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>High-Frequency Trading</td>
+            <td>system</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: tests/system/test_hft_capabilities.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Latency Requirements (<100ms)</td>
+            <td>system</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: performance/test_latency.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Throughput Requirements</td>
+            <td>system</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: performance/test_throughput.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Scalability Testing</td>
+            <td>system</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: performance/test_scalability.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Backup and Recovery</td>
+            <td>system</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: tests/disaster_recovery/test_backup_recovery.py</td>
+        </tr>
+
+        <tr class="skipped">
+            <td>Failover Testing</td>
+            <td>system</td>
+            <td>SKIPPED</td>
+            <td>0.00s</td>
+            <td>Test file not found: tests/disaster_recovery/test_failover.py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Audit Trail Validation</td>
+            <td>system</td>
+            <td>FAILED</td>
+            <td>9.90s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="passed">
+            <td>Compliance Engine</td>
+            <td>system</td>
+            <td>PASSED</td>
+            <td>4.40s</td>
+            <td></td>
+        </tr>
+
+        <tr class="failed">
+            <td>Strategy Creation Workflow</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>7.28s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Portfolio Management Workflow</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>7.97s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Risk Management Workflow</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>7.87s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Trading Dashboard Usability</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>3.42s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>API Documentation Completeness</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>5.84s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Multi-Asset Support</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>9.02s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Real-Time Data Processing</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>9.29s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+        <tr class="failed">
+            <td>Regulatory Compliance</td>
+            <td>uat</td>
+            <td>FAILED</td>
+            <td>4.79s</td>
+            <td>============================= test session starts =============================
+platform win32 -- Py</td>
+        </tr>
+
+    </table>
+</body>
+</html>

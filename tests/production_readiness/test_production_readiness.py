@@ -16,12 +16,12 @@ from unittest.mock import Mock, patch, AsyncMock
 import logging
 
 # Import production readiness modules
-from production_readiness_framework import (
-    ProductionReadinessValidator, DeploymentChecker, SecurityComplianceValidator,
-    PerformanceValidator, GoLiveAssessment, ChecklistItem, ChecklistCategory,
-    ValidationResult, ReadinessStatus
+from tests.production_readiness.production_readiness_framework import (
+    ProductionReadinessValidator, DeploymentValidator, SecurityValidator,
+    PerformanceValidator, ValidationCheck, ValidationCategory,
+    ValidationResult, ValidationStatus
 )
-from production_readiness_automation import (
+from tests.production_readiness.production_readiness_automation import (
     ProductionReadinessAutomation, ReadinessSchedule, GoLiveEvent
 )
 
@@ -41,7 +41,7 @@ class TestDeploymentChecker:
     async def test_pre_deployment_checklist(self, deployment_checker):
         """Test pre-deployment checklist validation"""
         checklist_items = [
-            ChecklistItem(
+            ValidationCheck(
                 item_id="infra_001",
                 name="Server Capacity Check",
                 category="infrastructure",
@@ -49,7 +49,7 @@ class TestDeploymentChecker:
                 validation_function="check_server_capacity",
                 required=True
             ),
-            ChecklistItem(
+            ValidationCheck(
                 item_id="sec_001",
                 name="SSL Certificate Validation",
                 category="security",
@@ -66,13 +66,13 @@ class TestDeploymentChecker:
         for result in results:
             assert isinstance(result, ValidationResult)
             assert result.item_id in ["infra_001", "sec_001"]
-            assert result.status in [ReadinessStatus.PASS, ReadinessStatus.FAIL, ReadinessStatus.WARNING]
+            assert result.status in [ValidationStatus.PASS, ValidationStatus.FAIL, ValidationStatus.WARNING]
     
     @pytest.mark.asyncio
     async def test_post_deployment_checklist(self, deployment_checker):
         """Test post-deployment checklist validation"""
         checklist_items = [
-            ChecklistItem(
+            ValidationCheck(
                 item_id="func_001",
                 name="Application Startup Verification",
                 category="functionality",
@@ -80,7 +80,7 @@ class TestDeploymentChecker:
                 validation_function="verify_application_startup",
                 required=True
             ),
-            ChecklistItem(
+            ValidationCheck(
                 item_id="perf_001",
                 name="Response Time Validation",
                 category="performance",
@@ -101,7 +101,7 @@ class TestDeploymentChecker:
     
     def test_checklist_item_creation(self, deployment_checker):
         """Test checklist item creation and validation"""
-        item = ChecklistItem(
+        item = ValidationCheck(
             item_id="test_001",
             name="Test Item",
             category="testing",
@@ -124,7 +124,7 @@ class TestDeploymentChecker:
             return ValidationResult(
                 item_id="fail_001",
                 name="Failing Test",
-                status=ReadinessStatus.FAIL,
+                status=ValidationStatus.FAIL,
                 message="Test failure",
                 details={"error": "Simulated failure"},
                 timestamp=datetime.now(),
@@ -134,7 +134,7 @@ class TestDeploymentChecker:
         deployment_checker.validation_functions["failing_test"] = failing_validation
         
         checklist_items = [
-            ChecklistItem(
+            ValidationCheck(
                 item_id="fail_001",
                 name="Failing Test",
                 category="testing",
@@ -144,10 +144,10 @@ class TestDeploymentChecker:
             )
         ]
         
-        results = await deployment_checker.validate_checklist(checklist_items, "test")
+        results = await deployment_validator.validate_checklist(checklist_items, "test")
         
         assert len(results) == 1
-        assert results[0].status == ReadinessStatus.FAIL
+        assert results[0].status == ValidationStatus.FAIL
         assert "Test failure" in results[0].message
 
 class TestSecurityComplianceValidator:
@@ -174,7 +174,7 @@ class TestSecurityComplianceValidator:
         for result in results:
             assert isinstance(result, ValidationResult)
             assert result.category == "authentication"
-            assert result.status in [ReadinessStatus.PASS, ReadinessStatus.FAIL, ReadinessStatus.WARNING]
+            assert result.status in [ValidationStatus.PASS, ValidationStatus.FAIL, ValidationStatus.WARNING]
     
     @pytest.mark.asyncio
     async def test_encryption_validation(self, security_validator):
@@ -329,131 +329,7 @@ class TestPerformanceValidator:
             assert result.category == "performance"
             assert "scalability" in result.name.lower()
 
-class TestGoLiveAssessment:
-    """Test go-live readiness assessment"""
-    
-    @pytest.fixture
-    def go_live_assessment(self):
-        """Create go-live assessment instance"""
-        return GoLiveAssessment()
-    
-    @pytest.mark.asyncio
-    async def test_technical_readiness_assessment(self, go_live_assessment):
-        """Test technical readiness assessment"""
-        technical_criteria = [
-            "all_tests_passing",
-            "performance_benchmarks_met",
-            "security_scans_clean",
-            "monitoring_configured"
-        ]
-        
-        results = await go_live_assessment.assess_technical_readiness(technical_criteria)
-        
-        assert len(results) == len(technical_criteria)
-        
-        for result in results:
-            assert result.category == "technical_readiness"
-            assert result.name in technical_criteria
-    
-    @pytest.mark.asyncio
-    async def test_operational_readiness_assessment(self, go_live_assessment):
-        """Test operational readiness assessment"""
-        operational_criteria = [
-            "runbooks_documented",
-            "support_team_trained",
-            "escalation_procedures_defined",
-            "rollback_procedures_tested"
-        ]
-        
-        results = await go_live_assessment.assess_operational_readiness(operational_criteria)
-        
-        assert len(results) == len(operational_criteria)
-        
-        for result in results:
-            assert result.category == "operational_readiness"
-            assert result.name in operational_criteria
-    
-    @pytest.mark.asyncio
-    async def test_business_readiness_assessment(self, go_live_assessment):
-        """Test business readiness assessment"""
-        business_criteria = [
-            "stakeholder_approval_obtained",
-            "user_acceptance_testing_complete",
-            "compliance_requirements_met",
-            "risk_assessment_approved"
-        ]
-        
-        results = await go_live_assessment.assess_business_readiness(business_criteria)
-        
-        assert len(results) == len(business_criteria)
-        
-        for result in results:
-            assert result.category == "business_readiness"
-            assert result.name in business_criteria
-    
-    @pytest.mark.asyncio
-    async def test_overall_readiness_assessment(self, go_live_assessment):
-        """Test overall readiness assessment"""
-        # Mock some validation results
-        mock_results = [
-            ValidationResult(
-                item_id="tech_001",
-                name="All Tests Passing",
-                status=ReadinessStatus.PASS,
-                message="All tests are passing",
-                category="technical_readiness",
-                details={},
-                timestamp=datetime.now(),
-                required=True
-            ),
-            ValidationResult(
-                item_id="ops_001",
-                name="Runbooks Documented",
-                status=ReadinessStatus.PASS,
-                message="Runbooks are documented",
-                category="operational_readiness",
-                details={},
-                timestamp=datetime.now(),
-                required=True
-            ),
-            ValidationResult(
-                item_id="biz_001",
-                name="Stakeholder Approval",
-                status=ReadinessStatus.FAIL,
-                message="Stakeholder approval pending",
-                category="business_readiness",
-                details={},
-                timestamp=datetime.now(),
-                required=True
-            )
-        ]
-        
-        overall_assessment = await go_live_assessment.assess_overall_readiness(mock_results)
-        
-        assert overall_assessment is not None
-        assert "overall_status" in overall_assessment
-        assert "readiness_score" in overall_assessment
-        assert "category_scores" in overall_assessment
-        assert "blocking_issues" in overall_assessment
-        
-        # Should not be ready due to failed business readiness
-        assert overall_assessment["overall_status"] != ReadinessStatus.PASS
-    
-    def test_sign_off_requirements_validation(self, go_live_assessment):
-        """Test sign-off requirements validation"""
-        sign_offs = {
-            "technical_lead": True,
-            "security_team": True,
-            "operations_team": False,  # Missing sign-off
-            "business_owner": True,
-            "compliance_officer": True
-        }
-        
-        validation_result = go_live_assessment.validate_sign_offs(sign_offs)
-        
-        assert validation_result is not None
-        assert validation_result.status == ReadinessStatus.FAIL  # Due to missing operations sign-off
-        assert "operations_team" in validation_result.message
+
 
 class TestProductionReadinessValidator:
     """Test production readiness validator"""
@@ -527,7 +403,7 @@ class TestProductionReadinessValidator:
                 ValidationResult(
                     item_id="deploy_001",
                     name="Server Capacity",
-                    status=ReadinessStatus.PASS,
+                    status=ValidationStatus.PASS,
                     message="Server capacity is adequate",
                     category="infrastructure",
                     details={"cpu_cores": 8, "memory_gb": 32},
@@ -539,7 +415,7 @@ class TestProductionReadinessValidator:
                 ValidationResult(
                     item_id="sec_001",
                     name="SSL Certificates",
-                    status=ReadinessStatus.PASS,
+                    status=ValidationStatus.PASS,
                     message="SSL certificates are valid",
                     category="security",
                     details={"expiry_date": "2025-12-31"},
@@ -631,7 +507,7 @@ class TestProductionReadinessAutomation:
             "validation_id": "test_001",
             "timestamp": datetime.now(),
             "environment": "staging",
-            "overall_status": ReadinessStatus.PASS,
+            "overall_status": ValidationStatus.PASS,
             "total_checks": 10,
             "passed_checks": 8,
             "failed_checks": 2

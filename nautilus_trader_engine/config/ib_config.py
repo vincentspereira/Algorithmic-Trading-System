@@ -1,9 +1,63 @@
 import os
-from nautilus_trader.adapters.interactive_brokers.common import IB
-from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersDataClientConfig
-from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersExecClientConfig
-from nautilus_trader.config import TradingNodeConfig, CacheConfig, MessageBusConfig, LiveDataEngineConfig, LiveRiskEngineConfig, LiveExecEngineConfig, PortfolioConfig
-from nautilus_trader.model.identifiers import TraderId, Venue
+
+# Optional nautilus_trader imports
+try:
+    from nautilus_trader.adapters.interactive_brokers.common import IB
+    from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersDataClientConfig
+    from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersExecClientConfig
+    from nautilus_trader.config import TradingNodeConfig, CacheConfig, MessageBusConfig, LiveDataEngineConfig, LiveRiskEngineConfig, LiveExecEngineConfig, PortfolioConfig
+    from nautilus_trader.model.identifiers import TraderId, Venue
+    NAUTILUS_AVAILABLE = True
+except ImportError:
+    # Mock classes when nautilus_trader is not available
+    class IB:
+        pass
+    
+    class InteractiveBrokersDataClientConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class InteractiveBrokersExecClientConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class TradingNodeConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class CacheConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class MessageBusConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class LiveDataEngineConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class LiveRiskEngineConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class LiveExecEngineConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class PortfolioConfig:
+        def __init__(self, **kwargs):
+            pass
+    
+    class TraderId:
+        def __init__(self, trader_id):
+            self.trader_id = trader_id
+    
+    class Venue:
+        def __init__(self, name):
+            self.name = name
+    
+    NAUTILUS_AVAILABLE = False
 
 from shared.config import settings
 
@@ -96,3 +150,12 @@ class IBPaperConfig:
 
 class IBLiveConfig:
     pass
+
+class IBCommonConfig:
+    """Common configuration for Interactive Brokers adapter."""
+    def __init__(self, host="127.0.0.1", port=7497, client_id=1, account=None):
+        self.host = host
+        self.port = port
+        self.client_id = client_id
+        self.account = account
+        self.symbol_map = SYMBOL_MAP

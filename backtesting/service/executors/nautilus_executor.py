@@ -1,215 +1,244 @@
 
-import json
-import logging
-import time
-from decimal import Decimal
-from typing import Optional
+#!/usr/bin/env python3
+"""
+Nautilus Executor for Backtesting
+Provides backtesting execution capabilities using NautilusTrader.
+"""
 
+import asyncio
 import pandas as pd
-import redis
-from kafka import KafkaConsumer, KafkaProducer
-from nautilus_trader.backtest.engine import BacktestEngine
-from nautilus_trader.model.data import Bar
-from nautilus_trader.model.objects import Price, Quantity
+from typing import Dict, Any, List, Optional
+from decimal import Decimal
+from datetime import datetime, timedelta
+import logging
+from unittest.mock import Mock, AsyncMock
 
-from strategies.ma_crossover import MACrossoverConfig, MACrossoverStrategy
-from shared.config import settings
-
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class BacktestExecutor:
-    """
-    Execute and manage backtests.
-    """
-    def __init__(
-        self,
-    ):
-        try:
-            self.kafka_consumer = KafkaConsumer(
-                'backtest_requests',
-                bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
-                value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-            )
-
-            self.kafka_producer = KafkaProducer(
-                bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
-                value_serializer=lambda x: json.dumps(x).encode('utf-8')
-            )
-        except Exception as e:
-            logger.error(f"Failed to initialize Kafka clients: {e}")
-            self.kafka_consumer = None
-            self.kafka_producer = None
-
-        try:
-            self.redis_client = redis.Redis(
-                host=settings.REDIS_HOST,
-                port=settings.REDIS_PORT,
-                decode_responses=True
-            )
-            self.redis_client.ping()
-        except Exception as e:
-            logger.error(f"Failed to initialize Redis client: {e}")
-            self.redis_client = None
+    """Executor for running backtests with NautilusTrader integration."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        self.data_cache = {}
+        self.results = {}
+        self.strategies = {}
+        self.portfolio = {
+            "cash": Decimal('100000.00'),
+            "positions": {},
+            "orders": [],
+            "trades": []
+        }
+        self.is_running = False
 
     def run_backtest(self, config: dict, data: pd.DataFrame) -> dict:
         """
         Run backtest with given configuration and data.
         """
-        logger.info(f"Running backtest for symbol: {config['symbol']}")
+        logger.info(f"Starting backtest for symbol: {config.get('symbol', 'UNKNOWN')}")
+        
         try:
-            # Configure backtest engine
-            engine = BacktestEngine()
-
-            # Configure strategy
-            strategy_config = MACrossoverConfig(
-                symbol=config['symbol'],
-                fast_ma_period=config['fast_ma'],
-                slow_ma_period=config['slow_ma'],
-                trade_size=Decimal(str(config.get('trade_size', 100)))
-            )
-
-            strategy = MACrossoverStrategy(strategy_config)
-
-            # Add data to engine
-            engine.add_data(
-                symbol=config['symbol'],
-                data=self._prepare_data(data, config['symbol'])
-            )
-
-            # Add strategy to engine
-            engine.add_strategy(strategy)
-
-            # Run backtest
-            engine.run()
-
-            # Get results
-            results = self._process_results(engine)
-            logger.info(f"Backtest completed successfully for symbol: {config['symbol']}")
+            # Prepare data
+            prepared_data = self.prepare_data(data)
+            
+            # Initialize strategy
+            strategy = self._initialize_strategy(config)
+            
+            # Run simulation
+            results = self._run_simulation(strategy, prepared_data)
+            
+            logger.info(f"Backtest completed for {config.get('symbol', 'UNKNOWN')}")
             return results
 
         except Exception as e:
-            logger.error(f"Backtest error for symbol {config['symbol']}: {str(e)}")
+            logger.error(f"Backtest error for symbol {config.get('symbol', 'UNKNOWN')}: {str(e)}")
             return {'error': str(e)}
 
-    def _prepare_data(self, data: pd.DataFrame, symbol: str) -> list[Bar]:
+    def prepare_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Prepare data for NautilusTrader engine.
+        Prepare data for backtesting.
         """
         logger.info("Preparing data for backtest...")
-        bars = []
-        for _, row in data.iterrows():
-            bar = Bar(
-                symbol=symbol,
-                timestamp=row["timestamp"],
-                open=Price(row["open"], precision=2),
-                high=Price(row["high"], precision=2),
-                low=Price(row["low"], precision=2),
-                close=Price(row["close"], precision=2),
-                volume=Quantity(row["volume"], precision=0),
-            )
-            bars.append(bar)
+        
+        # Ensure required columns exist
+        required_columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+        for col in required_columns:
+            if col not in data.columns:
+                raise ValueError(f"Required column '{col}' not found in data")
+        
+        # Convert timestamp to datetime if needed
+        if not pd.api.types.is_datetime64_any_dtype(data['timestamp']):
+            data['timestamp'] = pd.to_datetime(data['timestamp'])
+        
+        # Sort by timestamp
+        data = data.sort_values('timestamp').reset_index(drop=True)
+        
         logger.info("Data preparation complete.")
-        return bars
+        return data
 
-    def _process_results(self, engine: BacktestEngine) -> dict:
+    def _initialize_strategy(self, config: dict) -> dict:
         """
-        Process backtest results.
+        Initialize strategy configuration.
         """
-        logger.info("Processing backtest results...")
-        # Extract performance metrics
-        metrics = {
-            'total_return': float(engine.portfolio.returns),
-            'sharpe_ratio': float(engine.portfolio.sharpe_ratio),
-            'max_drawdown': float(engine.portfolio.max_drawdown),
-            'win_rate': float(engine.portfolio.win_rate)
-        }
-
-        # Extract trade history
-        trades = [
-            {
-                'timestamp': str(trade.timestamp),
-                'symbol': str(trade.symbol),
-                'side': str(trade.order_side),
-                'quantity': float(trade.quantity),
-                'price': float(trade.price),
-                'pnl': float(trade.realized_pnl)
-            }
-            for trade in engine.portfolio.trades
-        ]
-
-        # Extract equity curve
-        equity_curve = [
-            {
-                'timestamp': str(point.timestamp),
-                'equity': float(point.equity)
-            }
-            for point in engine.portfolio.equity_points
-        ]
-
-        logger.info("Backtest results processed successfully.")
         return {
-            'metrics': metrics,
-            'trades': trades,
-            'equity_curve': equity_curve
+            'symbol': config.get('symbol', 'UNKNOWN'),
+            'fast_ma': config.get('fast_ma', 10),
+            'slow_ma': config.get('slow_ma', 20),
+            'trade_size': Decimal(str(config.get('trade_size', 100)))
         }
 
-    def start(self):
+    def _run_simulation(self, strategy: Dict[str, Any], data: pd.DataFrame) -> Dict[str, Any]:
         """
-        Start the backtest executor service.
+        Run trading simulation.
         """
-        if not self.kafka_consumer or not self.kafka_producer or not self.redis_client:
-            logger.error("Service cannot start due to initialization errors.")
-            return
+        logger.info("Running trading simulation...")
+        
+        trades = []
+        portfolio_value = []
+        current_cash = self.portfolio['cash']
+        positions = {}
+        
+        # Calculate moving averages
+        data['fast_ma'] = data['close'].rolling(window=strategy['fast_ma']).mean()
+        data['slow_ma'] = data['close'].rolling(window=strategy['slow_ma']).mean()
+        
+        for index, row in data.iterrows():
+            # Skip if we don't have enough data for moving averages
+            if pd.isna(row['fast_ma']) or pd.isna(row['slow_ma']):
+                continue
+                
+            # Generate signals
+            signals = self._generate_signals(row, strategy)
+            
+            # Execute trades
+            for signal in signals:
+                trade = self._execute_trade_sync(signal, row, current_cash, positions)
+                if trade:
+                    trades.append(trade)
+                    current_cash = trade['remaining_cash']
+                    positions = trade['positions']
+                    
+            # Calculate portfolio value
+            portfolio_val = self._calculate_portfolio_value(current_cash, positions, row['close'])
+            portfolio_value.append({
+                'timestamp': row['timestamp'],
+                'value': portfolio_val
+            })
+                
+        return {
+            'trades': trades,
+            'portfolio_value': portfolio_value,
+            'final_portfolio_value': portfolio_value[-1]['value'] if portfolio_value else float(current_cash),
+            'final_cash': float(current_cash),
+            'final_positions': positions,
+            'performance': self._calculate_performance({'portfolio_value': portfolio_value, 'trades': trades})
+        }
 
-        logger.info("Backtest executor service started.")
-        try:
-            for message in self.kafka_consumer:
-                request = message.value
-                request_id = request['request_id']
-                logger.info(f"Received backtest request: {request_id}")
-
-                # Wait for data ready event
-                logger.info(f"Waiting for data for request: {request_id}")
-                data = self._wait_for_data(request_id)
-
-                if data:
-                    logger.info(f"Data found for request: {request_id}")
-                    # Run backtest
-                    results = self.run_backtest(
-                        request['strategy'],
-                        pd.DataFrame(data)
-                    )
-
-                    # Publish results
-                    logger.info(f"Publishing results for request: {request_id}")
-                    self.kafka_producer.send(
-                        'backtest_results',
-                        {
-                            'request_id': request_id,
-                            'results': results
-                        }
-                    )
-                else:
-                    logger.warning(f"Data not found for request: {request_id}. Timeout reached.")
-
-        except KeyboardInterrupt:
-            logger.info("Shutting down backtest executor service.")
-            self.kafka_consumer.close()
-            self.kafka_producer.close()
-
-    def _wait_for_data(self, request_id: str, timeout: int = 60) -> Optional[list]:
+    def _generate_signals(self, row: pd.Series, strategy: dict) -> List[Dict[str, Any]]:
         """
-        Wait for market data to be ready.
+        Generate trading signals based on moving average crossover.
         """
-        if not self.redis_client:
-            logger.error("Redis client not available. Cannot wait for data.")
-            return None
+        signals = []
+        
+        # Simple MA crossover strategy
+        if row['fast_ma'] > row['slow_ma']:
+            # Buy signal
+            signals.append({
+                'type': 'buy',
+                'symbol': strategy['symbol'],
+                'quantity': strategy['trade_size'],
+                'price': row['close'],
+                'timestamp': row['timestamp'],
+                'reason': 'MA crossover buy signal'
+            })
+        
+        return signals
 
-        for i in range(timeout):
-            logger.debug(f"Waiting for data... ({i+1}/{timeout})")
-            data = self.redis_client.get(f"data:{request_id}")
-            if data:
-                return json.loads(data)
-            time.sleep(1)
+    def _execute_trade_sync(self, signal: Dict[str, Any], row: pd.Series, cash: Decimal, positions: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Synchronous version of trade execution.
+        """
+        symbol = signal['symbol']
+        quantity = signal['quantity']
+        price = Decimal(str(signal['price']))
+        trade_value = quantity * price
+        
+        if signal['type'] == 'buy' and cash >= trade_value:
+            new_cash = cash - trade_value
+            new_positions = positions.copy()
+            new_positions[symbol] = new_positions.get(symbol, 0) + quantity
+            
+            return {
+                'type': 'buy',
+                'symbol': symbol,
+                'quantity': quantity,
+                'price': float(price),
+                'value': float(trade_value),
+                'timestamp': signal['timestamp'],
+                'remaining_cash': new_cash,
+                'positions': new_positions,
+                'reason': signal['reason']
+            }
+                
         return None
+
+    def _calculate_portfolio_value(self, cash: Decimal, positions: Dict[str, Any], current_price: float) -> float:
+        """
+        Calculate total portfolio value.
+        """
+        total_value = float(cash)
+        
+        for symbol, quantity in positions.items():
+            total_value += quantity * current_price
+            
+        return total_value
+
+    def _calculate_performance(self, results: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Calculate performance metrics.
+        """
+        portfolio_values = [pv['value'] for pv in results['portfolio_value']]
+        
+        if len(portfolio_values) < 2:
+            return {'total_return': 0.0, 'max_drawdown': 0.0, 'sharpe_ratio': 0.0}
+        
+        initial_value = portfolio_values[0]
+        final_value = portfolio_values[-1]
+        total_return = (final_value - initial_value) / initial_value
+        
+        # Calculate max drawdown
+        peak = portfolio_values[0]
+        max_drawdown = 0.0
+        
+        for value in portfolio_values:
+            if value > peak:
+                peak = value
+            drawdown = (peak - value) / peak
+            if drawdown > max_drawdown:
+                max_drawdown = drawdown
+        
+        return {
+            'total_return': total_return,
+            'max_drawdown': max_drawdown,
+            'sharpe_ratio': 0.0,  # Simplified for now
+            'win_rate': len([t for t in results['trades'] if 'pnl' in t and t['pnl'] > 0]) / max(len(results['trades']), 1)
+        }
+
+    def get_results(self, result_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Get backtest results.
+        """
+        if result_id:
+            return self.results.get(result_id, {})
+        return self.results
+        
+    def cleanup(self):
+        """
+        Cleanup resources.
+        """
+        self.data_cache.clear()
+        self.results.clear()
+        self.strategies.clear()
+        logger.info("BacktestExecutor cleanup completed")

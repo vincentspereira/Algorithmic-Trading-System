@@ -379,7 +379,7 @@ services:
   #   cap_add:
   #     - IPC_LOCK
   #   networks:
-  -     - phase1_trading_network
+  #     - phase1_trading_network
   #   restart: unless-stopped
 
   #// @PLACEHOLDER: Iceberg service definition is missing. Req ID: 1.2

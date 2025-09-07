@@ -30,8 +30,8 @@ import argparse
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from feature_store_config import FeatureStoreConfig, FeatureStoreManager
-from feature_definitions import get_all_feature_definitions, get_feature_list_by_category
+from .feature_store_config import FeatureStoreConfig, FeatureStoreManager
+from .feature_definitions import get_all_feature_definitions, get_feature_list_by_category
 
 # Configure logging
 logging.basicConfig(

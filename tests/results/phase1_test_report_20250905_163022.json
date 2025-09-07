@@ -1,0 +1,700 @@
+{
+  "execution_summary": {
+    "start_time": "2025-09-05T16:23:27.768474",
+    "end_time": null,
+    "duration": 0,
+    "total_tests": 45,
+    "passed": 2,
+    "failed": 22,
+    "skipped": 21,
+    "error": 0,
+    "pass_rate": 4.444444444444445
+  },
+  "test_type_breakdown": {
+    "unit": {
+      "total": 18,
+      "passed": 0,
+      "failed": 5,
+      "skipped": 13,
+      "error": 0,
+      "pass_rate": 0.0
+    },
+    "integration": {
+      "total": 9,
+      "passed": 1,
+      "failed": 6,
+      "skipped": 2,
+      "error": 0,
+      "pass_rate": 11.11111111111111
+    },
+    "system": {
+      "total": 10,
+      "passed": 1,
+      "failed": 3,
+      "skipped": 6,
+      "error": 0,
+      "pass_rate": 10.0
+    },
+    "uat": {
+      "total": 8,
+      "passed": 0,
+      "failed": 8,
+      "skipped": 0,
+      "error": 0,
+      "pass_rate": 0.0
+    }
+  },
+  "defect_summary": {
+    "total_defects": 22,
+    "by_severity": {
+      "CRITICAL": 0,
+      "HIGH": 9,
+      "MEDIUM": 13,
+      "LOW": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "test_name": "NautilusTrader Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.3037993907928467,
+      "error_message": "ERROR: file or directory not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\trading\\test_*.py\n\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:31.073080"
+    },
+    {
+      "test_name": "Order Management",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: nautilus_trader_engine/order_management/test_*.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:31.074487"
+    },
+    {
+      "test_name": "Risk Management",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.0222976207733154,
+      "error_message": "ERROR: file or directory not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\risk\\test_*.py\n\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:34.097124"
+    },
+    {
+      "test_name": "Portfolio Management",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: nautilus_trader_engine/portfolio/test_*.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:34.098566"
+    },
+    {
+      "test_name": "PostgreSQL Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.406771421432495,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n______________ ERROR collecting database/tests/test_postgres.py _______________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\database\\tests\\test_postgres.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ndatabase\\tests\\test_postgres.py:5: in <module>\n    from database.app.db.postgres import PostgreSQLManager\ndatabase\\app\\db\\postgres.py:5: in <module>\n    import asyncpg\nE   ModuleNotFoundError: No module named 'asyncpg'\n=========================== short test summary info ===========================\nERROR database/tests/test_postgres.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.52s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:37.505644"
+    },
+    {
+      "test_name": "ClickHouse Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.526118040084839,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n_____________ ERROR collecting database/tests/test_clickhouse.py ______________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\database\\tests\\test_clickhouse.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ndatabase\\tests\\test_clickhouse.py:5: in <module>\n    from database.app.db.clickhouse import ClickHouseManager\ndatabase\\app\\db\\clickhouse.py:13: in <module>\n    from app.core.config import db_settings\nE   ModuleNotFoundError: No module named 'app'\n=========================== short test summary info ===========================\nERROR database/tests/test_clickhouse.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.52s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:41.032497"
+    },
+    {
+      "test_name": "Redis Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.8841216564178467,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n________________ ERROR collecting database/tests/test_redis.py ________________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\database\\tests\\test_redis.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ndatabase\\tests\\test_redis.py:5: in <module>\n    from database.app.db.redis import RedisManager\ndatabase\\app\\db\\redis.py:6: in <module>\n    from app.core.config import db_settings\nE   ModuleNotFoundError: No module named 'app'\n=========================== short test summary info ===========================\nERROR database/tests/test_redis.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.65s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.917401"
+    },
+    {
+      "test_name": "Qdrant Integration",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: database/tests/test_qdrant.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.918824"
+    },
+    {
+      "test_name": "REST API",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: api/tests/test_rest_api.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.919507"
+    },
+    {
+      "test_name": "GraphQL API",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: api/tests/test_graphql_api.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.920198"
+    },
+    {
+      "test_name": "WebSocket API",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: api/tests/test_websocket_api.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.921028"
+    },
+    {
+      "test_name": "gRPC API",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: api/tests/test_grpc_api.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.921678"
+    },
+    {
+      "test_name": "Authentication",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: security/tests/test_auth.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.922292"
+    },
+    {
+      "test_name": "Authorization",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: security/tests/test_rbac.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.922847"
+    },
+    {
+      "test_name": "Encryption",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: security/tests/test_encryption.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.923371"
+    },
+    {
+      "test_name": "Volume-Weighted Indicators",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: nautilus_trader_engine/indicators/test_*.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.924702"
+    },
+    {
+      "test_name": "Market Data Service",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: market_data_service/tests/test_*.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.925578"
+    },
+    {
+      "test_name": "Data Normalization",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: tests/test_data_normalization.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:23:44.926213"
+    },
+    {
+      "test_name": "End-to-End Trading Workflow",
+      "test_type": "integration",
+      "status": "FAILED",
+      "duration": 304.0323383808136,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 7 items\n\ntests\\integration\\test_end_to_end_integration.py FFFFFFF                 [100%]\n\n================================== FAILURES ===================================\n_ TestCompleteStrategyWorkflow.test_strategy_creation_to_live_trading_workflow _\ntests\\integration\\test_end_to_end_integration.py:118: in test_strategy_creation_to_live_trading_workflow\n    pytest.fail(\"Backtest timeout\")\nE   Failed: Backtest timeout\n____ TestMarketDataIntegration.test_market_data_to_strategy_execution_flow ____\ntests\\integration\\test_end_to_end_integration.py:193: in test_market_data_to_strategy_execution_flow\n    await market_data_handler()\ntests\\integration\\test_end_to_end_integration.py:158: in market_data_handler\n    uri = f\"{self.ws_url}/market-data\"\n             ^^^^^^^^^^^\nE   AttributeError: 'TestMarketDataIntegration' object has no attribute 'ws_url'\n_______ TestOrderManagementIntegration.test_order_lifecycle_integration _______\ntests\\integration\\test_end_to_end_integration.py:227: in test_order_lifecycle_integration\n    order_id = order[\"id\"]\n               ^^^^^^^^^^^\nE   KeyError: 'id'\n_________ TestRiskManagementIntegration.test_risk_management_workflow _________\ntests\\integration\\test_end_to_end_integration.py:301: in test_risk_management_workflow\n    assert response.status_code in [400, 422], \"Risk limit not enforced\"\n           ^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: 'dict' object has no attribute 'status_code'\n____ TestDataConsistencyIntegration.test_cross_component_data_consistency _____\ntests\\integration\\test_end_to_end_integration.py:345: in test_cross_component_data_consistency\n    order_id = new_order[\"id\"]\n               ^^^^^^^^^^^^^^^\nE   KeyError: 'id'\n___ TestSystemPerformanceIntegration.test_concurrent_operations_performance ___\ntests\\integration\\test_end_to_end_integration.py:404: in test_concurrent_operations_performance\n    assert successful_requests >= 8, f\"Too many failed requests: {successful_requests}/10\"\nE   AssertionError: Too many failed requests: 0/10\nE   assert 0 >= 8\n________ TestFailureRecoveryIntegration.test_network_failure_recovery _________\ntests\\integration\\test_end_to_end_integration.py:439: in test_network_failure_recovery\n    pytest.fail(\"Expected timeout exception\")\nE   Failed: Expected timeout exception\n=========================== short test summary info ===========================\nFAILED tests/integration/test_end_to_end_integration.py::TestCompleteStrategyWorkflow::test_strategy_creation_to_live_trading_workflow\nFAILED tests/integration/test_end_to_end_integration.py::TestMarketDataIntegration::test_market_data_to_strategy_execution_flow\nFAILED tests/integration/test_end_to_end_integration.py::TestOrderManagementIntegration::test_order_lifecycle_integration\nFAILED tests/integration/test_end_to_end_integration.py::TestRiskManagementIntegration::test_risk_management_workflow\nFAILED tests/integration/test_end_to_end_integration.py::TestDataConsistencyIntegration::test_cross_component_data_consistency\nFAILED tests/integration/test_end_to_end_integration.py::TestSystemPerformanceIntegration::test_concurrent_operations_performance\nFAILED tests/integration/test_end_to_end_integration.py::TestFailureRecoveryIntegration::test_network_failure_recovery\n======================== 7 failed in 301.09s (0:05:01) ========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:28:48.959123"
+    },
+    {
+      "test_name": "Database Integration Suite",
+      "test_type": "integration",
+      "status": "FAILED",
+      "duration": 3.9616916179656982,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestDatabaseIntegration.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:28:52.921848"
+    },
+    {
+      "test_name": "API Integration Suite",
+      "test_type": "integration",
+      "status": "FAILED",
+      "duration": 3.9011166095733643,
+      "error_message": "<sys>:0: RuntimeWarning: coroutine 'TestAPIIntegration.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:28:56.823889"
+    },
+    {
+      "test_name": "Kafka Event Bus",
+      "test_type": "integration",
+      "status": "FAILED",
+      "duration": 3.662315845489502,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestKafkaIntegration.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestKafkaIntegration.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:00.487091"
+    },
+    {
+      "test_name": "Event Processing",
+      "test_type": "integration",
+      "status": "FAILED",
+      "duration": 3.766627311706543,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestEventProcessing.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestEventProcessing.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:04.254620"
+    },
+    {
+      "test_name": "Data Pipeline Integration",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 3.157104015350342,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:07.412568"
+    },
+    {
+      "test_name": "Market Data Flow",
+      "test_type": "integration",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: tests/integration/test_market_data_flow.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:07.413940"
+    },
+    {
+      "test_name": "Zero-Trust Architecture",
+      "test_type": "integration",
+      "status": "FAILED",
+      "duration": 4.424450159072876,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestSecurityIntegration.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestSecurityIntegration.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:11.838795"
+    },
+    {
+      "test_name": "RBAC Integration",
+      "test_type": "integration",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: tests/integration/test_rbac_integration.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:11.840291"
+    },
+    {
+      "test_name": "Complete Trading System",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 3.9109017848968506,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n____________ ERROR collecting performance/test_complete_system.py _____________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\performance\\test_complete_system.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nperformance\\test_complete_system.py:19: in <module>\n    from comprehensive_test_suite import PerformanceTestSuite, TestConfiguration\nperformance\\comprehensive_test_suite.py:20: in <module>\n    from locust import HttpUser, task, between\nE   ModuleNotFoundError: No module named 'locust'\n=========================== short test summary info ===========================\nERROR performance/test_complete_system.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.87s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:15.751969"
+    },
+    {
+      "test_name": "Multi-Asset Trading",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 3.972398281097412,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.725320"
+    },
+    {
+      "test_name": "High-Frequency Trading",
+      "test_type": "system",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: tests/system/test_hft_capabilities.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.726982"
+    },
+    {
+      "test_name": "Latency Requirements (<100ms)",
+      "test_type": "system",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: performance/test_latency.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.727906"
+    },
+    {
+      "test_name": "Throughput Requirements",
+      "test_type": "system",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: performance/test_throughput.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.728788"
+    },
+    {
+      "test_name": "Scalability Testing",
+      "test_type": "system",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: performance/test_scalability.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.729792"
+    },
+    {
+      "test_name": "Backup and Recovery",
+      "test_type": "system",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: tests/disaster_recovery/test_backup_recovery.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.730784"
+    },
+    {
+      "test_name": "Failover Testing",
+      "test_type": "system",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: tests/disaster_recovery/test_failover.py",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:19.731625"
+    },
+    {
+      "test_name": "Audit Trail Validation",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 9.499656438827515,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 25 items\n\ntests\\test_audit_reporting.py ....FFF..FEFEFE.E.EFEF.E.E.E.E.E.E.E.EF    [100%]\n\n=================================== ERRORS ====================================\n_ ERROR at teardown of TestComplianceMetricsCalculator.test_calculate_trading_metrics _\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:310: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpx6suklye.db'\n_ ERROR at teardown of TestComplianceMetricsCalculator.test_calculate_compliance_metrics _\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:310: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmp5mv34evp.db'\n_ ERROR at teardown of TestComplianceMetricsCalculator.test_calculate_all_metrics _\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:310: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpkr2_i7xh.db'\n_ ERROR at teardown of TestComplianceMetricsCalculator.test_get_metrics_summary _\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:310: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpljnoue9o.db'\n__ ERROR at teardown of TestRegulatoryReportGenerator.test_add_report_config __\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:491: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmp9hsxh2sk.db'\n_ ERROR at teardown of TestRegulatoryReportGenerator.test_generate_daily_trading_report _\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:491: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpdde3wk0q.db'\n_ ERROR at teardown of TestRegulatoryReportGenerator.test_get_report_history __\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:491: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpkdiivw2p.db'\n__ ERROR at teardown of TestAuditReportingSystem.test_system_initialization ___\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmp3vgqevke.db'\n_____ ERROR at teardown of TestAuditReportingSystem.test_log_audit_event ______\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmp35m1gawo.db'\n___ ERROR at teardown of TestAuditReportingSystem.test_search_audit_events ____\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj64tz5o9.db'\n_____ ERROR at teardown of TestAuditReportingSystem.test_generate_report ______\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmplh0yellt.db'\n__ ERROR at teardown of TestAuditReportingSystem.test_get_compliance_metrics __\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpg_hnj79i.db'\n____ ERROR at teardown of TestAuditReportingSystem.test_export_audit_trail ____\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmphbr5ugc0.db'\n__ ERROR at teardown of TestAuditReportingSystem.test_get_system_statistics ___\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:657: in temp_db\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpsbhuybrf.db'\n================================== FAILURES ===================================\n_______________ TestAuditTrailLogger.test_search_events_by_type _______________\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:171: in test_search_events_by_type\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n_______________ TestAuditTrailLogger.test_search_events_by_user _______________\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:203: in test_search_events_by_user\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n_______________ TestAuditTrailLogger.test_get_event_statistics ________________\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:234: in test_get_event_statistics\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n_______ TestComplianceMetricsCalculator.test_calculate_trading_metrics ________\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:326: in test_calculate_trading_metrics\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n______ TestComplianceMetricsCalculator.test_calculate_compliance_metrics ______\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:359: in test_calculate_compliance_metrics\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n_________ TestComplianceMetricsCalculator.test_calculate_all_metrics __________\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:393: in test_calculate_all_metrics\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n______ TestRegulatoryReportGenerator.test_generate_daily_trading_report _______\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:534: in test_generate_daily_trading_report\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n____ TestRegulatoryReportGenerator.test_generate_monthly_compliance_report ____\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:584: in test_generate_monthly_compliance_report\n    ???\nE   TypeError: AuditEvent.__init__() missing 4 required positional arguments: 'session_id', 'ip_address', 'user_agent', and 'resource'\n________________ TestIntegration.test_complete_audit_workflow _________________\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:968: in test_complete_audit_workflow\n    ???\nE   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\VINCEN~1\\\\AppData\\\\Local\\\\Temp\\\\tmpdqhluri4.db'\n---------------------------- Captured stdout call -----------------------------\nComplete audit workflow test passed!\n=========================== short test summary info ===========================\nERROR tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_calculate_trading_metrics\nERROR tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_calculate_compliance_metrics\nERROR tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_calculate_all_metrics\nERROR tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_get_metrics_summary\nERROR tests/test_audit_reporting.py::TestRegulatoryReportGenerator::test_add_report_config\nERROR tests/test_audit_reporting.py::TestRegulatoryReportGenerator::test_generate_daily_trading_report\nERROR tests/test_audit_reporting.py::TestRegulatoryReportGenerator::test_get_report_history\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_system_initialization\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_log_audit_event\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_search_audit_events\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_generate_report\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_get_compliance_metrics\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_export_audit_trail\nERROR tests/test_audit_reporting.py::TestAuditReportingSystem::test_get_system_statistics\nFAILED tests/test_audit_reporting.py::TestAuditTrailLogger::test_search_events_by_type\nFAILED tests/test_audit_reporting.py::TestAuditTrailLogger::test_search_events_by_user\nFAILED tests/test_audit_reporting.py::TestAuditTrailLogger::test_get_event_statistics\nFAILED tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_calculate_trading_metrics\nFAILED tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_calculate_compliance_metrics\nFAILED tests/test_audit_reporting.py::TestComplianceMetricsCalculator::test_calculate_all_metrics\nFAILED tests/test_audit_reporting.py::TestRegulatoryReportGenerator::test_generate_daily_trading_report\nFAILED tests/test_audit_reporting.py::TestRegulatoryReportGenerator::test_generate_monthly_compliance_report\nFAILED tests/test_audit_reporting.py::TestIntegration::test_complete_audit_workflow\n=================== 9 failed, 16 passed, 14 errors in 6.09s ===================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:29.231736"
+    },
+    {
+      "test_name": "Compliance Engine",
+      "test_type": "system",
+      "status": "PASSED",
+      "duration": 4.4670538902282715,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:33.699613"
+    },
+    {
+      "test_name": "Strategy Creation Workflow",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 6.283543109893799,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 10 items\n\ntests\\uat\\test_strategy_creation.py FFFFFFFFFF                           [100%]\n\n================================== FAILURES ===================================\n_ TestStrategyCreationWorkflow.test_strategy_creation_interface_accessibility _\ntests\\uat\\test_strategy_creation.py:58: in test_strategy_creation_interface_accessibility\n    with patch('api.routes.strategy.get_strategy_form') as mock_form:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n_______ TestStrategyCreationWorkflow.test_strategy_creation_validation ________\ntests\\uat\\test_strategy_creation.py:78: in test_strategy_creation_validation\n    with patch('api.routes.strategy.create_strategy') as mock_create:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n_______ TestStrategyCreationWorkflow.test_strategy_parameter_validation _______\ntests\\uat\\test_strategy_creation.py:129: in test_strategy_parameter_validation\n    with patch('api.routes.strategy.validate_strategy') as mock_validate:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n_____ TestStrategyCreationWorkflow.test_strategy_backtesting_integration ______\ntests\\uat\\test_strategy_creation.py:145: in test_strategy_backtesting_integration\n    with patch('api.routes.strategy.create_strategy') as mock_create:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n_______ TestStrategyCreationWorkflow.test_strategy_deployment_workflow ________\ntests\\uat\\test_strategy_creation.py:188: in test_strategy_deployment_workflow\n    with patch('api.routes.strategy.create_strategy') as mock_create:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n______ TestStrategyCreationWorkflow.test_strategy_modification_workflow _______\ntests\\uat\\test_strategy_creation.py:227: in test_strategy_modification_workflow\n    with patch('api.routes.strategy.create_strategy') as mock_create:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n____ TestStrategyCreationWorkflow.test_strategy_risk_compliance_validation ____\ntests\\uat\\test_strategy_creation.py:278: in test_strategy_risk_compliance_validation\n    with patch('api.routes.strategy.validate_risk_compliance') as mock_risk_check:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n______ TestStrategyCreationWorkflow.test_strategy_performance_monitoring ______\ntests\\uat\\test_strategy_creation.py:305: in test_strategy_performance_monitoring\n    with patch('api.routes.strategy.get_strategy_performance') as mock_performance:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n_________ TestStrategyCreationWorkflow.test_user_interface_usability __________\ntests\\uat\\test_strategy_creation.py:360: in test_user_interface_usability\n    with patch('api.routes.strategy.validate_form_input') as mock_validate:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n_________ TestStrategyCreationWorkflow.test_strategy_template_system __________\ntests\\uat\\test_strategy_creation.py:377: in test_strategy_template_system\n    with patch('api.routes.strategy.get_strategy_templates') as mock_templates:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'strategy'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_creation_interface_accessibility\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_creation_validation\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_parameter_validation\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_backtesting_integration\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_deployment_workflow\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_modification_workflow\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_risk_compliance_validation\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_performance_monitoring\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_user_interface_usability\nFAILED tests/uat/test_strategy_creation.py::TestStrategyCreationWorkflow::test_strategy_template_system\n============================= 10 failed in 3.02s ==============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:39.984523"
+    },
+    {
+      "test_name": "Portfolio Management Workflow",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 6.559394836425781,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 10 items\n\ntests\\uat\\test_portfolio_management.py FFFFFFFFFF                        [100%]\n\n================================== FAILURES ===================================\n______ TestPortfolioManagementWorkflow.test_portfolio_creation_interface ______\ntests\\uat\\test_portfolio_management.py:75: in test_portfolio_creation_interface\n    with patch('api.routes.portfolio.get_portfolio_creation_form') as mock_form:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n_____ TestPortfolioManagementWorkflow.test_portfolio_creation_validation ______\ntests\\uat\\test_portfolio_management.py:97: in test_portfolio_creation_validation\n    with patch('api.routes.portfolio.create_portfolio') as mock_create:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n____ TestPortfolioManagementWorkflow.test_portfolio_allocation_validation _____\ntests\\uat\\test_portfolio_management.py:162: in test_portfolio_allocation_validation\n    with patch('api.routes.portfolio.validate_allocation') as mock_validate:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n_____ TestPortfolioManagementWorkflow.test_portfolio_rebalancing_workflow _____\ntests\\uat\\test_portfolio_management.py:185: in test_portfolio_rebalancing_workflow\n    with patch('api.routes.portfolio.get_portfolio_status') as mock_status:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n_____ TestPortfolioManagementWorkflow.test_portfolio_performance_tracking _____\ntests\\uat\\test_portfolio_management.py:240: in test_portfolio_performance_tracking\n    with patch('api.routes.portfolio.get_performance_metrics') as mock_performance:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n_______ TestPortfolioManagementWorkflow.test_risk_monitoring_and_alerts _______\ntests\\uat\\test_portfolio_management.py:284: in test_risk_monitoring_and_alerts\n    with patch('api.routes.portfolio.get_risk_metrics') as mock_risk:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n____ TestPortfolioManagementWorkflow.test_portfolio_optimization_workflow _____\ntests\\uat\\test_portfolio_management.py:347: in test_portfolio_optimization_workflow\n    with patch('api.routes.portfolio.optimize_portfolio') as mock_optimize:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n_______ TestPortfolioManagementWorkflow.test_multi_portfolio_management _______\ntests\\uat\\test_portfolio_management.py:385: in test_multi_portfolio_management\n    with patch('api.routes.portfolio.get_all_portfolios') as mock_get_all:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n___ TestPortfolioManagementWorkflow.test_portfolio_reporting_and_analytics ____\ntests\\uat\\test_portfolio_management.py:444: in test_portfolio_reporting_and_analytics\n    with patch('api.routes.portfolio.generate_report') as mock_report:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n____ TestPortfolioManagementWorkflow.test_portfolio_compliance_monitoring _____\ntests\\uat\\test_portfolio_management.py:487: in test_portfolio_compliance_monitoring\n    with patch('api.routes.portfolio.check_compliance') as mock_compliance:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'portfolio'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_creation_interface\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_creation_validation\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_allocation_validation\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_rebalancing_workflow\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_performance_tracking\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_risk_monitoring_and_alerts\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_optimization_workflow\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_multi_portfolio_management\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_reporting_and_analytics\nFAILED tests/uat/test_portfolio_management.py::TestPortfolioManagementWorkflow::test_portfolio_compliance_monitoring\n============================= 10 failed in 2.96s ==============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:46.544806"
+    },
+    {
+      "test_name": "Risk Management Workflow",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 6.409286737442017,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 11 items\n\ntests\\uat\\test_risk_management.py FFFFFFFFFFF                            [100%]\n\n================================== FAILURES ===================================\n________ TestRiskManagementWorkflow.test_risk_dashboard_accessibility _________\ntests\\uat\\test_risk_management.py:68: in test_risk_dashboard_accessibility\n    with patch('api.routes.risk.get_risk_dashboard') as mock_dashboard:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n__________ TestRiskManagementWorkflow.test_risk_limit_configuration ___________\ntests\\uat\\test_risk_management.py:109: in test_risk_limit_configuration\n    with patch('api.routes.risk.configure_risk_limits') as mock_configure:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n__________ TestRiskManagementWorkflow.test_real_time_risk_monitoring __________\ntests\\uat\\test_risk_management.py:135: in test_real_time_risk_monitoring\n    with patch('api.routes.risk.get_real_time_risk_metrics') as mock_realtime:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n__________ TestRiskManagementWorkflow.test_stress_testing_execution ___________\ntests\\uat\\test_risk_management.py:221: in test_stress_testing_execution\n    with patch('api.routes.risk.execute_stress_test') as mock_stress_test:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n_________ TestRiskManagementWorkflow.test_risk_limit_breach_handling __________\ntests\\uat\\test_risk_management.py:279: in test_risk_limit_breach_handling\n    with patch('api.routes.risk.handle_risk_breach') as mock_breach:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n____________ TestRiskManagementWorkflow.test_market_risk_analysis _____________\ntests\\uat\\test_risk_management.py:327: in test_market_risk_analysis\n    with patch('api.routes.risk.analyze_market_risk') as mock_market_risk:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n__________ TestRiskManagementWorkflow.test_liquidity_risk_assessment __________\ntests\\uat\\test_risk_management.py:392: in test_liquidity_risk_assessment\n    with patch('api.routes.risk.assess_liquidity_risk') as mock_liquidity:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n___________ TestRiskManagementWorkflow.test_credit_risk_monitoring ____________\ntests\\uat\\test_risk_management.py:453: in test_credit_risk_monitoring\n    with patch('api.routes.risk.monitor_credit_risk') as mock_credit:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n_________ TestRiskManagementWorkflow.test_operational_risk_assessment _________\ntests\\uat\\test_risk_management.py:522: in test_operational_risk_assessment\n    with patch('api.routes.risk.assess_operational_risk') as mock_operational:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n__________ TestRiskManagementWorkflow.test_risk_reporting_generation __________\ntests\\uat\\test_risk_management.py:611: in test_risk_reporting_generation\n    with patch('api.routes.risk.generate_risk_report') as mock_report:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n____________ TestRiskManagementWorkflow.test_risk_model_validation ____________\ntests\\uat\\test_risk_management.py:674: in test_risk_model_validation\n    with patch('api.routes.risk.validate_risk_model') as mock_validate:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'api.routes' has no attribute 'risk'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_risk_dashboard_accessibility\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_risk_limit_configuration\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_real_time_risk_monitoring\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_stress_testing_execution\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_risk_limit_breach_handling\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_market_risk_analysis\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_liquidity_risk_assessment\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_credit_risk_monitoring\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_operational_risk_assessment\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_risk_reporting_generation\nFAILED tests/uat/test_risk_management.py::TestRiskManagementWorkflow::test_risk_model_validation\n============================= 11 failed in 3.24s ==============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:52.955229"
+    },
+    {
+      "test_name": "Trading Dashboard Usability",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 2.9744575023651123,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items\n\n============================ no tests ran in 0.11s ============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:29:55.930736"
+    },
+    {
+      "test_name": "API Documentation Completeness",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 5.564041614532471,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 9 items\n\ntests\\uat\\test_api_documentation.py .FF......                            [100%]\n\n================================== FAILURES ===================================\n__________ TestAPIDocumentation.test_endpoint_documentation_coverage __________\ntests\\uat\\test_api_documentation.py:136: in test_endpoint_documentation_coverage\n    with patch('nautilus_trader_engine.api.router.get_all_routes') as mock_routes:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'api'\n_________ TestAPIDocumentation.test_parameter_documentation_accuracy __________\ntests\\uat\\test_api_documentation.py:210: in test_parameter_documentation_accuracy\n    with patch('nautilus_trader_engine.api.validation.validate_parameters') as mock_validate:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'api'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_api_documentation.py::TestAPIDocumentation::test_endpoint_documentation_coverage\nFAILED tests/uat/test_api_documentation.py::TestAPIDocumentation::test_parameter_documentation_accuracy\n========================= 2 failed, 7 passed in 2.29s =========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:30:01.495672"
+    },
+    {
+      "test_name": "Multi-Asset Support",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 7.536683559417725,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_multi_asset_support.py .FFFFFFF                           [100%]\n\n================================== FAILURES ===================================\n_________ TestMultiAssetSupport.test_cross_asset_portfolio_management _________\ntests\\uat\\test_multi_asset_support.py:136: in test_cross_asset_portfolio_management\n    with patch('nautilus_trader_engine.portfolio.MultiAssetPortfolioManager') as mock_portfolio:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'portfolio'\n___________ TestMultiAssetSupport.test_cross_asset_order_execution ____________\ntests\\uat\\test_multi_asset_support.py:237: in test_cross_asset_order_execution\n    with patch('nautilus_trader_engine.orders.MultiAssetOrderManager') as mock_order_mgr:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'orders'\n___________ TestMultiAssetSupport.test_cross_asset_risk_management ____________\ntests\\uat\\test_multi_asset_support.py:314: in test_cross_asset_risk_management\n    with patch('nautilus_trader_engine.risk.MultiAssetRiskManager') as mock_risk_mgr:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'risk'\n_______ TestMultiAssetSupport.test_multi_asset_market_data_integration ________\ntests\\uat\\test_multi_asset_support.py:398: in test_multi_asset_market_data_integration\n    with patch('nautilus_trader_engine.data.MultiAssetDataManager') as mock_data_mgr:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'data'\n__________ TestMultiAssetSupport.test_cross_asset_strategy_execution __________\ntests\\uat\\test_multi_asset_support.py:469: in test_cross_asset_strategy_execution\n    with patch('nautilus_trader_engine.strategies.MultiAssetStrategyEngine') as mock_strategy:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.strategies' from 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\strategies\\\\__init__.py'> does not have the attribute 'MultiAssetStrategyEngine'\n_____ TestMultiAssetSupport.test_currency_conversion_and_pnl_calculation ______\ntests\\uat\\test_multi_asset_support.py:577: in test_currency_conversion_and_pnl_calculation\n    with patch('nautilus_trader_engine.pnl.MultiCurrencyPnLCalculator') as mock_pnl_calc:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'pnl'\n________ TestMultiAssetSupport.test_asset_class_specific_trading_rules ________\ntests\\uat\\test_multi_asset_support.py:688: in test_asset_class_specific_trading_rules\n    with patch('nautilus_trader_engine.validation.AssetClassOrderValidator') as mock_validator:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.validation' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\validation', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\validation']> does not have the attribute 'AssetClassOrderValidator'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_cross_asset_portfolio_management\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_cross_asset_order_execution\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_cross_asset_risk_management\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_multi_asset_market_data_integration\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_cross_asset_strategy_execution\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_currency_conversion_and_pnl_calculation\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_asset_class_specific_trading_rules\n========================= 7 failed, 1 passed in 4.14s =========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:30:09.033129"
+    },
+    {
+      "test_name": "Real-Time Data Processing",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 8.749465942382812,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 7 items\n\ntests\\uat\\test_realtime_processing.py FFFFFFF                            [100%]\n\n================================== FAILURES ===================================\n__________ TestRealtimeProcessing.test_market_data_streaming_latency __________\ntests\\uat\\test_realtime_processing.py:66: in test_market_data_streaming_latency\n    with patch('nautilus_trader_engine.data.RealtimeMarketDataStream') as mock_stream:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'data'\n___________ TestRealtimeProcessing.test_order_processing_throughput ___________\ntests\\uat\\test_realtime_processing.py:135: in test_order_processing_throughput\n    with patch('nautilus_trader_engine.orders.RealtimeOrderProcessor') as mock_processor:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'orders'\n____________ TestRealtimeProcessing.test_real_time_risk_monitoring ____________\ntests\\uat\\test_realtime_processing.py:226: in test_real_time_risk_monitoring\n    with patch('nautilus_trader_engine.risk.RealtimeRiskMonitor') as mock_monitor:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'risk'\n___________ TestRealtimeProcessing.test_concurrent_user_simulation ____________\ntests\\uat\\test_realtime_processing.py:346: in test_concurrent_user_simulation\n    with patch('nautilus_trader_engine.api.RealtimeSessionManager') as mock_session_mgr:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'api'\n_________ TestRealtimeProcessing.test_memory_and_resource_management __________\ntests\\uat\\test_realtime_processing.py:495: in test_memory_and_resource_management\n    with patch('nautilus_trader_engine.monitoring.ResourceMonitor') as mock_monitor:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.monitoring' from 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\monitoring\\\\__init__.py'> does not have the attribute 'ResourceMonitor'\n______ TestRealtimeProcessing.test_event_driven_architecture_performance ______\ntests\\uat\\test_realtime_processing.py:586: in test_event_driven_architecture_performance\n    with patch('nautilus_trader_engine.events.RealtimeEventBus') as mock_event_bus:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.events' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\events', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\events']> does not have the attribute 'RealtimeEventBus'\n________ TestRealtimeProcessing.test_failover_and_recovery_performance ________\ntests\\uat\\test_realtime_processing.py:709: in test_failover_and_recovery_performance\n    with patch('nautilus_trader_engine.failover.FailoverManager') as mock_failover:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'failover'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_market_data_streaming_latency\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_order_processing_throughput\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_real_time_risk_monitoring\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_concurrent_user_simulation\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_memory_and_resource_management\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_event_driven_architecture_performance\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_failover_and_recovery_performance\n============================== 7 failed in 5.10s ==============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:30:17.783586"
+    },
+    {
+      "test_name": "Regulatory Compliance",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 4.438562393188477,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_regulatory_compliance.py FFFFFFFF                         [100%]\n\n================================== FAILURES ===================================\n________ TestRegulatoryCompliance.test_mifid_ii_transaction_reporting _________\ntests\\uat\\test_regulatory_compliance.py:142: in test_mifid_ii_transaction_reporting\n    with patch('nautilus_trader_engine.compliance.MiFIDIIReporter') as mock_reporter:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.compliance' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance']> does not have the attribute 'MiFIDIIReporter'\n___________ TestRegulatoryCompliance.test_best_execution_compliance ___________\ntests\\uat\\test_regulatory_compliance.py:200: in test_best_execution_compliance\n    with patch('nautilus_trader_engine.compliance.BestExecutionAnalyzer') as mock_analyzer:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.compliance' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance']> does not have the attribute 'BestExecutionAnalyzer'\n___________ TestRegulatoryCompliance.test_dodd_frank_swap_reporting ___________\ntests\\uat\\test_regulatory_compliance.py:283: in test_dodd_frank_swap_reporting\n    with patch('nautilus_trader_engine.compliance.DoddFrankReporter') as mock_reporter:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.compliance' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance']> does not have the attribute 'DoddFrankReporter'\n________ TestRegulatoryCompliance.test_basel_iii_capital_requirements _________\ntests\\uat\\test_regulatory_compliance.py:358: in test_basel_iii_capital_requirements\n    with patch('nautilus_trader_engine.compliance.BaselIIICalculator') as mock_calculator:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.compliance' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance']> does not have the attribute 'BaselIIICalculator'\n_____________ TestRegulatoryCompliance.test_audit_trail_integrity _____________\ntests\\uat\\test_regulatory_compliance.py:427: in test_audit_trail_integrity\n    with patch('nautilus_trader_engine.audit.AuditTrailManager') as mock_audit:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'audit'\n________ TestRegulatoryCompliance.test_regulatory_reporting_automation ________\ntests\\uat\\test_regulatory_compliance.py:523: in test_regulatory_reporting_automation\n    with patch('nautilus_trader_engine.compliance.RegulatoryReportingSystem') as mock_reporting:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.compliance' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance']> does not have the attribute 'RegulatoryReportingSystem'\n____________ TestRegulatoryCompliance.test_data_privacy_compliance ____________\ntests\\uat\\test_regulatory_compliance.py:625: in test_data_privacy_compliance\n    with patch('nautilus_trader_engine.privacy.DataPrivacyManager') as mock_privacy:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1481: in __enter__\n    self.target = self.getter()\n                  ^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\pkgutil.py:528: in resolve_name\n    result = getattr(result, p)\n             ^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'nautilus_trader_engine' has no attribute 'privacy'\n_______ TestRegulatoryCompliance.test_anti_money_laundering_compliance ________\ntests\\uat\\test_regulatory_compliance.py:717: in test_anti_money_laundering_compliance\n    with patch('nautilus_trader_engine.compliance.AMLMonitor') as mock_aml:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1497: in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\nC:\\Program Files\\Python313\\Lib\\unittest\\mock.py:1467: in get_original\n    raise AttributeError(\nE   AttributeError: <module 'nautilus_trader_engine.compliance' (namespace) from ['C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance', 'C:\\\\Users\\\\Vincent_Pereira\\\\Projects\\\\Algo_Trading_Projects\\\\Trae\\\\Algorithmic Trading System\\\\nautilus_trader_engine\\\\compliance']> does not have the attribute 'AMLMonitor'\n=========================== short test summary info ===========================\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_mifid_ii_transaction_reporting\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_best_execution_compliance\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_dodd_frank_swap_reporting\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_basel_iii_capital_requirements\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_audit_trail_integrity\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_regulatory_reporting_automation\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_data_privacy_compliance\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_anti_money_laundering_compliance\n============================== 8 failed in 1.48s ==============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-05T16:30:22.222917"
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "DEF-0001",
+      "severity": "MEDIUM",
+      "description": "ERROR: file or directory not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\trading\\test_*.py\n\n",
+      "test_case": "NautilusTrader Integration",
+      "component": "Trading Engine",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:23:31.073050"
+    },
+    {
+      "defect_id": "DEF-0002",
+      "severity": "MEDIUM",
+      "description": "ERROR: file or directory not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\risk\\test_*.py\n\n",
+      "test_case": "Risk Management",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:23:34.097105"
+    },
+    {
+      "defect_id": "DEF-0003",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "PostgreSQL Integration",
+      "component": "Database",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:23:37.505624"
+    },
+    {
+      "defect_id": "DEF-0004",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "ClickHouse Integration",
+      "component": "Database",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:23:41.032479"
+    },
+    {
+      "defect_id": "DEF-0005",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Redis Integration",
+      "component": "Database",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:23:44.917381"
+    },
+    {
+      "defect_id": "DEF-0006",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 7 items\n\ntests\\integration\\test_end_to_end_integration.py FFFFFFF   ",
+      "test_case": "End-to-End Trading Workflow",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:28:48.959100"
+    },
+    {
+      "defect_id": "DEF-0007",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestDatabaseIntegration.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n",
+      "test_case": "Database Integration Suite",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:28:52.921823"
+    },
+    {
+      "defect_id": "DEF-0008",
+      "severity": "HIGH",
+      "description": "<sys>:0: RuntimeWarning: coroutine 'TestAPIIntegration.setup_method' was never awaited\n",
+      "test_case": "API Integration Suite",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:28:56.823870"
+    },
+    {
+      "defect_id": "DEF-0009",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestKafkaIntegration.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestKafkaIntegration.setup_method' was never awaited\n",
+      "test_case": "Kafka Event Bus",
+      "component": "Event Bus",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:00.487068"
+    },
+    {
+      "defect_id": "DEF-0010",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestEventProcessing.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestEventProcessing.setup_method' was never awaited\n",
+      "test_case": "Event Processing",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:04.254603"
+    },
+    {
+      "defect_id": "DEF-0011",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestSecurityIntegration.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestSecurityIntegration.setup_method' was never awaited\n",
+      "test_case": "Zero-Trust Architecture",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:11.838773"
+    },
+    {
+      "defect_id": "DEF-0012",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Complete Trading System",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:15.751950"
+    },
+    {
+      "defect_id": "DEF-0013",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n",
+      "test_case": "Multi-Asset Trading",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:19.725297"
+    },
+    {
+      "defect_id": "DEF-0014",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 25 items\n\ntests\\test_audit_reporting.py ....FFF..FEFEFE.E.EFEF.E.E.E",
+      "test_case": "Audit Trail Validation",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:29.231714"
+    },
+    {
+      "defect_id": "DEF-0015",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 10 items\n\ntests\\uat\\test_strategy_creation.py FFFFFFFFFF            ",
+      "test_case": "Strategy Creation Workflow",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:39.984503"
+    },
+    {
+      "defect_id": "DEF-0016",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 10 items\n\ntests\\uat\\test_portfolio_management.py FFFFFFFFFF         ",
+      "test_case": "Portfolio Management Workflow",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:46.544781"
+    },
+    {
+      "defect_id": "DEF-0017",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 11 items\n\ntests\\uat\\test_risk_management.py FFFFFFFFFFF             ",
+      "test_case": "Risk Management Workflow",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:52.955208"
+    },
+    {
+      "defect_id": "DEF-0018",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items\n\n============================ no tests ran in 0.11s ========",
+      "test_case": "Trading Dashboard Usability",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:29:55.930719"
+    },
+    {
+      "defect_id": "DEF-0019",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 9 items\n\ntests\\uat\\test_api_documentation.py .FF......              ",
+      "test_case": "API Documentation Completeness",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:30:01.495653"
+    },
+    {
+      "defect_id": "DEF-0020",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_multi_asset_support.py .FFFFFFF             ",
+      "test_case": "Multi-Asset Support",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:30:09.033109"
+    },
+    {
+      "defect_id": "DEF-0021",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 7 items\n\ntests\\uat\\test_realtime_processing.py FFFFFFF              ",
+      "test_case": "Real-Time Data Processing",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:30:17.783567"
+    },
+    {
+      "defect_id": "DEF-0022",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_regulatory_compliance.py FFFFFFFF           ",
+      "test_case": "Regulatory Compliance",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-05T16:30:22.222901"
+    }
+  ],
+  "coverage_analysis": {
+    "components_tested": [
+      "Database",
+      "Security",
+      "Trading Engine",
+      "Data Feed",
+      "Event Bus",
+      "Unknown",
+      "API Layer"
+    ],
+    "expected_components": [
+      "Database",
+      "Compliance",
+      "Security",
+      "Portfolio Management",
+      "Trading Engine",
+      "Event Bus",
+      "Data Feed",
+      "Risk Management",
+      "Technical Indicators",
+      "Audit Trail",
+      "API Layer"
+    ],
+    "missing_components": [
+      "Compliance",
+      "Portfolio Management",
+      "Risk Management",
+      "Technical Indicators",
+      "Audit Trail"
+    ],
+    "coverage_percentage": 63.63636363636363
+  },
+  "recommendations": [
+    "Overall pass rate is 4.4%. Recommend addressing failed tests before production deployment.",
+    "21 tests were skipped. Implement missing test files for complete coverage.",
+    "Component coverage is 63.6%. Add tests for: Compliance, Portfolio Management, Risk Management, Technical Indicators, Audit Trail"
+  ]
+}

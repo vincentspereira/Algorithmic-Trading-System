@@ -3,10 +3,10 @@ import asyncio
 import logging
 from typing import Dict, Any
 
-from app.core.config import db_settings
-from app.db.postgres import PostgreSQLManager
-from app.db.clickhouse import ClickHouseManager
-from app.db.redis import RedisManager
+from database.app.core.config import db_settings
+from database.app.db.postgres import PostgreSQLManager
+from database.app.db.clickhouse import ClickHouseManager
+from database.app.db.redis import RedisManager
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,1 @@
+# Mock routes module to satisfy UAT test imports

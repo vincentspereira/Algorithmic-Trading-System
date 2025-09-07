@@ -18,9 +18,9 @@ from concurrent.futures import ThreadPoolExecutor
 import heapq
 
 # Import core components
-from ..core.messaging.message_bus import MessageBus
-from ..core.caching.cache_manager import CacheManager
-from ..ai.inference_engine import InferenceEngine, InferenceRequest, InferencePriority
+from nautilus_trader_engine.core.messaging.message_bus import MessageBus
+from nautilus_trader_engine.core.caching.cache_manager import CacheManager
+from nautilus_trader_engine.ai.inference_engine import InferenceEngine, InferenceRequest, InferencePriority
 
 
 class VenueType(Enum):

@@ -4,7 +4,7 @@ from datetime import datetime
 
 import structlog
 
-from app.websockets import ConnectionManager
+from api.app.websockets import ConnectionManager
 from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 from nautilus_trader_engine.indicators.comprehensive_indicators import ComprehensiveIndicators
 

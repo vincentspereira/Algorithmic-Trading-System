@@ -18,6 +18,8 @@ from .metrics_collection import (
     MetricCategory
 )
 
+from .resource_monitor import ResourceMonitor
+
 __all__ = [
     # Main system
     'MetricsCollectionSystem',
@@ -28,6 +30,7 @@ __all__ = [
     'SystemMetricsCollector',
     'CustomMetricsRegistry',
     'MetricsAggregator',
+    'ResourceMonitor',
     
     # Data structures
     'MetricDefinition',

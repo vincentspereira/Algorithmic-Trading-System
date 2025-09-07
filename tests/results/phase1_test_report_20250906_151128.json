@@ -1,0 +1,736 @@
+{
+  "execution_summary": {
+    "start_time": "2025-09-06T15:04:53.467413",
+    "end_time": null,
+    "duration": 0,
+    "total_tests": 45,
+    "passed": 17,
+    "failed": 26,
+    "skipped": 2,
+    "error": 0,
+    "pass_rate": 37.77777777777778
+  },
+  "test_type_breakdown": {
+    "unit": {
+      "total": 18,
+      "passed": 2,
+      "failed": 14,
+      "skipped": 2,
+      "error": 0,
+      "pass_rate": 11.11111111111111
+    },
+    "integration": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "error": 0,
+      "pass_rate": 100.0
+    },
+    "system": {
+      "total": 10,
+      "passed": 1,
+      "failed": 9,
+      "skipped": 0,
+      "error": 0,
+      "pass_rate": 10.0
+    },
+    "uat": {
+      "total": 8,
+      "passed": 5,
+      "failed": 3,
+      "skipped": 0,
+      "error": 0,
+      "pass_rate": 62.5
+    }
+  },
+  "defect_summary": {
+    "total_defects": 26,
+    "by_severity": {
+      "CRITICAL": 0,
+      "HIGH": 9,
+      "MEDIUM": 17,
+      "LOW": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "test_name": "NautilusTrader Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 4.040524244308472,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 1 item\n\nnautilus_trader_engine\\tests\\test_nautilus_imports.py E                  [100%]\n\n=================================== ERRORS ====================================\n___________________ ERROR at setup of test_nautilus_imports ___________________\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:344: in from_call\n    ???\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:246: in <lambda>\n    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\pluggy\\_hooks.py:512: in __call__\n    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\pluggy\\_manager.py:120: in _hookexec\n    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\logging.py:843: in pytest_runtest_setup\n    yield\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\capture.py:895: in pytest_runtest_setup\n    return (yield)\n            ^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:164: in pytest_runtest_setup\n    item.session._setupstate.setup(item)\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:514: in setup\n    col.setup()\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\python.py:668: in setup\n    init_mod = importtestmodule(self.path / \"__init__.py\", self.config)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\python.py:543: in importtestmodule\n    config.pluginmanager.consider_module(mod)\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\config\\__init__.py:826: in consider_module\n    self._import_plugin_specs(getattr(mod, \"pytest_plugins\", []))\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\config\\__init__.py:831: in _import_plugin_specs\n    plugins = _get_plugin_specs_as_list(spec)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\config\\__init__.py:889: in _get_plugin_specs_as_list\n    raise UsageError(\nE   _pytest.config.exceptions.UsageError: Plugins may be specified as a sequence or a ','-separated string of plugin names. Got: <Mock id='2598971615488'>\n=========================== short test summary info ===========================\nERROR nautilus_trader_engine/tests/test_nautilus_imports.py::test_nautilus_imports\n============================== 1 error in 0.79s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:04:57.508568"
+    },
+    {
+      "test_name": "Order Management",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 4.148859262466431,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 1 item\n\nnautilus_trader_engine\\tests\\test_broker_simple.py E                     [100%]\n\n=================================== ERRORS ====================================\n_____________ ERROR at setup of test_broker_abstraction_structure _____________\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:344: in from_call\n    ???\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:246: in <lambda>\n    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\pluggy\\_hooks.py:512: in __call__\n    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\pluggy\\_manager.py:120: in _hookexec\n    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\logging.py:843: in pytest_runtest_setup\n    yield\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\capture.py:895: in pytest_runtest_setup\n    return (yield)\n            ^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:164: in pytest_runtest_setup\n    item.session._setupstate.setup(item)\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\runner.py:514: in setup\n    col.setup()\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\python.py:668: in setup\n    init_mod = importtestmodule(self.path / \"__init__.py\", self.config)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\python.py:543: in importtestmodule\n    config.pluginmanager.consider_module(mod)\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\config\\__init__.py:826: in consider_module\n    self._import_plugin_specs(getattr(mod, \"pytest_plugins\", []))\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\config\\__init__.py:831: in _import_plugin_specs\n    plugins = _get_plugin_specs_as_list(spec)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\..\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\config\\__init__.py:889: in _get_plugin_specs_as_list\n    raise UsageError(\nE   _pytest.config.exceptions.UsageError: Plugins may be specified as a sequence or a ','-separated string of plugin names. Got: <Mock id='1820227102976'>\n=========================== short test summary info ===========================\nERROR nautilus_trader_engine/tests/test_broker_simple.py::test_broker_abstraction_structure\n============================== 1 error in 0.67s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:01.658400"
+    },
+    {
+      "test_name": "Risk Management",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.1117634773254395,
+      "error_message": "ERROR: file or directory not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\risk\\test_*.py\n\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:04.770845"
+    },
+    {
+      "test_name": "Portfolio Management",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.7004880905151367,
+      "error_message": "mainloop: caught unexpected SystemExit!\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:08.472020"
+    },
+    {
+      "test_name": "PostgreSQL Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 5.2654125690460205,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n______________ ERROR collecting database/tests/test_postgres.py _______________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\database\\tests\\test_postgres.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ndatabase\\tests\\test_postgres.py:6: in <module>\n    from database.app.db.postgres import PostgreSQLManager\ndatabase\\app\\db\\postgres.py:9: in <module>\n    from database.app.models import Base\nE   ImportError: cannot import name 'Base' from 'database.app.models' (C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\database\\app\\models\\__init__.py)\n=========================== short test summary info ===========================\nERROR database/tests/test_postgres.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 1.94s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:13.738144"
+    },
+    {
+      "test_name": "ClickHouse Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 5.787837982177734,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n_____________ ERROR collecting database/tests/test_clickhouse.py ______________\ndatabase\\tests\\test_clickhouse.py:5: in <module>\n    from database.app.db.clickhouse import ClickHouseManager\ndatabase\\app\\db\\clickhouse.py:17: in <module>\n    class ClickHouseManager:\ndatabase\\app\\db\\clickhouse.py:121: in ClickHouseManager\n    async def query_market_data(self, symbol: str, start_time: datetime, end_time: datetime) -> list:\n                                                               ^^^^^^^^\nE   NameError: name 'datetime' is not defined. Did you forget to import 'datetime'?\n=========================== short test summary info ===========================\nERROR database/tests/test_clickhouse.py - NameError: name 'datetime' is not d...\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 2.45s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:19.526773"
+    },
+    {
+      "test_name": "Redis Integration",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 4.915562391281128,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 2 items\n\ndatabase\\tests\\test_redis.py F.                                          [100%]\n\n================================== FAILURES ===================================\n________________________ test_redis_initialize_success ________________________\ndatabase\\tests\\test_redis.py:19: in test_redis_initialize_success\n    assert redis_manager.is_healthy is True\nE   assert False is True\nE    +  where False = <database.app.db.redis.RedisManager object at 0x000002429AE2C2F0>.is_healthy\n------------------------------ Captured log call ------------------------------\nERROR    database.app.db.redis:redis.py:35 Failed to initialize Redis: object bool can't be used in 'await' expression\n=========================== short test summary info ===========================\nFAILED database/tests/test_redis.py::test_redis_initialize_success - assert F...\n========================= 1 failed, 1 passed in 1.60s =========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:24.443151"
+    },
+    {
+      "test_name": "Qdrant Integration",
+      "test_type": "unit",
+      "status": "PASSED",
+      "duration": 3.7558534145355225,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:28.199960"
+    },
+    {
+      "test_name": "REST API",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 4.350388526916504,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n__________________ ERROR collecting api/tests/test_health.py __________________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\api\\tests\\test_health.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi\\tests\\test_health.py:4: in <module>\n    from app.main import app\nE   ModuleNotFoundError: No module named 'app'\n=========================== short test summary info ===========================\nERROR api/tests/test_health.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 1.18s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:32.551097"
+    },
+    {
+      "test_name": "GraphQL API",
+      "test_type": "unit",
+      "status": "PASSED",
+      "duration": 4.880182981491089,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:37.432049"
+    },
+    {
+      "test_name": "WebSocket API",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 4.671103477478027,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n_______________ ERROR collecting api/tests/test_market_data.py ________________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\api\\tests\\test_market_data.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\napi\\tests\\test_market_data.py:5: in <module>\n    from app.main import app\nE   ModuleNotFoundError: No module named 'app'\n=========================== short test summary info ===========================\nERROR api/tests/test_market_data.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 1.25s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:42.104152"
+    },
+    {
+      "test_name": "gRPC API",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 3.1958389282226562,
+      "error_message": "ERROR: not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\api\\trading.proto\n(no match in any of [<Package api>])\n\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:45.300723"
+    },
+    {
+      "test_name": "Authentication",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 11.857825994491577,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n____________ ERROR collecting security/test_zero_trust_security.py ____________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\security\\test_zero_trust_security.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsecurity\\test_zero_trust_security.py:28: in <module>\n    from security.authentication_framework import (\nsecurity\\authentication_framework.py:24: in <module>\n    import pyotp\nE   ModuleNotFoundError: No module named 'pyotp'\n=========================== short test summary info ===========================\nERROR security/test_zero_trust_security.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 7.78s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:05:57.159377"
+    },
+    {
+      "test_name": "Authorization",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 8.161089658737183,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n____________ ERROR collecting security/test_zero_trust_security.py ____________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\security\\test_zero_trust_security.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsecurity\\test_zero_trust_security.py:28: in <module>\n    from security.authentication_framework import (\nsecurity\\authentication_framework.py:24: in <module>\n    import pyotp\nE   ModuleNotFoundError: No module named 'pyotp'\n=========================== short test summary info ===========================\nERROR security/test_zero_trust_security.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 4.40s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:06:05.321363"
+    },
+    {
+      "test_name": "Encryption",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 8.207529783248901,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n____________ ERROR collecting security/test_zero_trust_security.py ____________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\security\\test_zero_trust_security.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsecurity\\test_zero_trust_security.py:28: in <module>\n    from security.authentication_framework import (\nsecurity\\authentication_framework.py:24: in <module>\n    import pyotp\nE   ModuleNotFoundError: No module named 'pyotp'\n=========================== short test summary info ===========================\nERROR security/test_zero_trust_security.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 4.42s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:06:13.529657"
+    },
+    {
+      "test_name": "Volume-Weighted Indicators",
+      "test_type": "unit",
+      "status": "FAILED",
+      "duration": 5.283313989639282,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n_ ERROR collecting nautilus_trader_engine/tests/test_technical_indicators.py __\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\tests\\test_technical_indicators.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    ???\nnautilus_trader_engine\\tests\\test_technical_indicators.py:20: in <module>\n    from nautilus_trader_engine.indicators.volume_weighted import VolumeWeightedIndicators, MarketData\nE   ModuleNotFoundError: No module named 'nautilus_trader_engine.indicators'\n=========================== short test summary info ===========================\nERROR nautilus_trader_engine/tests/test_technical_indicators.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 2.07s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:06:18.813736"
+    },
+    {
+      "test_name": "Market Data Service",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: test_data_feeds.py",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:06:18.814880"
+    },
+    {
+      "test_name": "Data Normalization",
+      "test_type": "unit",
+      "status": "SKIPPED",
+      "duration": 0,
+      "error_message": "Test file not found: test_data_feeds.py",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:06:18.815709"
+    },
+    {
+      "test_name": "End-to-End Trading Workflow",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 5.352368593215942,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:06:24.168955"
+    },
+    {
+      "test_name": "Database Integration Suite",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 36.83643674850464,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:07:01.006060"
+    },
+    {
+      "test_name": "API Integration Suite",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 6.502668380737305,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:07:07.509569"
+    },
+    {
+      "test_name": "Kafka Event Bus",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 15.342538595199585,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:07:22.853047"
+    },
+    {
+      "test_name": "Event Processing",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 9.029536008834839,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:07:31.883313"
+    },
+    {
+      "test_name": "Data Pipeline Integration",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 3.525604009628296,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:07:35.409580"
+    },
+    {
+      "test_name": "Market Data Flow",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 3.4689154624938965,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:07:38.879221"
+    },
+    {
+      "test_name": "Zero-Trust Architecture",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 55.92213702201843,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:08:34.802064"
+    },
+    {
+      "test_name": "RBAC Integration",
+      "test_type": "integration",
+      "status": "PASSED",
+      "duration": 56.25741672515869,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:09:31.060307"
+    },
+    {
+      "test_name": "Complete Trading System",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 4.4913904666900635,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n____________ ERROR collecting performance/test_complete_system.py _____________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\performance\\test_complete_system.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nperformance\\test_complete_system.py:19: in <module>\n    from comprehensive_test_suite import PerformanceTestSuite, TestConfiguration\nperformance\\comprehensive_test_suite.py:20: in <module>\n    from locust import HttpUser, task, between\nE   ModuleNotFoundError: No module named 'locust'\n=========================== short test summary info ===========================\nERROR performance/test_complete_system.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 1.01s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:09:35.552986"
+    },
+    {
+      "test_name": "Multi-Asset Trading",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 4.668759822845459,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:09:40.222635"
+    },
+    {
+      "test_name": "High-Frequency Trading",
+      "test_type": "system",
+      "status": "PASSED",
+      "duration": 4.584529161453247,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:09:44.807931"
+    },
+    {
+      "test_name": "Latency Requirements (<100ms)",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 9.973833799362183,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 6 items\n\nperformance\\test_latency.py F.F...                                       [100%]\n\n================================== FAILURES ===================================\n__________________ TestLatency.test_order_execution_latency ___________________\nperformance\\test_latency.py:345: in test_order_execution_latency\n    assert mean_latency < 10.0, f\"Mean order execution latency {mean_latency:.2f}ms exceeds 10ms requirement\"\nE   AssertionError: Mean order execution latency 10.55ms exceeds 10ms requirement\nE   assert 10.551918999990448 < 10.0\n_____________________ TestLatency.test_risk_check_latency _____________________\nperformance\\test_latency.py:401: in test_risk_check_latency\n    assert mean_latency < 10.0, f\"Mean risk check latency {mean_latency:.2f}ms exceeds 10ms requirement\"\nE   AssertionError: Mean risk check latency 10.36ms exceeds 10ms requirement\nE   assert 10.35797199467197 < 10.0\n============================== warnings summary ===============================\nperformance/test_latency.py::TestLatency::test_order_execution_latency\nperformance/test_latency.py::TestLatency::test_market_data_latency\nperformance/test_latency.py::TestLatency::test_risk_check_latency\nperformance/test_latency.py::TestLatency::test_database_query_latency\nperformance/test_latency.py::TestLatency::test_concurrent_operations_latency\nperformance/test_latency.py::TestLatency::test_latency_profiling\n  C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\python.py:722: RuntimeWarning: coroutine 'TestLatency.teardown_method' was never awaited\n    func()\n  Enable tracemalloc to get traceback where the object was allocated.\n  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ===========================\nFAILED performance/test_latency.py::TestLatency::test_order_execution_latency\nFAILED performance/test_latency.py::TestLatency::test_risk_check_latency - As...\n=================== 2 failed, 4 passed, 6 warnings in 6.54s ===================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:09:54.782817"
+    },
+    {
+      "test_name": "Throughput Requirements",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 4.853503942489624,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n__________ ERROR collecting performance/test_performance_systems.py ___________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\performance\\test_performance_systems.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nperformance\\test_performance_systems.py:17: in <module>\n    from comprehensive_test_suite import (\nperformance\\comprehensive_test_suite.py:20: in <module>\n    from locust import HttpUser, task, between\nE   ModuleNotFoundError: No module named 'locust'\n=========================== short test summary info ===========================\nERROR performance/test_performance_systems.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 1.29s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:09:59.637162"
+    },
+    {
+      "test_name": "Scalability Testing",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 3.574310064315796,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 skipped\n\n=========================== short test summary info ===========================\nSKIPPED [1] tests\\system\\test_scalability.py:11: Skipping scalability tests on Windows\n============================= 1 skipped in 0.14s ==============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:03.212163"
+    },
+    {
+      "test_name": "Backup and Recovery",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 4.029660701751709,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:07.242681"
+    },
+    {
+      "test_name": "Failover Testing",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 4.397041082382202,
+      "error_message": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:11.640676"
+    },
+    {
+      "test_name": "Audit Trail Validation",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 3.7668633460998535,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n_______________ ERROR collecting tests/test_audit_reporting.py ________________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\tests\\test_audit_reporting.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    ???\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_audit_reporting.py:14: in <module>\n    ???\nE   ModuleNotFoundError: No module named 'nautilus_trader_engine.reporting'\n=========================== short test summary info ===========================\nERROR tests/test_audit_reporting.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.58s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:15.408373"
+    },
+    {
+      "test_name": "Compliance Engine",
+      "test_type": "system",
+      "status": "FAILED",
+      "duration": 4.224428653717041,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ====================================\n_____________ ERROR collecting tests/test_automated_compliance.py _____________\nImportError while importing test module 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\tests\\test_automated_compliance.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\nC:\\Program Files\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\n    ???\nC:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Kilo Code\\Algorithmic Trading System\\tests\\test_automated_compliance.py:11: in <module>\n    ???\nE   ModuleNotFoundError: No module named 'nautilus_trader_engine.compliance'\n=========================== short test summary info ===========================\nERROR tests/test_automated_compliance.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.56s ===============================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:19.633631"
+    },
+    {
+      "test_name": "Strategy Creation Workflow",
+      "test_type": "uat",
+      "status": "PASSED",
+      "duration": 3.5246729850769043,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:23.159305"
+    },
+    {
+      "test_name": "Portfolio Management Workflow",
+      "test_type": "uat",
+      "status": "PASSED",
+      "duration": 3.5467746257781982,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:26.706759"
+    },
+    {
+      "test_name": "Risk Management Workflow",
+      "test_type": "uat",
+      "status": "PASSED",
+      "duration": 3.9022796154022217,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:30.609915"
+    },
+    {
+      "test_name": "Trading Dashboard Usability",
+      "test_type": "uat",
+      "status": "PASSED",
+      "duration": 4.033241033554077,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:34.643999"
+    },
+    {
+      "test_name": "API Documentation Completeness",
+      "test_type": "uat",
+      "status": "PASSED",
+      "duration": 4.030856132507324,
+      "error_message": null,
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:38.675652"
+    },
+    {
+      "test_name": "Multi-Asset Support",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 4.5219128131866455,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_multi_asset_support.py ..F.....                           [100%]\n\n================================== FAILURES ===================================\n___________ TestMultiAssetSupport.test_cross_asset_order_execution ____________\ntests\\uat\\test_multi_asset_support.py:304: in test_cross_asset_order_execution\n    ???\nE   AssertionError: Fill price 1.0865 not aligned to tick size 1e-05\nE   assert ((1.0865 * (1 / 1e-05)) % 1) == 0\n=========================== short test summary info ===========================\nFAILED tests/uat/test_multi_asset_support.py::TestMultiAssetSupport::test_cross_asset_order_execution\n========================= 1 failed, 7 passed in 0.68s =========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:10:43.198587"
+    },
+    {
+      "test_name": "Real-Time Data Processing",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 37.93328857421875,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 7 items\n\ntests\\uat\\test_realtime_processing.py F.F..F.                            [100%]\n\n================================== FAILURES ===================================\n__________ TestRealtimeProcessing.test_market_data_streaming_latency __________\ntests\\uat\\test_realtime_processing.py:120: in test_market_data_streaming_latency\n    ???\nE   AssertionError: P50 latency 19.6268999716267ms exceeds target 5.0ms\nE   assert 19.6268999716267 <= 5.0\n____________ TestRealtimeProcessing.test_real_time_risk_monitoring ____________\ntests\\uat\\test_realtime_processing.py:321: in test_real_time_risk_monitoring\n    assert avg_calculation_time <= benchmarks['target_p50'], \\\nE   AssertionError: Average calculation time 24.6ms exceeds target 20.0ms\nE   assert 24.58010100584943 <= 20.0\n______ TestRealtimeProcessing.test_event_driven_architecture_performance ______\ntests\\uat\\test_realtime_processing.py:699: in test_event_driven_architecture_performance\n    assert max_time <= expected_max, \\\nE   AssertionError: Max processing time for market_data_update: 57.0ms exceeds 5ms\nE   assert 56.96730001363903 <= 5\n=========================== short test summary info ===========================\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_market_data_streaming_latency\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_real_time_risk_monitoring\nFAILED tests/uat/test_realtime_processing.py::TestRealtimeProcessing::test_event_driven_architecture_performance\n======================== 3 failed, 4 passed in 33.14s =========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:11:21.133374"
+    },
+    {
+      "test_name": "Regulatory Compliance",
+      "test_type": "uat",
+      "status": "FAILED",
+      "duration": 7.851109981536865,
+      "error_message": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_regulatory_compliance.py .......F                         [100%]\n\n================================== FAILURES ===================================\n_______ TestRegulatoryCompliance.test_anti_money_laundering_compliance ________\ntests\\uat\\test_regulatory_compliance.py:831: in test_anti_money_laundering_compliance\n    ???\nE   AssertionError: Too many transactions flagged as high-risk (potential false positives)\nE   assert 2 <= (3 * 0.3)\nE    +  where 2 = len([{'alert_level': 'HIGH', 'recommended_actions': ['FILE_SAR', 'ENHANCED_DUE_DILIGENCE', 'TRANSACTION_MONITORING'], 'req..., 'TRANSACTION_MONITORING'], 'requires_investigation': True, 'risk_factors': [None, None, 'STRUCTURING_PATTERN'], ...}])\nE    +  and   3 = len([{'amount': 50000, 'client_id': 'CLIENT_123', 'currency': 'USD', 'risk_score': 0.2, ...}, {'amount': 500000, 'client_i...': 0.85, ...}, {'amount': 9500, 'client_id': 'CLIENT_789', 'currency': 'USD', 'pattern': 'POTENTIAL_STRUCTURING', ...}])\n=========================== short test summary info ===========================\nFAILED tests/uat/test_regulatory_compliance.py::TestRegulatoryCompliance::test_anti_money_laundering_compliance\n========================= 1 failed, 7 passed in 1.31s =========================\n",
+      "coverage": null,
+      "timestamp": "2025-09-06T15:11:28.985609"
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "DEF-0001",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 1 item\n\nnautilus_trader_engine\\tests\\test_nautilus_imports.py E     ",
+      "test_case": "NautilusTrader Integration",
+      "component": "Trading Engine",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:04:57.508546"
+    },
+    {
+      "defect_id": "DEF-0002",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 1 item\n\nnautilus_trader_engine\\tests\\test_broker_simple.py E        ",
+      "test_case": "Order Management",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:01.658379"
+    },
+    {
+      "defect_id": "DEF-0003",
+      "severity": "MEDIUM",
+      "description": "ERROR: file or directory not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\risk\\test_*.py\n\n",
+      "test_case": "Risk Management",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:04.770828"
+    },
+    {
+      "defect_id": "DEF-0004",
+      "severity": "MEDIUM",
+      "description": "mainloop: caught unexpected SystemExit!\n",
+      "test_case": "Portfolio Management",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:08.472004"
+    },
+    {
+      "defect_id": "DEF-0005",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "PostgreSQL Integration",
+      "component": "Database",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:13.738105"
+    },
+    {
+      "defect_id": "DEF-0006",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "ClickHouse Integration",
+      "component": "Database",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:19.526751"
+    },
+    {
+      "defect_id": "DEF-0007",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 2 items\n\ndatabase\\tests\\test_redis.py F.                            ",
+      "test_case": "Redis Integration",
+      "component": "Database",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:24.443131"
+    },
+    {
+      "defect_id": "DEF-0008",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "REST API",
+      "component": "API Layer",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:32.551079"
+    },
+    {
+      "defect_id": "DEF-0009",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "WebSocket API",
+      "component": "API Layer",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:42.104135"
+    },
+    {
+      "defect_id": "DEF-0010",
+      "severity": "MEDIUM",
+      "description": "ERROR: not found: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\api\\trading.proto\n(no match in any of [<Package api>])\n\n",
+      "test_case": "gRPC API",
+      "component": "API Layer",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:45.300704"
+    },
+    {
+      "defect_id": "DEF-0011",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Authentication",
+      "component": "Security",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:05:57.159355"
+    },
+    {
+      "defect_id": "DEF-0012",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Authorization",
+      "component": "Security",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:06:05.321345"
+    },
+    {
+      "defect_id": "DEF-0013",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Encryption",
+      "component": "Security",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:06:13.529639"
+    },
+    {
+      "defect_id": "DEF-0014",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Volume-Weighted Indicators",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:06:18.813719"
+    },
+    {
+      "defect_id": "DEF-0015",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Complete Trading System",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:09:35.552966"
+    },
+    {
+      "defect_id": "DEF-0016",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestMultiAssetTradingSystem.setup_method' was never awaited\n",
+      "test_case": "Multi-Asset Trading",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:09:40.222617"
+    },
+    {
+      "defect_id": "DEF-0017",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 6 items\n\nperformance\\test_latency.py F.F...                         ",
+      "test_case": "Latency Requirements (<100ms)",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:09:54.782793"
+    },
+    {
+      "defect_id": "DEF-0018",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Throughput Requirements",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:09:59.637144"
+    },
+    {
+      "defect_id": "DEF-0019",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 skipped\n\n=========================== short test summary ",
+      "test_case": "Scalability Testing",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:10:03.212145"
+    },
+    {
+      "defect_id": "DEF-0020",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n",
+      "test_case": "Backup and Recovery",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:10:07.242659"
+    },
+    {
+      "defect_id": "DEF-0021",
+      "severity": "HIGH",
+      "description": "C:\\Users\\Vincent_Pereira\\AppData\\Roaming\\Python\\Python313\\site-packages\\_pytest\\unraisableexception.py:33: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n  gc.collect()\nRuntimeWarning: Enable tracemalloc to get the object allocation traceback\n<sys>:0: RuntimeWarning: coroutine 'TestDisasterRecovery.setup_method' was never awaited\n",
+      "test_case": "Failover Testing",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:10:11.640658"
+    },
+    {
+      "defect_id": "DEF-0022",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Audit Trail Validation",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:10:15.408356"
+    },
+    {
+      "defect_id": "DEF-0023",
+      "severity": "HIGH",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 0 items / 1 error\n\n=================================== ERRORS ======",
+      "test_case": "Compliance Engine",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:10:19.633613"
+    },
+    {
+      "defect_id": "DEF-0024",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_multi_asset_support.py ..F.....             ",
+      "test_case": "Multi-Asset Support",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:10:43.198558"
+    },
+    {
+      "defect_id": "DEF-0025",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 7 items\n\ntests\\uat\\test_realtime_processing.py F.F..F.              ",
+      "test_case": "Real-Time Data Processing",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:11:21.133343"
+    },
+    {
+      "defect_id": "DEF-0026",
+      "severity": "MEDIUM",
+      "description": "============================= test session starts =============================\nplatform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0\nrootdir: C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\nconfigfile: pytest.ini\nplugins: anyio-4.9.0, langsmith-0.4.8, asyncio-1.1.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 8 items\n\ntests\\uat\\test_regulatory_compliance.py .......F           ",
+      "test_case": "Regulatory Compliance",
+      "component": "Unknown",
+      "status": "OPEN",
+      "timestamp": "2025-09-06T15:11:28.985585"
+    }
+  ],
+  "coverage_analysis": {
+    "components_tested": [
+      "Security",
+      "Data Feed",
+      "API Layer",
+      "Trading Engine",
+      "Database",
+      "Unknown",
+      "Event Bus"
+    ],
+    "expected_components": [
+      "Security",
+      "Data Feed",
+      "API Layer",
+      "Compliance",
+      "Trading Engine",
+      "Portfolio Management",
+      "Technical Indicators",
+      "Audit Trail",
+      "Risk Management",
+      "Database",
+      "Event Bus"
+    ],
+    "missing_components": [
+      "Compliance",
+      "Portfolio Management",
+      "Technical Indicators",
+      "Audit Trail",
+      "Risk Management"
+    ],
+    "coverage_percentage": 63.63636363636363
+  },
+  "recommendations": [
+    "Overall pass rate is 37.8%. Recommend addressing failed tests before production deployment.",
+    "2 tests were skipped. Implement missing test files for complete coverage.",
+    "Component coverage is 63.6%. Add tests for: Compliance, Portfolio Management, Technical Indicators, Audit Trail, Risk Management"
+  ]
+}

@@ -77,7 +77,7 @@ class EmbeddingCache:
     def _generate_cache_key(self, text: str, model_name: str) -> str:
         """Generate cache key for text and model combination"""
         content = f"{model_name}:{text}"
-        return hashlib.md5(content.encode('utf-8')).hexdigest()
+        return hashlib.sha256(content.encode('utf-8')).hexdigest()
     
     def get(self, text: str, model_name: str) -> Optional[List[float]]:
         """

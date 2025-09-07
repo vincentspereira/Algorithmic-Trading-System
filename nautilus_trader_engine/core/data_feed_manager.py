@@ -9,8 +9,17 @@ from datetime import datetime, timedelta
 from typing import Dict, Optional, Any
 import yfinance as yf
 
-from nautilus_trader_engine.brokers.ibapi import IBClient
-from nautilus_trader_engine.config.ib_config import IBPaperConfig, IBLiveConfig
+# Optional imports - make them available if modules exist
+try:
+    from nautilus_trader_engine.brokers.ibapi import IBClient
+except ImportError:
+    IBClient = None
+
+try:
+    from nautilus_trader_engine.config.ib_config import IBPaperConfig, IBLiveConfig
+except ImportError:
+    IBPaperConfig = None
+    IBLiveConfig = None
 
 class DataFeedManager:
     """Mock data feed manager for testing the API"""

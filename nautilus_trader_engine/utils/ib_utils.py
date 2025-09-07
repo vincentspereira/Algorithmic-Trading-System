@@ -22,6 +22,7 @@ from nautilus_trader.model.objects import Price, Quantity
 def to_ib_contract(instrument_id: InstrumentId, symbol_map: Dict[str, str]) -> Contract:
     """
     Converts a NautilusTrader InstrumentId to an `ib_insync` Contract.
+    Supports multiple asset classes: stocks, ETFs, futures, options, forex, commodities, crypto.
 
     :param instrument_id: The NautilusTrader instrument ID.
     :param symbol_map: A dictionary mapping NautilusTrader symbols to IB symbols.
@@ -29,14 +30,78 @@ def to_ib_contract(instrument_id: InstrumentId, symbol_map: Dict[str, str]) -> C
     """
     symbol_str = str(instrument_id.symbol)
     ib_symbol = symbol_map.get(symbol_str, symbol_str)
+    venue_str = str(instrument_id.venue)
     
-    # Example for creating a stock contract, can be expanded for other asset classes
-    return Contract(
-        symbol=ib_symbol,
-        secType="STK",
-        exchange="SMART",
-        currency="USD"
-    )
+    # Parse asset class from symbol or venue
+    if "-STK-" in symbol_str or venue_str == "NASDAQ" or venue_str == "NYSE":
+        # Stocks
+        return Contract(
+            symbol=ib_symbol,
+            secType="STK",
+            exchange="SMART",
+            currency="USD"
+        )
+    elif "-ETF-" in symbol_str or symbol_str in ["SPY", "QQQ", "IWM", "VTI", "VOO"]:
+        # ETFs
+        return Contract(
+            symbol=ib_symbol,
+            secType="STK",  # ETFs are treated as stocks in IB
+            exchange="SMART",
+            currency="USD"
+        )
+    elif "-FUT-" in symbol_str or venue_str in ["CME", "CBOT", "NYMEX", "COMEX"]:
+        # Futures
+        return Contract(
+            symbol=ib_symbol,
+            secType="FUT",
+            exchange=venue_str if venue_str in ["CME", "CBOT", "NYMEX", "COMEX"] else "CME",
+            currency="USD"
+        )
+    elif "-OPT-" in symbol_str or "C" in symbol_str[-8:] or "P" in symbol_str[-8:]:
+        # Options (simplified detection)
+        base_symbol = ib_symbol.split("-")[0] if "-" in ib_symbol else ib_symbol[:4]
+        return Contract(
+            symbol=base_symbol,
+            secType="OPT",
+            exchange="SMART",
+            currency="USD"
+        )
+    elif "/" in symbol_str or symbol_str in ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD"]:
+        # Forex
+        if "/" in symbol_str:
+            base, quote = symbol_str.split("/")
+        else:
+            base, quote = symbol_str[:3], symbol_str[3:]
+        return Contract(
+            symbol=base,
+            secType="CASH",
+            exchange="IDEALPRO",
+            currency=quote
+        )
+    elif symbol_str in ["GC", "SI", "CL", "NG"] or "-CMDTY-" in symbol_str:
+        # Commodities
+        return Contract(
+            symbol=ib_symbol,
+            secType="CMDTY",
+            exchange="NYMEX",
+            currency="USD"
+        )
+    elif symbol_str in ["BTC", "ETH", "BTCUSD", "ETHUSD"] or "-CRYPTO-" in symbol_str:
+        # Cryptocurrency
+        return Contract(
+            symbol=ib_symbol,
+            secType="CRYPTO",
+            exchange="PAXOS",
+            currency="USD"
+        )
+    else:
+        # Default to stock
+        return Contract(
+            symbol=ib_symbol,
+            secType="STK",
+            exchange="SMART",
+            currency="USD"
+        )
 
 def to_nautilus_bar(bar_data: IBBar, venue: Venue) -> Bar:
     """

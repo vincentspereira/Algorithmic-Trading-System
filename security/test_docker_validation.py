@@ -88,13 +88,13 @@ class DockerFraudDetectionValidator:
             mock_multipart = types.ModuleType('multipart')
             
             # Create mock classes
-            class MockMimeText:
+            class MockMIMEText:
                 def __init__(self, *args, **kwargs):
                     pass
                 def attach(self, *args):
                     pass
             
-            class MockMimeMultipart:
+            class MockMIMEMultipart:
                 def __init__(self, *args, **kwargs):
                     self.items = {}
                 def __setitem__(self, key, value):
@@ -102,8 +102,8 @@ class DockerFraudDetectionValidator:
                 def attach(self, *args):
                     pass
             
-            mock_text.MimeText = MockMimeText
-            mock_multipart.MimeMultipart = MockMimeMultipart
+            mock_text.MIMEText = MockMIMEText
+            mock_multipart.MIMEMultipart = MockMIMEMultipart
             mock_mime.text = mock_text
             mock_mime.multipart = mock_multipart
             mock_email.mime = mock_mime

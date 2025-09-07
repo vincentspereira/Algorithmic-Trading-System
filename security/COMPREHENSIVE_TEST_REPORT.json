@@ -1,0 +1,99 @@
+{
+  "test_suite": "Comprehensive Fraud Detection Test Suite",
+  "execution_date": "2025-09-07T01:17:34.829254",
+  "environment": "Docker with full dependencies",
+  "summary": {
+    "total_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0,
+    "success_rate": "100.0%"
+  },
+  "test_results": [
+    {
+      "test_name": "Engine Initialization",
+      "passed": true,
+      "details": "Fraud detection engine created",
+      "timestamp": "2025-09-07T01:17:34.761836",
+      "metrics": {}
+    },
+    {
+      "test_name": "Fraud Detection Scenarios",
+      "passed": true,
+      "details": "All 2 scenarios processed correctly",
+      "timestamp": "2025-09-07T01:17:34.770676",
+      "metrics": {
+        "normal_score": "0.500",
+        "suspicious_score": "0.750"
+      }
+    },
+    {
+      "test_name": "Dashboard Functionality",
+      "passed": true,
+      "details": "All dashboard sections present",
+      "timestamp": "2025-09-07T01:17:34.778510",
+      "metrics": {
+        "total_events": 2,
+        "total_alerts": 1
+      }
+    },
+    {
+      "test_name": "Graph Construction",
+      "passed": true,
+      "details": "Added 10 normal transactions",
+      "timestamp": "2025-09-07T01:17:34.783102",
+      "metrics": {
+        "total_nodes": 5,
+        "total_edges": 10
+      }
+    },
+    {
+      "test_name": "Suspicious Pattern Creation",
+      "passed": true,
+      "details": "Created circular transaction pattern",
+      "timestamp": "2025-09-07T01:17:34.786307",
+      "metrics": {}
+    },
+    {
+      "test_name": "Pattern Detection",
+      "passed": true,
+      "details": "Detected 7 suspicious patterns",
+      "timestamp": "2025-09-07T01:17:34.790977",
+      "metrics": {}
+    },
+    {
+      "test_name": "Risk Scoring",
+      "passed": true,
+      "details": "Risk score calculated: 0.500",
+      "timestamp": "2025-09-07T01:17:34.796146",
+      "metrics": {}
+    },
+    {
+      "test_name": "Rule Management",
+      "passed": true,
+      "details": "Rule added successfully",
+      "timestamp": "2025-09-07T01:17:34.801249",
+      "metrics": {
+        "total_rules": 6
+      }
+    },
+    {
+      "test_name": "Event Processing",
+      "passed": true,
+      "details": "Processed event with 6 actions",
+      "timestamp": "2025-09-07T01:17:34.819557",
+      "metrics": {}
+    },
+    {
+      "test_name": "Response Dashboard",
+      "passed": true,
+      "details": "All dashboard sections present",
+      "timestamp": "2025-09-07T01:17:34.821208",
+      "metrics": {}
+    }
+  ],
+  "components_tested": [
+    "Advanced Fraud Detection Engine",
+    "Transaction Graph Analytics",
+    "Automated Response System"
+  ]
+}

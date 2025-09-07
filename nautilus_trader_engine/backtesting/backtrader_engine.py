@@ -5,7 +5,14 @@ This module provides a wrapper around the backtrader library
 to standardize backtesting operations and results.
 """
 
-import backtrader as bt
+# Optional backtrader import to avoid collection-time failures
+try:
+    import backtrader as bt  # type: ignore
+    BACKTRADER_AVAILABLE = True
+except Exception:
+    bt = None  # type: ignore
+    BACKTRADER_AVAILABLE = False
+
 import pandas as pd
 from typing import Dict, Any, Optional, List
 from datetime import datetime

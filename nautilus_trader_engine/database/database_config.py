@@ -30,10 +30,25 @@ from dataclasses import dataclass
 # Database drivers and clients
 import asyncpg
 import redis.asyncio as redis
-import clickhouse_connect
 import duckdb
-from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance
+
+QdrantClient = None
+VectorParams = None
+Distance = None
+clickhouse_connect = None
+
+try:
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import VectorParams, Distance
+    QDRANT_AVAILABLE = True
+except ImportError:
+    QDRANT_AVAILABLE = False
+
+try:
+    import clickhouse_connect
+    CLICKHOUSE_AVAILABLE = True
+except ImportError:
+    CLICKHOUSE_AVAILABLE = False
 
 # Configuration and utilities
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -234,6 +249,9 @@ class DatabaseManager:
     async def _initialize_clickhouse(self) -> bool:
         """Initialize ClickHouse for time-series analytics"""
         try:
+            if not CLICKHOUSE_AVAILABLE:
+                self.logger.warning("ClickHouse client not available; skipping ClickHouse initialization")
+                return False
             # Connection configuration
             ch_config = {
                 "host": os.getenv("CLICKHOUSE_HOST", "localhost"),

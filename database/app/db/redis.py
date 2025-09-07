@@ -3,7 +3,7 @@ import logging
 
 import redis.asyncio as aioredis
 
-from app.core.config import db_settings
+from database.app.core.config import db_settings
 
 logger = logging.getLogger(__name__)
 

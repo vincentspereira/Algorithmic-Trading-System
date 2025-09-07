@@ -16,19 +16,18 @@ import asyncio
 from typing import Optional
 
 from ib_insync import IB, Contract, Order as IBOrder, Ticker, Trade
-from nautilus_trader.core.component import Component
-from nautilus_trader.core.message import Event
-from nautilus_trader.model.book import QuoteTick
-from nautilus_trader.model.data import Bar
+from nautilus_trader.common.component import Component
+from nautilus_trader.core import Event
+from nautilus_trader.model import QuoteTick, Bar
 from nautilus_trader.model.enums import OrderSide, OrderType, TimeInForce, OrderStatus as NautilusOrderStatus
 from nautilus_trader.model.events import (
     AccountState,
     OrderFilled,
-    PositionState,
+    PositionChanged,
 )
-from nautilus_trader.model.identifiers import InstrumentId, OrderId, ClientOrderId
+from nautilus_trader.model.identifiers import InstrumentId, VenueOrderId, ClientOrderId
 from nautilus_trader.model.objects import Price, Quantity
-from nautilus_trader.model.orders.order import Order
+from nautilus_trader.model.orders import Order
 from nautilus_trader.model.position import Position
 
 from nautilus_trader_engine.utils.ib_utils import (

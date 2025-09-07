@@ -1,9 +1,48 @@
 
 import asyncio
 import json
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
-from confluent_kafka.admin import AdminClient, NewTopic
 import structlog
+
+# Optional Kafka imports
+try:
+    from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
+    from confluent_kafka.admin import AdminClient, NewTopic
+    KAFKA_AVAILABLE = True
+except ImportError:
+    # Mock classes when Kafka libraries are not available
+    class AIOKafkaProducer:
+        def __init__(self, **kwargs):
+            pass
+        async def start(self):
+            pass
+        async def stop(self):
+            pass
+        async def send(self, *args, **kwargs):
+            pass
+    
+    class AIOKafkaConsumer:
+        def __init__(self, *args, **kwargs):
+            pass
+        async def start(self):
+            pass
+        async def stop(self):
+            pass
+        def __aiter__(self):
+            return self
+        async def __anext__(self):
+            raise StopAsyncIteration
+    
+    class AdminClient:
+        def __init__(self, **kwargs):
+            pass
+        def create_topics(self, *args, **kwargs):
+            pass
+    
+    class NewTopic:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    KAFKA_AVAILABLE = False
 
 logger = structlog.get_logger()
 
@@ -59,7 +98,7 @@ class KafkaClient:
             await self.consumer.stop()
 
     def create_topic(self, topic_name: str, num_partitions: int = 1, replication_factor: int = 1):
-        admin_client = AdminClient({'bootstrap.servers': self.bootstrap_servers})
+        admin_client = AdminClient(bootstrap_servers=self.bootstrap_servers)
         new_topic = NewTopic(topic_name, num_partitions=num_partitions, replication_factor=replication_factor)
         fs = admin_client.create_topics([new_topic])
         for topic, f in fs.items():

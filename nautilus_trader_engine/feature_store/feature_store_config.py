@@ -219,7 +219,7 @@ class FeatureStoreManager:
             print(f"✗ Error initializing Feast repository: {e}")
             return False
     
-    def get_feature_store(self) -> Optional[FeatureStore]:
+    def get_feature_store(self) -> Optional["FeatureStore"]:
         """Get or create FeatureStore instance"""
         if not FEAST_AVAILABLE:
             return None

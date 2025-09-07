@@ -16,7 +16,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 
 # Import the production readiness framework
-from production_readiness_framework import (
+from .production_readiness_framework import (
     ProductionReadinessValidator,
     ValidationStatus,
     ProductionReadinessReport
@@ -36,6 +36,25 @@ class AutomationConfig:
     notification_enabled: bool
     report_formats: List[str]
     approval_required: bool
+
+@dataclass
+class ReadinessSchedule:
+    schedule_id: str
+    name: str
+    cron_expression: str
+    environment: str
+    validation_config: Dict[str, Any]
+    enabled: bool
+
+@dataclass
+class GoLiveEvent:
+    event_id: str
+    name: str
+    scheduled_time: datetime
+    environment: str
+    validation_requirements: List[str]
+    approvers: List[str]
+    rollback_plan: str
 
 class ProductionReadinessAutomation:
     """Automates production readiness validation and deployment processes"""

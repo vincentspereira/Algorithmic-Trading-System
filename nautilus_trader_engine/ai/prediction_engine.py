@@ -16,7 +16,7 @@ import json
 
 from .model_manager import ModelManager, ModelType, ModelPurpose
 from .inference_engine import InferenceEngine, InferencePriority
-from .pattern_recognition import PatternRecognizer, MarketPattern
+from .pattern_recognition import PatternRecognitionEngine as PatternRecognizer, PatternMatch as MarketPattern
 from .sentiment_analyzer import MarketSentimentAnalyzer, SentimentScore
 
 
@@ -148,12 +148,15 @@ class FeatureEngineer:
                 features[f'roc_{period}'] = features['close'].pct_change(period)
             
             # Bollinger Bands
+            # Bollinger Bands
             bb_window = 20
             bb_std = 2
             bb_sma = features['close'].rolling(bb_window).mean()
             bb_std_dev = features['close'].rolling(bb_window).std()
-            features['bb_upper'] = bb_sma + (bb_std_dev * bb_std)
-            features['bb_lower'] = bb_sma - (bb_std_dev * bb_std)
+            bb_upper = bb_sma + (bb_std_dev * bb_std)
+            bb_lower = bb_sma - (bb_std_dev * bb_std)
+            features['bb_upper'] = bb_upper
+            features['bb_lower'] = bb_lower
             features['bb_position'] = (features['close'] - bb_lower) / (bb_upper - bb_lower)
             
             # RSI
@@ -1609,65 +1612,7 @@ __all__ = [
     'FeatureEngineer',
     'PredictionEngine',
     'EnsemblePredictionEngine'
-]ce=0.2,
-                current_price=current_price,
-                expiry_time=self._calculate_expiry_time(horizon)
-            )
-    
-    async def _fallback_volatility_prediction(self, symbol: str, data: pd.DataFrame, 
-                                            horizon: PredictionHorizon, current_vol: float) -> MarketPrediction:
-        """Fallback volatility prediction"""
-        try:
-            # Simple mean reversion model
-            if len(data) >= 50:
-                returns = data['close'].pct_change().dropna()
-                long_term_vol = returns.rolling(50).std().mean()
-                
-                # Mean reversion prediction
-                predicted_vol = 0.7 * current_vol + 0.3 * long_term_vol
-                confidence = 0.5
-            else:
-                predicted_vol = current_vol * 1.1  # Slight increase
-                confidence = 0.3
-            
-            return MarketPrediction(
-                symbol=symbol,
-                prediction_type=PredictionType.VOLATILITY,
-                horizon=horizon,
-                predicted_value=predicted_vol,
-                confidence=confidence,
-                current_price=data['close'].iloc[-1] if len(data) > 0 else None,
-                market_conditions={'current_volatility': current_vol},
-                expiry_time=self._calculate_expiry_time(horizon)
-            )
-        
-        except Exception as e:
-            self.logger.error(f"Fallback volatility prediction failed: {e}")
-            return MarketPrediction(
-                symbol=symbol,
-                prediction_type=PredictionType.VOLATILITY,
-                horizon=horizon,
-                predicted_value=current_vol,
-                confidence=0.2,
-                expiry_time=self._calculate_expiry_time(horizon)
-            )
-    
-    def get_prediction(self, prediction_id: str) -> Optional[MarketPrediction]:
-        """Get prediction by ID"""
-        return self.predictions.get(prediction_id)
-    
-    def get_predictions_for_symbol(self, symbol: str, active_only: bool = True) -> List[MarketPrediction]:
-        """Get all predictions for a symbol"""
-        predictions = [p for p in self.predictions.values() if p.symbol == symbol]
-        
-        if active_only:
-            predictions = [p for p in predictions if not p.is_expired]
-        
-        return sorted(predictions, key=lambda x: x.timestamp, reverse=True)
-    
-    def get_accuracy_metrics(self) -> Dict[str, Any]:
-        """Get prediction accuracy metrics"""
-        return self.accuracy_metrics.copy()
+]
 
 
 class EnsemblePredictionEngine(PredictionEngine):

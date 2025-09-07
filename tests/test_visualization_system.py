@@ -17,7 +17,9 @@ from nautilus_trader_engine.visualization.advanced_charts import (
     OHLCV, OrderBookLevel, SampleDataGenerator
 )
 from nautilus_trader_engine.visualization.dashboard_builder import (
-    DashboardBuilder, WidgetConfig, WidgetType, WidgetPosition, DashboardLayout,
+    DashboardBuilder, WidgetConfig, WidgetType, DashboardLayout
+)
+from nautilus_trader_engine.visualization.customizable_dashboard import (
     MetricWidgetProvider
 )
 
@@ -324,7 +326,7 @@ class TestDashboardBuilder:
             widget_id="test_widget",
             widget_type=WidgetType.METRIC,
             title="Test Widget",
-            position=WidgetPosition(x=0, y=0, width=4, height=2),
+            position={"x": 0, "y": 0, "w": 4, "h": 2},
             data_source="test.data",
             parameters={'metric_type': 'portfolio_value'}
         )
@@ -394,7 +396,7 @@ class TestDashboardBuilder:
             widget_id="test_metric",
             widget_type=WidgetType.METRIC,
             title="Portfolio Value",
-            position=WidgetPosition(x=0, y=0, width=4, height=2),
+            position={"x": 0, "y": 0, "w": 4, "h": 2},
             data_source="portfolio.value",
             parameters={'metric_type': 'portfolio_value'}
         )
@@ -410,17 +412,16 @@ class TestDashboardBuilder:
     
     def test_widget_position(self):
         """Test widget position creation"""
-        position = WidgetPosition(x=2, y=3, width=6, height=4, z_index=1)
+        position = {"x": 2, "y": 3, "w": 6, "h": 4}
         
-        assert position.x == 2
-        assert position.y == 3
-        assert position.width == 6
-        assert position.height == 4
-        assert position.z_index == 1
+        assert position["x"] == 2
+        assert position["y"] == 3
+        assert position["w"] == 6
+        assert position["h"] == 4
     
     def test_widget_config_creation(self):
         """Test widget configuration creation"""
-        position = WidgetPosition(x=0, y=0, width=4, height=2)
+        position = {"x": 0, "y": 0, "w": 4, "h": 2}
         
         config = WidgetConfig(
             widget_id="test_widget",
@@ -507,7 +508,7 @@ class TestIntegration:
                 widget_id="metric_1",
                 widget_type=WidgetType.METRIC,
                 title="Portfolio Value",
-                position=WidgetPosition(x=0, y=0, width=3, height=2),
+                position={"x": 0, "y": 0, "w": 3, "h": 2},
                 data_source="portfolio.value",
                 parameters={'metric_type': 'portfolio_value'}
             ),
@@ -515,7 +516,7 @@ class TestIntegration:
                 widget_id="metric_2",
                 widget_type=WidgetType.METRIC,
                 title="Day P&L",
-                position=WidgetPosition(x=3, y=0, width=3, height=2),
+                position={"x": 3, "y": 0, "w": 3, "h": 2},
                 data_source="portfolio.pnl",
                 parameters={'metric_type': 'day_pnl'}
             )

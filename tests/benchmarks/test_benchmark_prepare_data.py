@@ -23,6 +23,6 @@ def sample_data():
 @pytest.mark.benchmark(group="prepare-data")
 def test_benchmark_prepare_data(benchmark, executor, sample_data):
     def f():
-        executor._prepare_data(sample_data, "AAPL")
+        executor.prepare_data(sample_data)
 
     benchmark(f)

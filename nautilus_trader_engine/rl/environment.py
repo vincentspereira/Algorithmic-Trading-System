@@ -10,8 +10,15 @@ evaluated on market data.
 
 import numpy as np
 import pandas as pd
-import gymnasium as gym
-from gymnasium import spaces
+
+gym = None
+spaces = None
+try:
+    import gymnasium as gym
+    from gymnasium import spaces
+    GYMNASIUM_AVAILABLE = True
+except ImportError:
+    GYMNASIUM_AVAILABLE = False
 
 from nautilus_trader.model.data import Bar
 from nautilus_trader.model.enums import OrderSide
@@ -24,13 +31,18 @@ from nautilus_trader_engine.rl.finrl_config import (
 )
 
 
-class NautilusTradingEnv(gym.Env):
+class NautilusTradingEnv:
     """
     A custom trading environment that wraps the NautilusTrader backtesting engine
     to make it compatible with the Gymnasium (formerly OpenAI Gym) API.
     """
 
     metadata = {"render_modes": ["human", "none"]}
+    
+    def __init__(self, *args, **kwargs):
+        if not GYMNASIUM_AVAILABLE:
+            raise ImportError("gymnasium is required for RL environment. Install with: pip install gymnasium")
+        super().__init__(*args, **kwargs)
 
     def __init__(
         self,

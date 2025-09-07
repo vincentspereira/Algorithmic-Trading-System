@@ -2,7 +2,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from app.db.clickhouse import ClickHouseManager
+from database.app.db.clickhouse import ClickHouseManager
 
 @pytest.fixture
 def clickhouse_manager():

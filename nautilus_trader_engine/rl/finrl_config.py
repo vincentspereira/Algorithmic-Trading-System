@@ -5,7 +5,12 @@ Configuration settings for FinRL integration, including environment parameters,
 agent hyperparameters, and other RL-related settings.
 """
 
-import gymnasium as gym
+try:
+    import gymnasium as gym
+    GYMNASIUM_AVAILABLE = True
+except ImportError:
+    gym = None
+    GYMNASIUM_AVAILABLE = False
 
 # Default hyperparameters for RL agents
 # These can be overridden by specific training configurations

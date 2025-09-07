@@ -73,3 +73,31 @@ __all__ = [
 
 # Core trading engine modules
 # Trading modules will be loaded on demand
+
+__all__ = [
+    # Messaging components
+    'MessageBus', 'MessageHandler', 'LockFreeRingBuffer',
+    'ZeroCopySerializer', 'MessageType', 'TopicRouter',
+    'MessageRouter', 'MessageMetrics',
+    
+    # Caching components
+    'CacheManager', 'CacheConfig', 'L1Cache', 'LRUCache',
+    'L2Cache', 'RedisCache', 'L3Cache', 'DatabaseCache',
+    'CacheCoherencyManager', 'CacheMetrics',
+    
+    # Networking components
+    'NetworkManager', 'NetworkConfig', 'ConnectionPool',
+    'ConnectionConfig', 'CPUAffinityManager', 'NUMAAllocator',
+    'KernelBypassSocket', 'NetworkMetrics',
+    
+    # Infrastructure management
+    'InfrastructureManager', 'InfrastructureConfig',
+    'get_infrastructure', 'initialize_infrastructure',
+    'start_infrastructure', 'stop_infrastructure',
+    
+    # Portfolio management
+    'PortfolioManager'
+]
+
+# Portfolio management module
+from .portfolio_management import PortfolioManager

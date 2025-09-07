@@ -5,7 +5,6 @@ Persistent database-backed cache for long-term data storage
 
 import asyncio
 import json
-import pickle
 import sqlite3
 import time
 from typing import Any, Optional, Dict, List, Set
@@ -513,26 +512,34 @@ class L3Cache:
             self.logger.error(f"L3Cache cleanup error: {e}")
     
     def _serialize(self, value: Any) -> bytes:
-        """Serialize value for database storage"""
+        """Serialize value for database storage using JSON (safer than pickle)"""
         try:
-            # Use pickle for reliable serialization
-            return pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
+            # Use JSON for all serialization - safer than pickle
+            json_data = json.dumps(value, separators=(',', ':'), default=str)
+            return f"json:{json_data}".encode('utf-8')
         except Exception as e:
             self.logger.error(f"L3Cache serialization error: {e}")
             # Fallback to string representation
-            return str(value).encode('utf-8')
+            return f"str:{str(value)}".encode('utf-8')
     
     def _deserialize(self, data: bytes) -> Any:
         """Deserialize value from database storage"""
         try:
-            return pickle.loads(data)
+            data_str = data.decode('utf-8')
+            
+            if data_str.startswith('json:'):
+                json_data = data_str[5:]  # Remove 'json:' prefix
+                return json.loads(json_data)
+            
+            elif data_str.startswith('str:'):
+                return data_str[4:]  # Remove 'str:' prefix
+            
+            else:
+                # Fallback: assume it's a string
+                return data_str
         except Exception as e:
-            # Fallback: assume it's a UTF-8 string
-            try:
-                return data.decode('utf-8')
-            except:
-                self.logger.error(f"L3Cache deserialization error: {e}")
-                return None
+            self.logger.error(f"L3Cache deserialization error: {e}")
+            return None
     
     async def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics"""

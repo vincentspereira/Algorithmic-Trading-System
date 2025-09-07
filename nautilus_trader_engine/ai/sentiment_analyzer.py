@@ -854,8 +854,7 @@ class MarketSentimentAnalyzer:
             'time_window_hours': hours
         }
 
-class
- MLSentimentAnalyzer(SentimentAnalyzer):
+class MLSentimentAnalyzer(SentimentAnalyzer):
     """
     Machine Learning-based sentiment analyzer
     
@@ -1348,6 +1347,14 @@ class SocialMediaAnalyzer:
             'sample_size': len(recent_sentiments),
             'time_span_hours': hours
         }
+import logging
+
+from typing import List
+
+# Fix the circular import by using relative imports correctly
+# from ..sentiment_analyzer import SentimentAnalyzer
+
+logger = logging.getLogger(__name__)
 
 
 class MLSentimentAnalyzer(SentimentAnalyzer):

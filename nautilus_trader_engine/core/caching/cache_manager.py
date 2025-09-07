@@ -12,7 +12,7 @@ from typing import Any, Optional, Dict, List, Union, Callable
 from enum import Enum
 import logging
 import hashlib
-import pickle
+import json
 
 from .types import EvictionPolicy, CacheLevel, CacheEntry, CacheStats
 from .cache_coherency import CacheCoherencyManager
@@ -430,7 +430,7 @@ class CacheManager:
             return value
         
         try:
-            serialized = pickle.dumps(value)
+            serialized = json.dumps(value, separators=(',', ':'), default=str).encode('utf-8')
             if len(serialized) > self.config.compression_threshold:
                 return self._compressor.compress(serialized)
             return value
@@ -445,7 +445,11 @@ class CacheManager:
         try:
             if isinstance(value, bytes) and value.startswith(b'compressed:'):
                 decompressed = self._compressor.decompress(value[11:])  # Remove 'compressed:' prefix
-                return pickle.loads(decompressed)
+                data_str = decompressed.decode('utf-8')
+                if data_str.startswith('json:'):
+                    json_data = data_str[5:]  # Remove 'json:' prefix
+                    return json.loads(json_data)
+                return data_str
             return value
         except:
             return value

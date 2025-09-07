@@ -5,8 +5,8 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.models import APIResponse, OrderRequest
-from app.websockets import ConnectionManager
+from api.app.models import APIResponse, OrderRequest
+from api.app.websockets import ConnectionManager
 from nautilus_trader_engine.core.order_management import OrderManager
 from app.core.security import verify_token
 from app.services.kafka_service import KafkaService

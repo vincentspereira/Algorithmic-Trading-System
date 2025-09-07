@@ -5,11 +5,9 @@ stress testing, and dynamic hedging strategies
 """
 
 from .var_engine import (
-    VaREngine, VaRMethod, ConfidenceLevel, TimeHorizon,
-    VaRResult, VaRBacktestResult, PortfolioPosition, GARCHParameters,
-    VaRCalculator, HistoricalVaRCalculator, ParametricVaRCalculator,
-    MonteCarloVaRCalculator, GARCHVaRCalculator, VaRBacktester,
-    initialize_var_engine, start_var_engine, get_var_engine, stop_var_engine
+    VaREngine, VaRMethod, ConfidenceLevel,
+    VaRResult, BacktestResult,
+    create_var_engine as initialize_var_engine
 )
 
 from .portfolio_optimizer import (
@@ -19,26 +17,20 @@ from .portfolio_optimizer import (
     initialize_optimization_engine, start_optimization_engine, get_optimization_engine, stop_optimization_engine
 )
 
+from .multi_asset_risk_manager import (
+    MultiAssetRiskManager, VaRResult, ExposureResult, LimitCheckResult
+)
+
+from .realtime_monitor import RealtimeRiskMonitor
+
 __all__ = [
     # VaR Engine
     'VaREngine',
     'VaRMethod',
     'ConfidenceLevel',
-    'TimeHorizon',
     'VaRResult',
-    'VaRBacktestResult',
-    'PortfolioPosition',
-    'GARCHParameters',
-    'VaRCalculator',
-    'HistoricalVaRCalculator',
-    'ParametricVaRCalculator',
-    'MonteCarloVaRCalculator',
-    'GARCHVaRCalculator',
-    'VaRBacktester',
+    
     'initialize_var_engine',
-    'start_var_engine',
-    'get_var_engine',
-    'stop_var_engine',
     
     # Portfolio Optimization Engine
     'PortfolioOptimizationEngine',
@@ -57,5 +49,14 @@ __all__ = [
     'initialize_optimization_engine',
     'start_optimization_engine',
     'get_optimization_engine',
-    'stop_optimization_engine'
+    'stop_optimization_engine',
+    
+    # Multi-Asset Risk Management
+    'MultiAssetRiskManager',
+    'VaRResult',
+    'ExposureResult',
+    'LimitCheckResult',
+    
+    # Real-time Risk Monitoring
+    'RealtimeRiskMonitor'
 ]

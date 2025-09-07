@@ -19,8 +19,8 @@ from concurrent.futures import ThreadPoolExecutor
 import uuid
 
 # Import core components
-from ..core.messaging.message_bus import MessageBus
-from ..core.caching.cache_manager import CacheManager
+from nautilus_trader_engine.core.messaging.message_bus import MessageBus
+from nautilus_trader_engine.core.caching.cache_manager import CacheManager
 
 
 class ComplianceResult(Enum):

@@ -5,7 +5,6 @@ Distributed Redis-based cache for fast cross-service data sharing
 
 import asyncio
 import json
-import pickle
 import time
 from typing import Any, Optional, Dict, List, Set
 import logging
@@ -24,7 +23,7 @@ class L2Cache:
     
     Features:
     - Async Redis operations
-    - JSON and pickle serialization
+    - JSON serialization (safer than pickle)
     - Tag-based invalidation
     - Batch operations
     - Connection pooling
@@ -341,16 +340,11 @@ class L2Cache:
         return f"{self.key_prefix}tag:{tag}"
     
     def _serialize(self, value: Any) -> bytes:
-        """Serialize value for Redis storage"""
+        """Serialize value for Redis storage using JSON (safer than pickle)"""
         try:
-            # Try JSON first for simple types
-            if isinstance(value, (str, int, float, bool, list, dict, type(None))):
-                json_data = json.dumps(value, separators=(',', ':'))
-                return f"json:{json_data}".encode('utf-8')
-            else:
-                # Use pickle for complex objects
-                pickle_data = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
-                return b"pickle:" + pickle_data
+            # Use JSON for all serialization - safer than pickle
+            json_data = json.dumps(value, separators=(',', ':'), default=str)
+            return f"json:{json_data}".encode('utf-8')
         
         except Exception as e:
             self.logger.error(f"Serialization error: {e}")
@@ -365,10 +359,6 @@ class L2Cache:
             if data_str.startswith('json:'):
                 json_data = data_str[5:]  # Remove 'json:' prefix
                 return json.loads(json_data)
-            
-            elif data.startswith(b'pickle:'):
-                pickle_data = data[7:]  # Remove 'pickle:' prefix
-                return pickle.loads(pickle_data)
             
             elif data_str.startswith('str:'):
                 return data_str[4:]  # Remove 'str:' prefix

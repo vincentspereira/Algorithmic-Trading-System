@@ -8,14 +8,14 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 import structlog
 
-from app.api import health, market_data, indicators, orders, portfolio
-from app.background.tasks import market_data_streamer, indicator_calculator
-from app.core.config import api_settings
-from app.models import APIResponse
-from app.websockets import ConnectionManager
+from api.app.api import health, market_data, indicators, orders, portfolio
+from api.app.background.tasks import market_data_streamer, indicator_calculator
+from api.app.core.config import api_settings
+from api.app.models import APIResponse
+from api.app.websockets import ConnectionManager
 from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 from nautilus_trader_engine.indicators.comprehensive_indicators import ComprehensiveIndicators
-from app.services.kafka_service import KafkaService
+from api.app.services.kafka_service import KafkaService
 
 # Configure structured logging
 structlog.configure(

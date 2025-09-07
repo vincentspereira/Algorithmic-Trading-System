@@ -15,8 +15,8 @@ from collections import defaultdict, deque
 from enum import Enum
 import uuid
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import requests
 import time
 
@@ -755,7 +755,7 @@ class AutomatedResponseSystem:
             Please review immediately.
             """
             
-            msg.attach(MimeText(body, 'plain'))
+            msg.attach(MIMEText(body, 'plain'))
             
             # In a real implementation, this would send the email
             logger.info(f"Email alert prepared for {alert_data['user_id']}")

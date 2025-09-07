@@ -1,5 +1,12 @@
 
-from pydantic import BaseSettings
+try:
+    from pydantic_settings import BaseSettings
+except ImportError:
+    try:
+        from pydantic import BaseSettings
+    except ImportError:
+        # Fallback for older pydantic versions
+        from pydantic.v1 import BaseSettings
 
 class Settings(BaseSettings):
     # Kafka
@@ -41,10 +48,10 @@ class Settings(BaseSettings):
 
     # Interactive Brokers
     IB_HOST: str = "127.0.0.1"
-    IB_PAPER_PORT: int = 4002
+    IB_PAPER_PORT: int = 7497  # Standard IBKR paper trading port
     IB_PAPER_CLIENT_ID: int = 1
-    IB_PAPER_ACCOUNT: str = "DU1234567"
-    IB_LIVE_PORT: int = 4001
+    IB_PAPER_ACCOUNT: str = "DUK221396"  # Updated to match validation reports
+    IB_LIVE_PORT: int = 7496  # Standard IBKR live trading port
     IB_LIVE_CLIENT_ID: int = 1
     IB_LIVE_ACCOUNT: str = "U1234567"
 
@@ -63,16 +70,18 @@ class Settings(BaseSettings):
     MAX_ITERATIONS: int = 15
     MAX_EXECUTION_TIME: int = 60
     AI_ASSISTANT_PORT: int = 8002
-    AI_ASSISTANT_HOST: str = "0.0.0.0"
+    AI_ASSISTANT_HOST: str = "127.0.0.1"
     DEBUG_MODE: bool = False
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:8080,http://localhost:3210"
 
     # Backtest Service
-    BACKTEST_SERVICE_HOST: str = "0.0.0.0"
+    BACKTEST_SERVICE_HOST: str = "127.0.0.1"
     BACKTEST_SERVICE_PORT: int = 8000
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = {
+        "extra": "allow",
+        "env_file": ".env",
+        "env_file_encoding": "utf-8"
+    }
 
 settings = Settings()
