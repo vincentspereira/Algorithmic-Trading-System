@@ -1,0 +1,108 @@
+[
+  {
+    "alert_type": "security_vulnerability",
+    "severity": "critical",
+    "timeout_seconds": 900,
+    "escalation_path": [
+      {
+        "level": "level_1",
+        "channels": ["teams", "discord", "email"],
+        "recipients": ["security-team@company.com"],
+        "message": "Critical security vulnerability detected: {title}"
+      },
+      {
+        "level": "level_2",
+        "channels": ["teams", "discord", "email", "slack"],
+        "recipients": ["security-team@company.com", "devops-team@company.com"],
+        "message": "CRITICAL SECURITY VULNERABILITY - ESCALATED: {title}"
+      },
+      {
+        "level": "ccb",
+        "channels": ["teams", "email"],
+        "recipients": ["ccb@company.com", "cto@company.com", "security-team@company.com"],
+        "message": "CRITICAL SECURITY VULNERABILITY - CCB NOTIFICATION REQUIRED: {title}"
+      }
+    ],
+    "notification_template": "security_vulnerability_template"
+  },
+  {
+    "alert_type": "security_vulnerability",
+    "severity": "high",
+    "timeout_seconds": 1800,
+    "escalation_path": [
+      {
+        "level": "level_1",
+        "channels": ["teams", "discord", "email"],
+        "recipients": ["security-team@company.com"],
+        "message": "High severity security vulnerability detected: {title}"
+      },
+      {
+        "level": "level_2",
+        "channels": ["teams", "email"],
+        "recipients": ["security-team@company.com", "dev-team@company.com"],
+        "message": "HIGH SEVERITY SECURITY VULNERABILITY - ESCALATED: {title}"
+      }
+    ],
+    "notification_template": "security_vulnerability_template"
+  },
+  {
+    "alert_type": "breaking_change",
+    "severity": "high",
+    "timeout_seconds": 3600,
+    "escalation_path": [
+      {
+        "level": "level_1",
+        "channels": ["teams", "discord", "email"],
+        "recipients": ["dev-team@company.com"],
+        "message": "Breaking change detected: {title}"
+      },
+      {
+        "level": "level_2",
+        "channels": ["teams", "email"],
+        "recipients": ["dev-team@company.com", "tech-lead@company.com"],
+        "message": "BREAKING CHANGE - ESCALATED: {title}"
+      }
+    ],
+    "notification_template": "breaking_change_template"
+  },
+  {
+    "alert_type": "monitoring_failure",
+    "severity": "high",
+    "timeout_seconds": 1800,
+    "escalation_path": [
+      {
+        "level": "level_1",
+        "channels": ["teams", "email"],
+        "recipients": ["devops-team@company.com"],
+        "message": "Monitoring system failure: {title}"
+      },
+      {
+        "level": "level_2",
+        "channels": ["teams", "email", "slack"],
+        "recipients": ["devops-team@company.com", "sre-team@company.com"],
+        "message": "MONITORING SYSTEM FAILURE - ESCALATED: {title}"
+      }
+    ],
+    "notification_template": "monitoring_failure_template"
+  },
+  {
+    "alert_type": "dependency_update",
+    "severity": "critical",
+    "timeout_seconds": 7200,
+    "escalation_path": [
+      {
+        "level": "level_1",
+        "channels": ["teams", "email"],
+        "recipients": ["dev-team@company.com"],
+        "message": "Critical dependency update available: {title}"
+      },
+      {
+        "level": "level_2",
+        "channels": ["teams", "email"],
+        "recipients": ["dev-team@company.com", "tech-lead@company.com"],
+        "message": "CRITICAL DEPENDENCY UPDATE - ESCALATED: {title}"
+      }
+    ],
+    "notification_template": "dependency_update_template"
+  }
+]

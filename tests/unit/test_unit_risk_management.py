@@ -1,33 +1,15 @@
 """Unit tests for Risk Management system."""
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from datetime import datetime, timedelta
-from typing import Dict, Any, List
-from decimal import Decimal
-from enum import Enum
 
-
-class RiskLevel(Enum):
-    """Risk level enumeration."""
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-
-class RiskType(Enum):
-    """Risk type enumeration."""
-    MARKET = "market"
-    CREDIT = "credit"
-    OPERATIONAL = "operational"
-    LIQUIDITY = "liquidity"
-    CONCENTRATION = "concentration"
+from nautilus_trader_engine.core.risk_management import RiskManager, RiskLevel
 
 
 class TestRiskManagement:
     """Test suite for Risk Management system."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.sample_position = {
@@ -38,14 +20,14 @@ class TestRiskManagement:
             'current_price': 1.0860,
             'notional_value': 108600.0
         }
-        
+
         self.sample_portfolio = {
             'portfolio_id': 'PORT_001',
             'total_value': 100000.0,
             'positions': [self.sample_position],
             'cash': 50000.0
         }
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_position_risk_assessment(self, mock_risk_manager):
         """Test position-level risk assessment."""
@@ -69,18 +51,17 @@ class TestRiskManagement:
                 'Monitor volatility closely'
             ]
         }
-        
+
         # Test position risk assessment
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.assess_position_risk(self.sample_position)
-        
+
         assert result['risk_level'] == RiskLevel.MEDIUM.value
         assert result['risk_score'] == 0.35
         assert 'risk_factors' in result
         assert 'var_1d_95' in result
         assert len(result['recommendations']) > 0
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_portfolio_risk_assessment(self, mock_risk_manager):
         """Test portfolio-level risk assessment."""
@@ -106,18 +87,17 @@ class TestRiskManagement:
                 'idiosyncratic_risk': 0.40
             }
         }
-        
+
         # Test portfolio risk assessment
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.assess_portfolio_risk(self.sample_portfolio)
-        
+
         assert result['risk_level'] == RiskLevel.MEDIUM.value
         assert result['overall_risk_score'] == 0.42
         assert result['diversification_score'] == 0.65
         assert 'var_portfolio_1d_95' in result
         assert 'risk_by_asset_class' in result
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_var_calculation(self, mock_risk_manager):
         """Test Value at Risk (VaR) calculation."""
@@ -139,17 +119,18 @@ class TestRiskManagement:
                 'GBPUSD': 1000.0
             }
         }
-        
+
         # Test VaR calculation
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
-        result = manager.calculate_var('PORT_001', confidence_level=0.95, time_horizon=1)
-        
+        result = manager.calculate_var(
+            'PORT_001', confidence_level=0.95, time_horizon=1
+        )
+
         assert result['var_1d_95'] == 2500.0
         assert result['var_method'] == 'historical_simulation'
         assert result['data_points_used'] == 252
         assert 'var_components' in result
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_stress_testing(self, mock_risk_manager):
         """Test stress testing functionality."""
@@ -196,18 +177,21 @@ class TestRiskManagement:
                 'scenarios_failed': 0
             }
         }
-        
+
         # Test stress testing
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
-        scenarios = ['2008_financial_crisis', 'covid_market_crash', 'interest_rate_shock']
+        scenarios = [
+            '2008_financial_crisis',
+            'covid_market_crash',
+            'interest_rate_shock'
+        ]
         result = manager.run_stress_test('PORT_001', scenarios)
-        
+
         assert result['worst_case_scenario'] == 'covid_market_crash'
         assert len(result['scenarios']) == 3
         assert result['stress_test_summary']['max_loss'] == -22000.0
         assert result['stress_test_summary']['scenarios_passed'] == 3
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_risk_limits_monitoring(self, mock_risk_manager):
         """Test risk limits monitoring."""
@@ -248,18 +232,18 @@ class TestRiskManagement:
             ],
             'last_check': datetime.now().isoformat()
         }
-        
+
         # Test risk limits monitoring
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.check_risk_limits('PORT_001')
-        
+
         assert result['limits_status'] == 'within_limits'
         assert len(result['violations']) == 0
         assert len(result['warnings']) == 1
         assert 'limit_checks' in result
-        assert result['limit_checks']['concentration_limit']['status'] == 'warning'
-    
+        assert result['limit_checks']['concentration_limit']['status'] == \
+            'warning'
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_correlation_analysis(self, mock_risk_manager):
         """Test correlation analysis functionality."""
@@ -281,17 +265,16 @@ class TestRiskManagement:
             'analysis_period': '2024-01-01 to 2024-06-01',
             'data_frequency': 'daily'
         }
-        
+
         # Test correlation analysis
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.analyze_correlations('PORT_001')
-        
+
         assert result['diversification_ratio'] == 0.68
         assert result['effective_positions'] == 2.1
         assert len(result['high_correlations']) == 1
         assert 'correlation_matrix' in result
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_liquidity_risk_assessment(self, mock_risk_manager):
         """Test liquidity risk assessment."""
@@ -321,17 +304,16 @@ class TestRiskManagement:
             'emergency_liquidation_time': '< 10 minutes',
             'liquidity_warnings': []
         }
-        
+
         # Test liquidity risk assessment
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.assess_liquidity_risk('PORT_001')
-        
+
         assert result['liquidity_level'] == 'good'
         assert result['overall_liquidity_score'] == 0.75
         assert 'position_liquidity' in result
         assert len(result['liquidity_warnings']) == 0
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_risk_reporting(self, mock_risk_manager):
         """Test risk reporting functionality."""
@@ -370,17 +352,17 @@ class TestRiskManagement:
                 'warnings': 1
             }
         }
-        
+
         # Test risk reporting
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.generate_risk_report('PORT_001')
-        
-        assert result['executive_summary']['overall_risk_level'] == RiskLevel.MEDIUM.value
+
+        assert result['executive_summary']['overall_risk_level'] == \
+            RiskLevel.MEDIUM.value
         assert result['compliance_status']['all_limits_compliant'] is True
         assert 'detailed_metrics' in result
         assert 'risk_decomposition' in result
-    
+
     @patch('nautilus_trader_engine.core.risk_management.RiskManager')
     def test_real_time_risk_monitoring(self, mock_risk_manager):
         """Test real-time risk monitoring."""
@@ -399,14 +381,15 @@ class TestRiskManagement:
             'alerts': [],
             'threshold_breaches': [],
             'risk_trend': 'stable',
-            'next_assessment': (datetime.now() + timedelta(minutes=15)).isoformat()
+            'next_assessment': (
+                datetime.now() + timedelta(minutes=15)
+            ).isoformat()
         }
-        
+
         # Test real-time risk monitoring
-        from nautilus_trader_engine.core.risk_management import RiskManager
         manager = RiskManager()
         result = manager.monitor_real_time_risk('PORT_001')
-        
+
         assert result['monitoring_status'] == 'active'
         assert result['risk_trend'] == 'stable'
         assert len(result['alerts']) == 0

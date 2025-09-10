@@ -1,0 +1,181 @@
+name: Comprehensive Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3 AM UTC
+  workflow_dispatch:
+
+jobs:
+  comprehensive-security-scan:
+    name: Comprehensive Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install security scanning tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r security/requirements.txt
+          pip install bandit[toml] semgrep
+
+      - name: Install project dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          # Install service-specific dependencies
+          find . -name "requirements.txt" -path "*/service*" -exec pip install -r {} \;
+
+      - name: Run comprehensive security scan
+        run: |
+          python security/comprehensive_security_scan.py
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: comprehensive-security-reports
+          path: |
+            security/security_reports/
+
+      - name: Check for critical issues
+        run: |
+          # Check if any critical issues were found
+          if [ -f security/security_reports/security-scan-results.json ]; then
+            CRITICAL_ISSUES=$(python -c "
+import json
+with open('security/security_reports/security-scan-results.json') as f:
+    data = json.load(f)
+    critical = 0
+    if data.get('bandit', {}).get('status') == 'success':
+        critical += data['bandit'].get('issues_count', 0)
+    if data.get('safety', {}).get('status') == 'success':
+        critical += data['safety'].get('vulnerabilities_count', 0)
+    if data.get('pip_audit', {}).get('status') == 'success':
+        critical += data['pip_audit'].get('vulnerabilities_count', 0)
+    print(critical)
+")
+            if [ "$CRITICAL_ISSUES" -gt 0 ]; then
+              echo "CRITICAL SECURITY ISSUES DETECTED: $CRITICAL_ISSUES"
+              exit 1
+            else
+              echo "No critical security issues found"
+            fi
+          else
+            echo "Security scan results not found"
+            exit 1
+          fi
+
+  semgrep-security-scan:
+    name: Semgrep Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep security rules
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/python
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Upload Semgrep results
+        uses: actions/upload-artifact@v3
+        with:
+          name: semgrep-security-reports
+          path: semgrep.sarif
+
+  container-security-scan:
+    name: Container Security Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and scan main image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'python:3.11-slim'
+          format: 'sarif'
+          output: 'trivy-main-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload container scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: container-security-reports
+          path: trivy-main-results.sarif
+
+  security-notification:
+    name: Security Notification
+    runs-on: ubuntu-latest
+    needs: [comprehensive-security-scan, semgrep-security-scan, container-security-scan]
+    if: failure() || (success() && github.event_name == 'schedule')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all security reports
+        uses: actions/download-artifact@v3
+
+      - name: Process security results
+        run: |
+          echo "Comprehensive Security Scan Summary" > security-summary.txt
+          echo "===================================" >> security-summary.txt
+          echo "" >> security-summary.txt
+          
+          # Process comprehensive security scan results
+          if [ -f comprehensive-security-reports/security-scan-summary.txt ]; then
+            cat comprehensive-security-reports/security-scan-summary.txt >> security-summary.txt
+          fi
+          
+          echo "" >> security-summary.txt
+          echo "Additional Security Tools Results" >> security-summary.txt
+          echo "--------------------------------" >> security-summary.txt
+
+      - name: Send Teams notification for critical issues
+        if: failure() || (success() && github.event_name == 'schedule')
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Comprehensive Security Scan Results",
+            "themeColor": "0078D4",
+            "sections": [{
+              "activityTitle": "Comprehensive Security Scan Completed",
+              "activitySubtitle": "Repository: ${{ github.repository }}",
+              "facts": [{
+                "name": "Branch",
+                "value": "${{ github.ref_name }}"
+              }, {
+                "name": "Commit",
+                "value": "${{ github.sha }}"
+              }, {
+                "name": "Status",
+                "value": "${{ job.status }}"
+              }]
+            }]
+          }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      - name: Send email notification for critical issues
+        if: failure()
+        run: |
+          echo "Critical security issues detected. Please review the security reports." | mail -s "Critical Security Issues - ${{ github.repository }}" security@company.com

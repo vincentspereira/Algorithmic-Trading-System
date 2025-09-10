@@ -30,6 +30,7 @@ class PortfolioManager:
             'performance_history': [],
             'created_at': datetime.now().isoformat()
         }
+
         
         self.portfolios[portfolio_id] = portfolio
         
@@ -157,7 +158,7 @@ class PortfolioManager:
             'consecutive_losses': 2,
             'analysis_period': '2024-01-01 to 2024-06-01'
         }
-    
+
     def calculate_margin_requirements(self, portfolio_id: str) -> Dict[str, Any]:
         """Calculate margin requirements for a portfolio."""
         if portfolio_id not in self.portfolios:

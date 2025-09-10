@@ -6,9 +6,18 @@ import asyncio
 import uuid
 from datetime import datetime
 from typing import Dict, List, Optional, Any
+from enum import Enum
 
 from nautilus_trader_engine.brokers.ibapi import IBClient
 from nautilus_trader_engine.config.ib_config import IBPaperConfig, IBLiveConfig
+
+
+class OrderType(Enum):
+    """Order type enumeration"""
+    MARKET = "MARKET"
+    LIMIT = "LIMIT"
+    STOP = "STOP"
+    STOP_LIMIT = "STOP_LIMIT"
 
 class OrderManager:
     """Mock order manager for testing the API"""

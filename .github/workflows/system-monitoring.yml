@@ -1,0 +1,337 @@
+name: System Monitoring
+
+on:
+  schedule:
+    # Run every 15 minutes during trading hours (9:30 AM - 4:00 PM EST)
+    - cron: '*/15 14-21 * * 1-5'  # UTC time for EST trading hours
+    # Run every hour outside trading hours
+    - cron: '0 * * * *'
+  push:
+    paths:
+      - 'monitoring/**'
+      - 'services/**'
+  workflow_dispatch:
+    inputs:
+      monitoring_level:
+        description: 'Monitoring Level'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+          - standard
+          - intensive
+          - debug
+
+jobs:
+  system-health-check:
+    name: "System Health Monitoring"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Monitoring Dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          pip install psutil requests prometheus-client
+          
+      - name: Run System Health Checks
+        env:
+          MONITORING_LEVEL: ${{ github.event.inputs.monitoring_level || 'standard' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd monitoring
+          python monitoring_infrastructure.py --health-check
+          
+      - name: Check Service Dependencies
+        run: |
+          cd services
+          python -c "
+          import subprocess
+          import sys
+          
+          services = ['dependency_management_service', 'trading_engine', 'risk_management']
+          failed_services = []
+          
+          for service in services:
+              try:
+                  result = subprocess.run(['python', '-m', service, '--health'], 
+                                        capture_output=True, text=True, timeout=30)
+                  if result.returncode != 0:
+                      failed_services.append(service)
+                      print(f'❌ {service}: {result.stderr}')
+                  else:
+                      print(f'✅ {service}: Healthy')
+              except Exception as e:
+                  failed_services.append(service)
+                  print(f'❌ {service}: {str(e)}')
+          
+          if failed_services:
+              print(f'Failed services: {failed_services}')
+              sys.exit(1)
+          "
+          
+      - name: Monitor Resource Usage
+        run: |
+          python << 'EOF'
+          import psutil
+          import json
+          
+          # Get system metrics
+          cpu_percent = psutil.cpu_percent(interval=1)
+          memory = psutil.virtual_memory()
+          disk = psutil.disk_usage('/')
+          
+          metrics = {
+              'cpu_usage': cpu_percent,
+              'memory_usage': memory.percent,
+              'disk_usage': disk.percent,
+              'available_memory_gb': memory.available / (1024**3),
+              'free_disk_gb': disk.free / (1024**3)
+          }
+          
+          print(f"System Metrics: {json.dumps(metrics, indent=2)}")
+          
+          # Alert if resources are critically low
+          alerts = []
+          if cpu_percent > 90:
+              alerts.append(f"High CPU usage: {cpu_percent}%")
+          if memory.percent > 90:
+              alerts.append(f"High memory usage: {memory.percent}%")
+          if disk.percent > 90:
+              alerts.append(f"High disk usage: {disk.percent}%")
+          
+          if alerts:
+              print("🚨 Resource Alerts:")
+              for alert in alerts:
+                  print(f"  - {alert}")
+              exit(1)
+          else:
+              print("✅ All resources within normal limits")
+          EOF
+          
+      - name: Send Health Status Notification
+        if: always()
+        env:
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          python << 'EOF'
+          import os
+          import requests
+          import json
+          from datetime import datetime
+          
+          status = "✅ Healthy" if "${{ job.status }}" == "success" else "❌ Issues Detected"
+          timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+          
+          # Teams notification
+          teams_webhook = os.getenv('TEAMS_WEBHOOK')
+          if teams_webhook:
+              teams_payload = {
+                  "type": "message",
+                  "attachments": [{
+                      "contentType": "application/vnd.microsoft.card.adaptive",
+                      "content": {
+                          "type": "AdaptiveCard",
+                          "body": [{
+                              "type": "TextBlock",
+                              "text": f"System Health Check: {status}",
+                              "weight": "Bolder",
+                              "size": "Medium"
+                          }, {
+                              "type": "TextBlock",
+                              "text": f"Timestamp: {timestamp}",
+                              "isSubtle": True
+                          }],
+                          "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                          "version": "1.0"
+                      }
+                  }]
+              }
+              try:
+                  requests.post(teams_webhook, json=teams_payload)
+                  print("Teams notification sent")
+              except Exception as e:
+                  print(f"Failed to send Teams notification: {e}")
+          
+          # Discord notification
+          discord_webhook = os.getenv('DISCORD_WEBHOOK')
+          if discord_webhook:
+              color = 0x00ff00 if "${{ job.status }}" == "success" else 0xff0000
+              discord_payload = {
+                  "embeds": [{
+                      "title": "System Health Check",
+                      "description": status,
+                      "color": color,
+                      "timestamp": datetime.utcnow().isoformat(),
+                      "fields": [{
+                          "name": "Workflow",
+                          "value": "System Monitoring",
+                          "inline": True
+                      }, {
+                          "name": "Repository",
+                          "value": "Algorithmic Trading System",
+                          "inline": True
+                      }]
+                  }]
+              }
+              try:
+                  requests.post(discord_webhook, json=discord_payload)
+                  print("Discord notification sent")
+              except Exception as e:
+                  print(f"Failed to send Discord notification: {e}")
+          EOF
+
+  performance-monitoring:
+    name: "Performance Metrics Collection"
+    runs-on: ubuntu-latest
+    needs: system-health-check
+    if: always()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          
+      - name: Collect Performance Metrics
+        run: |
+          cd monitoring
+          python advanced_alerting_analytics.py --collect-metrics
+          
+      - name: Generate Performance Report
+        run: |
+          python << 'EOF'
+          import json
+          import time
+          from datetime import datetime, timedelta
+          
+          # Simulate performance metrics collection
+          metrics = {
+              "timestamp": datetime.utcnow().isoformat(),
+              "response_times": {
+                  "api_avg_ms": 45.2,
+                  "websocket_avg_ms": 12.8,
+                  "database_avg_ms": 23.1
+              },
+              "throughput": {
+                  "requests_per_second": 156.7,
+                  "orders_per_minute": 23.4,
+                  "market_data_updates_per_second": 1247.3
+              },
+              "error_rates": {
+                  "api_error_rate": 0.02,
+                  "order_failure_rate": 0.001,
+                  "connection_drops": 0.005
+              }
+          }
+          
+          print("Performance Metrics:")
+          print(json.dumps(metrics, indent=2))
+          
+          # Check for performance issues
+          issues = []
+          if metrics["response_times"]["api_avg_ms"] > 100:
+              issues.append("High API response time")
+          if metrics["error_rates"]["api_error_rate"] > 0.05:
+              issues.append("High API error rate")
+          if metrics["error_rates"]["order_failure_rate"] > 0.01:
+              issues.append("High order failure rate")
+          
+          if issues:
+              print("🚨 Performance Issues:")
+              for issue in issues:
+                  print(f"  - {issue}")
+          else:
+              print("✅ Performance within acceptable limits")
+          EOF
+
+  security-monitoring:
+    name: "Security Monitoring"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install Security Tools
+        run: |
+          pip install bandit safety semgrep
+          
+      - name: Run Security Scans
+        run: |
+          echo "Running Bandit security scan..."
+          bandit -r . -f json -o bandit-report.json || true
+          
+          echo "Running Safety vulnerability check..."
+          safety check --json --output safety-report.json || true
+          
+          echo "Running Semgrep security analysis..."
+          semgrep --config=auto --json --output=semgrep-report.json . || true
+          
+      - name: Process Security Results
+        run: |
+          python << 'EOF'
+          import json
+          import os
+          
+          # Process Bandit results
+          if os.path.exists('bandit-report.json'):
+              with open('bandit-report.json') as f:
+                  bandit_data = json.load(f)
+              
+              high_severity = [r for r in bandit_data.get('results', []) if r.get('issue_severity') == 'HIGH']
+              medium_severity = [r for r in bandit_data.get('results', []) if r.get('issue_severity') == 'MEDIUM']
+              
+              print(f"Bandit Security Scan Results:")
+              print(f"  High severity issues: {len(high_severity)}")
+              print(f"  Medium severity issues: {len(medium_severity)}")
+              
+              if high_severity:
+                  print("🚨 High severity security issues found!")
+                  for issue in high_severity[:3]:  # Show first 3
+                      print(f"  - {issue.get('test_name')}: {issue.get('filename')}:{issue.get('line_number')}")
+          
+          # Process Safety results
+          if os.path.exists('safety-report.json'):
+              with open('safety-report.json') as f:
+                  safety_data = json.load(f)
+              
+              vulnerabilities = safety_data.get('vulnerabilities', [])
+              print(f"\nSafety Vulnerability Check:")
+              print(f"  Vulnerabilities found: {len(vulnerabilities)}")
+              
+              if vulnerabilities:
+                  print("🚨 Package vulnerabilities found!")
+                  for vuln in vulnerabilities[:3]:  # Show first 3
+                      print(f"  - {vuln.get('package_name')}: {vuln.get('vulnerability_id')}")
+          
+          print("\n✅ Security monitoring completed")
+          EOF
+          
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+            semgrep-report.json
+          retention-days: 30

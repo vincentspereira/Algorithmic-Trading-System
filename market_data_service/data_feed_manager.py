@@ -456,6 +456,12 @@ class DataFeedManager:
     
     def _initialize_providers(self):
         """Initialize available data providers"""
+        from .providers.yahoo_finance_provider import YahooFinanceProvider
+        from .providers.alpha_vantage_provider import AlphaVantageProvider
+        from .providers.finnhub_provider import FinnhubProvider
+        from .providers.polygon_provider import PolygonProvider
+        from .providers.twelve_data_provider import TwelveDataProvider
+        
         # Initialize Yahoo Finance (free, no API key required)
         self.providers[DataProvider.YAHOO_FINANCE] = YahooFinanceProvider()
         
@@ -464,10 +470,20 @@ class DataFeedManager:
         if alpha_vantage_key:
             self.providers[DataProvider.ALPHA_VANTAGE] = AlphaVantageProvider(alpha_vantage_key)
         
-        # TODO: Initialize other providers as needed
-        # self.providers[DataProvider.FINNHUB] = FinnhubProvider(api_key)
-        # self.providers[DataProvider.POLYGON] = PolygonProvider(api_key)
-        # etc.
+        # Initialize Finnhub if API key is available
+        finnhub_key = getattr(settings, 'FINNHUB_API_KEY', None)
+        if finnhub_key:
+            self.providers[DataProvider.FINNHUB] = FinnhubProvider(finnhub_key)
+        
+        # Initialize Polygon if API key is available
+        polygon_key = getattr(settings, 'POLYGON_API_KEY', None)
+        if polygon_key:
+            self.providers[DataProvider.POLYGON] = PolygonProvider(polygon_key)
+        
+        # Initialize Twelve Data if API key is available
+        twelve_data_key = getattr(settings, 'TWELVE_DATA_API_KEY', None)
+        if twelve_data_key:
+            self.providers[DataProvider.TWELVE_DATA] = TwelveDataProvider(twelve_data_key)
         
         logger.info(f"Initialized {len(self.providers)} data providers")
     

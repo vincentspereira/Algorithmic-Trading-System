@@ -20,6 +20,13 @@ from .metrics_collection import (
 
 from .resource_monitor import ResourceMonitor
 
+from .data_feed_monitor import (
+    DataFeedMonitor,
+    DataFeedAlertManager,
+    DataFeedHealthStatus,
+    DataFeedPerformanceMetrics
+)
+
 __all__ = [
     # Main system
     'MetricsCollectionSystem',
@@ -31,11 +38,15 @@ __all__ = [
     'CustomMetricsRegistry',
     'MetricsAggregator',
     'ResourceMonitor',
+    'DataFeedMonitor',
+    'DataFeedAlertManager',
     
     # Data structures
     'MetricDefinition',
     'MetricValue',
     'AggregatedMetric',
+    'DataFeedHealthStatus',
+    'DataFeedPerformanceMetrics',
     
     # Enums
     'MetricType',

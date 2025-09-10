@@ -48,7 +48,6 @@ from . import validation
 from . import visualization
 
 # Import key classes for easier access
-from .indicators.comprehensive_indicators import ComprehensiveIndicators, ComprehensiveIndicatorResult, IndicatorCategory
 from .core.data_feed_manager import DataFeedManager
 from .core.order_management import OrderManager
 

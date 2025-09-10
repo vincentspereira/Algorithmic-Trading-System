@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Repository Management Dashboard</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5;
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stats-container { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            margin: 5px;
+            min-width: 200px;
+            text-align: center;
+        }
+        .stat-number { 
+            font-size: 2em; 
+            font-weight: bold; 
+            color: #667eea;
+        }
+        .tier-section { 
+            background: white; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .tier-header { 
+            background-color: #f8f9fa; 
+            padding: 15px 20px; 
+            font-size: 1.2em; 
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+        }
+        .repo-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 15px;
+            padding: 20px;
+        }
+        .repo-card { 
+            border: 1px solid #eee; 
+            border-radius: 8px; 
+            padding: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .repo-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .repo-name { 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .repo-info { 
+            font-size: 0.9em; 
+            color: #666; 
+            margin: 3px 0;
+        }
+        .status-indicator { 
+            display: inline-block; 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            margin-right: 8px;
+        }
+        .status-synced { background-color: #28a745; }
+        .status-needs_sync { background-color: #ffc107; }
+        .status-ahead { background-color: #17a2b8; }
+        .status-error { background-color: #dc3545; }
+        .filter-bar { 
+            margin-bottom: 20px; 
+            display: flex; 
+            gap: 10px;
+        }
+        .filter-btn { 
+            padding: 8px 16px; 
+            background: #e9ecef; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+        }
+        .filter-btn.active { 
+            background: #667eea; 
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .stats-container { 
+                flex-direction: column;
+            }
+            .repo-grid { 
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Repository Management Dashboard</h1>
+        <p>Monitoring and managing all forked repositories</p>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number">65</div>
+            <div>Total Repositories</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">10</div>
+            <div>Tier 1 Critical</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">19</div>
+            <div>Tier 2 Important</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">11</div>
+            <div>Tier 3 Supporting</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">25</div>
+            <div>Tier 4 Infrastructure</div>
+        </div>
+    </div>
+    
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterRepos('all')">All</button>
+        <button class="filter-btn" onclick="filterRepos('synced')">Synced</button>
+        <button class="filter-btn" onclick="filterRepos('needs_sync')">Needs Sync</button>
+        <button class="filter-btn" onclick="filterRepos('ahead')">Ahead</button>
+    </div>
+    <div class="tier-section">
+        <div class="tier-header">Tier 1: Critical Dependencies</div>
+        <div class="repo-grid">
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    nautilus_trader
+                </div>
+                <div class="repo-info">Branch: develop</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    nautilus_ibapi
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-08-26</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    kafka
+                </div>
+                <div class="repo-info">Branch: trunk</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    schema-registry
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    langchain
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    langgraph
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-07</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    TradingAgents
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-07-03</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    fastapi
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    grpc
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    graphql
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tier-section">
+        <div class="tier-header">Tier 2: Important Dependencies</div>
+        <div class="repo-grid">
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    OpenBB
+                </div>
+                <div class="repo-info">Branch: develop</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    ta-lib-python
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-04</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    ta
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2023-11-02</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    Stock-Prediction-Models
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2021-01-05</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    LSTM-Neural-Network-for-Time-Series-Prediction
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2019-04-30</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    Real-time-stock-market-prediction
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2021-02-03</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    vectorbt
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-08-16</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    TradingGym
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2023-08-12</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    QuantLib
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-01</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    feast
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-07</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="error">
+                <div class="repo-name">
+                    <span class="status-indicator status-error"></span>
+                    tecton
+                </div>
+                <div class="repo-info">Status: Repository not found</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    optuna
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-05</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    PyPortfolioOpt
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2024-12-01</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    Riskfolio-Lib
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-08-04</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    pyod
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-04-29</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    shap
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-08-30</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    transformers
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    pytorch
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-07</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    FinRL
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-08-22</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tier-section">
+        <div class="tier-header">Tier 3: Supporting Dependencies</div>
+        <div class="repo-grid">
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    Archon
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-06</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    OpenHands
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    goose
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="error">
+                <div class="repo-name">
+                    <span class="status-indicator status-error"></span>
+                    next.js
+                </div>
+                <div class="repo-info">Status: Repository not found</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    react
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    lobe-chat
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    ragflow
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    memray
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    react-financial-charts
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2023-05-13</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    dash
+                </div>
+                <div class="repo-info">Branch: dev</div>
+                <div class="repo-info">Last commit: 2025-09-03</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    blockly
+                </div>
+                <div class="repo-info">Branch: develop</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tier-section">
+        <div class="tier-header">Tier 4: Infrastructure Dependencies</div>
+        <div class="repo-grid">
+            <div class="repo-card" data-status="error">
+                <div class="repo-name">
+                    <span class="status-indicator status-error"></span>
+                    kubernetes
+                </div>
+                <div class="repo-info">Status: Repository not found</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    docker
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-03</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    istio
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    nginx
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-08-19</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    helm
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-07</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    pgvector
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-05</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    ClickHouse
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    duckdb
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    qdrant
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-08-27</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    iceberg
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    redis
+                </div>
+                <div class="repo-info">Branch: unstable</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    influxdb
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    minio
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    quickfixj
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2025-09-07</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    fix8
+                </div>
+                <div class="repo-info">Branch: master</div>
+                <div class="repo-info">Last commit: 2023-05-25</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    prometheus
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    grafana
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    tempo
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    elasticsearch
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    loki
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-05</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    jaeger
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-04</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    alertmanager
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-07</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    docker-elk
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    unleash
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+            <div class="repo-card" data-status="synced">
+                <div class="repo-name">
+                    <span class="status-indicator status-synced"></span>
+                    bandit
+                </div>
+                <div class="repo-info">Branch: main</div>
+                <div class="repo-info">Last commit: 2025-09-08</div>
+                <div class="repo-info">Status: Synced</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterRepos(status) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter repositories
+            const repos = document.querySelectorAll('.repo-card');
+            repos.forEach(repo => {
+                if (status === 'all' || repo.dataset.status === status) {
+                    repo.style.display = 'block';
+                } else {
+                    repo.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

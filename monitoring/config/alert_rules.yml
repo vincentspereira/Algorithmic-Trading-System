@@ -1,8 +1,9 @@
 groups:
-  - name: system_alerts
+  - name: trading_system_alerts
     rules:
+      # System Resource Alerts
       - alert: HighCPUUsage
-        expr: trading_system_system_cpu_percent > 80
+        expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
         for: 2m
         labels:
           severity: warning
@@ -10,9 +11,9 @@ groups:
         annotations:
           summary: "High CPU usage detected"
           description: "CPU usage is above 80% for more than 2 minutes. Current value: {{ $value }}%"
-          
+
       - alert: CriticalCPUUsage
-        expr: trading_system_system_cpu_percent > 95
+        expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
         for: 1m
         labels:
           severity: critical
@@ -20,9 +21,9 @@ groups:
         annotations:
           summary: "Critical CPU usage detected"
           description: "CPU usage is above 95% for more than 1 minute. Current value: {{ $value }}%"
-          
+
       - alert: HighMemoryUsage
-        expr: trading_system_system_memory_percent > 85
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
         for: 2m
         labels:
           severity: warning
@@ -30,9 +31,9 @@ groups:
         annotations:
           summary: "High memory usage detected"
           description: "Memory usage is above 85% for more than 2 minutes. Current value: {{ $value }}%"
-          
+
       - alert: CriticalMemoryUsage
-        expr: trading_system_system_memory_percent > 95
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
         for: 1m
         labels:
           severity: critical
@@ -40,89 +41,209 @@ groups:
         annotations:
           summary: "Critical memory usage detected"
           description: "Memory usage is above 95% for more than 1 minute. Current value: {{ $value }}%"
-          
-      - alert: LowDiskSpace
-        expr: trading_system_system_disk_percent > 90
+
+      - alert: DiskSpaceWarning
+        expr: (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"}) * 100 < 20
         for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Low disk space warning"
+          description: "Disk space is below 20% on {{ $labels.device }}. Available: {{ $value }}%"
+
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"}) * 100 < 10
+        for: 2m
         labels:
           severity: critical
           component: system
         annotations:
-          summary: "Low disk space"
-          description: "Disk usage is above 90% for more than 5 minutes. Current value: {{ $value }}%"
-          
-  - name: application_alerts
-    rules:
-      - alert: HighHTTPErrorRate
-        expr: rate(trading_system_http_requests_total{status=~"5.."}[5m]) > 0.1
+          summary: "Critical disk space alert"
+          description: "Disk space is below 10% on {{ $labels.device }}. Available: {{ $value }}%"
+
+      # Trading System Alerts
+      - alert: HighOrderLatency
+        expr: histogram_quantile(0.95, rate(trading_order_latency_seconds_bucket[5m])) * 1000 > 500
         for: 2m
         labels:
           severity: warning
-          component: application
+          component: trading
         annotations:
-          summary: "High HTTP error rate"
-          description: "HTTP 5xx error rate is above 10% for more than 2 minutes"
-          
-      - alert: HighHTTPLatency
-        expr: histogram_quantile(0.95, rate(trading_system_http_request_duration_seconds_bucket[5m])) > 1
-        for: 2m
-        labels:
-          severity: warning
-          component: application
-        annotations:
-          summary: "High HTTP latency"
-          description: "95th percentile HTTP latency is above 1 second for more than 2 minutes"
-          
-      - alert: TradingOrderProcessingDelay
-        expr: histogram_quantile(0.95, rate(trading_system_trading_order_processing_time_bucket[5m])) > 0.5
+          summary: "High order execution latency"
+          description: "95th percentile order latency is above 500ms. Current value: {{ $value }}ms"
+
+      - alert: CriticalOrderLatency
+        expr: histogram_quantile(0.95, rate(trading_order_latency_seconds_bucket[5m])) * 1000 > 1000
         for: 1m
         labels:
           severity: critical
           component: trading
         annotations:
-          summary: "Trading order processing delay"
-          description: "95th percentile order processing time is above 500ms for more than 1 minute"
-          
-  - name: security_alerts
-    rules:
-      - alert: HighSecurityEventRate
-        expr: rate(trading_system_security_events_total[5m]) > 10
+          summary: "Critical order execution latency"
+          description: "95th percentile order latency is above 1000ms. Current value: {{ $value }}ms"
+
+      - alert: HighErrorRate
+        expr: rate(trading_errors_total[5m]) > 1
+        for: 1m
+        labels:
+          severity: warning
+          component: trading
+        annotations:
+          summary: "High trading error rate"
+          description: "Trading error rate is above 1 error per second. Current rate: {{ $value }}/sec"
+
+      - alert: CriticalErrorRate
+        expr: rate(trading_errors_total[5m]) > 5
+        for: 30s
+        labels:
+          severity: critical
+          component: trading
+        annotations:
+          summary: "Critical trading error rate"
+          description: "Trading error rate is above 5 errors per second. Current rate: {{ $value }}/sec"
+
+      - alert: LowSuccessRate
+        expr: (sum(rate(trading_orders_total[5m])) - sum(rate(trading_errors_total[5m]))) / sum(rate(trading_orders_total[5m])) < 0.95
+        for: 2m
+        labels:
+          severity: warning
+          component: trading
+        annotations:
+          summary: "Low trading success rate"
+          description: "Trading success rate is below 95%. Current rate: {{ $value | humanizePercentage }}"
+
+      - alert: CriticalSuccessRate
+        expr: (sum(rate(trading_orders_total[5m])) - sum(rate(trading_errors_total[5m]))) / sum(rate(trading_orders_total[5m])) < 0.90
+        for: 1m
+        labels:
+          severity: critical
+          component: trading
+        annotations:
+          summary: "Critical trading success rate"
+          description: "Trading success rate is below 90%. Current rate: {{ $value | humanizePercentage }}"
+
+      # Risk Management Alerts
+      - alert: HighDrawdown
+        expr: trading_drawdown_current > 0.05
+        for: 1m
+        labels:
+          severity: warning
+          component: risk
+        annotations:
+          summary: "High portfolio drawdown"
+          description: "Current drawdown is above 5%. Current value: {{ $value | humanizePercentage }}"
+
+      - alert: CriticalDrawdown
+        expr: trading_drawdown_current > 0.10
+        for: 30s
+        labels:
+          severity: critical
+          component: risk
+        annotations:
+          summary: "Critical portfolio drawdown"
+          description: "Current drawdown is above 10%. Current value: {{ $value | humanizePercentage }}"
+
+      - alert: PositionSizeLimit
+        expr: trading_position_size_ratio > 0.20
+        for: 1m
+        labels:
+          severity: warning
+          component: risk
+        annotations:
+          summary: "Position size limit exceeded"
+          description: "Position size is above 20% of portfolio. Current ratio: {{ $value | humanizePercentage }}"
+
+      # Data Feed Alerts
+      - alert: DataFeedDown
+        expr: up{job="trading-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: data
+        annotations:
+          summary: "Data feed is down"
+          description: "Trading application data feed is not responding"
+
+      - alert: StaleMarketData
+        expr: time() - market_data_last_update_timestamp > 300
+        for: 1m
+        labels:
+          severity: warning
+          component: data
+        annotations:
+          summary: "Stale market data"
+          description: "Market data has not been updated for more than 5 minutes"
+
+      - alert: HighDataLatency
+        expr: market_data_latency_seconds > 5
+        for: 2m
+        labels:
+          severity: warning
+          component: data
+        annotations:
+          summary: "High market data latency"
+          description: "Market data latency is above 5 seconds. Current value: {{ $value }}s"
+
+      # Application Health Alerts
+      - alert: ApplicationDown
+        expr: up{job="trading-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "Trading application is down"
+          description: "The trading application is not responding to health checks"
+
+      - alert: DatabaseConnectionIssue
+        expr: database_connections_active / database_connections_max > 0.90
+        for: 2m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connection pool is above 90% capacity. Active: {{ $value | humanizePercentage }}"
+
+      - alert: RedisConnectionIssue
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "High Redis connection count"
+          description: "Redis has more than 100 connected clients. Current: {{ $value }}"
+
+      # Performance Alerts
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile response time is above 2 seconds. Current: {{ $value }}s"
+
+      # Security Alerts
+      - alert: SecurityVulnerabilityDetected
+        expr: security_vulnerabilities_total > 0
+        for: 0s
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "Security vulnerability detected"
+          description: "{{ $value }} security vulnerabilities detected in dependencies"
+
+      - alert: UnauthorizedAccess
+        expr: rate(http_requests_total{status=~"401|403"}[5m]) > 10
         for: 1m
         labels:
           severity: warning
           component: security
         annotations:
-          summary: "High security event rate"
-          description: "Security events rate is above 10 events per second for more than 1 minute"
-          
-      - alert: CriticalSecurityEvent
-        expr: increase(trading_system_security_events_total{severity="critical"}[1m]) > 0
-        for: 0m
-        labels:
-          severity: critical
-          component: security
-        annotations:
-          summary: "Critical security event detected"
-          description: "A critical security event has been detected"
-          
-  - name: monitoring_alerts
-    rules:
-      - alert: MonitoringDown
-        expr: up{job="trading-system-monitoring"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          component: monitoring
-        annotations:
-          summary: "Monitoring system is down"
-          description: "The monitoring system has been down for more than 1 minute"
-          
-      - alert: PrometheusDown
-        expr: up{job="prometheus"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          component: monitoring
-        annotations:
-          summary: "Prometheus is down"
-          description: "Prometheus has been down for more than 1 minute"
+          summary: "High unauthorized access attempts"
+          description: "More than 10 unauthorized access attempts per second. Current: {{ $value }}/sec"

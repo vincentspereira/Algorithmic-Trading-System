@@ -1,0 +1,246 @@
+version: '3.8'
+
+services:
+  # Tier 1 testing environment with enhanced capabilities
+  tier1-test-environment:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./test_data:/app/test_data
+      - ./test_results:/app/test_results
+      - ./mock_data:/app/mock_data
+      - ../nautilus_trader_engine:/app/nautilus_trader_engine
+      - ../ai_assistant:/app/ai_assistant
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TEST_ENVIRONMENT=enhanced
+      - MOCK_DATA_PATH=/app/mock_data
+    command: |
+      bash -c "
+        apt-get update && 
+        apt-get install -y build-essential libta-lib0-dev &&
+        pip install --upgrade pip &&
+        pip install -r /app/requirements.tier1.txt &&
+        pip install pytest pytest-asyncio pytest-cov &&
+        echo 'Tier 1 test environment ready'
+      "
+    depends_on:
+      - test-db
+      - test-kafka
+      - test-redis
+      - test-schema-registry
+
+  # Tier 2 testing environment
+  tier2-test-environment:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./test_data:/app/test_data
+      - ./test_results:/app/test_results
+      - ./mock_data:/app/mock_data
+      - ../portfolio_manager:/app/portfolio_manager
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TEST_ENVIRONMENT=enhanced
+      - MOCK_DATA_PATH=/app/mock_data
+    command: |
+      bash -c "
+        apt-get update && 
+        apt-get install -y build-essential &&
+        pip install --upgrade pip &&
+        pip install -r /app/requirements.tier2.txt &&
+        pip install pytest pytest-asyncio pytest-cov &&
+        echo 'Tier 2 test environment ready'
+      "
+    depends_on:
+      - test-db
+      - test-kafka
+
+  # Isolated sandbox environments per tier
+  tier1-sandbox:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./sandboxes/tier1:/app/sandbox
+      - ./test_results:/app/test_results
+      - ./mock_data:/app/mock_data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SANDBOX_TIER=1
+      - MOCK_DATA_PATH=/app/mock_data
+    command: |
+      bash -c "
+        pip install --upgrade pip &&
+        pip install -r /app/requirements.tier1.txt &&
+        echo 'Tier 1 sandbox environment ready'
+      "
+    depends_on:
+      - test-db
+      - test-kafka
+
+  tier2-sandbox:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./sandboxes/tier2:/app/sandbox
+      - ./test_results:/app/test_results
+      - ./mock_data:/app/mock_data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SANDBOX_TIER=2
+      - MOCK_DATA_PATH=/app/mock_data
+    command: |
+      bash -c "
+        pip install --upgrade pip &&
+        pip install -r /app/requirements.tier2.txt &&
+        echo 'Tier 2 sandbox environment ready'
+      "
+    depends_on:
+      - test-db
+
+  # Mock Kafka for event-driven tests
+  test-kafka:
+    image: bitnami/kafka:3.4
+    environment:
+      - KAFKA_CFG_PROCESS_ROLES=broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Mock Schema Registry for Kafka
+  test-schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.0
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: test-schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: test-kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      - test-kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/subjects"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Test database with mock trading data
+  test-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: test_trading_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init_db:/docker-entrypoint-initdb.d
+      - test_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d test_trading_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Test Redis for caching
+  test-redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass test_password
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "test_password", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Mock market data service for backtesting
+  mock-market-data:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./mock_data:/app/mock_data
+      - ./scripts:/app/scripts
+    environment:
+      - MOCK_DATA_PATH=/app/mock_data
+      - PYTHONUNBUFFERED=1
+    command: |
+      bash -c "
+        pip install --upgrade pip &&
+        pip install pandas numpy &&
+        python /app/scripts/generate_mock_market_data.py
+      "
+    depends_on:
+      - test-kafka
+
+  # Performance testing environment with Locust
+  locust-master:
+    image: locustio/locust:2.15.1
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust_tests:/mnt/locust
+    working_dir: /mnt/locust
+    command: --master -f locustfile.py
+    environment:
+      - LOCUST_MODE=master
+      - PYTHONUNBUFFERED=1
+
+  locust-worker:
+    image: locustio/locust:2.15.1
+    volumes:
+      - ./locust_tests:/mnt/locust
+    working_dir: /mnt/locust
+    command: --worker --master-host=locust-master -f locustfile.py
+    environment:
+      - LOCUST_MODE=worker
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - locust-master
+
+  # Test dashboard for monitoring results
+  test-dashboard:
+    image: grafana/grafana-enterprise
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - test_dashboard_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - test-db
+      - test-kafka
+
+  # Test result aggregator
+  test-aggregator:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./test_results:/app/test_results
+      - ./reports:/app/reports
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: |
+      bash -c "
+        pip install --upgrade pip &&
+        pip install pandas jinja2 &&
+        echo 'Test aggregator ready'
+      "
+
+volumes:
+  test_db_data:
+  test_dashboard_data:

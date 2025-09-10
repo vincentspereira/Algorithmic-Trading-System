@@ -82,13 +82,17 @@ class RiskManager:
             'recommended_size': recommended_size,
             'max_allowed_size': max_allowed_size,
             'risk_adjusted_size': recommended_size,
-            'risk_percentage': stop_loss_distance * (recommended_size * entry_price) / portfolio_value,
+            'risk_percentage': (
+                stop_loss_distance *
+                (recommended_size * entry_price) / portfolio_value
+            ),
             'stop_loss_distance': stop_loss_distance,
             'position_value': recommended_size * entry_price
         }
     
-    def validate_position(self, symbol: str, size: int, 
-                         current_portfolio: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_position(
+        self, symbol: str, size: int, current_portfolio: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Validate if a position meets risk criteria.
         

@@ -5,107 +5,268 @@ on:
     branches: [ staging, main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily security scans at 2 AM UTC
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "18"
 
 jobs:
-  lint:
+  security-scan:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.12"
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety semgrep
+    - name: Run Bandit security scan
+      run: |
+        bandit -r . -f json -o bandit_report.json || true
+        bandit -r . -ll
+    - name: Run Safety dependency scan
+      run: |
+        safety check --json --output safety_report.json || true
+        safety check
+    - name: Run Semgrep security scan
+      run: |
+        semgrep --config=auto --json --output=semgrep_report.json . || true
+        semgrep --config=auto .
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit_report.json
+          safety_report.json
+          semgrep_report.json
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: security-scan
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8
+        pip install flake8 black isort mypy
+    - name: Run Black formatter check
+      run: |
+        black --check --diff .
+    - name: Run isort import sorting check
+      run: |
+        isort --check-only --diff .
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Type checking with mypy
+      run: |
+        mypy . --ignore-missing-imports --no-strict-optional || true
 
   test:
     runs-on: ubuntu-latest
     needs: lint
+    strategy:
+      matrix:
+        test-type: [unit, integration, e2e]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.12"
+        python-version: ${{ env.PYTHON_VERSION }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r backtesting/service/requirements.txt
-    - name: Run unit tests
+        pip install pytest-cov pytest-xdist pytest-mock pytest-asyncio
+    - name: Set up test databases
       run: |
-        pytest
+        docker-compose -f docker-compose.databases.yml up -d
+        sleep 10  # Wait for databases to be ready
+    - name: Run unit tests
+      if: matrix.test-type == 'unit'
+      run: |
+        pytest tests/unit/ -v --cov=. --cov-report=xml --cov-report=html --cov-fail-under=80 -n auto
+    - name: Run integration tests
+      if: matrix.test-type == 'integration'
+      run: |
+        pytest tests/integration/ -v --cov=. --cov-report=xml --cov-append -n auto
+    - name: Run end-to-end tests
+      if: matrix.test-type == 'e2e'
+      run: |
+        docker-compose -f docker-compose.phase1.yml up -d
+        sleep 30  # Wait for services to be ready
+        pytest tests/e2e/ -v --cov=. --cov-report=xml --cov-append
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: always()
+      with:
+        file: ./coverage.xml
+        flags: ${{ matrix.test-type }}
+        name: codecov-${{ matrix.test-type }}
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.test-type }}
+        path: |
+          htmlcov/
+          coverage.xml
+          pytest-report.xml
 
   build:
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - uses: actions/checkout@v3
-    - name: Build Docker images
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker images
       run: |
-        docker-compose -f docker-compose.yml build
-        docker-compose -f docker-compose.databases.yml build
-        docker-compose -f docker-compose.phase1.yml build
+        # Build with version tags
+        export VERSION=${GITHUB_SHA::8}
+        export REGISTRY=ghcr.io/${{ github.repository_owner }}
+        
+        # Build core services
+        docker build -t $REGISTRY/trading-api:$VERSION -t $REGISTRY/trading-api:latest ./api
+        docker build -t $REGISTRY/market-data:$VERSION -t $REGISTRY/market-data:latest ./market_data_service
+        docker build -t $REGISTRY/order-management:$VERSION -t $REGISTRY/order-management:latest ./order_management
+        
+        # Push images
+        docker push $REGISTRY/trading-api:$VERSION
+        docker push $REGISTRY/trading-api:latest
+        docker push $REGISTRY/market-data:$VERSION
+        docker push $REGISTRY/market-data:latest
+        docker push $REGISTRY/order-management:$VERSION
+        docker push $REGISTRY/order-management:latest
+    - name: Run container security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ghcr.io/${{ github.repository_owner }}/trading-api:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
 
-  
   benchmark:
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.12"
+        python-version: ${{ env.PYTHON_VERSION }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r backtesting/service/requirements.txt
-        pip install pytest-benchmark
-    - name: Run benchmarks
+        pip install pytest-benchmark locust
+    - name: Run performance benchmarks
       run: |
-        pytest tests/benchmarks
-
-  e2e-test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.12"
-    - name: Install dependencies
+        pytest tests/benchmarks/ -v --benchmark-json=benchmark_results.json
+    - name: Run load tests
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r backtesting/service/requirements.txt
-        pip install requests
-    - name: Run e2e tests
-      run: |
-        # Start services in the background
-        docker-compose -f docker-compose.databases.yml up -d
+        # Start services for load testing
         docker-compose -f docker-compose.phase1.yml up -d
-        # Wait for services to be healthy
         sleep 30
-        pytest tests/e2e
+        locust -f load_testing/locustfile.py --headless -u 10 -r 2 -t 60s --host=http://localhost:8000 --html=load_test_report.html
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: |
+          benchmark_results.json
+          load_test_report.html
 
-  deploy_to_production:
+  production-readiness:
     runs-on: ubuntu-latest
-    needs: e2e-test
-    environment:
-      name: production
-      url: https://your-production-url.com # Replace with your actual production URL
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build, benchmark]
     steps:
-      - name: Deploy to production
-        run: |
-          echo "Deploying to production..."
-          # Add your deployment script here
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run production readiness validation
+      run: |
+        python tests/production_readiness/run_production_readiness_validation.py
+    - name: Upload production readiness report
+      uses: actions/upload-artifact@v3
+      with:
+        name: production-readiness-report
+        path: tests/production_readiness/results/
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build, production-readiness]
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # In a real deployment, this would use ArgoCD or similar
+        # kubectl apply -f k8s/staging/
+        # argocd app sync trading-system-staging
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests against staging..."
+        # pytest tests/smoke/ --base-url=https://staging.trading-system.com
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        # In a real deployment, this would use ArgoCD or similar
+        # kubectl apply -f k8s/production/
+        # argocd app sync trading-system-production
+    - name: Run production health checks
+      run: |
+        echo "Running production health checks..."
+        # curl -f https://api.trading-system.com/health
+        # pytest tests/smoke/ --base-url=https://api.trading-system.com
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "Production deployment successful!"
+        # Send notification to Slack/Teams/Discord
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "Production deployment failed!"
+        # Send alert notification

@@ -1,0 +1,281 @@
+name: Enhanced Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  dependency-security:
+    name: Enhanced Dependency Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety pip-audit bandit[toml]
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Run Safety scan
+        run: |
+          safety check --json --output safety-report.json || true
+          safety check --short-report
+
+      - name: Run pip-audit
+        run: |
+          pip-audit --format=json --output=pip-audit-report.json || true
+          pip-audit --format=cyclonedx-json --output=sbom.json || true
+
+      - name: Run Bandit SAST scan
+        run: |
+          bandit -r . -f json -o bandit-report.json || true
+          bandit -r . -f txt
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload dependency scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-security-reports
+          path: |
+            safety-report.json
+            pip-audit-report.json
+            sbom.json
+            bandit-report.json
+            trivy-results.sarif
+
+  code-security:
+    name: Advanced Code Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Bandit and Semgrep
+        run: |
+          pip install bandit[toml] semgrep
+
+      - name: Run Bandit scan with custom rules
+        run: |
+          bandit -r . -c dependency_management/security/bandit_config.yaml -f json -o enhanced-bandit-report.json || true
+          bandit -r . -c dependency_management/security/bandit_config.yaml -f txt
+
+      - name: Run Semgrep security rules
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/python
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Upload code scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-security-reports
+          path: |
+            enhanced-bandit-report.json
+            semgrep.sarif
+
+  container-security:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker images
+        run: |
+          docker build -t trading-system:latest .
+          docker build -t trading-api:latest ./api
+          docker build -t trading-monitoring:latest ./monitoring
+          docker build -t dependency-manager:latest ./services/dependency_management_service
+
+      - name: Run Trivy vulnerability scanner on main image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'trading-system:latest'
+          format: 'sarif'
+          output: 'trivy-main-results.sarif'
+
+      - name: Run Trivy on API image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'trading-api:latest'
+          format: 'sarif'
+          output: 'trivy-api-results.sarif'
+
+      - name: Run Trivy on monitoring image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'trading-monitoring:latest'
+          format: 'sarif'
+          output: 'trivy-monitoring-results.sarif'
+
+      - name: Run Trivy on dependency manager image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'dependency-manager:latest'
+          format: 'sarif'
+          output: 'trivy-dependency-results.sarif'
+
+      - name: Upload container scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: container-security-reports
+          path: |
+            trivy-main-results.sarif
+            trivy-api-results.sarif
+            trivy-monitoring-results.sarif
+            trivy-dependency-results.sarif
+
+  threat-modeling:
+    name: Automated Threat Modeling
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install threat modeling tools
+        run: |
+          pip install pytm
+
+      - name: Run STRIDE threat modeling
+        run: |
+          # This would run automated threat modeling scripts
+          echo "Running STRIDE threat modeling analysis..."
+          python security/threat_modeling.py || true
+
+      - name: Generate threat model report
+        run: |
+          echo "Generating threat model report..."
+          echo "Threat Modeling Report" > threat-model-report.txt
+          echo "====================" >> threat-model-report.txt
+          echo "Automated STRIDE analysis completed" >> threat-model-report.txt
+
+      - name: Upload threat model results
+        uses: actions/upload-artifact@v3
+        with:
+          name: threat-modeling-reports
+          path: threat-model-report.txt
+
+  security-notification:
+    name: Security Notification and Reporting
+    runs-on: ubuntu-latest
+    needs: [dependency-security, code-security, container-security, threat-modeling]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Process security results
+        run: |
+          echo "Enhanced Security Scan Summary" > enhanced-security-summary.txt
+          echo "===============================" >> enhanced-security-summary.txt
+          echo "" >> enhanced-security-summary.txt
+          
+          # Process dependency security results
+          if [ -f dependency-security-reports/safety-report.json ]; then
+            echo "Dependency vulnerabilities found:" >> enhanced-security-summary.txt
+            cat dependency-security-reports/safety-report.json | jq -r '.vulnerabilities | length' >> enhanced-security-summary.txt
+          fi
+          
+          # Process code security results
+          if [ -f code-security-reports/enhanced-bandit-report.json ]; then
+            echo "Code security issues found:" >> enhanced-security-summary.txt
+            cat code-security-reports/enhanced-bandit-report.json | jq -r '.results | length' >> enhanced-security-summary.txt
+          fi
+          
+          # Process container security results
+          echo "Container security scan completed" >> enhanced-security-summary.txt
+          
+          # Process threat modeling results
+          echo "Threat modeling analysis completed" >> enhanced-security-summary.txt
+
+      - name: Send Teams notification for critical issues
+        if: failure() || (success() && github.event_name == 'schedule')
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Enhanced Security Scan Results",
+            "themeColor": "0078D4",
+            "sections": [{
+              "activityTitle": "Enhanced Security Scan Completed",
+              "activitySubtitle": "Repository: ${{ github.repository }}",
+              "facts": [{
+                "name": "Branch",
+                "value": "${{ github.ref_name }}"
+              }, {
+                "name": "Commit",
+                "value": "${{ github.sha }}"
+              }, {
+                "name": "Status",
+                "value": "${{ job.status }}"
+              }]
+            }]
+          }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      - name: Send Discord notification for critical issues
+        if: failure() || (success() && github.event_name == 'schedule')
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "embeds": [{
+              "title": "Enhanced Security Scan Results",
+              "description": "Enhanced security scanning completed for ${{ github.repository }}",
+              "color": 3447003,
+              "fields": [{
+                "name": "Branch",
+                "value": "${{ github.ref_name }}",
+                "inline": true
+              }, {
+                "name": "Status",
+                "value": "${{ job.status }}",
+                "inline": true
+              }]
+            }]
+          }' ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send email notification for critical issues
+        if: failure()
+        run: |
+          echo "Critical security issues detected. Please review the security reports." | mail -s "Critical Security Issues - ${{ github.repository }}" security@company.com

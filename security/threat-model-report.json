@@ -1,0 +1,1200 @@
+{
+  "system_name": "Algorithmic Trading System",
+  "components": [
+    {
+      "component_name": "API Gateway",
+      "component_type": "API Gateway",
+      "threats": [
+        {
+          "id": "THREAT-API GATEWAY-SPOOFING-001",
+          "component": "API Gateway",
+          "category": "ThreatCategory.SPOOFING",
+          "description": "Unauthorized entities attempting to impersonate legitimate users",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement OAuth 2.0/OIDC with JWT tokens, enforce MFA, use mutual TLS",
+          "affected_assets": [
+            "API Gateway"
+          ],
+          "cvss_score": 7.5,
+          "discovered_date": "2025-09-08 19:10:01.191487",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-API GATEWAY-DENIAL_OF_SERVICE-002",
+          "component": "API Gateway",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming the API gateway with requests to make it unavailable",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement rate limiting, request throttling, DDoS protection services",
+          "affected_assets": [
+            "API Gateway"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.193588",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-API GATEWAY-TAMPERING-003",
+          "component": "API Gateway",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Modification of data in transit between client and gateway",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Enforce TLS 1.3 encryption, implement message signing, use API gateways with built-in validation",
+          "affected_assets": [
+            "API Gateway"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.193619",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-API GATEWAY-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "API Gateway",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "API Gateway"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193645",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-API GATEWAY-DENIAL_OF_SERVICE-GEN-002",
+          "component": "API Gateway",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "API Gateway"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193659",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.0,
+      "last_updated": "2025-09-08 19:10:01.193680",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Trading Engine",
+      "component_type": "Trading Engine",
+      "threats": [
+        {
+          "id": "THREAT-TRADING ENGINE-TAMPERING-001",
+          "component": "Trading Engine",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of trade orders or execution parameters",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement immutable event sourcing, digital signatures for all trade events, audit trails",
+          "affected_assets": [
+            "Trading Engine"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.193724",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-TRADING ENGINE-REPUDIATION-002",
+          "component": "Trading Engine",
+          "category": "ThreatCategory.REPUDIATION",
+          "description": "Traders denying placing orders or system denying executing trades",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement comprehensive audit logging, digital signatures, non-repudiation protocols",
+          "affected_assets": [
+            "Trading Engine"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.193738",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-TRADING ENGINE-INFORMATION_DISCLOSURE-003",
+          "component": "Trading Engine",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive trading data or strategies",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement RBAC, encrypt data at rest and in transit, use secure enclaves for sensitive computations",
+          "affected_assets": [
+            "Trading Engine"
+          ],
+          "cvss_score": 7.5,
+          "discovered_date": "2025-09-08 19:10:01.193749",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-TRADING ENGINE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Trading Engine",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Trading Engine"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193762",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-TRADING ENGINE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Trading Engine",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Trading Engine"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193775",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.7,
+      "last_updated": "2025-09-08 19:10:01.193788",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "PostgreSQL Database",
+      "component_type": "Database",
+      "threats": [
+        {
+          "id": "THREAT-POSTGRESQL DATABASE-INFORMATION_DISCLOSURE-001",
+          "component": "PostgreSQL Database",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive financial data, trade history, or user information",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement AES-256 encryption at rest, TLS 1.3 for data in transit, RBAC with least privilege",
+          "affected_assets": [
+            "PostgreSQL Database"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.193807",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-POSTGRESQL DATABASE-TAMPERING-002",
+          "component": "PostgreSQL Database",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of stored data including trade records or user accounts",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement database auditing, checksums, immutable logs with Apache Iceberg",
+          "affected_assets": [
+            "PostgreSQL Database"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.193820",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-POSTGRESQL DATABASE-DENIAL_OF_SERVICE-003",
+          "component": "PostgreSQL Database",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming database with queries to make it unavailable",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement query rate limiting, connection pooling, database load balancing",
+          "affected_assets": [
+            "PostgreSQL Database"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.193829",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-POSTGRESQL DATABASE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "PostgreSQL Database",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "PostgreSQL Database"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193841",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-POSTGRESQL DATABASE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "PostgreSQL Database",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "PostgreSQL Database"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193850",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.3,
+      "last_updated": "2025-09-08 19:10:01.193860",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Kafka Message Bus",
+      "component_type": "Message Queue (Kafka)",
+      "threats": [
+        {
+          "id": "THREAT-KAFKA MESSAGE BUS-TAMPERING-001",
+          "component": "Kafka Message Bus",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Modification of messages in the queue or during transmission",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement message signing, Schema Registry with schema validation, TLS encryption",
+          "affected_assets": [
+            "Kafka Message Bus"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.193872",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-KAFKA MESSAGE BUS-REPUDIATION-002",
+          "component": "Kafka Message Bus",
+          "category": "ThreatCategory.REPUDIATION",
+          "description": "Producers/consumers denying sending/receiving messages",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement message tracing, digital signatures, comprehensive audit logs",
+          "affected_assets": [
+            "Kafka Message Bus"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.193880",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-KAFKA MESSAGE BUS-DENIAL_OF_SERVICE-003",
+          "component": "Kafka Message Bus",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming Kafka brokers with messages or connections",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement producer/consumer quotas, network partitioning, load balancing",
+          "affected_assets": [
+            "Kafka Message Bus"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193889",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-KAFKA MESSAGE BUS-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Kafka Message Bus",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Kafka Message Bus"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193906",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-KAFKA MESSAGE BUS-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Kafka Message Bus",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Kafka Message Bus"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193915",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.5,
+      "last_updated": "2025-09-08 19:10:01.193924",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Authentication Service",
+      "component_type": "Authentication Service",
+      "threats": [
+        {
+          "id": "THREAT-AUTHENTICATION SERVICE-SPOOFING-001",
+          "component": "Authentication Service",
+          "category": "ThreatCategory.SPOOFING",
+          "description": "Impersonation of legitimate users to gain unauthorized access",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement OAuth 2.0/OIDC with JWT, enforce MFA, use biometric authentication",
+          "affected_assets": [
+            "Authentication Service"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.193936",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-AUTHENTICATION SERVICE-REPUDIATION-002",
+          "component": "Authentication Service",
+          "category": "ThreatCategory.REPUDIATION",
+          "description": "Users denying authentication actions",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement comprehensive audit logging, session management, non-repudiation protocols",
+          "affected_assets": [
+            "Authentication Service"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.193944",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-AUTHENTICATION SERVICE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Authentication Service",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Authentication Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193955",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-AUTHENTICATION SERVICE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Authentication Service",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Authentication Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.193964",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.125,
+      "last_updated": "2025-09-08 19:10:01.193975",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Redis Cache",
+      "component_type": "Database",
+      "threats": [
+        {
+          "id": "THREAT-REDIS CACHE-INFORMATION_DISCLOSURE-001",
+          "component": "Redis Cache",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive financial data, trade history, or user information",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement AES-256 encryption at rest, TLS 1.3 for data in transit, RBAC with least privilege",
+          "affected_assets": [
+            "Redis Cache"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.193989",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-REDIS CACHE-TAMPERING-002",
+          "component": "Redis Cache",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of stored data including trade records or user accounts",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement database auditing, checksums, immutable logs with Apache Iceberg",
+          "affected_assets": [
+            "Redis Cache"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.193998",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-REDIS CACHE-DENIAL_OF_SERVICE-003",
+          "component": "Redis Cache",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming database with queries to make it unavailable",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement query rate limiting, connection pooling, database load balancing",
+          "affected_assets": [
+            "Redis Cache"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.194006",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-REDIS CACHE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Redis Cache",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Redis Cache"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194019",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-REDIS CACHE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Redis Cache",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Redis Cache"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194028",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.3,
+      "last_updated": "2025-09-08 19:10:01.194037",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "ClickHouse Analytics",
+      "component_type": "Database",
+      "threats": [
+        {
+          "id": "THREAT-CLICKHOUSE ANALYTICS-INFORMATION_DISCLOSURE-001",
+          "component": "ClickHouse Analytics",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive financial data, trade history, or user information",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement AES-256 encryption at rest, TLS 1.3 for data in transit, RBAC with least privilege",
+          "affected_assets": [
+            "ClickHouse Analytics"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.194048",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-CLICKHOUSE ANALYTICS-TAMPERING-002",
+          "component": "ClickHouse Analytics",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of stored data including trade records or user accounts",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement database auditing, checksums, immutable logs with Apache Iceberg",
+          "affected_assets": [
+            "ClickHouse Analytics"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.194057",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-CLICKHOUSE ANALYTICS-DENIAL_OF_SERVICE-003",
+          "component": "ClickHouse Analytics",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming database with queries to make it unavailable",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement query rate limiting, connection pooling, database load balancing",
+          "affected_assets": [
+            "ClickHouse Analytics"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.194079",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-CLICKHOUSE ANALYTICS-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "ClickHouse Analytics",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "ClickHouse Analytics"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194091",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-CLICKHOUSE ANALYTICS-DENIAL_OF_SERVICE-GEN-002",
+          "component": "ClickHouse Analytics",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "ClickHouse Analytics"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194100",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.3,
+      "last_updated": "2025-09-08 19:10:01.194109",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Qdrant Vector Store",
+      "component_type": "Database",
+      "threats": [
+        {
+          "id": "THREAT-QDRANT VECTOR STORE-INFORMATION_DISCLOSURE-001",
+          "component": "Qdrant Vector Store",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive financial data, trade history, or user information",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement AES-256 encryption at rest, TLS 1.3 for data in transit, RBAC with least privilege",
+          "affected_assets": [
+            "Qdrant Vector Store"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.194120",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-QDRANT VECTOR STORE-TAMPERING-002",
+          "component": "Qdrant Vector Store",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of stored data including trade records or user accounts",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement database auditing, checksums, immutable logs with Apache Iceberg",
+          "affected_assets": [
+            "Qdrant Vector Store"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.194129",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-QDRANT VECTOR STORE-DENIAL_OF_SERVICE-003",
+          "component": "Qdrant Vector Store",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming database with queries to make it unavailable",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement query rate limiting, connection pooling, database load balancing",
+          "affected_assets": [
+            "Qdrant Vector Store"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.194137",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-QDRANT VECTOR STORE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Qdrant Vector Store",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Qdrant Vector Store"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194150",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-QDRANT VECTOR STORE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Qdrant Vector Store",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Qdrant Vector Store"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194159",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.3,
+      "last_updated": "2025-09-08 19:10:01.194171",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Dependency Management Service",
+      "component_type": "Microservice",
+      "threats": [
+        {
+          "id": "THREAT-DEPENDENCY MANAGEMENT SERVICE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Dependency Management Service",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Dependency Management Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194184",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-DEPENDENCY MANAGEMENT SERVICE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Dependency Management Service",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Dependency Management Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194193",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.194202",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Notification Service",
+      "component_type": "Microservice",
+      "threats": [
+        {
+          "id": "THREAT-NOTIFICATION SERVICE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Notification Service",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Notification Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194215",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-NOTIFICATION SERVICE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Notification Service",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Notification Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194226",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.194240",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Security Service",
+      "component_type": "Microservice",
+      "threats": [
+        {
+          "id": "THREAT-SECURITY SERVICE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Security Service",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Security Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194252",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-SECURITY SERVICE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Security Service",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Security Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194261",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.194270",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Monitoring Service",
+      "component_type": "Microservice",
+      "threats": [
+        {
+          "id": "THREAT-MONITORING SERVICE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Monitoring Service",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Monitoring Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194282",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-MONITORING SERVICE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Monitoring Service",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Monitoring Service"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194290",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.194299",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Frontend Application",
+      "component_type": "Web Application",
+      "threats": [
+        {
+          "id": "THREAT-FRONTEND APPLICATION-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Frontend Application",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Frontend Application"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194310",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-FRONTEND APPLICATION-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Frontend Application",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Frontend Application"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194322",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.194330",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Nautilus Trader Engine",
+      "component_type": "Trading Engine",
+      "threats": [
+        {
+          "id": "THREAT-NAUTILUS TRADER ENGINE-TAMPERING-001",
+          "component": "Nautilus Trader Engine",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of trade orders or execution parameters",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement immutable event sourcing, digital signatures for all trade events, audit trails",
+          "affected_assets": [
+            "Nautilus Trader Engine"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.194340",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-NAUTILUS TRADER ENGINE-REPUDIATION-002",
+          "component": "Nautilus Trader Engine",
+          "category": "ThreatCategory.REPUDIATION",
+          "description": "Traders denying placing orders or system denying executing trades",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement comprehensive audit logging, digital signatures, non-repudiation protocols",
+          "affected_assets": [
+            "Nautilus Trader Engine"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.194348",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-NAUTILUS TRADER ENGINE-INFORMATION_DISCLOSURE-003",
+          "component": "Nautilus Trader Engine",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive trading data or strategies",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement RBAC, encrypt data at rest and in transit, use secure enclaves for sensitive computations",
+          "affected_assets": [
+            "Nautilus Trader Engine"
+          ],
+          "cvss_score": 7.5,
+          "discovered_date": "2025-09-08 19:10:01.194359",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-NAUTILUS TRADER ENGINE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Nautilus Trader Engine",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Nautilus Trader Engine"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194370",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-NAUTILUS TRADER ENGINE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Nautilus Trader Engine",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Nautilus Trader Engine"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194378",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.7,
+      "last_updated": "2025-09-08 19:10:01.194403",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Iceberg Data Lake",
+      "component_type": "Data Storage",
+      "threats": [
+        {
+          "id": "THREAT-ICEBERG DATA LAKE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Iceberg Data Lake",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Iceberg Data Lake"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194420",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-ICEBERG DATA LAKE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Iceberg Data Lake",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Iceberg Data Lake"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.194429",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.194438",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "InfluxDB Time Series",
+      "component_type": "Database",
+      "threats": [
+        {
+          "id": "THREAT-INFLUXDB TIME SERIES-INFORMATION_DISCLOSURE-001",
+          "component": "InfluxDB Time Series",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive financial data, trade history, or user information",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement AES-256 encryption at rest, TLS 1.3 for data in transit, RBAC with least privilege",
+          "affected_assets": [
+            "InfluxDB Time Series"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.194451",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-INFLUXDB TIME SERIES-TAMPERING-002",
+          "component": "InfluxDB Time Series",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of stored data including trade records or user accounts",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement database auditing, checksums, immutable logs with Apache Iceberg",
+          "affected_assets": [
+            "InfluxDB Time Series"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.195052",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-INFLUXDB TIME SERIES-DENIAL_OF_SERVICE-003",
+          "component": "InfluxDB Time Series",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming database with queries to make it unavailable",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement query rate limiting, connection pooling, database load balancing",
+          "affected_assets": [
+            "InfluxDB Time Series"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.195081",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-INFLUXDB TIME SERIES-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "InfluxDB Time Series",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "InfluxDB Time Series"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195102",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-INFLUXDB TIME SERIES-DENIAL_OF_SERVICE-GEN-002",
+          "component": "InfluxDB Time Series",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "InfluxDB Time Series"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195120",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.3,
+      "last_updated": "2025-09-08 19:10:01.195136",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Loki Log Storage",
+      "component_type": "Database",
+      "threats": [
+        {
+          "id": "THREAT-LOKI LOG STORAGE-INFORMATION_DISCLOSURE-001",
+          "component": "Loki Log Storage",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Unauthorized access to sensitive financial data, trade history, or user information",
+          "severity": "ThreatSeverity.CRITICAL",
+          "mitigation": "Implement AES-256 encryption at rest, TLS 1.3 for data in transit, RBAC with least privilege",
+          "affected_assets": [
+            "Loki Log Storage"
+          ],
+          "cvss_score": 9.0,
+          "discovered_date": "2025-09-08 19:10:01.195154",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-LOKI LOG STORAGE-TAMPERING-002",
+          "component": "Loki Log Storage",
+          "category": "ThreatCategory.TAMPERING",
+          "description": "Unauthorized modification of stored data including trade records or user accounts",
+          "severity": "ThreatSeverity.HIGH",
+          "mitigation": "Implement database auditing, checksums, immutable logs with Apache Iceberg",
+          "affected_assets": [
+            "Loki Log Storage"
+          ],
+          "cvss_score": 7.0,
+          "discovered_date": "2025-09-08 19:10:01.195166",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-LOKI LOG STORAGE-DENIAL_OF_SERVICE-003",
+          "component": "Loki Log Storage",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Overwhelming database with queries to make it unavailable",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement query rate limiting, connection pooling, database load balancing",
+          "affected_assets": [
+            "Loki Log Storage"
+          ],
+          "cvss_score": 5.5,
+          "discovered_date": "2025-09-08 19:10:01.195174",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-LOKI LOG STORAGE-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Loki Log Storage",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Loki Log Storage"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195187",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-LOKI LOG STORAGE-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Loki Log Storage",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Loki Log Storage"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195196",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 6.3,
+      "last_updated": "2025-09-08 19:10:01.195214",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Jaeger Tracing",
+      "component_type": "Observability",
+      "threats": [
+        {
+          "id": "THREAT-JAEGER TRACING-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Jaeger Tracing",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Jaeger Tracing"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195234",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-JAEGER TRACING-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Jaeger Tracing",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Jaeger Tracing"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195248",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.195259",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Vault Secrets Management",
+      "component_type": "Security Service",
+      "threats": [
+        {
+          "id": "THREAT-VAULT SECRETS MANAGEMENT-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Vault Secrets Management",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Vault Secrets Management"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195277",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-VAULT SECRETS MANAGEMENT-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Vault Secrets Management",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Vault Secrets Management"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195287",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.195297",
+      "version": "1.0.0"
+    },
+    {
+      "component_name": "Prometheus Metrics",
+      "component_type": "Observability",
+      "threats": [
+        {
+          "id": "THREAT-PROMETHEUS METRICS-INFORMATION_DISCLOSURE-GEN-001",
+          "component": "Prometheus Metrics",
+          "category": "ThreatCategory.INFORMATION_DISCLOSURE",
+          "description": "Accidental exposure of sensitive information through logs, error messages, or debugging interfaces",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper logging levels, sanitize error messages, use structured logging with PII filtering",
+          "affected_assets": [
+            "Prometheus Metrics"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195310",
+          "status": "Open"
+        },
+        {
+          "id": "THREAT-PROMETHEUS METRICS-DENIAL_OF_SERVICE-GEN-002",
+          "component": "Prometheus Metrics",
+          "category": "ThreatCategory.DENIAL_OF_SERVICE",
+          "description": "Resource exhaustion through memory leaks, unhandled exceptions, or inefficient algorithms",
+          "severity": "ThreatSeverity.MEDIUM",
+          "mitigation": "Implement proper error handling, resource limits, health checks, and auto-restart mechanisms",
+          "affected_assets": [
+            "Prometheus Metrics"
+          ],
+          "cvss_score": 5.0,
+          "discovered_date": "2025-09-08 19:10:01.195323",
+          "status": "Open"
+        }
+      ],
+      "overall_risk_score": 5.0,
+      "last_updated": "2025-09-08 19:10:01.195334",
+      "version": "1.0.0"
+    }
+  ],
+  "overall_risk_score": 5.691249999999999,
+  "critical_threats": 9,
+  "high_threats": 13,
+  "medium_threats": 50,
+  "low_threats": 0,
+  "last_updated": "2025-09-08 19:10:01.195345",
+  "version": "1.0.0"
+}

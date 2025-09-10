@@ -1,0 +1,183 @@
+name: Tiered Dependency Monitoring
+
+on:
+  schedule:
+    # Daily monitoring for Tier 1 & 2 (critical & important)
+    - cron: '0 6 * * *'  # 6 AM UTC daily
+    # Weekly monitoring for Tier 3 & 4 (supporting & infrastructure)
+    - cron: '0 6 * * 1'  # 6 AM UTC on Mondays
+  push:
+    paths:
+      - 'dependency_management/tiers/*.json'
+      - 'services/dependency_management_service/monitoring/**'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  tier1-monitoring:
+    name: "Monitor Tier 1 (Critical) Dependencies"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          pip install requests packaging
+          
+      - name: Run Tier 1 Monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPENDENCY_TIER: "tier1"
+        run: |
+          cd services/dependency_management_service
+          python monitoring/check_dependencies.py --tier tier1
+          
+      - name: Send Critical Alerts
+        if: failure()
+        env:
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          cd services/dependency_management_service
+          python notification_service/critical_alerts.py
+
+  tier2-monitoring:
+    name: "Monitor Tier 2 (Important) Dependencies"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          pip install requests packaging
+          
+      - name: Run Tier 2 Monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPENDENCY_TIER: "tier2"
+        run: |
+          cd services/dependency_management_service
+          python monitoring/check_dependencies.py --tier tier2
+
+  tier3-monitoring:
+    name: "Monitor Tier 3 (Supporting) Dependencies"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          pip install requests packaging
+          
+      - name: Run Tier 3 Monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPENDENCY_TIER: "tier3"
+        run: |
+          cd services/dependency_management_service
+          python monitoring/check_dependencies.py --tier tier3
+
+  tier4-monitoring:
+    name: "Monitor Tier 4 (Infrastructure) Dependencies"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          pip install requests packaging
+          
+      - name: Run Tier 4 Monitoring
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPENDENCY_TIER: "tier4"
+        run: |
+          cd services/dependency_management_service
+          python monitoring/check_dependencies.py --tier tier4
+
+  security-scan:
+    name: "Security Vulnerability Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Security Tools
+        run: |
+          pip install bandit safety
+          
+      - name: Run Bandit Security Scan
+        run: |
+          bandit -r . -f json -o bandit-report.json || true
+          
+      - name: Run Safety Vulnerability Check
+        run: |
+          safety check --json --output safety-report.json || true
+          
+      - name: Process Security Results
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd services/dependency_management_service
+          python security_service/process_security_scan.py
+
+  generate-weekly-report:
+    name: "Generate Weekly Dependency Report"
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 6 * * 1'  # Monday only
+    needs: [tier1-monitoring, tier2-monitoring, tier3-monitoring, tier4-monitoring, security-scan]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install -r services/dependency_management_service/requirements.txt
+          
+      - name: Generate Weekly Report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          cd services/dependency_management_service
+          python scripts/weekly_report_generator.py

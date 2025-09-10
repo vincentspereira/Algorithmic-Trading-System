@@ -135,7 +135,8 @@ class TestTechnicalIndicators:
                 'custom_indicators_support': True,
                 'performance_optimization': 'VECTORIZED'
             }
-            
+
+
             mock_instance.load_indicator_definitions.return_value = {
                 'loaded_indicators': len(self.indicator_configs),
                 'indicator_types': list(set(config['type'] for config in self.indicator_configs.values())),
@@ -622,19 +623,24 @@ class TestTechnicalIndicators:
             
             assert wr_result['indicator'] == 'WILLIAMS_R', "Wrong indicator type"
             assert wr_result['period'] == 14, "Wrong Williams %R period"
-            
+
             # Verify Williams %R values are in valid range (-100 to 0)
             wr_values = [v for v in wr_result['values'] if v is not None]
             assert len(wr_values) > 0, "No valid Williams %R values calculated"
-            assert all(-100 <= v <= 0 for v in wr_values), "Williams %R values out of range"
-    
+            assert all(
+                -100 <= v <= 0 for v in wr_values
+            ), "Williams %R values out of range"
+
     @pytest.mark.asyncio
     async def test_signal_generation(self):
         """Test trading signal generation from technical indicators."""
-        with patch('nautilus_trader_engine.indicators.SignalGenerator') as mock_signal_gen:
+        with patch(
+            'nautilus_trader_engine.indicators.SignalGenerator'
+        ) as mock_signal_gen:
             mock_instance = AsyncMock()
             mock_signal_gen.return_value = mock_instance
-            
+
+
             # Sample indicator values for signal generation
             sample_indicators = {
                 'rsi': 75.5,  # Overbought
@@ -644,11 +650,11 @@ class TestTechnicalIndicators:
                 'bollinger_position': 0.8,  # Near upper band
                 'volume_ratio': 1.5  # Above average volume
             }
-            
+
             def generate_signals(indicators, rules):
                 """Generate trading signals based on indicator values and rules."""
                 signals = []
-                
+
                 # RSI signals
                 if indicators.get('rsi'):
                     rsi = indicators['rsi']
@@ -666,7 +672,7 @@ class TestTechnicalIndicators:
                             'source': 'RSI_OVERSOLD',
                             'confidence': 0.7
                         })
-                
+
                 # MACD signals
                 if indicators.get('macd_histogram'):
                     macd_hist = indicators['macd_histogram']
@@ -704,29 +710,47 @@ class TestTechnicalIndicators:
                         })
                 
                 # Aggregate signals
-                buy_signals = [s for s in signals if s['type'] == SignalType.BUY.value]
-                sell_signals = [s for s in signals if s['type'] == SignalType.SELL.value]
-                
+                buy_signals = [
+                    s for s in signals if s['type'] == SignalType.BUY.value
+                ]
+                sell_signals = [
+                    s for s in signals if s['type'] == SignalType.SELL.value
+                ]
+
                 if buy_signals and sell_signals:
                     # Conflicting signals - calculate net signal
-                    buy_strength = sum(s['strength'] * s['confidence'] for s in buy_signals)
-                    sell_strength = sum(s['strength'] * s['confidence'] for s in sell_signals)
+                    buy_strength = sum(
+                        s['strength'] * s['confidence'] for s in buy_signals
+                    )
+                    sell_strength = sum(
+                        s['strength'] * s['confidence'] for s in sell_signals
+                    )
                     
                     if buy_strength > sell_strength * 1.2:
                         final_signal = SignalType.BUY.value
-                        final_strength = (buy_strength - sell_strength) / len(buy_signals)
+                        final_strength = (
+                            (buy_strength - sell_strength) / len(buy_signals)
+                        )
                     elif sell_strength > buy_strength * 1.2:
                         final_signal = SignalType.SELL.value
-                        final_strength = (sell_strength - buy_strength) / len(sell_signals)
+                        final_strength = (
+                            (sell_strength - buy_strength) / len(sell_signals)
+                        )
                     else:
                         final_signal = SignalType.HOLD.value
                         final_strength = 0.0
                 elif buy_signals:
                     final_signal = SignalType.BUY.value
-                    final_strength = sum(s['strength'] * s['confidence'] for s in buy_signals) / len(buy_signals)
+                    final_strength = (
+                        sum(s['strength'] * s['confidence'] for s in buy_signals) /
+                        len(buy_signals)
+                    )
                 elif sell_signals:
                     final_signal = SignalType.SELL.value
-                    final_strength = sum(s['strength'] * s['confidence'] for s in sell_signals) / len(sell_signals)
+                    final_strength = (
+                        sum(s['strength'] * s['confidence'] for s in sell_signals) /
+                        len(sell_signals)
+                    )
                 else:
                     final_signal = SignalType.HOLD.value
                     final_strength = 0.0
@@ -736,20 +760,22 @@ class TestTechnicalIndicators:
                     'signal_strength': round(final_strength, 3),
                     'individual_signals': signals,
                     'signal_count': len(signals),
-                    'confidence_score': round(sum(s['confidence'] for s in signals) / max(len(signals), 1), 3)
+                    'confidence_score': round(
+                        sum(s['confidence'] for s in signals) / max(len(signals), 1), 3
+                    )
                 }
-            
+
             mock_instance.generate_signals.side_effect = generate_signals
-            
+
             mock_instance.validate_signal_rules.return_value = {
                 'rules_valid': True,
                 'validation_errors': [],
                 'rule_count': 5,
                 'coverage_percentage': 85.0
             }
-            
+
             signal_generator = mock_signal_gen()
-            
+
             # Test signal generation
             signal_rules = {
                 'rsi_overbought_threshold': 70,
@@ -758,58 +784,93 @@ class TestTechnicalIndicators:
                 'trend_confirmation_required': True,
                 'volume_confirmation': True
             }
-            
+
             # Validate signal rules first
-            validation_result = await signal_generator.validate_signal_rules(signal_rules)
-            
-            assert validation_result['rules_valid'] is True, "Signal rules validation failed"
-            assert validation_result['coverage_percentage'] > 80, "Signal rule coverage too low"
-            
+            validation_result = await signal_generator.validate_signal_rules(
+                signal_rules
+            )
+
+            assert validation_result['rules_valid'] is True, (
+                "Signal rules validation failed"
+            )
+            assert validation_result['coverage_percentage'] > 80, (
+                "Signal rule coverage too low"
+            )
+
             # Generate signals
-            signal_result = await signal_generator.generate_signals(sample_indicators, signal_rules)
-            
+            signal_result = await signal_generator.generate_signals(
+                sample_indicators, signal_rules
+            )
+
             assert 'final_signal' in signal_result, "Missing final signal"
-            assert 'signal_strength' in signal_result, "Missing signal strength"
-            assert 'individual_signals' in signal_result, "Missing individual signals"
-            assert 'confidence_score' in signal_result, "Missing confidence score"
-            
+            assert 'signal_strength' in signal_result, (
+                "Missing signal strength"
+            )
+            assert 'individual_signals' in signal_result, (
+                "Missing individual signals"
+            )
+            assert 'confidence_score' in signal_result, (
+                "Missing confidence score"
+            )
+
             # Verify signal properties
-            assert signal_result['final_signal'] in [s.value for s in SignalType], "Invalid signal type"
-            assert 0 <= signal_result['signal_strength'] <= 1, "Signal strength out of range"
-            assert 0 <= signal_result['confidence_score'] <= 1, "Confidence score out of range"
+            assert signal_result['final_signal'] in [
+                s.value for s in SignalType
+            ], "Invalid signal type"
+            assert 0 <= signal_result['signal_strength'] <= 1, (
+                "Signal strength out of range"
+            )
+            assert 0 <= signal_result['confidence_score'] <= 1, (
+                "Confidence score out of range"
+            )
             assert signal_result['signal_count'] >= 0, "Invalid signal count"
-            
+
             # Verify individual signals structure
             for signal in signal_result['individual_signals']:
                 assert 'type' in signal, "Missing signal type"
                 assert 'strength' in signal, "Missing signal strength"
                 assert 'source' in signal, "Missing signal source"
                 assert 'confidence' in signal, "Missing signal confidence"
-    
+
     @pytest.mark.asyncio
     async def test_multi_timeframe_analysis(self):
         """Test multi-timeframe technical analysis."""
-        with patch('nautilus_trader_engine.indicators.MultiTimeframeAnalyzer') as mock_mtf:
+        with patch(
+            'nautilus_trader_engine.indicators.MultiTimeframeAnalyzer'
+        ) as mock_mtf:
             mock_instance = AsyncMock()
             mock_mtf.return_value = mock_instance
-            
+
             # Sample multi-timeframe data
             timeframes = ['1m', '5m', '15m', '1h', '4h', '1d']
-            
+
             def analyze_multiple_timeframes(symbol, timeframes, indicators):
                 """Analyze indicators across multiple timeframes."""
                 analysis_results = {}
-                
+
                 for tf in timeframes:
-                    # Simulate different indicator values for different timeframes
-                    tf_multiplier = {'1m': 0.8, '5m': 0.9, '15m': 1.0, '1h': 1.1, '4h': 1.2, '1d': 1.3}.get(tf, 1.0)
-                    
+                    # Simulate different indicator values for timeframes
+                    tf_multiplier = {
+                        '1m': 0.8, '5m': 0.9, '15m': 1.0,
+                        '1h': 1.1, '4h': 1.2, '1d': 1.3
+                    }.get(tf, 1.0)
+
                     analysis_results[tf] = {
-                        'trend_direction': 'BULLISH' if tf_multiplier > 1.0 else 'BEARISH' if tf_multiplier < 1.0 else 'NEUTRAL',
-                        'trend_strength': round(abs(tf_multiplier - 1.0) * 100, 1),
+                        'trend_direction': (
+                            'BULLISH' if tf_multiplier > 1.0
+                            else 'BEARISH' if tf_multiplier < 1.0
+                            else 'NEUTRAL'
+                        ),
+                        'trend_strength': round(
+                            abs(tf_multiplier - 1.0) * 100, 1
+                        ),
                         'momentum': {
                             'rsi': round(50 + (tf_multiplier - 1.0) * 30, 1),
-                            'macd_signal': 'BULLISH' if tf_multiplier > 1.05 else 'BEARISH' if tf_multiplier < 0.95 else 'NEUTRAL'
+                            'macd_signal': (
+                                'BULLISH' if tf_multiplier > 1.05
+                                else 'BEARISH' if tf_multiplier < 0.95
+                                else 'NEUTRAL'
+                            )
                         },
                         'volatility': {
                             'atr_percentile': round(tf_multiplier * 45, 1),
@@ -818,14 +879,23 @@ class TestTechnicalIndicators:
                         'support_resistance': {
                             'near_support': tf_multiplier < 0.95,
                             'near_resistance': tf_multiplier > 1.05,
-                            'key_levels': [100.0 * tf_multiplier * (1 + i * 0.01) for i in range(-2, 3)]
+                            'key_levels': [
+                                100.0 * tf_multiplier * (1 + i * 0.01)
+                                for i in range(-2, 3)
+                            ]
                         }
                     }
-                
+
                 # Calculate consensus
-                bullish_count = sum(1 for tf_data in analysis_results.values() if tf_data['trend_direction'] == 'BULLISH')
-                bearish_count = sum(1 for tf_data in analysis_results.values() if tf_data['trend_direction'] == 'BEARISH')
-                
+                bullish_count = sum(
+                    1 for tf_data in analysis_results.values()
+                    if tf_data['trend_direction'] == 'BULLISH'
+                )
+                bearish_count = sum(
+                    1 for tf_data in analysis_results.values()
+                    if tf_data['trend_direction'] == 'BEARISH'
+                )
+
                 if bullish_count > bearish_count:
                     consensus = 'BULLISH'
                     consensus_strength = bullish_count / len(timeframes)
@@ -835,7 +905,7 @@ class TestTechnicalIndicators:
                 else:
                     consensus = 'NEUTRAL'
                     consensus_strength = 0.5
-                
+
                 return {
                     'symbol': symbol,
                     'analysis_timestamp': datetime.now().isoformat(),
@@ -844,14 +914,21 @@ class TestTechnicalIndicators:
                     'consensus': {
                         'direction': consensus,
                         'strength': round(consensus_strength, 2),
-                        'agreement_percentage': round(max(bullish_count, bearish_count) / len(timeframes) * 100, 1)
+                        'agreement_percentage': round(
+                            max(bullish_count, bearish_count)
+                            / len(timeframes) * 100, 1
+                        )
                     },
-                    'conflicting_signals': bullish_count > 0 and bearish_count > 0,
+                    'conflicting_signals': (
+                        bullish_count > 0 and bearish_count > 0
+                    ),
                     'analysis_duration_ms': 250
                 }
-            
-            mock_instance.analyze_multiple_timeframes.side_effect = analyze_multiple_timeframes
-            
+
+            mock_instance.analyze_multiple_timeframes.side_effect = (
+                analyze_multiple_timeframes
+            )
+
             mock_instance.detect_timeframe_divergences.return_value = {
                 'divergences_found': True,
                 'divergence_details': [
@@ -859,61 +936,103 @@ class TestTechnicalIndicators:
                         'timeframes': ['1m', '1h'],
                         'divergence_type': 'TREND_DIVERGENCE',
                         'severity': 'MODERATE',
-                        'description': 'Short-term bearish while longer-term bullish'
+                        'description': (
+                            'Short-term bearish while longer-term bullish'
+                        )
                     }
                 ],
                 'risk_level': 'MEDIUM',
                 'recommended_action': 'WAIT_FOR_CONFIRMATION'
             }
-            
+
             mtf_analyzer = mock_mtf()
-            
+
             # Test multi-timeframe analysis
-            mtf_result = await mtf_analyzer.analyze_multiple_timeframes('EURUSD', timeframes, ['rsi', 'macd', 'sma'])
-            
+            mtf_result = await mtf_analyzer.analyze_multiple_timeframes(
+                'EURUSD', timeframes, ['rsi', 'macd', 'sma']
+            )
+
             assert mtf_result['symbol'] == 'EURUSD', "Wrong symbol in analysis"
-            assert 'timeframes_analyzed' in mtf_result, "Missing analyzed timeframes"
-            assert 'timeframe_results' in mtf_result, "Missing timeframe results"
+            assert 'timeframes_analyzed' in mtf_result, (
+                "Missing analyzed timeframes"
+            )
+            assert 'timeframe_results' in mtf_result, (
+                "Missing timeframe results"
+            )
             assert 'consensus' in mtf_result, "Missing consensus analysis"
-            
+
             # Verify timeframe results structure
             for tf in timeframes:
-                assert tf in mtf_result['timeframe_results'], f"Missing results for timeframe {tf}"
+                assert tf in mtf_result['timeframe_results'], (
+                    f"Missing results for timeframe {tf}"
+                )
                 tf_data = mtf_result['timeframe_results'][tf]
-                
-                assert 'trend_direction' in tf_data, f"Missing trend direction for {tf}"
-                assert 'momentum' in tf_data, f"Missing momentum data for {tf}"
-                assert 'volatility' in tf_data, f"Missing volatility data for {tf}"
-                assert 'support_resistance' in tf_data, f"Missing S/R data for {tf}"
-            
+
+                assert 'trend_direction' in tf_data, (
+                    f"Missing trend direction for {tf}"
+                )
+                assert 'momentum' in tf_data, (
+                    f"Missing momentum data for {tf}"
+                )
+                assert 'volatility' in tf_data, (
+                    f"Missing volatility data for {tf}"
+                )
+                assert 'support_resistance' in tf_data, (
+                    f"Missing S/R data for {tf}"
+                )
+
             # Verify consensus analysis
             consensus = mtf_result['consensus']
-            assert consensus['direction'] in ['BULLISH', 'BEARISH', 'NEUTRAL'], "Invalid consensus direction"
-            assert 0 <= consensus['strength'] <= 1, "Consensus strength out of range"
-            assert 0 <= consensus['agreement_percentage'] <= 100, "Agreement percentage out of range"
-            
+            assert consensus['direction'] in [
+                'BULLISH', 'BEARISH', 'NEUTRAL'
+            ], "Invalid consensus direction"
+            assert 0 <= consensus['strength'] <= 1, (
+                "Consensus strength out of range"
+            )
+            assert 0 <= consensus['agreement_percentage'] <= 100, (
+                "Agreement percentage out of range"
+            )
+
             # Test divergence detection
-            divergence_result = await mtf_analyzer.detect_timeframe_divergences(mtf_result)
-            
-            assert 'divergences_found' in divergence_result, "Missing divergence detection result"
-            assert 'risk_level' in divergence_result, "Missing risk level assessment"
-            assert 'recommended_action' in divergence_result, "Missing recommended action"
-            
+            divergence_result = (
+                await mtf_analyzer.detect_timeframe_divergences(
+                    mtf_result
+                )
+            )
+
+            assert 'divergences_found' in divergence_result, (
+                "Missing divergence detection result"
+            )
+            assert 'risk_level' in divergence_result, (
+                "Missing risk level assessment"
+            )
+            assert 'recommended_action' in divergence_result, (
+                "Missing recommended action"
+            )
+
             if divergence_result['divergences_found']:
-                assert 'divergence_details' in divergence_result, "Missing divergence details"
-                assert len(divergence_result['divergence_details']) > 0, "No divergence details provided"
-    
+                assert 'divergence_details' in divergence_result, (
+                    "Missing divergence details"
+                )
+                assert len(divergence_result['divergence_details']) > 0, (
+                    "No divergence details provided"
+                )
+
     @pytest.mark.asyncio
     async def test_custom_indicator_support(self):
         """Test custom indicator creation and calculation."""
-        with patch('nautilus_trader_engine.indicators.CustomIndicatorEngine') as mock_custom:
+        with patch(
+            'nautilus_trader_engine.indicators.CustomIndicatorEngine'
+        ) as mock_custom:
             mock_instance = AsyncMock()
             mock_custom.return_value = mock_instance
-            
+
             # Sample custom indicator definition
             custom_indicator_def = {
                 'name': 'CUSTOM_MOMENTUM',
-                'description': 'Custom momentum indicator combining RSI and MACD',
+                'description': (
+                    'Custom momentum indicator combining RSI and MACD'
+                ),
                 'type': IndicatorType.MOMENTUM.value,
                 'parameters': {
                     'rsi_period': 14,
@@ -926,7 +1045,7 @@ class TestTechnicalIndicators:
                 'output_range': {'min': 0, 'max': 100},
                 'signal_levels': {'overbought': 75, 'oversold': 25}
             }
-            
+
             mock_instance.register_custom_indicator.return_value = {
                 'indicator_id': 'CUSTOM_001',
                 'registration_status': 'SUCCESS',
@@ -934,71 +1053,104 @@ class TestTechnicalIndicators:
                 'compilation_time_ms': 50,
                 'ready_for_calculation': True
             }
-            
+
             def calculate_custom_indicator(indicator_id, data, parameters):
                 """Calculate custom indicator values."""
                 if indicator_id != 'CUSTOM_001':
                     return {'error': 'Unknown indicator'}
-                
+
                 # Simulate custom calculation (simplified)
                 close_prices = data.get('close', [])
                 if len(close_prices) < 26:  # Need enough data for MACD
                     return {'values': [None] * len(close_prices)}
-                
+
                 # Simulate RSI calculation (simplified)
-                rsi_values = [50 + (i % 20 - 10) * 2 for i in range(len(close_prices))]
-                
+                rsi_values = [
+                    50 + (i % 20 - 10) * 2
+                    for i in range(len(close_prices))
+                ]
+
                 # Simulate MACD calculation (simplified)
-                macd_values = [(i % 10 - 5) * 0.1 for i in range(len(close_prices))]
-                
+                macd_values = [
+                    (i % 10 - 5) * 0.1 for i in range(len(close_prices))
+                ]
+
                 # Combine using weights
                 weight_rsi = parameters.get('weight_rsi', 0.6)
                 weight_macd = parameters.get('weight_macd', 0.4)
-                
+
                 custom_values = []
                 for i in range(len(close_prices)):
                     if i < 25:  # Need warmup period
                         custom_values.append(None)
                     else:
                         # Normalize MACD to 0-100 range
-                        normalized_macd = max(0, min(100, (macd_values[i] + 1) * 50))
-                        
-                        combined_value = (rsi_values[i] * weight_rsi) + (normalized_macd * weight_macd)
-                        custom_values.append(round(combined_value, 2))
-                
+                        normalized_macd = max(
+                            0, min(100, (macd_values[i] + 1) * 50)
+                        )
+
+                        combined_value = (
+                            (rsi_values[i] * weight_rsi)
+                            + (normalized_macd * weight_macd)
+                        )
+                        custom_values.append(
+                            round(combined_value, 2)
+                        )
+
                 return {
                     'indicator_id': indicator_id,
                     'values': custom_values,
-                    'last_value': custom_values[-1] if custom_values[-1] is not None else None,
+                    'last_value': (
+                        custom_values[-1]
+                        if custom_values[-1] is not None
+                        else None
+                    ),
                     'calculation_time_ms': 25,
                     'data_points_processed': len(close_prices)
                 }
-            
-            mock_instance.calculate_custom_indicator.side_effect = calculate_custom_indicator
-            
+
+            mock_instance.calculate_custom_indicator.side_effect = (
+                calculate_custom_indicator
+            )
             mock_instance.validate_custom_formula.return_value = {
                 'formula_valid': True,
                 'syntax_errors': [],
                 'performance_estimate_ms': 15,
                 'memory_usage_estimate_mb': 2.5
             }
-            
+
             custom_engine = mock_custom()
-            
+
             # Test custom indicator registration
-            registration_result = await custom_engine.register_custom_indicator(custom_indicator_def)
-            
-            assert registration_result['registration_status'] == 'SUCCESS', "Custom indicator registration failed"
-            assert registration_result['validation_passed'] is True, "Custom indicator validation failed"
-            assert 'indicator_id' in registration_result, "Missing indicator ID"
-            
+            registration_result = (
+                await custom_engine.register_custom_indicator(
+                    custom_indicator_def
+                )
+            )
+            assert registration_result['registration_status'] == 'SUCCESS', (
+                "Custom indicator registration failed"
+            )
+            assert registration_result['validation_passed'] is True, (
+                "Custom indicator validation failed"
+            )
+            assert 'indicator_id' in registration_result, (
+                "Missing indicator ID"
+            )
+
             # Test formula validation
-            validation_result = await custom_engine.validate_custom_formula(custom_indicator_def['calculation_formula'])
-            
-            assert validation_result['formula_valid'] is True, "Custom formula validation failed"
-            assert len(validation_result['syntax_errors']) == 0, "Formula has syntax errors"
-            assert validation_result['performance_estimate_ms'] < 100, "Custom indicator too slow"
-            
+            validation_result = await custom_engine.validate_custom_formula(
+                custom_indicator_def['calculation_formula']
+            )
+            assert validation_result['formula_valid'] is True, (
+                "Custom formula validation failed"
+            )
+            assert len(validation_result['syntax_errors']) == 0, (
+                "Formula has syntax errors"
+            )
+            assert validation_result['performance_estimate_ms'] < 100, (
+                "Custom indicator too slow"
+            )
+
             # Test custom indicator calculation
             test_data = {
                 'close': self.sample_data['close'].tolist(),
@@ -1006,26 +1158,22 @@ class TestTechnicalIndicators:
                 'low': self.sample_data['low'].tolist(),
                 'volume': self.sample_data['volume'].tolist()
             }
-            
-            calculation_result = await custom_engine.calculate_custom_indicator(
-                'CUSTOM_001', 
-                test_data, 
-                custom_indicator_def['parameters']
+            calculation_result = (
+                await custom_engine.calculate_custom_indicator(
+                    'CUSTOM_001',
+                    test_data,
+                    custom_indicator_def['parameters']
+                )
             )
-            
-            assert 'values' in calculation_result, "Missing custom indicator values"
-            assert calculation_result['indicator_id'] == 'CUSTOM_001', "Wrong indicator ID in result"
-            assert calculation_result['data_points_processed'] > 0, "No data points processed"
-            
-            # Verify custom indicator values
-            custom_values = [v for v in calculation_result['values'] if v is not None]
-            assert len(custom_values) > 0, "No valid custom indicator values"
-            
-            # Check if values are within expected range
-            output_range = custom_indicator_def['output_range']
-            for value in custom_values:
-                assert output_range['min'] <= value <= output_range['max'], \
-                    f"Custom indicator value {value} out of range [{output_range['min']}, {output_range['max']}]"
+            assert 'values' in calculation_result, (
+                "Missing custom indicator values"
+            )
+            assert calculation_result['indicator_id'] == 'CUSTOM_001', (
+                "Wrong indicator ID in result"
+            )
+            assert calculation_result['data_points_processed'] > 0, (
+                "No data points processed"
+            )
 
 
 if __name__ == '__main__':

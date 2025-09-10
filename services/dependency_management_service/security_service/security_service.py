@@ -27,6 +27,9 @@ import subprocess
 import nvdlib
 from concurrent.futures import ThreadPoolExecutor
 
+# Import STRIDE threat modeling
+from .stride_threat_modeling import STRIDEThreatModelingService, SystemThreatModel
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -57,6 +60,7 @@ class SecurityService:
     def __init__(self):
         self.nvd_api_key = os.getenv("NVD_API_KEY")
         self.executor = ThreadPoolExecutor(max_workers=4)
+        self.stride_service = STRIDEThreatModelingService()
         
     async def scan_dependency(self, name: str, version: str, repo_info: Dict) -> SecurityScan:
         """Perform comprehensive security scan of a dependency"""
@@ -87,45 +91,74 @@ class SecurityService:
             except Exception as e:
                 monitoring.log_error(tier, name, e)
                 raise
+        
+        try:
+            tasks = [
+                self._check_vulnerabilities(name, version),
+                self._run_sast_scan(repo_path)
+            ]
             
-            try:
-                tasks = [
-                    self._check_vulnerabilities(name, version),
-                    self._run_sast_scan(repo_path)
-                ]
-                
-                vuln_results, sast_results = await asyncio.gather(*tasks)
-                risk_score = self._calculate_risk_score(vuln_results, sast_results)
-                
-                # Update monitoring metrics
-                monitoring.record_scan_duration(tier, name, "full_scan", time.time() - scan_start)
-                
-                # Record any vulnerabilities found
-                for vuln in vuln_results:
-                    monitoring.record_security_issue(tier, name, vuln.severity)
-                
-                # Update health score based on scan results
-                health_score = 100 - (len(vuln_results) * 10) - (len(sast_results) * 5)
-                monitoring.update_health_score(tier, name, max(0, health_score))
-                
-                scan = SecurityScan(
-                    dependency_name=name,
-                    version=version,
-                    vulnerabilities=vuln_results,
-                    sast_findings=sast_results,
-                    risk_score=risk_score,
-                    scan_date=datetime.utcnow()
-                )
-                
-                # Update resource metrics
-                monitoring.update_resource_metrics(tier, name)
-                
-                return scan
+            vuln_results, sast_results = await asyncio.gather(*tasks)
+            risk_score = self._calculate_risk_score(vuln_results, sast_results)
             
-            except Exception as e:
-                monitoring.log_error(tier, name, e)
-                raise
-                
+            # Update monitoring metrics
+            monitoring.record_scan_duration(tier, name, "full_scan", time.time() - scan_start)
+            
+            # Record any vulnerabilities found
+            for vuln in vuln_results:
+                monitoring.record_security_issue(tier, name, vuln.severity)
+            
+            # Update health score based on scan results
+            health_score = 100 - (len(vuln_results) * 10) - (len(sast_results) * 5)
+            monitoring.update_health_score(tier, name, max(0, health_score))
+            
+            scan = SecurityScan(
+                dependency_name=name,
+                version=version,
+                vulnerabilities=vuln_results,
+                sast_findings=sast_results,
+                risk_score=risk_score,
+                scan_date=datetime.utcnow()
+            )
+            
+            # Update resource metrics
+            monitoring.update_resource_metrics(tier, name)
+            
+            return scan
+        
+        except Exception as e:
+            monitoring.log_error(tier, name, e)
+            raise
+    
+    async def perform_stride_analysis(self, system_components: List[Dict]) -> SystemThreatModel:
+        """Perform STRIDE threat modeling analysis on system components"""
+        try:
+            logger.info("Performing STRIDE threat modeling analysis")
+            system_model = self.stride_service.model_system_threats(system_components)
+            
+            # Log summary statistics
+            logger.info(f"STRIDE Analysis Complete:")
+            logger.info(f"  Critical Threats: {system_model.critical_threats}")
+            logger.info(f"  High Threats: {system_model.high_threats}")
+            logger.info(f"  Medium Threats: {system_model.medium_threats}")
+            logger.info(f"  Low Threats: {system_model.low_threats}")
+            logger.info(f"  Overall Risk Score: {system_model.overall_risk_score:.2f}")
+            
+            # Save threat model to file
+            report_path = os.path.join(os.path.dirname(__file__), "stride_threat_model.json")
+            self.stride_service.save_threat_model(system_model, report_path)
+            
+            # Generate and save human-readable report
+            report_content = self.stride_service.generate_threat_report(system_model)
+            report_path_txt = os.path.join(os.path.dirname(__file__), "stride_threat_model.txt")
+            with open(report_path_txt, 'w') as f:
+                f.write(report_content)
+            
+            return system_model
+        except Exception as e:
+            logger.error(f"Error performing STRIDE analysis: {e}")
+            raise
+    
     async def _check_vulnerabilities(self, name: str, version: str) -> List[Vulnerability]:
         """Check for known vulnerabilities in NVD database"""
         try:
@@ -418,7 +451,27 @@ async def main():
         print("Current directory:", os.getcwd())
         print("Directory contents:", os.listdir("."))
         raise
-        
+    
+    # Define system components for STRIDE threat modeling
+    system_components = [
+        {"name": "API Gateway", "type": "API Gateway"},
+        {"name": "Trading Engine", "type": "Trading Engine"},
+        {"name": "PostgreSQL Database", "type": "Database"},
+        {"name": "Kafka Message Bus", "type": "Message Queue (Kafka)"},
+        {"name": "Authentication Service", "type": "Authentication Service"},
+        {"name": "Redis Cache", "type": "Database"},
+        {"name": "ClickHouse Analytics", "type": "Database"},
+        {"name": "Qdrant Vector Store", "type": "Database"}
+    ]
+    
+    # Perform STRIDE threat modeling
+    try:
+        stride_model = await security_service.perform_stride_analysis(system_components)
+        print("STRIDE threat modeling completed successfully")
+        print(f"Overall risk score: {stride_model.overall_risk_score:.2f}")
+    except Exception as e:
+        print(f"Error performing STRIDE analysis: {e}")
+    
     # Start monitoring
     await security_service.monitor_dependencies(dependencies)
 

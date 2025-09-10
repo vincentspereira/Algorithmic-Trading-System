@@ -1,32 +1,39 @@
+# Use Python 3.11 slim image
 FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    gcc \
+    libc-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    libffi-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copy requirements first for better caching
+COPY security/requirements.txt .
 
-# Copy requirements file
-COPY requirements.txt .
-
-# Install Python dependencies
+# Install security scanning dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY . .
+# Install additional security tools
+RUN pip install bandit[toml] semgrep
 
-# Create models directory
-RUN mkdir -p models/fraud models/behavioral
+# Copy security scanning scripts
+COPY security/ .
 
-# Set environment variables
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
+# Make scripts executable
+RUN chmod +x comprehensive_security_scan.py threat_modeling.py
 
-# Run tests by default
-CMD ["python", "-m", "pytest", "security/test_comprehensive_fraud_detection.py", "-v", "--tb=short"]
+# Create directory for reports
+RUN mkdir -p security_reports
+
+# Environment variables
+ENV NVD_API_KEY=""
+ENV SEMGREP_APP_TOKEN=""
+
+# Run the comprehensive security scan by default
+CMD ["python", "comprehensive_security_scan.py"]

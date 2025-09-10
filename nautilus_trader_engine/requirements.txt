@@ -66,6 +66,10 @@ python-multipart
 
 # Data feed dependencies
 alpha_vantage
+finnhub-python
+twelvedata
+polygon-api-client
+oandapyV20
 
 # gRPC dependencies (Phase 2)
 grpcio
@@ -86,7 +90,6 @@ quickfix
 finrl>=0.3.6
 stable-baselines3>=2.0.0
 gymnasium>=0.28.0
-optuna>=3.0.0
 
 # Phase 5 - Enterprise Features
 # QuantLib for options analytics
@@ -106,3 +109,10 @@ graphene==2.1.9
 flask-graphql==2.0.1
 graphql-core==2.3.2
 graphql-relay==2.0.1
+
+# Cassandra dependencies
+cassandra-driver>=3.25.0
+
+# InfluxDB dependencies
+influxdb-client>=1.35.0
+influxdb3-python>=0.4.0

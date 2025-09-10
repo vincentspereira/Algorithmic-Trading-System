@@ -1,15 +1,15 @@
 """Unit tests for Portfolio Management system."""
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime, timedelta
-from typing import Dict, Any, List
-from decimal import Decimal
+from unittest.mock import Mock, patch
+from datetime import datetime
+
+from nautilus_trader_engine.core.portfolio_management import PortfolioManager
 
 
 class TestPortfolioManagement:
     """Test suite for Portfolio Management system."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.sample_portfolio = {
@@ -29,7 +29,7 @@ class TestPortfolioManagement:
                 }
             ]
         }
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_portfolio_initialization(self, mock_portfolio_manager):
         """Test portfolio initialization."""
@@ -41,16 +41,15 @@ class TestPortfolioManagement:
             'status': 'initialized',
             'created_at': datetime.now().isoformat()
         }
-        
+
         # Test portfolio initialization
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         result = manager.initialize_portfolio('ACC_001', 'USD', 100000.0)
-        
+
         assert result['portfolio_id'] == 'PORT_001'
         assert result['status'] == 'initialized'
         assert 'created_at' in result
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_position_tracking(self, mock_portfolio_manager):
         """Test position tracking functionality."""
@@ -80,17 +79,16 @@ class TestPortfolioManagement:
             ],
             'total_positions': 2
         }
-        
+
         # Test position tracking
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         result = manager.get_positions('PORT_001')
-        
+
         assert result['total_positions'] == 2
         assert len(result['positions']) == 2
         assert result['positions'][0]['symbol'] == 'EURUSD'
         assert result['positions'][1]['symbol'] == 'GBPUSD'
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_pnl_calculation(self, mock_portfolio_manager):
         """Test P&L calculation functionality."""
@@ -107,18 +105,17 @@ class TestPortfolioManagement:
             },
             'calculation_time': datetime.now().isoformat()
         }
-        
+
         # Test P&L calculation
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         result = manager.calculate_pnl('PORT_001')
-        
+
         assert result['total_pnl'] == 400.0
         assert result['total_unrealized_pnl'] == 150.0
         assert result['total_realized_pnl'] == 250.0
         assert 'pnl_by_symbol' in result
         assert 'EURUSD' in result['pnl_by_symbol']
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_risk_metrics_calculation(self, mock_portfolio_manager):
         """Test risk metrics calculation."""
@@ -136,18 +133,17 @@ class TestPortfolioManagement:
             'beta': 0.85,
             'calculation_date': datetime.now().date().isoformat()
         }
-        
+
         # Test risk metrics calculation
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         result = manager.calculate_risk_metrics('PORT_001')
-        
+
         assert result['var_95'] == 2500.0
         assert result['sharpe_ratio'] == 1.25
         assert result['max_drawdown'] == 0.08
         assert 'expected_shortfall' in result
         assert 'volatility' in result
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_portfolio_rebalancing(self, mock_portfolio_manager):
         """Test portfolio rebalancing functionality."""
@@ -173,18 +169,17 @@ class TestPortfolioManagement:
             ],
             'rebalance_status': 'pending'
         }
-        
+
         # Test portfolio rebalancing
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         target_allocations = {'EURUSD': 0.4, 'GBPUSD': 0.3, 'USDJPY': 0.3}
         result = manager.rebalance_portfolio('PORT_001', target_allocations)
-        
+
         assert result['rebalance_status'] == 'pending'
         assert len(result['required_trades']) == 3
         assert 'target_allocations' in result
         assert 'current_allocations' in result
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_performance_analytics(self, mock_portfolio_manager):
         """Test performance analytics functionality."""
@@ -205,18 +200,17 @@ class TestPortfolioManagement:
             'consecutive_losses': 2,
             'analysis_period': '2024-01-01 to 2024-06-01'
         }
-        
+
         # Test performance analytics
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         result = manager.get_performance_analytics('PORT_001')
-        
+
         assert result['total_return'] == 0.12
         assert result['win_rate'] == 0.65
         assert result['profit_factor'] == 1.8
         assert len(result['monthly_returns']) == 5
         assert 'annualized_return' in result
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_margin_management(self, mock_portfolio_manager):
         """Test margin management functionality."""
@@ -235,17 +229,16 @@ class TestPortfolioManagement:
             'stop_out_level': 0.90,
             'margin_status': 'healthy'
         }
-        
+
         # Test margin management
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         result = manager.calculate_margin_requirements('PORT_001')
-        
+
         assert result['margin_utilization'] == 0.10
         assert result['margin_status'] == 'healthy'
         assert result['total_margin_required'] == 5000.0
         assert 'margin_by_position' in result
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_portfolio_optimization(self, mock_portfolio_manager):
         """Test portfolio optimization functionality."""
@@ -271,18 +264,19 @@ class TestPortfolioManagement:
             },
             'optimization_status': 'completed'
         }
-        
+
         # Test portfolio optimization
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         constraints = {'max_weight': 0.40, 'min_weight': 0.05}
-        result = manager.optimize_portfolio('PORT_001', 'maximize_sharpe', constraints)
-        
+        result = manager.optimize_portfolio(
+            'PORT_001', 'maximize_sharpe', constraints
+        )
+
         assert result['optimization_status'] == 'completed'
         assert result['expected_sharpe'] == 1.50
         assert 'optimal_weights' in result
         assert sum(result['optimal_weights'].values()) == 1.0
-    
+
     @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
     def test_portfolio_stress_testing(self, mock_portfolio_manager):
         """Test portfolio stress testing functionality."""
@@ -317,13 +311,12 @@ class TestPortfolioManagement:
                 'Increase diversification across currency pairs'
             ]
         }
-        
+
         # Test portfolio stress testing
-        from nautilus_trader_engine.core.portfolio_management import PortfolioManager
         manager = PortfolioManager()
         scenarios = ['market_crash', 'interest_rate_shock', 'currency_crisis']
         result = manager.run_stress_test('PORT_001', scenarios)
-        
+
         assert result['overall_risk_assessment'] == 'moderate'
         assert len(result['scenarios']) == 3
         assert 'market_crash' in result['scenarios']

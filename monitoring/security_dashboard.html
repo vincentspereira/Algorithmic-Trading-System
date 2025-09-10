@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Repository Security Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .tier { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .tier-header { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+        .repo { margin: 10px 0; padding: 10px; background-color: #f9f9f9; border-radius: 3px; }
+        .status { float: right; padding: 2px 8px; border-radius: 3px; }
+        .secure { background-color: #d4edda; color: #155724; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .critical { background-color: #f8d7da; color: #721c24; }
+        .last-scan { font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Repository Security Dashboard</h1>
+        <p>Monitoring security status of all forked repositories</p>
+    </div>
+    
+    <div class="tier">
+        <div class="tier-header">Tier 1: Critical Dependencies</div>
+        <div class="repo">
+            nautilus_trader
+            <span class="status secure">Secure</span>
+            <div class="last-scan">Last scan: Today, 09:30 AM</div>
+        </div>
+        <div class="repo">
+            kafka
+            <span class="status secure">Secure</span>
+            <div class="last-scan">Last scan: Today, 09:32 AM</div>
+        </div>
+    </div>
+    
+    <div class="tier">
+        <div class="tier-header">Tier 2: Important Dependencies</div>
+        <div class="repo">
+            PyPortfolioOpt
+            <span class="status warning">Warning</span>
+            <div class="last-scan">Last scan: Today, 09:35 AM</div>
+        </div>
+    </div>
+    
+    <div class="tier">
+        <div class="tier-header">Tier 3: Supporting Dependencies</div>
+        <div class="repo">
+            react
+            <span class="status secure">Secure</span>
+            <div class="last-scan">Last scan: Today, 09:40 AM</div>
+        </div>
+    </div>
+    
+    <div class="tier">
+        <div class="tier-header">Tier 4: Infrastructure Dependencies</div>
+        <div class="repo">
+            prometheus
+            <span class="status secure">Secure</span>
+            <div class="last-scan">Today, 09:45 AM</div>
+        </div>
+    </div>
+</body>
+</html>

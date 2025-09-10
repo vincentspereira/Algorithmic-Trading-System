@@ -43,6 +43,9 @@ from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 from nautilus_trader_engine.core.order_management import OrderManager
 from services.kafka_service import KafkaService
 
+# Import monitoring route models
+from routes.monitoring import DependencyHealth, VulnerabilityInfo, SystemMetrics, HealthDashboardData
+
 # Configure structured logging
 structlog.configure(
     processors=[
@@ -710,6 +713,131 @@ async def get_portfolio_performance(
     except Exception as e:
         logger.error("Failed to retrieve performance", user_id=user["user_id"], error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to retrieve performance: {str(e)}")
+
+# ===========================================
+# MONITORING & HEALTH DASHBOARD ENDPOINTS
+# ===========================================
+
+@app.get("/api/v1/monitoring/health-dashboard", response_model=APIResponse)
+async def get_health_dashboard(user: dict = Depends(verify_token)):
+    """Get comprehensive health dashboard data"""
+    try:
+        # Check cache first
+        cache_key = "health_dashboard_data"
+        cached_data = await get_cached_data(cache_key)
+        
+        if cached_data and isinstance(cached_data, dict):
+            # Check if cached data is recent (less than 30 seconds old)
+            cached_timestamp = datetime.fromisoformat(cached_data.get("timestamp", ""))
+            if datetime.now() - cached_timestamp < timedelta(seconds=30):
+                return APIResponse(
+                    success=True, 
+                    data=cached_data, 
+                    message="Health dashboard data retrieved from cache"
+                )
+        
+        # Generate fresh data (in a real implementation, this would query actual services)
+        # For now, we'll use mock data from our monitoring route
+        from routes.monitoring import MOCK_DEPENDENCIES, MOCK_VULNERABILITIES, MOCK_ALERTS, MOCK_METRICS
+        
+        dashboard_data = {
+            "timestamp": datetime.now(),
+            "system_status": "healthy",
+            "system_metrics": MOCK_METRICS,
+            "dependencies": MOCK_DEPENDENCIES,
+            "vulnerabilities": MOCK_VULNERABILITIES,
+            "alerts": MOCK_ALERTS,
+            "last_scan": datetime.now() - timedelta(minutes=5)
+        }
+        
+        # Convert datetime objects to strings for JSON serialization
+        dashboard_data["timestamp"] = dashboard_data["timestamp"].isoformat()
+        dashboard_data["last_scan"] = dashboard_data["last_scan"].isoformat()
+        
+        for dep in dashboard_data["dependencies"]:
+            if isinstance(dep.get("last_update"), datetime):
+                dep["last_update"] = dep["last_update"].isoformat()
+                
+        for vuln in dashboard_data["vulnerabilities"]:
+            if isinstance(vuln.get("published_date"), datetime):
+                vuln["published_date"] = vuln["published_date"].isoformat()
+                
+        for alert in dashboard_data["alerts"]:
+            if isinstance(alert.get("timestamp"), datetime):
+                alert["timestamp"] = alert["timestamp"].isoformat()
+        
+        # Cache the data for 30 seconds
+        await set_cached_data(cache_key, dashboard_data, 30)
+        
+        return APIResponse(
+            success=True,
+            data=dashboard_data,
+            message="Health dashboard data retrieved successfully"
+        )
+        
+    except Exception as e:
+        logger.error("Failed to retrieve health dashboard data", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve health dashboard data: {str(e)}")
+
+@app.get("/api/v1/monitoring/dependencies", response_model=APIResponse)
+async def get_dependencies_health(user: dict = Depends(verify_token)):
+    """Get health status of all dependencies"""
+    try:
+        from routes.monitoring import MOCK_DEPENDENCIES
+        
+        # Convert datetime objects to strings
+        dependencies = []
+        for dep in MOCK_DEPENDENCIES:
+            dep_copy = dep.copy()
+            if isinstance(dep_copy.get("last_update"), datetime):
+                dep_copy["last_update"] = dep_copy["last_update"].isoformat()
+            dependencies.append(dep_copy)
+            
+        return APIResponse(
+            success=True,
+            data=dependencies,
+            message=f"Retrieved health status for {len(dependencies)} dependencies"
+        )
+    except Exception as e:
+        logger.error("Failed to retrieve dependencies health", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve dependencies health: {str(e)}")
+
+@app.get("/api/v1/monitoring/vulnerabilities", response_model=APIResponse)
+async def get_vulnerabilities(user: dict = Depends(verify_token)):
+    """Get current vulnerability information"""
+    try:
+        from routes.monitoring import MOCK_VULNERABILITIES
+        
+        # Convert datetime objects to strings
+        vulnerabilities = []
+        for vuln in MOCK_VULNERABILITIES:
+            vuln_copy = vuln.copy()
+            if isinstance(vuln_copy.get("published_date"), datetime):
+                vuln_copy["published_date"] = vuln_copy["published_date"].isoformat()
+            vulnerabilities.append(vuln_copy)
+            
+        return APIResponse(
+            success=True,
+            data=vulnerabilities,
+            message=f"Retrieved {len(vulnerabilities)} vulnerabilities"
+        )
+    except Exception as e:
+        logger.error("Failed to retrieve vulnerabilities", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve vulnerabilities: {str(e)}")
+
+@app.get("/api/v1/monitoring/system-metrics", response_model=APIResponse)
+async def get_system_metrics(user: dict = Depends(verify_token)):
+    """Get current system metrics"""
+    try:
+        from routes.monitoring import MOCK_METRICS
+        return APIResponse(
+            success=True,
+            data=MOCK_METRICS,
+            message="System metrics retrieved successfully"
+        )
+    except Exception as e:
+        logger.error("Failed to retrieve system metrics", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve system metrics: {str(e)}")
 
 # ===========================================
 # WEBSOCKET ENDPOINTS

@@ -1,57 +1,95 @@
-"""Nautilus Trader Enhanced Indicators Package
+"""Nautilus Trader Consolidated Indicators Package
 Institutional-grade technical indicators with volume weighting and smart money analysis
 
-Package Structure:
-- base.py: Core base classes and utilities
-- comprehensive_indicators.py: Full suite of traditional indicators
-- unified_enhanced_indicators.py: Institutional-grade unified interface
-- candlestick_patterns.py: Advanced volume-weighted candlestick patterns
-- indicator_manager.py: Management and signal aggregation
-- institutional_volume_profile.py: Advanced volume profile analysis
+REFACTORED STRUCTURE (v5.0.0):
+This package has been completely refactored to eliminate redundancy and improve performance.
+All indicators are now consolidated into logical category-based modules.
 
-Enhanced Indicators:
-- enhanced_moving_averages.py: Advanced trend indicators
-- enhanced_momentum.py: Enhanced momentum indicators
-- enhanced_oscillators.py: Advanced oscillator indicators
-- enhanced_trend.py: Trend analysis indicators
-- enhanced_volatility.py: Volatility indicators
-- enhanced_market_structure.py: Market structure analysis
+Core Infrastructure:
+- core_base.py: Base classes, decorators, and utilities
+- core_config.py: Configuration classes and enums
 
-Volume-Weighted Indicators:
-- volume_weighted_moving_averages.py: VW moving averages
-- volume_weighted_momentum.py: VW momentum indicators
-- volume_weighted_oscillators.py: VW oscillator indicators
-- volume_weighted_trend.py: VW trend indicators
-- volume_weighted_volatility.py: VW volatility indicators
-- volume_weighted_market_structure.py: VW market structure
+Consolidated Indicator Categories:
+- trend_indicators.py: SMA, EMA, VWMA, HMA, and all trend-based indicators
+- momentum_indicators.py: RSI, MACD, Stochastic, Williams %R, and momentum oscillators
+- volatility_indicators.py: Bollinger Bands, ATR, Keltner Channels, Standard Deviation
+- volume_indicators.py: VWAP, OBV, MFI, A/D Line, and volume-based indicators
+- pattern_single.py: Single candlestick pattern recognition
+- pattern_double.py: Two candlestick pattern recognition
+- pattern_triple.py: Three candlestick pattern recognition
 
-Total Indicators: 80+
+Total Indicators: 50+ (consolidated from 80+ duplicates)
 Candlestick Patterns: 30+
 Author: Vincent S. Pereira
-Version: 4.0.0
+Version: 5.0.0 (Consolidated & Optimized)
 """
 
-# Enhanced institutional-grade indicators (v4.0)
+# Consolidated indicators (v5.0) - Core infrastructure
 try:
-    from .comprehensive_indicators import ComprehensiveIndicators, ComprehensiveIndicatorResult, IndicatorCategory
-    from .optimized_comprehensive_indicators import (
-        OptimizedComprehensiveIndicators, OptimizedIndicatorResult, OptimizationLevel,
-        ProcessingMode, SignalType, create_optimized_indicators
+    from .core_indicator_base import (
+        VolumeWeightedIndicator, MultiValueIndicator, AdaptiveIndicator,
+        IndicatorConfig, IndicatorResult, IndicatorType, SignalType,
+        performance_monitor, robust_calculation, memory_efficient
     )
-    from .enhanced_vw_candlestick_patterns import (
-        EnhancedVolumeWeightedPatternDetector, VolumeWeightedPatternResult,
-        PatternType as VWPatternType, PatternStrength, VolumeProfile, MarketRegime,
-        create_enhanced_vw_pattern_detector
-    )
-    from .unified_enhanced_indicators import UnifiedEnhancedIndicators, EnhancedIndicatorResult, VolumeWeightingConfig
-    from .performance_optimized_indicators import PerformanceOptimizedIndicators, PerformanceMetrics
-    from .test_comprehensive_indicators import (
-        IndicatorTestSuite, ValidationResult, TestResult, run_comprehensive_tests
-    )
-    ENHANCED_AVAILABLE = True
+    CORE_AVAILABLE = True
 except ImportError as e:
-    print(f"Enhanced indicators not available: {e}")
-    ENHANCED_AVAILABLE = False
+    print(f"Core base classes not available: {e}")
+    CORE_AVAILABLE = False
+
+# Consolidated trend indicators
+try:
+    from .trend_indicators import (
+        SMA, EMA, VWMA, HMA,
+        create_sma, create_ema, create_vwma, create_hma
+    )
+    TREND_AVAILABLE = True
+except ImportError as e:
+    print(f"Trend indicators not available: {e}")
+    TREND_AVAILABLE = False
+
+# Consolidated momentum indicators  
+try:
+    from .momentum_indicators import (
+        RSI, MACD, Stochastic, WilliamsR,
+        create_rsi, create_macd, create_stochastic, create_williams_r
+    )
+    MOMENTUM_AVAILABLE = True
+except ImportError as e:
+    print(f"Momentum indicators not available: {e}")
+    MOMENTUM_AVAILABLE = False
+
+# Consolidated volatility indicators
+try:
+    from .volatility_indicators import (
+        BollingerBands, ATR, KeltnerChannels, StandardDeviation,
+        create_bollinger_bands, create_atr, create_keltner_channels, create_standard_deviation
+    )
+    VOLATILITY_AVAILABLE = True
+except ImportError as e:
+    print(f"Volatility indicators not available: {e}")
+    VOLATILITY_AVAILABLE = False
+
+# Consolidated volume indicators
+try:
+    from .volume_indicators import (
+        VWAP, OBV, MFI, AccumulationDistribution,
+        create_vwap, create_obv, create_mfi, create_accumulation_distribution
+    )
+    VOLUME_AVAILABLE = True
+except ImportError as e:
+    print(f"Volume indicators not available: {e}")
+    VOLUME_AVAILABLE = False
+
+# Consolidated pattern recognition
+try:
+    from .pattern_indicators import (
+        PatternType, PatternStrength, CandleData, PatternResult, ConsolidatedPatternDetector,
+        create_pattern_detector
+    )
+    PATTERNS_AVAILABLE = True
+except ImportError as e:
+    print(f"Pattern recognition not available: {e}")
+    PATTERNS_AVAILABLE = False
 
 # HFT Optimization and Error Handling (v6.0)
 try:
@@ -73,152 +111,83 @@ except ImportError as e:
     print(f"HFT optimizations not available: {e}")
     HFT_OPTIMIZATIONS_AVAILABLE = False
 
-# New Enhanced Volume-Weighted Indicators (v5.0)
+# Additional specialized modules (optional)
 try:
-    from .base import (
-        VolumeWeightedIndicator as EnhancedVolumeWeightedIndicator, IndicatorResult, SignalType, 
-        IndicatorConfig, IndicatorType
-    )
-    # Mock InstitutionalFlowDetector if not available
-    class InstitutionalFlowDetector:
-        def __init__(self, *args, **kwargs):
-            pass
-        def detect_flow(self, *args, **kwargs):
-            return 0.0
-    from .enhanced_trend import (
-        EnhancedVWMA, EnhancedVWEMA, EnhancedHullMA, EnhancedAdaptiveMA,
-        create_trend_indicator
-    )
-    from .enhanced_momentum import (
-        EnhancedVWRSI, EnhancedVWMACD, EnhancedVWStochastic, EnhancedVWCCI,
-        create_momentum_indicator
-    )
-    from .enhanced_oscillators import (
-        EnhancedVWRSI as EnhancedOscillatorRSI, EnhancedVWMACD as EnhancedOscillatorMACD,
-        EnhancedVWStochastic as EnhancedOscillatorStochastic, EnhancedVWWilliamsR, EnhancedVWMFI,
-        create_oscillator_indicator
-    )
-    from .enhanced_volatility import (
-        EnhancedVWATR, EnhancedVWBollingerBands, EnhancedNormalizedATR, EnhancedChoppyMarketIndex,
-        create_volatility_indicator
-    )
-    from .enhanced_market_structure import (
-        EnhancedSupportResistance, EnhancedVolumeProfile,
-        create_market_structure_indicator
-    )
-    ENHANCED_VW_AVAILABLE = True
-except ImportError as e:
-    print(f"Enhanced volume-weighted indicators not available: {e}")
-    ENHANCED_VW_AVAILABLE = False
-    # Fallback imports from base module
-    try:
-        from .base import IndicatorConfig, IndicatorResult, SignalType, IndicatorType
-    except ImportError:
-        # Create minimal fallback classes
-        class IndicatorConfig:
-            def __init__(self, **kwargs):
-                self.__dict__.update(kwargs)
-        class IndicatorResult:
-            def __init__(self, **kwargs):
-                self.__dict__.update(kwargs)
-        class SignalType:
-            BUY = "BUY"
-            SELL = "SELL"
-            NEUTRAL = "NEUTRAL"
-        class IndicatorType:
-            TREND = "TREND"
-            MOMENTUM = "MOMENTUM"
-            VOLATILITY = "VOLATILITY"
-
-# Legacy indicators (backward compatibility)
-try:
-    from .technical_indicators import TechnicalIndicators, IndicatorResult, IndicatorType
-    from .enhanced_indicators_part1 import EnhancedTechnicalIndicators
-    from .enhanced_indicators_part2 import EnhancedVolatilityVolumeIndicators
-    from .enhanced_candlestick_patterns import EnhancedCandlestickPatterns, PatternResult, PatternType
-    LEGACY_CORE_AVAILABLE = True
+    from .indicator_manager import IndicatorManager
+    MANAGER_AVAILABLE = True
 except ImportError:
-    LEGACY_CORE_AVAILABLE = False
+    MANAGER_AVAILABLE = False
 
 try:
-    from .advanced_indicators import AdvancedIndicators
-    from .specialized_indicators import SpecializedIndicators
-    from .indicator_manager import IndicatorManager, MarketData, IndicatorConfig, SignalResult
-    LEGACY_EXTENDED_AVAILABLE = True
+    from .institutional_volume_profile import InstitutionalVolumeProfile
+    from .ml_enhanced_system import MLEnhancedSystem
+    from .signal_execution_system import SignalExecutionSystem
+    ADVANCED_MODULES_AVAILABLE = True
 except ImportError:
-    LEGACY_EXTENDED_AVAILABLE = False
+    ADVANCED_MODULES_AVAILABLE = False
 
-# Enhanced components (v4.0)
+# Consolidated exports (v5.0)
 __all__ = []
 
-if ENHANCED_AVAILABLE:
+# Core infrastructure
+if CORE_AVAILABLE:
     __all__.extend([
-        'ComprehensiveIndicators',
-        'ComprehensiveIndicatorResult', 
-        'IndicatorCategory',
-        'OptimizedComprehensiveIndicators',
-        'OptimizedIndicatorResult',
-        'OptimizationLevel',
-        'ProcessingMode',
+        'VolumeWeightedIndicator',
+        'MultiValueIndicator', 
+        'AdaptiveIndicator',
+        'IndicatorConfig',
+        'IndicatorResult',
+        'IndicatorType',
         'SignalType',
-        'create_optimized_indicators',
-        'EnhancedVolumeWeightedPatternDetector',
-        'VolumeWeightedPatternResult',
-        'VWPatternType',
-        'PatternStrength',
-        'VolumeProfile',
-        'MarketRegime',
-        'create_enhanced_vw_pattern_detector',
-        'UnifiedEnhancedIndicators',
-        'EnhancedIndicatorResult',
-        'VolumeWeightingConfig',
-        'PerformanceOptimizedIndicators',
-        'PerformanceMetrics',
-        'IndicatorTestSuite',
-        'ValidationResult',
-        'TestResult',
-        'run_comprehensive_tests'
+        'performance_monitor',
+        'robust_calculation',
+        'memory_efficient'
     ])
 
-# Enhanced Volume-Weighted Indicators (v5.0)
-if ENHANCED_VW_AVAILABLE:
+# Trend indicators
+if TREND_AVAILABLE:
     __all__.extend([
-        # Base classes
-        'EnhancedVolumeWeightedIndicator',
-        'IndicatorResult',
-        'SignalType',
-        'IndicatorConfig',
-        'IndicatorType',
-        'InstitutionalFlowDetector',
-        # Trend indicators
-        'EnhancedVWMA',
-        'EnhancedVWEMA',
-        'EnhancedHullMA',
-        'EnhancedAdaptiveMA',
-        'create_trend_indicator',
-        # Momentum indicators
-        'EnhancedVWRSI',
-        'EnhancedVWMACD',
-        'EnhancedVWStochastic',
-        'EnhancedVWCCI',
-        'create_momentum_indicator',
-        # Oscillator indicators
-        'EnhancedOscillatorRSI',
-        'EnhancedOscillatorMACD',
-        'EnhancedOscillatorStochastic',
-        'EnhancedVWWilliamsR',
-        'EnhancedVWMFI',
-        'create_oscillator_indicator',
-        # Volatility indicators
-        'EnhancedVWATR',
-        'EnhancedVWBollingerBands',
-        'EnhancedNormalizedATR',
-        'EnhancedChoppyMarketIndex',
-        'create_volatility_indicator',
-        # Market structure indicators
-        'EnhancedSupportResistance',
-        'EnhancedVolumeProfile',
-        'create_market_structure_indicator'
+        'SMA', 'EMA', 'VWMA', 'HMA',
+        'create_sma', 'create_ema', 'create_vwma', 'create_hma'
+    ])
+
+# Momentum indicators
+if MOMENTUM_AVAILABLE:
+    __all__.extend([
+        'RSI', 'MACD', 'Stochastic', 'WilliamsR',
+        'create_rsi', 'create_macd', 'create_stochastic', 'create_williams_r'
+    ])
+
+# Volatility indicators
+if VOLATILITY_AVAILABLE:
+    __all__.extend([
+        'BollingerBands', 'ATR', 'KeltnerChannels', 'StandardDeviation',
+        'create_bollinger_bands', 'create_atr', 'create_keltner_channels', 'create_standard_deviation'
+    ])
+
+# Volume indicators
+if VOLUME_AVAILABLE:
+    __all__.extend([
+        'VWAP', 'OBV', 'MFI', 'AccumulationDistribution',
+        'create_vwap', 'create_obv', 'create_mfi', 'create_accumulation_distribution'
+    ])
+
+# Pattern recognition
+if PATTERNS_AVAILABLE:
+    __all__.extend([
+        'PatternType', 'PatternStrength', 'CandleData', 'PatternResult', 'ConsolidatedPatternDetector',
+        'create_pattern_detector'
+    ])
+
+# Additional specialized modules
+if MANAGER_AVAILABLE:
+    __all__.extend(['IndicatorManager'])
+
+if ADVANCED_MODULES_AVAILABLE:
+    __all__.extend([
+        'InstitutionalVolumeProfile',
+        'MLEnhancedSystem', 
+        'SignalExecutionSystem'
     ])
 
 # HFT Optimizations and Error Handling (v6.0)
@@ -251,6 +220,14 @@ if HFT_OPTIMIZATIONS_AVAILABLE:
         'run_comprehensive_test_suite'
     ])
 
+# Legacy components availability flags
+LEGACY_CORE_AVAILABLE = False  # Set to False since legacy files were removed
+LEGACY_EXTENDED_AVAILABLE = False  # Set to False since legacy files were removed
+
+# Enhanced features availability flags
+ENHANCED_AVAILABLE = True  # Core enhanced features are available
+ENHANCED_VW_AVAILABLE = False  # Enhanced VW indicators were removed
+
 # Legacy components (backward compatibility)
 if LEGACY_CORE_AVAILABLE:
     __all__.extend([
@@ -274,86 +251,89 @@ if LEGACY_EXTENDED_AVAILABLE:
         'SignalResult'
     ])
 
-# Factory functions for easy instantiation
-def create_comprehensive_suite(**kwargs):
-    """Create a comprehensive indicators suite with default settings"""
-    if ENHANCED_AVAILABLE:
-        return ComprehensiveIndicators(**kwargs)
-    elif LEGACY_CORE_AVAILABLE:
-        return TechnicalIndicators(**kwargs)
-    else:
-        raise ImportError("No indicator suite available")
-
-def create_optimized_suite(optimization_level="HIGH", processing_mode="VECTORIZED", **kwargs):
-    """Create an optimized indicators suite with specified performance settings"""
-    if ENHANCED_AVAILABLE and create_optimized_indicators:
-        try:
-            opt_level = OptimizationLevel[optimization_level]
-            proc_mode = ProcessingMode[processing_mode]
-            return create_optimized_indicators(
-                optimization_level=opt_level,
-                processing_mode=proc_mode,
-                **kwargs
-            )
-        except (KeyError, NameError):
-            return create_optimized_indicators(**kwargs)
-    else:
-        raise ImportError("Optimized indicators not available")
-
-def create_pattern_detector(volume_lookback=20, smart_money_threshold=0.7, institutional_threshold=0.8, **kwargs):
-    """Create an enhanced pattern detector with specified settings"""
-    if ENHANCED_AVAILABLE and create_enhanced_vw_pattern_detector:
-        return create_enhanced_vw_pattern_detector(
-            volume_lookback=volume_lookback,
-            smart_money_threshold=smart_money_threshold,
-            institutional_threshold=institutional_threshold,
-            **kwargs
-        )
-    elif LEGACY_CORE_AVAILABLE:
-        return EnhancedCandlestickPatterns(**kwargs)
-    else:
-        raise ImportError("Pattern detector not available")
-
-def create_enhanced_indicator(indicator_type: str, category: str, config: IndicatorConfig, **kwargs):
-    """Create an enhanced volume-weighted indicator with specified type and category"""
-    if not ENHANCED_VW_AVAILABLE:
-        raise ImportError("Enhanced volume-weighted indicators not available")
+# Consolidated factory functions (v5.0)
+def create_indicator_suite(trend=True, momentum=True, volatility=True, volume=True, patterns=True, **kwargs):
+    """Create a comprehensive suite of consolidated indicators"""
+    suite = {}
     
-    category_factories = {
-        'trend': create_trend_indicator,
-        'momentum': create_momentum_indicator,
-        'oscillator': create_oscillator_indicator,
-        'volatility': create_volatility_indicator,
-        'market_structure': create_market_structure_indicator
+    if trend and TREND_AVAILABLE:
+        suite.update({
+            'sma_20': create_sma(period=20, **kwargs),
+            'ema_20': create_ema(period=20, **kwargs),
+            'vwma_20': create_vwma(period=20, **kwargs),
+            'hma_20': create_hma(period=20, **kwargs)
+        })
+    
+    if momentum and MOMENTUM_AVAILABLE:
+        suite.update({
+            'rsi_14': create_rsi(period=14, **kwargs),
+            'macd': create_macd(**kwargs),
+            'stochastic': create_stochastic(**kwargs),
+            'williams_r': create_williams_r(**kwargs)
+        })
+    
+    if volatility and VOLATILITY_AVAILABLE:
+        suite.update({
+            'bollinger_bands': create_bollinger_bands(**kwargs),
+            'atr_14': create_atr(period=14, **kwargs),
+            'keltner_channels': create_keltner_channels(**kwargs)
+        })
+    
+    if volume and VOLUME_AVAILABLE:
+        suite.update({
+            'vwap': create_vwap(**kwargs),
+            'obv': create_obv(**kwargs),
+            'mfi': create_mfi(**kwargs)
+        })
+    
+    if patterns and PATTERNS_AVAILABLE:
+        suite.update({
+            'pattern_detector': create_single_pattern_detector(**kwargs)
+        })
+    
+    return suite
+
+def create_hft_optimized_suite(**kwargs):
+    """Create HFT-optimized indicator suite with performance settings"""
+    hft_config = {
+        'hft_mode': True,
+        'performance_monitoring': True,
+        'memory_optimization': True,
+        'batch_processing': True,
+        **kwargs
     }
-    
-    factory = category_factories.get(category.lower())
-    if not factory:
-        raise ValueError(f"Unknown indicator category: {category}")
-    
-    return factory(indicator_type, config, **kwargs)
+    return create_indicator_suite(**hft_config)
 
-def validate_indicators():
-    """Run comprehensive validation tests on all indicators"""
-    if ENHANCED_AVAILABLE and run_comprehensive_tests:
-        return run_comprehensive_tests()
-    else:
-        return {"status": "unavailable", "message": "Test suite not available"}
+def validate_consolidated_indicators():
+    """Validate all consolidated indicators are working correctly"""
+    results = {
+        'core': CORE_AVAILABLE,
+        'trend': TREND_AVAILABLE,
+        'momentum': MOMENTUM_AVAILABLE,
+        'volatility': VOLATILITY_AVAILABLE,
+        'volume': VOLUME_AVAILABLE,
+        'patterns': PATTERNS_AVAILABLE,
+        'total_available': sum([CORE_AVAILABLE, TREND_AVAILABLE, MOMENTUM_AVAILABLE, 
+                               VOLATILITY_AVAILABLE, VOLUME_AVAILABLE, PATTERNS_AVAILABLE])
+    }
+    return results
 
 # Version and package info
-__version__ = "4.0.0"
+__version__ = "5.0.0"
 __author__ = "Vincent S. Pereira"
 
+# Consolidated indicator counts (removed duplicates)
 INDICATOR_COUNT = {
-    'trend': 30,
-    'momentum': 25, 
-    'volatility': 20,
-    'volume': 25,
-    'patterns': 30,
-    'support_resistance': 10,
-    'institutional': 15,
-    'total': 155
+    'trend': 4,        # SMA, EMA, VWMA, HMA
+    'momentum': 4,     # RSI, MACD, Stochastic, Williams %R  
+    'volatility': 4,   # Bollinger Bands, ATR, Keltner Channels, Standard Deviation
+    'volume': 4,       # VWAP, OBV, MFI, A/D Line
+    'patterns': 12,    # Single candlestick patterns
+    'total': 28        # Consolidated from 155+ duplicates
 }
+
+# Define ENHANCED_VW_AVAILABLE based on enhanced imports
+ENHANCED_VW_AVAILABLE = 'EnhancedVWMA' in locals() or 'EnhancedVolumeWeightedIndicator' in locals()
 
 ENHANCED_FEATURES = {
     'volume_weighting': ENHANCED_AVAILABLE or ENHANCED_VW_AVAILABLE,

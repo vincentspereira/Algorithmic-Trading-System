@@ -1,0 +1,30 @@
+# Tier 3 Supporting Dependencies - Requirements for Testing
+# Weekly summaries
+
+# Frontend frameworks
+react>=18.2.0
+next>=13.4.12
+vue>=3.3.4
+
+# UI component libraries
+@material-ui/core>=4.12.4
+antd>=5.8.3
+tailwindcss>=3.3.3
+
+# Charting libraries
+chart.js>=4.3.3
+d3>=7.8.5
+recharts>=2.8.0
+
+# No-code and visualization tools
+blockly>=9.2.0
+goose>=0.1.0
+
+# Testing frameworks
+jest>=29.6.2
+@testing-library/react>=13.4.0
+cypress>=12.17.3
+
+# Build tools
+webpack>=5.88.2
+babel>=7.22.10
