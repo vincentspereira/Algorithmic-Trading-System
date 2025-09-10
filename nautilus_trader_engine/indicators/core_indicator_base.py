@@ -35,6 +35,9 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import pandas as pd
 
+# Initialize logger first
+logger = logging.getLogger(__name__)
+
 # Optional imports with fallbacks
 try:
     import talib
@@ -78,8 +81,6 @@ try:
 except ImportError:
     SMART_MONEY_AVAILABLE = False
     logger.warning("Smart money analysis module not available")
-
-logger = logging.getLogger(__name__)
 
 # Import enhanced risk management and regime adaptation engines
 try:

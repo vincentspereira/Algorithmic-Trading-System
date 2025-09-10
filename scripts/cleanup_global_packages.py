@@ -348,9 +348,10 @@ def main():
         print("4. View system packages")
         print("5. Start interactive removal")
         print("6. Export package list to requirements.txt")
-        print("7. Exit")
+        print("7. Show Docker usage instructions")
+        print("8. Exit")
         
-        choice = input("\nEnter your choice (1-7): ").strip()
+        choice = input("\nEnter your choice (1-8): ").strip()
         
         if choice == '1':
             display_packages(packages, 'all')
@@ -366,10 +367,12 @@ def main():
         elif choice == '6':
             export_requirements(packages)
         elif choice == '7':
+            show_docker_instructions()
+        elif choice == '8':
             print("Exiting without changes.")
             break
         else:
-            print("Invalid choice. Please enter 1-7.")
+            print("Invalid choice. Please enter 1-8.")
 
 def export_requirements(packages):
     """Export package list to requirements.txt format."""
@@ -389,6 +392,22 @@ def export_requirements(packages):
     print(f"✅ Requirements files created:")
     print(f"   - requirements_all_{timestamp}.txt (all packages)")
     print(f"   - requirements_user_{timestamp}.txt (user packages only)")
+
+def show_docker_instructions():
+    """Show instructions for using Docker for isolated development."""
+    print("\n🐳 Docker Development Environment Instructions")
+    print("="*50)
+    print("To develop in an isolated environment using Docker:")
+    print("\n1. Build the development container:")
+    print("   docker-compose -f docker-compose.dev.yml build")
+    print("\n2. Start the development container:")
+    print("   docker-compose -f docker-compose.dev.yml run --rm algo-trading-dev")
+    print("\n3. Inside the container, all dependencies will be properly isolated")
+    print("   and won't affect your global Python environment.")
+    print("\n4. To run the application in the container:")
+    print("   docker-compose -f docker-compose.dev.yml up")
+    print("\nThis approach ensures all dependencies are installed only in the")
+    print("container and not in your global Python environment.")
 
 if __name__ == '__main__':
     try:

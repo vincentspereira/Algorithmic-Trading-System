@@ -295,6 +295,76 @@ docker-compose logs -f nautilus_trader_engine
 docker-compose up -d --scale ai_assistant=3
 ```
 
+## 🐍 Development Environment Setup
+
+There are two ways to set up your development environment:
+
+### Option 1: Docker Development Environment (Recommended)
+
+This is the recommended approach as it ensures complete isolation of dependencies and prevents
+any conflicts with your global Python environment.
+
+1. Make sure Docker Desktop is installed and running
+2. Run the setup script:
+   ```bash
+   # Windows
+   .\scripts\setup_dev_env_docker.bat
+   
+   # Or manually:
+   docker-compose -f docker-compose.dev.yml build
+   docker-compose -f docker-compose.dev.yml run --rm algo-trading-dev
+   ```
+
+3. Inside the container, all dependencies are properly isolated and won't affect your global Python environment.
+
+### Option 2: Virtual Environment (Alternative)
+
+If you prefer to use a traditional virtual environment:
+
+1. Create a virtual environment:
+   ```bash
+   python -m venv .venv
+   ```
+
+2. Activate the virtual environment:
+   ```bash
+   # Windows
+   .venv\Scripts\activate
+   
+   # macOS/Linux
+   source .venv/bin/activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   ```
+
+## 🧪 Testing
+
+### Unit Tests
+
+Unit tests are located in the `tests` directory. Run them using:
+```bash
+# Inside Docker container
+pytest
+
+# Or locally
+pytest
+```
+
+### Integration Tests
+
+Integration tests are located in the `tests/integration` directory. Run them using:
+```bash
+# Inside Docker container
+pytest tests/integration
+
+# Or locally
+pytest tests/integration
+```
+
 ## 🚀 Production Deployment
 
 The system has implemented core trading functionality and is approaching production readiness. Remaining items for full production deployment:

@@ -1,11 +1,40 @@
 @echo off
 REM Development Environment Setup Script for Windows
 REM This script creates a Python virtual environment and installs dependencies safely
+REM OR sets up a Docker-based development environment (recommended)
 
 setlocal enabledelayedexpansion
 
 echo 🐍 Algorithmic Trading System - Development Environment Setup
 echo ============================================================
+
+REM Ask user which approach they want to use
+echo.
+echo Which development environment would you like to set up?
+echo 1. Docker-based environment (Recommended - complete isolation)
+echo 2. Traditional virtual environment
+echo.
+
+set /p CHOICE="Enter your choice (1 or 2): "
+
+if "%CHOICE%"=="1" (
+    goto docker_setup
+) else if "%CHOICE%"=="2" (
+    goto venv_setup
+) else (
+    echo Invalid choice. Defaulting to Docker-based setup.
+    goto docker_setup
+)
+
+:docker_setup
+echo.
+echo 🐳 Setting up Docker-based development environment...
+call scripts\setup_dev_env_docker.bat
+goto end
+
+:venv_setup
+echo.
+echo 🐍 Setting up traditional virtual environment...
 
 REM Check if Python 3.11+ is available
 :check_python
@@ -155,4 +184,11 @@ echo.
 echo ⚠️  IMPORTANT: Always activate the virtual environment before working on the project!
 echo 🔒 This ensures packages are installed locally, not globally on your system.
 echo.
+echo 💡 TIP: For better isolation, consider using the Docker-based environment instead.
+echo    Run this script again and choose option 1.
+echo.
 pause
+
+:end
+echo.
+echo 🚀 Setup completed!
