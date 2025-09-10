@@ -246,6 +246,62 @@ Access comprehensive system monitoring at `/api/v1/system/status`:
 - **Security Status**: Authentication, RBAC, and audit status
 - **Compliance**: Regulatory readiness and audit trail status
 
+## 🧪 Testing
+
+### Unit Tests
+
+Unit tests are located in the `tests` directory. Run them using:
+```
+# Inside Docker container
+pytest
+
+# Or locally
+pytest
+```
+
+### Integration Tests
+
+Integration tests are located in the `tests/integration` directory. Run them using:
+```
+# Inside Docker container
+pytest tests/integration
+
+# Or locally
+pytest tests/integration
+```
+
+## 🐛 Git Submodule Issues
+
+This repository contains many directories that are Git repositories themselves, which can cause issues with Git operations. If you encounter "Git: Failed to execute commit" errors, this is likely the cause.
+
+### Problem
+
+You may see messages like:
+```
+modified:   forks/tier1/kafka (modified content, untracked content)
+```
+
+This happens because these directories contain their own `.git` directories, making them nested Git repositories that aren't properly configured as submodules.
+
+### Solution
+
+Run the provided script to fix this issue:
+```bash
+# Windows
+.\scripts\fix_git_submodules.bat
+```
+
+This script will:
+1. Remove the nested `.git` directories
+2. Add the directories to Git tracking
+3. Commit the changes
+
+### Prevention
+
+To prevent this issue in the future:
+1. When copying repositories into this project, remove their `.git` directories immediately
+2. See `docs/GIT_SUBMODULE_MANAGEMENT.md` for more detailed information
+
 ## 📚 Documentation
 
 Comprehensive documentation is available in the `/docs` directory:
@@ -340,30 +396,6 @@ If you prefer to use a traditional virtual environment:
    pip install -r requirements.txt
    pip install -r requirements-dev.txt
    ```
-
-## 🧪 Testing
-
-### Unit Tests
-
-Unit tests are located in the `tests` directory. Run them using:
-```bash
-# Inside Docker container
-pytest
-
-# Or locally
-pytest
-```
-
-### Integration Tests
-
-Integration tests are located in the `tests/integration` directory. Run them using:
-```bash
-# Inside Docker container
-pytest tests/integration
-
-# Or locally
-pytest tests/integration
-```
 
 ## 🚀 Production Deployment
 
