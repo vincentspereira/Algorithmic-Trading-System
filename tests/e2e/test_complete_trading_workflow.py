@@ -23,7 +23,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from algorithmic_trading_service.trading_engine import TradingEngine
+from algorithmic_trading_service.api.main import TradingEngine
 from algorithmic_trading_service.order_management import OrderManager, OrderCreateRequest, OrderSide, OrderType
 from algorithmic_trading_service.risk_management import RiskManager
 from algorithmic_trading_service.portfolio_management import PortfolioManager

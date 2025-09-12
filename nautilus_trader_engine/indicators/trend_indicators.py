@@ -66,7 +66,7 @@ logger = logging.getLogger(__name__)
 # SIMPLE MOVING AVERAGE (SMA)
 # ===========================================
 
-class SMA(VolumeWeightedIndicator, VolumeConfirmationMixin, SmartMoneyMixin):
+class SMA(AugmentedIndicator, VolumeConfirmationMixin, SmartMoneyMixin):
     """Simple Moving Average with Volume Weighting
     
     Features:
@@ -242,7 +242,7 @@ class SMA(VolumeWeightedIndicator, VolumeConfirmationMixin, SmartMoneyMixin):
 # EXPONENTIAL MOVING AVERAGE (EMA)
 # ===========================================
 
-class EMA(VolumeWeightedIndicator, VolumeConfirmationMixin, SmartMoneyMixin):
+class EMA(AugmentedIndicator, VolumeConfirmationMixin, SmartMoneyMixin):
     """Exponential Moving Average with Volume Weighting
     
     Features:

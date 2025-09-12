@@ -1,0 +1,610 @@
+Starting test execution...
+PYTHONPATH set to include project root, nautilus-trader fork, and engine.
+Virtual environment activated.
+Calling pytest...
+The process cannot access the file because it is being used by another process.
+Pytest execution finished.
+See test_output.txt for results.
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+=================================== ERRORS ====================================
+__________ ERROR collecting tests/integration/test_vertical_slice.py __________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\integration\test_vertical_slice.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_vertical_slice.py:10: in <module>
+    from api.main import app
+api\main.py:41: in <module>
+    from nautilus_trader_engine.indicators.comprehensive_indicators import ComprehensiveIndicators
+nautilus_trader_engine\__init__.py:47: in <module>
+    from . import validation
+nautilus_trader_engine\validation\__init__.py:6: in <module>
+    from .ibkr_integration_validator import IBKRIntegrationValidator
+nautilus_trader_engine\validation\ibkr_integration_validator.py:22: in <module>
+    from nautilus_trader.model.identifiers import InstrumentId, Venue
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+------------------------------- Captured stdout -------------------------------
+Warning: Feast not available. Install with: pip install feast
+Warning: Feast not available. Install with: pip install feast
+Core base classes not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Trend indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Momentum indicators not available: cannot import name 'WilliamsR' from 'nautilus_trader_engine.indicators.momentum_indicators' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\momentum_indicators.py)
+Volatility indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Volume indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Pattern recognition not available: cannot import name 'CandleData' from 'nautilus_trader_engine.indicators.pattern_indicators' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\pattern_indicators.py)
+HFT optimizations not available: cannot import name 'initialize_hft_environment' from 'nautilus_trader_engine.indicators.hft_optimizations' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\hft_optimizations.py)
+Nautilus Trader Enhanced Indicators v5.0.0
+Total Indicators: 28
+Enhanced Features: 6/11
+Warning: RL components not available due to missing dependencies: No module named 'nautilus_trader.core.data'
+Warning: RL components not available due to missing dependencies: No module named 'nautilus_trader.core.data'
+________________ ERROR collecting tests/ml/test_ml_strategy.py ________________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\ml\test_ml_strategy.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\ml\test_ml_strategy.py:9: in <module>
+    from nautilus_trader_engine.ml.ml_strategy import (
+nautilus_trader_engine\__init__.py:47: in <module>
+    from . import validation
+nautilus_trader_engine\validation\__init__.py:6: in <module>
+    from .ibkr_integration_validator import IBKRIntegrationValidator
+nautilus_trader_engine\validation\ibkr_integration_validator.py:22: in <module>
+    from nautilus_trader.model.identifiers import InstrumentId, Venue
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+_____ ERROR collecting tests/portfolio/test_advanced_portfolio_manager.py _____
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\portfolio\test_advanced_portfolio_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\portfolio\test_advanced_portfolio_manager.py:8: in <module>
+    from nautilus_trader_engine.portfolio.advanced_portfolio_manager import (
+E   ModuleNotFoundError: No module named 'nautilus_trader_engine.portfolio.advanced_portfolio_manager'; 'nautilus_trader_engine.portfolio' is not a package
+_______________ ERROR collecting tests/test_audit_reporting.py ________________
+tests\test_audit_reporting.py:14: in <module>
+    from nautilus_trader_engine.reporting.audit_reporting import (
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1322: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:1262: in _find_spec
+    ???
+<frozen importlib._bootstrap_external>:1559: in find_spec
+    ???
+<frozen importlib._bootstrap_external>:1528: in _get_spec
+    ???
+<frozen importlib._bootstrap_external>:1399: in __iter__
+    ???
+<frozen importlib._bootstrap_external>:1386: in _recalculate
+    ???
+<frozen importlib._bootstrap_external>:1382: in _get_parent_path
+    ???
+E   KeyError: 'nautilus_trader_engine'
+______________ ERROR collecting tests/test_dashboard_builder.py _______________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\test_dashboard_builder.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_dashboard_builder.py:13: in <module>
+    from nautilus_trader_engine.visualization.dashboard_builder import (
+nautilus_trader_engine\__init__.py:47: in <module>
+    from . import validation
+nautilus_trader_engine\validation\__init__.py:6: in <module>
+    from .ibkr_integration_validator import IBKRIntegrationValidator
+nautilus_trader_engine\validation\ibkr_integration_validator.py:22: in <module>
+    from nautilus_trader.model.identifiers import InstrumentId, Venue
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+______________ ERROR collecting tests/test_data_feed_manager.py _______________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\test_data_feed_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_data_feed_manager.py:23: in <module>
+    from market_data_service.data_feed_manager import (
+market_data_service\data_feed_manager.py:698: in <module>
+    data_feed_manager = DataFeedManager()
+                        ^^^^^^^^^^^^^^^^^
+market_data_service\data_feed_manager.py:414: in __init__
+    self._initialize_providers()
+market_data_service\data_feed_manager.py:459: in _initialize_providers
+    from .providers.yahoo_finance_provider import YahooFinanceProvider
+market_data_service\providers\yahoo_finance_provider.py:11: in <module>
+    from .base_provider import BaseDataProvider
+E   ModuleNotFoundError: No module named 'market_data_service.providers.base_provider'
+_____________ ERROR collecting tests/test_end_to_end_pipeline.py ______________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\test_end_to_end_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_end_to_end_pipeline.py:23: in <module>
+    from nautilus_trader.core.datetime import dt_to_unix_nanos
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+_______________ ERROR collecting tests/test_fraud_detection.py ________________
+tests\test_fraud_detection.py:11: in <module>
+    from nautilus_trader_engine.security.fraud_detection import (
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1322: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:1262: in _find_spec
+    ???
+<frozen importlib._bootstrap_external>:1559: in find_spec
+    ???
+<frozen importlib._bootstrap_external>:1528: in _get_spec
+    ???
+<frozen importlib._bootstrap_external>:1399: in __iter__
+    ???
+<frozen importlib._bootstrap_external>:1386: in _recalculate
+    ???
+<frozen importlib._bootstrap_external>:1382: in _get_parent_path
+    ???
+E   KeyError: 'nautilus_trader_engine'
+_______________ ERROR collecting tests/test_market_data_api.py ________________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\test_market_data_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_market_data_api.py:18: in <module>
+    from market_data_service.api import app
+market_data_service\api.py:17: in <module>
+    from market_data_service.data_feed_manager import (
+market_data_service\data_feed_manager.py:698: in <module>
+    data_feed_manager = DataFeedManager()
+                        ^^^^^^^^^^^^^^^^^
+market_data_service\data_feed_manager.py:414: in __init__
+    self._initialize_providers()
+market_data_service\data_feed_manager.py:459: in _initialize_providers
+    from .providers.yahoo_finance_provider import YahooFinanceProvider
+market_data_service\providers\yahoo_finance_provider.py:11: in <module>
+    from .base_provider import BaseDataProvider
+E   ModuleNotFoundError: No module named 'market_data_service.providers.base_provider'
+__________ ERROR collecting tests/test_mobile_offline_capability.py ___________
+tests\test_mobile_offline_capability.py:15: in <module>
+    from nautilus_trader_engine.mobile.offline_capability import (
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1322: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:1262: in _find_spec
+    ???
+<frozen importlib._bootstrap_external>:1559: in find_spec
+    ???
+<frozen importlib._bootstrap_external>:1528: in _get_spec
+    ???
+<frozen importlib._bootstrap_external>:1399: in __iter__
+    ???
+<frozen importlib._bootstrap_external>:1386: in _recalculate
+    ???
+<frozen importlib._bootstrap_external>:1382: in _get_parent_path
+    ???
+E   KeyError: 'nautilus_trader_engine'
+_____________ ERROR collecting tests/test_visualization_system.py _____________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\test_visualization_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_visualization_system.py:11: in <module>
+    from nautilus_trader_engine.visualization.trading_dashboard import (
+nautilus_trader_engine\__init__.py:47: in <module>
+    from . import validation
+nautilus_trader_engine\validation\__init__.py:6: in <module>
+    from .ibkr_integration_validator import IBKRIntegrationValidator
+nautilus_trader_engine\validation\ibkr_integration_validator.py:22: in <module>
+    from nautilus_trader.model.identifiers import InstrumentId, Venue
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+____________ ERROR collecting tests/test_visualization_systems.py _____________
+tests\test_visualization_systems.py:12: in <module>
+    from nautilus_trader_engine.mobile.mobile_trading_app import (
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1322: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:1262: in _find_spec
+    ???
+<frozen importlib._bootstrap_external>:1559: in find_spec
+    ???
+<frozen importlib._bootstrap_external>:1528: in _get_spec
+    ???
+<frozen importlib._bootstrap_external>:1399: in __iter__
+    ???
+<frozen importlib._bootstrap_external>:1386: in _recalculate
+    ???
+<frozen importlib._bootstrap_external>:1382: in _get_parent_path
+    ???
+E   KeyError: 'nautilus_trader_engine'
+_____________ ERROR collecting tests/test_zero_trust_security.py ______________
+tests\test_zero_trust_security.py:11: in <module>
+    from nautilus_trader_engine.security.zero_trust_security import (
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1322: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:1262: in _find_spec
+    ???
+<frozen importlib._bootstrap_external>:1559: in find_spec
+    ???
+<frozen importlib._bootstrap_external>:1528: in _get_spec
+    ???
+<frozen importlib._bootstrap_external>:1399: in __iter__
+    ???
+<frozen importlib._bootstrap_external>:1386: in _recalculate
+    ???
+<frozen importlib._bootstrap_external>:1382: in _get_parent_path
+    ???
+E   KeyError: 'nautilus_trader_engine'
+___________ ERROR collecting tests/unit/test_repository_manager.py ____________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_repository_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_repository_manager.py:11: in <module>
+    from repository_manager import RepositoryManager, BranchProtection, Dependency, TierConfig
+E   ImportError: cannot import name 'BranchProtection' from 'repository_manager' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\dependency_management\repository_manager.py)
+_____________ ERROR collecting tests/unit/test_trading_engine.py ______________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_trading_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_trading_engine.py:20: in <module>
+    from algorithmic_trading_service.api.main import (
+E   ImportError: cannot import name 'Order' from 'algorithmic_trading_service.api.main' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\algorithmic_trading_service\api\main.py)
+__________ ERROR collecting tests/unit/test_unit_risk_management.py ___________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_unit_risk_management.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_unit_risk_management.py:7: in <module>
+    from nautilus_trader_engine.core.risk_management import RiskManager, RiskLevel
+E   ImportError: cannot import name 'RiskLevel' from 'nautilus_trader_engine.core.risk_management' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\core\risk_management.py)
+_______ ERROR collecting backtesting/service/tests/test_data_fetcher.py _______
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\backtesting\service\tests\test_data_fetcher.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backtesting\service\tests\test_data_fetcher.py:9: in <module>
+    from backtesting.service.data_service import DataService, DataRequest
+backtesting\service\data_service.py:14: in <module>
+    from kafka import KafkaConsumer, KafkaProducer
+E   ImportError: cannot import name 'KafkaConsumer' from 'kafka' (unknown location)
+============================== warnings summary ===============================
+algorithmic_trading_service\order_management.py:87
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\algorithmic_trading_service\order_management.py:87: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('symbol')
+
+algorithmic_trading_service\order_management.py:91
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\algorithmic_trading_service\order_management.py:91: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('price', 'stop_price', 'trail_amount')
+
+algorithmic_trading_service\order_management.py:97
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\algorithmic_trading_service\order_management.py:97: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('good_till_date')
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:323
+.venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+tests\framework\database_integration_tester.py:92
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\framework\database_integration_tester.py:92: PytestCollectionWarning: cannot collect test class 'TestDataType' because it has a __init__ constructor (from: tests/framework/test_database_integration_tester.py)
+    class TestDataType(Enum):
+
+tests\framework\edge_case_framework.py:81
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\framework\edge_case_framework.py:81: PytestCollectionWarning: cannot collect test class 'TestResult' because it has a __init__ constructor (from: tests/framework/test_edge_case_framework.py)
+    @dataclass
+
+tests\framework\environment_manager.py:16
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\framework\environment_manager.py:16: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+.venv\Lib\site-packages\pkg_resources\__init__.py:3146
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pkg_resources\__init__.py:3146: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+    declare_namespace(pkg)
+
+.venv\Lib\site-packages\pkg_resources\__init__.py:3146
+.venv\Lib\site-packages\pkg_resources\__init__.py:3146
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pkg_resources\__init__.py:3146: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('zope')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+    declare_namespace(pkg)
+
+tests\framework\unit_test_runner.py:30
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\framework\unit_test_runner.py:30: PytestCollectionWarning: cannot collect test class 'TestStatus' because it has a __init__ constructor (from: tests/framework/test_unit_test_runner.py)
+    class TestStatus(Enum):
+
+tests\framework\unit_test_runner.py:50
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\framework\unit_test_runner.py:50: PytestCollectionWarning: cannot collect test class 'TestResult' because it has a __init__ constructor (from: tests/framework/test_unit_test_runner.py)
+    @dataclass
+
+tests\framework\unit_test_runner.py:79
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\framework\unit_test_runner.py:79: PytestCollectionWarning: cannot collect test class 'TestSuiteResult' because it has a __init__ constructor (from: tests/framework/test_unit_test_runner.py)
+    @dataclass
+
+nautilus_trader_engine\database\database.py:14
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+nautilus_trader_engine\database\models.py:6
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\models.py:6: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:373
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pydantic\_internal\_config.py:373: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+SKIPPED [1] tests\system\test_scalability.py:11: Skipping scalability tests on Windows
+ERROR tests/integration/test_vertical_slice.py
+ERROR tests/ml/test_ml_strategy.py
+ERROR tests/portfolio/test_advanced_portfolio_manager.py
+ERROR tests/test_audit_reporting.py - KeyError: 'nautilus_trader_engine'
+ERROR tests/test_dashboard_builder.py
+ERROR tests/test_data_feed_manager.py
+ERROR tests/test_end_to_end_pipeline.py
+ERROR tests/test_fraud_detection.py - KeyError: 'nautilus_trader_engine'
+ERROR tests/test_market_data_api.py
+ERROR tests/test_mobile_offline_capability.py - KeyError: 'nautilus_trader_en...
+ERROR tests/test_visualization_system.py
+ERROR tests/test_visualization_systems.py - KeyError: 'nautilus_trader_engine'
+ERROR tests/test_zero_trust_security.py - KeyError: 'nautilus_trader_engine'
+ERROR tests/unit/test_repository_manager.py
+ERROR tests/unit/test_trading_engine.py
+ERROR tests/unit/test_unit_risk_management.py
+ERROR backtesting/service/tests/test_data_fetcher.py
+!!!!!!!!!!!!!!!!!! Interrupted: 17 errors during collection !!!!!!!!!!!!!!!!!!!
+1 skipped, 20 warnings, 17 errors in 21.67s
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>Starting test execution...
+PYTHONPATH set to include project root, nautilus-trader fork, and engine.
+Virtual environment activated.
+Calling pytest...
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.2, pluggy-1.6.0
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System
+configfile: pytest.ini
+plugins: anyio-4.10.0, Faker-37.6.0, locust-2.40.2, asyncio-1.1.0, benchmark-5.1.0, cov-7.0.0, html-4.1.1, metadata-3.1.1, mock-3.15.0, postgresql-7.0.2, redis-3.1.3, xdist-3.8.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+________ ERROR collecting tests/unit/test_unit_portfolio_management.py ________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_unit_portfolio_management.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_unit_portfolio_management.py:7: in <module>
+    from nautilus_trader_engine.core.portfolio_management import PortfolioManager
+nautilus_trader_engine\__init__.py:47: in <module>
+    from . import validation
+nautilus_trader_engine\validation\__init__.py:6: in <module>
+    from .ibkr_integration_validator import IBKRIntegrationValidator
+nautilus_trader_engine\validation\ibkr_integration_validator.py:22: in <module>
+    from nautilus_trader.model.identifiers import InstrumentId, Venue
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+------------------------------- Captured stdout -------------------------------
+Warning: Feast not available. Install with: pip install feast
+Warning: Feast not available. Install with: pip install feast
+Core base classes not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Trend indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Momentum indicators not available: cannot import name 'WilliamsR' from 'nautilus_trader_engine.indicators.momentum_indicators' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\momentum_indicators.py)
+Volatility indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Volume indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Pattern recognition not available: cannot import name 'CandleData' from 'nautilus_trader_engine.indicators.pattern_indicators' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\pattern_indicators.py)
+HFT optimizations not available: cannot import name 'initialize_hft_environment' from 'nautilus_trader_engine.indicators.hft_optimizations' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\hft_optimizations.py)
+Nautilus Trader Enhanced Indicators v5.0.0
+Total Indicators: 28
+Enhanced Features: 6/11
+Warning: RL components not available due to missing dependencies: No module named 'nautilus_trader.core.data'
+Warning: RL components not available due to missing dependencies: No module named 'nautilus_trader.core.data'
+============================== warnings summary ===============================
+nautilus_trader_engine\database\database.py:14
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+nautilus_trader_engine\database\models.py:6
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\models.py:6: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:373
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pydantic\_internal\_config.py:373: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/unit/test_unit_portfolio_management.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 7 warnings, 1 error in 12.73s ========================
+Pytest execution finished.
+See test_output.txt for results.
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>Starting test execution...
+PYTHONPATH set to include project root, nautilus-trader fork, and engine.
+Virtual environment activated.
+Calling pytest...
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.2, pluggy-1.6.0
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System
+configfile: pytest.ini
+plugins: anyio-4.10.0, Faker-37.6.0, locust-2.40.2, asyncio-1.1.0, benchmark-5.1.0, cov-7.0.0, html-4.1.1, metadata-3.1.1, mock-3.15.0, postgresql-7.0.2, redis-3.1.3, xdist-3.8.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+________ ERROR collecting tests/unit/test_unit_portfolio_management.py ________
+ImportError while importing test module 'C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_unit_portfolio_management.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_unit_portfolio_management.py:7: in <module>
+    from nautilus_trader_engine.core.portfolio_management import PortfolioManager
+nautilus_trader_engine\__init__.py:47: in <module>
+    from . import validation
+nautilus_trader_engine\validation\__init__.py:6: in <module>
+    from .ibkr_integration_validator import IBKRIntegrationValidator
+nautilus_trader_engine\validation\ibkr_integration_validator.py:22: in <module>
+    from nautilus_trader.model.identifiers import InstrumentId, Venue
+forks\nautilus-trader\nautilus_trader\__init__.py:25: in <module>
+    from nautilus_trader.core import nautilus_pyo3
+forks\nautilus-trader\nautilus_trader\core\__init__.py:28: in <module>
+    from nautilus_trader.core.data import Data
+E   ModuleNotFoundError: No module named 'nautilus_trader.core.data'
+------------------------------- Captured stdout -------------------------------
+Warning: Feast not available. Install with: pip install feast
+Warning: Feast not available. Install with: pip install feast
+Core base classes not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Trend indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Momentum indicators not available: cannot import name 'WilliamsR' from 'nautilus_trader_engine.indicators.momentum_indicators' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\momentum_indicators.py)
+Volatility indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Volume indicators not available: cannot import name 'MultiValueIndicator' from 'nautilus_trader_engine.indicators.core_indicator_base' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\core_indicator_base.py)
+Pattern recognition not available: cannot import name 'CandleData' from 'nautilus_trader_engine.indicators.pattern_indicators' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\pattern_indicators.py)
+HFT optimizations not available: cannot import name 'initialize_hft_environment' from 'nautilus_trader_engine.indicators.hft_optimizations' (C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\indicators\hft_optimizations.py)
+Nautilus Trader Enhanced Indicators v5.0.0
+Total Indicators: 28
+Enhanced Features: 6/11
+Warning: RL components not available due to missing dependencies: No module named 'nautilus_trader.core.data'
+Warning: RL components not available due to missing dependencies: No module named 'nautilus_trader.core.data'
+============================== warnings summary ===============================
+nautilus_trader_engine\database\database.py:14
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+nautilus_trader_engine\database\models.py:6
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\models.py:6: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:373
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pydantic\_internal\_config.py:373: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/unit/test_unit_portfolio_management.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 7 warnings, 1 error in 12.43s ========================
+Pytest execution finished.
+See test_output.txt for results.
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>'amp' is not recognized as an internal or external command,
+operable program or batch file.
+'amp' is not recognized as an internal or external command,
+operable program or batch file.
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>The syntax of the command is incorrect.
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>The syntax of the command is incorrect.
+
+(.venv) C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System>Terminate batch job (Y/N)? 

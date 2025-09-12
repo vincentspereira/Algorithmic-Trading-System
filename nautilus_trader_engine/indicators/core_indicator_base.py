@@ -745,8 +745,8 @@ class AugmentedIndicator(VolumeWeightedIndicator):
         # Initialize enhanced multi-timeframe engine
         if MULTI_TIMEFRAME_AVAILABLE and self.config.enable_multi_timeframe:
             self.multi_timeframe_engine = MultiTimeframeEngine(
-                primary_timeframe='1m',
-                secondary_timeframes=['5m', '15m', '1h']
+                primary_timeframe='15m',
+                secondary_timeframes=['1h', '4h', '1d', '1w']
             )
         else:
             self.multi_timeframe_engine = None
@@ -1224,8 +1224,15 @@ class AugmentedIndicator(VolumeWeightedIndicator):
                 )
                 
                 # Apply adapted parameters
-                if 'period' in adapted_params:
-                    self.config.period = max(1, int(adapted_params['period']))
+if 'period' in adapted_params:
+    self.config.period = max(1, int(adapted_params['period']))
+
+    # Enhance with volatility adjustment
+    if len(self.risk_metrics_history) > 0 and self.risk_metrics.volatility > 0:
+        recent_vols = [m.volatility for m in list(self.risk_metrics_history)[-10:]]
+        avg_vol = np.mean(recent_vols) if recent_vols else self.risk_metrics.volatility
+        vol_factor = min(2.0, max(0.5, self.risk_metrics.volatility / avg_vol))
+        self.config.period = max(1, int(self.config.period * vol_factor))
         else:
             # Fallback to basic regime adaptation
             if self.current_regime == MarketRegime.HIGH_VOLATILITY:

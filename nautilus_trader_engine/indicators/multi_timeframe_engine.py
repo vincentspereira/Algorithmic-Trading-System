@@ -135,6 +135,7 @@ class TimeframeSignal:
     signal: IndicatorSignal
     timestamp: datetime
     weight: float = 1.0
+    asset: str = ""  # Asset identifier for cross-asset analysis
     
     # Signal metadata
     confidence: float = 0.0
@@ -251,6 +252,7 @@ class MultiTimeframeEngine:
         timeframe: TimeframeType,
         signal: IndicatorSignal,
         indicator_name: str = "",
+        asset: str = "",
         additional_data: Dict[str, Any] = None
     ) -> None:
         """Add a signal from a specific timeframe"""
@@ -261,7 +263,8 @@ class MultiTimeframeEngine:
             signal=signal,
             timestamp=datetime.utcnow(),
             indicator_name=indicator_name,
-            weight=self.timeframe_weights.get(timeframe, 1.0)
+            weight=self.timeframe_weights.get(timeframe, 1.0),
+            asset=asset
         )
         
         # Add additional data if provided
@@ -278,6 +281,38 @@ class MultiTimeframeEngine:
             self.timeframe_signals[timeframe] = deque(maxlen=100)
         
         self.timeframe_signals[timeframe].append(tf_signal)
+    
+    def calculate_cross_asset_correlation(
+        self,
+        asset1: str,
+        asset2: str,
+        timeframe: TimeframeType,
+        periods: int = 50
+    ) -> float:
+        """Calculate correlation between two assets on a specific timeframe"""
+        
+        if timeframe not in self.timeframe_signals:
+            return 0.0
+        
+        # Collect signals for each asset
+        signals1 = [s for s in list(self.timeframe_signals[timeframe])[-periods:] if s.asset == asset1]
+        signals2 = [s for s in list(self.timeframe_signals[timeframe])[-periods:] if s.asset == asset2]
+        
+        if len(signals1) < 10 or len(signals2) < 10:
+            return 0.0
+        
+        values1 = [self._signal_to_numeric(s.signal) for s in signals1]
+        values2 = [self._signal_to_numeric(s.signal) for s in signals2]
+        
+        min_len = min(len(values1), len(values2))
+        values1 = values1[-min_len:]
+        values2 = values2[-min_len:]
+        
+        if min_len < 5:
+            return 0.0
+        
+        correlation = np.corrcoef(values1, values2)[0, 1]
+        return correlation if not np.isnan(correlation) else 0.0
     
     def analyze_convergence(
         self,
@@ -296,6 +331,30 @@ class MultiTimeframeEngine:
         
         # Perform convergence analysis
         convergence_analysis = self._analyze_signal_convergence(recent_signals)
+        
+        # Calculate cross-asset correlations if multiple assets present
+        assets = set()
+        for signals_list in recent_signals.values():
+            for s in signals_list:
+                if s.asset:
+                    assets.add(s.asset)
+        
+        if len(assets) > 1:
+            correlations = []
+            asset_list = list(assets)
+            for i in range(len(asset_list)):
+                for j in range(i+1, len(asset_list)):
+                    corr = self.calculate_cross_asset_correlation(
+                        asset_list[i],
+                        asset_list[j],
+                        self.config.primary_timeframe
+                    )
+                    correlations.append(abs(corr))  # Use absolute correlation for strength
+        
+        avg_correlation = np.mean(correlations) if correlations else 0.0
+        # Adjust convergence score: high correlation strengthens alignment
+        convergence_analysis.convergence_score *= (1 + avg_correlation * 0.3)
+        convergence_analysis.convergence_score = min(1.0, convergence_analysis.convergence_score)
         
         # Generate composite signal
         composite_signal = self._generate_composite_signal(recent_signals, convergence_analysis)

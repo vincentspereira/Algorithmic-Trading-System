@@ -126,7 +126,10 @@ PATTERN_RELIABILITY = {
     'morning_star': 0.78,
     'evening_star': 0.76,
     'three_white_soldiers': 0.74,
-    'three_black_crows': 0.72
+    'three_black_crows': 0.72,
+    'upside_tasuki_gap': 0.65,
+    'bullish_hikkake': 0.60,
+    'mat_hold': 0.70
 }
 
 # ===========================================
@@ -190,6 +193,10 @@ class ConsolidatedPatternDetector(AugmentedIndicator):
         # Three candle patterns (if we have enough data)
         if len(self.prices) >= 3:
             detected_patterns.extend(self._detect_three_candle_patterns(timestamp))
+        if len(self.prices) >= 4:
+            detected_patterns.extend(self._detect_four_candle_patterns(timestamp))
+        if len(self.prices) >= 5:
+            detected_patterns.extend(self._detect_five_candle_patterns(timestamp))
         
         # Filter and rank patterns by confidence
         significant_patterns = [p for p in detected_patterns if p.detected and p.confidence > 0.5]
@@ -414,6 +421,43 @@ class ConsolidatedPatternDetector(AugmentedIndicator):
         three_outside_down = self._detect_three_outside_down(candle1, candle2, candle3, timestamp)
         if three_outside_down:
             patterns.append(three_outside_down)
+
+        upside_tasuki_gap = self._detect_upside_tasuki_gap(candle1, candle2, candle3, timestamp)
+        if upside_tasuki_gap:
+            patterns.append(upside_tasuki_gap)
+        
+        return patterns
+    
+    def _detect_four_candle_patterns(self, timestamp: datetime) -> List[PatternAnalysis]:
+        patterns = []
+        if len(self.candle_history) < 4:
+            return patterns
+        
+        candle1 = self.candle_history[-4]
+        candle2 = self.candle_history[-3]
+        candle3 = self.candle_history[-2]
+        candle4 = self.candle_history[-1]
+        
+        bullish_hikkake = self._detect_bullish_hikkake(candle1, candle2, candle3, candle4, timestamp)
+        if bullish_hikkake:
+            patterns.append(bullish_hikkake)
+        
+        return patterns
+    
+    def _detect_five_candle_patterns(self, timestamp: datetime) -> List[PatternAnalysis]:
+        patterns = []
+        if len(self.candle_history) < 5:
+            return patterns
+        
+        candle1 = self.candle_history[-5]
+        candle2 = self.candle_history[-4]
+        candle3 = self.candle_history[-3]
+        candle4 = self.candle_history[-2]
+        candle5 = self.candle_history[-1]
+        
+        mat_hold = self._detect_mat_hold(candle1, candle2, candle3, candle4, candle5, timestamp)
+        if mat_hold:
+            patterns.append(mat_hold)
         
         return patterns
     
@@ -1585,6 +1629,98 @@ class ConsolidatedPatternDetector(AugmentedIndicator):
             target_price=None,
             stop_loss=None,
             pattern_reliability=self.pattern_reliability.get('high_wave_candle', 0.55),
+            market_regime=self._detect_market_regime(),
+            timestamp=timestamp
+        )
+    
+    def _detect_upside_tasuki_gap(self, candle1: CandleProperties, candle2: CandleProperties, candle3: CandleProperties, timestamp: datetime) -> Optional[PatternAnalysis]:
+        if not self._is_in_uptrend():
+            return None
+            
+        is_bullish_gap = candle1.is_bullish and candle2.is_bullish and candle2.open > candle1.close
+        is_gap_fill_attempt = candle3.is_bearish and candle3.open < candle2.close and candle3.open > candle2.open and candle3.close > candle1.close and candle3.close < candle2.open
+        
+        if not (is_bullish_gap and is_gap_fill_attempt):
+            return None
+            
+        confidence = min(0.65 + self._calculate_volume_boost() + self._calculate_smart_money_score(), 1.0)
+        
+        return PatternAnalysis(
+            pattern_name="Upside_Tasuki_Gap",
+            pattern_type=PatternType.CONTINUATION,
+            detected=True,
+            confidence=confidence,
+            strength=self._determine_pattern_strength(confidence),
+            volume_profile=self._classify_volume_profile(),
+            volume_confirmation=self._calculate_volume_boost(),
+            smart_money_involvement=self._calculate_smart_money_score(),
+            institutional_bias=self._calculate_institutional_bias(),
+            risk_reward_ratio=2.5,
+            target_price=None,
+            stop_loss=None,
+            pattern_reliability=self.pattern_reliability.get('upside_tasuki_gap', 0.65),
+            market_regime=self._detect_market_regime(),
+            timestamp=timestamp
+        )
+    
+    def _detect_bullish_hikkake(self, candle1: CandleProperties, candle2: CandleProperties, candle3: CandleProperties, candle4: CandleProperties, timestamp: datetime) -> Optional[PatternAnalysis]:
+        if self._is_in_uptrend():
+            return None
+            
+        is_inside_bar = candle2.high < candle1.high and candle2.low > candle1.low
+        fake_breakdown = candle3.low < candle2.low and candle3.close > candle2.low
+        reversal_confirmation = candle4.close > candle3.high
+        
+        if not (is_inside_bar and fake_breakdown and reversal_confirmation):
+            return None
+            
+        confidence = min(0.60 + self._calculate_volume_boost() + self._calculate_smart_money_score(), 1.0)
+        
+        return PatternAnalysis(
+            pattern_name="Bullish_Hikkake",
+            pattern_type=PatternType.REVERSAL,
+            detected=True,
+            confidence=confidence,
+            strength=self._determine_pattern_strength(confidence),
+            volume_profile=self._classify_volume_profile(),
+            volume_confirmation=self._calculate_volume_boost(),
+            smart_money_involvement=self._calculate_smart_money_score(),
+            institutional_bias=self._calculate_institutional_bias(),
+            risk_reward_ratio=2.0,
+            target_price=None,
+            stop_loss=None,
+            pattern_reliability=self.pattern_reliability.get('bullish_hikkake', 0.60),
+            market_regime=self._detect_market_regime(),
+            timestamp=timestamp
+        )
+    
+    def _detect_mat_hold(self, candle1: CandleProperties, candle2: CandleProperties, candle3: CandleProperties, candle4: CandleProperties, candle5: CandleProperties, timestamp: datetime) -> Optional[PatternAnalysis]:
+        if not self._is_in_uptrend():
+            return None
+            
+        is_long_bull = candle1.is_bullish and candle1.body_size > 0.7 * candle1.total_range
+        small_downs = all(c.is_bearish and c.body_size < 0.3 * candle1.body_size for c in [candle2, candle3, candle4]) and all(c.close > candle1.open for c in [candle2, candle3, candle4])
+        strong_close = candle5.is_bullish and candle5.close > max(c.high for c in [candle1, candle2, candle3, candle4])
+        
+        if not (is_long_bull and small_downs and strong_close):
+            return None
+            
+        confidence = min(0.70 + self._calculate_volume_boost() + self._calculate_smart_money_score(), 1.0)
+        
+        return PatternAnalysis(
+            pattern_name="Mat_Hold",
+            pattern_type=PatternType.CONTINUATION,
+            detected=True,
+            confidence=confidence,
+            strength=self._determine_pattern_strength(confidence),
+            volume_profile=self._classify_volume_profile(),
+            volume_confirmation=self._calculate_volume_boost(),
+            smart_money_involvement=self._calculate_smart_money_score(),
+            institutional_bias=self._calculate_institutional_bias(),
+            risk_reward_ratio=3.0,
+            target_price=None,
+            stop_loss=None,
+            pattern_reliability=self.pattern_reliability.get('mat_hold', 0.70),
             market_regime=self._detect_market_regime(),
             timestamp=timestamp
         )
