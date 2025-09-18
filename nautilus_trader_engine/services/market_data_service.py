@@ -15,13 +15,15 @@ class MarketDataService:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.market_data = {}
+        self._running = False
 
-    async def "start_market_data_feed"(self):
+    async def start_market_data_feed(self):
         """
         Starts the market data feed, which will periodically update the market data.
         """
         self.logger.info("Starting market data feed...")
-        while True:
+        self._running = True
+        while self._running:
             await asyncio.sleep(1)
             self._update_market_data()
 
@@ -52,8 +54,9 @@ class MarketDataService:
         """
         return self.market_data.get(instrument_id, {})
 
-    async def "stop_market_data_feed"(self):
+    async def stop_market_data_feed(self):
         """
         Stops the market data feed.
         """
         self.logger.info("Stopping market data feed...")
+        self._running = False

@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from typing import Dict, List, Optional
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 app = FastAPI(title="Dependency Health Dashboard API")
 
@@ -63,7 +63,7 @@ async def get_dependencies_health() -> List[DependencyHealth]:
                     name=dep["name"],
                     version=dep["version"],
                     tier=int(tier_key.replace("tier", "")),
-                    last_updated=datetime.utcnow().isoformat(),
+                    last_updated=datetime.now(timezone.utc).isoformat(),
                     status="healthy",  # Mock status
                     vulnerabilities=[],  # Would come from security scans
                     updates_available=False,  # Would come from version checks
@@ -98,7 +98,7 @@ async def get_dependency_details(name: str):
                         "recent_updates": [
                             {
                                 "version": dep["version"],
-                                "date": datetime.utcnow().isoformat(),
+                                "date": datetime.now(timezone.utc).isoformat(),
                                 "type": "security",
                                 "status": "success"
                             }

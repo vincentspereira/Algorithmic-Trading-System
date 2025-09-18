@@ -1,0 +1,194 @@
+name: Tier 2 - Important Repository Monitoring
+
+# Tier 2: Data services, analytics, and portfolio management
+# Runs every hour with standard alerts
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  NOTIFICATION_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_IMPORTANT }}
+  DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_IMPORTANT }}
+  EMAIL_RECIPIENTS: ${{ secrets.IMPORTANT_EMAIL_LIST }}
+
+jobs:
+  security-scan:
+    name: Security Scan (Tier 2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+    
+    - name: Run Bandit scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+      continue-on-error: true
+    
+    - name: Run Safety scan
+      run: |
+        safety check --json --output safety-report.json || true
+      continue-on-error: true
+    
+    - name: Analyze security reports
+      run: |
+        python .github/scripts/analyze-security-reports.py --tier=2
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier2-security-reports-${{ github.run_number }}
+        path: |
+          *-report.json
+          security-summary.json
+
+  dependency-check:
+    name: Dependency Health (Tier 2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Check dependencies
+      run: |
+        pip install pip-check-reqs
+        pip-check-reqs .
+    
+    - name: Check for critical updates
+      run: |
+        pip list --outdated --format=json > outdated-packages.json
+        python .github/scripts/check-critical-updates.py
+    
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier2-dependency-reports-${{ github.run_number }}
+        path: |
+          outdated-packages.json
+          dependency-summary.json
+
+  code-quality:
+    name: Code Quality (Tier 2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install quality tools
+      run: |
+        pip install flake8 black mypy
+    
+    - name: Run code quality checks
+      run: |
+        flake8 . --format=json --output-file=flake8-report.json || true
+        black --check . || true
+        mypy . --json-report mypy-report || true
+    
+    - name: Generate quality summary
+      run: |
+        python .github/scripts/analyze-code-quality.py --tier=2
+    
+    - name: Upload quality reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier2-quality-reports-${{ github.run_number }}
+        path: |
+          *-report.json
+          quality-summary.json
+
+  test-coverage:
+    name: Test Coverage Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run tests with coverage
+      run: |
+        pytest --cov=. --cov-report=json --cov-report=html
+    
+    - name: Analyze coverage
+      run: |
+        python .github/scripts/analyze-test-coverage.py
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier2-coverage-reports-${{ github.run_number }}
+        path: |
+          coverage.json
+          htmlcov/
+          coverage-summary.json
+
+  notification-summary:
+    name: Send Tier 2 Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, dependency-check, code-quality, test-coverage]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all reports
+      uses: actions/download-artifact@v3
+    
+    - name: Generate summary
+      run: |
+        python .github/scripts/generate-monitoring-summary.py \
+          --tier="2" \
+          --repository="${{ github.repository }}" \
+          --run-id="${{ github.run_number }}"
+    
+    - name: Send notifications
+      run: |
+        python .github/scripts/send-tier2-notifications.py \
+          --summary="monitoring-summary.json"
+      env:
+        TEAMS_WEBHOOK: ${{ env.NOTIFICATION_WEBHOOK }}
+        DISCORD_WEBHOOK: ${{ env.DISCORD_WEBHOOK }}
+        EMAIL_RECIPIENTS: ${{ env.EMAIL_RECIPIENTS }}

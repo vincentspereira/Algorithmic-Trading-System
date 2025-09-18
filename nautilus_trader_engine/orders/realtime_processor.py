@@ -2,7 +2,7 @@
 
 from typing import Dict, Any
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from .order_manager import OrderResult
 
 
@@ -26,7 +26,7 @@ class RealtimeOrderProcessor:
             status='FILLED',
             fill_price=order.get('price', 100.0),
             fill_quantity=order.get('quantity', 0),
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             commission=0.01 * order.get('quantity', 0),  # Mock commission
             error_message=None
         )

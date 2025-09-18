@@ -1,0 +1,774 @@
+openapi: 3.0.3
+info:
+  title: Trading System WebSocket API
+  description: |
+    Real-time WebSocket API for the Algorithmic Trading System providing live market data, 
+    order updates, portfolio changes, and system notifications.
+    
+    ## Connection
+    Connect to: `wss://api.trading-system.com/v1/ws`
+    
+    ## Authentication
+    Send authentication message immediately after connection:
+    ```json
+    {
+      "type": "auth",
+      "token": "your-jwt-token"
+    }
+    ```
+    
+    ## Message Format
+    All messages follow this structure:
+    ```json
+    {
+      "type": "message_type",
+      "channel": "channel_name",
+      "data": { ... },
+      "timestamp": "2024-01-15T10:30:00Z",
+      "sequence": 12345
+    }
+    ```
+    
+    ## Channels
+    - `market_data`: Real-time quotes and trades
+    - `orders`: Order status updates
+    - `portfolio`: Portfolio and position changes
+    - `risk`: Risk metric updates
+    - `system`: System notifications
+    
+    ## Subscription Management
+    Subscribe to channels by sending:
+    ```json
+    {
+      "type": "subscribe",
+      "channel": "market_data",
+      "symbols": ["AAPL", "GOOGL"]
+    }
+    ```
+  version: 1.0.0
+  contact:
+    name: Trading System WebSocket Support
+    email: ws-support@trading-system.com
+
+servers:
+  - url: wss://api.trading-system.com/v1/ws
+    description: Production WebSocket server
+  - url: wss://staging-api.trading-system.com/v1/ws
+    description: Staging WebSocket server
+  - url: ws://localhost:8000/v1/ws
+    description: Development WebSocket server
+
+channels:
+  # Authentication Channel
+  auth:
+    description: Authentication and connection management
+    subscribe:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/AuthRequest'
+          - $ref: '#/components/messages/SubscribeRequest'
+          - $ref: '#/components/messages/UnsubscribeRequest'
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/AuthResponse'
+          - $ref: '#/components/messages/SubscribeResponse'
+          - $ref: '#/components/messages/ErrorMessage'
+
+  # Market Data Channel
+  market_data:
+    description: Real-time market data updates
+    parameters:
+      symbols:
+        description: List of symbols to subscribe to
+        schema:
+          type: array
+          items:
+            type: string
+    subscribe:
+      message:
+        $ref: '#/components/messages/SubscribeRequest'
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/QuoteUpdate'
+          - $ref: '#/components/messages/TradeUpdate'
+          - $ref: '#/components/messages/OrderBookUpdate'
+
+  # Orders Channel
+  orders:
+    description: Order status and execution updates
+    subscribe:
+      message:
+        $ref: '#/components/messages/SubscribeRequest'
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/OrderUpdate'
+          - $ref: '#/components/messages/FillUpdate'
+          - $ref: '#/components/messages/OrderRejection'
+
+  # Portfolio Channel
+  portfolio:
+    description: Portfolio and position updates
+    subscribe:
+      message:
+        $ref: '#/components/messages/SubscribeRequest'
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/PortfolioUpdate'
+          - $ref: '#/components/messages/PositionUpdate'
+          - $ref: '#/components/messages/PerformanceUpdate'
+
+  # Risk Channel
+  risk:
+    description: Risk metrics and alerts
+    subscribe:
+      message:
+        $ref: '#/components/messages/SubscribeRequest'
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/RiskUpdate'
+          - $ref: '#/components/messages/RiskAlert'
+          - $ref: '#/components/messages/VaRUpdate'
+
+  # System Channel
+  system:
+    description: System notifications and status updates
+    subscribe:
+      message:
+        $ref: '#/components/messages/SubscribeRequest'
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/SystemNotification'
+          - $ref: '#/components/messages/MaintenanceAlert'
+          - $ref: '#/components/messages/ServiceStatus'
+
+components:
+  messages:
+    # Authentication Messages
+    AuthRequest:
+      payload:
+        type: object
+        required: [type, token]
+        properties:
+          type:
+            type: string
+            const: auth
+          token:
+            type: string
+            description: JWT authentication token
+          client_id:
+            type: string
+            description: Optional client identifier
+
+    AuthResponse:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: auth_response
+          status:
+            type: string
+            enum: [success, error]
+          message:
+            type: string
+          user_id:
+            type: string
+          session_id:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
+
+    # Subscription Messages
+    SubscribeRequest:
+      payload:
+        type: object
+        required: [type, channel]
+        properties:
+          type:
+            type: string
+            const: subscribe
+          channel:
+            type: string
+            enum: [market_data, orders, portfolio, risk, system]
+          symbols:
+            type: array
+            items:
+              type: string
+            description: Required for market_data channel
+          filters:
+            type: object
+            description: Optional filters for the subscription
+
+    SubscribeResponse:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: subscribe_response
+          channel:
+            type: string
+          status:
+            type: string
+            enum: [success, error]
+          message:
+            type: string
+          subscription_id:
+            type: string
+
+    UnsubscribeRequest:
+      payload:
+        type: object
+        required: [type, channel]
+        properties:
+          type:
+            type: string
+            const: unsubscribe
+          channel:
+            type: string
+          subscription_id:
+            type: string
+
+    # Market Data Messages
+    QuoteUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: quote
+          channel:
+            type: string
+            const: market_data
+          data:
+            type: object
+            properties:
+              symbol:
+                type: string
+              bid:
+                type: number
+              ask:
+                type: number
+              bid_size:
+                type: integer
+              ask_size:
+                type: integer
+              last:
+                type: number
+              volume:
+                type: integer
+              change:
+                type: number
+              change_percent:
+                type: number
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    TradeUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: trade
+          channel:
+            type: string
+            const: market_data
+          data:
+            type: object
+            properties:
+              symbol:
+                type: string
+              price:
+                type: number
+              size:
+                type: integer
+              side:
+                type: string
+                enum: [buy, sell]
+              trade_id:
+                type: string
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    OrderBookUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: orderbook
+          channel:
+            type: string
+            const: market_data
+          data:
+            type: object
+            properties:
+              symbol:
+                type: string
+              bids:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 2
+                  maxItems: 2
+              asks:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 2
+                  maxItems: 2
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    # Order Messages
+    OrderUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: order_update
+          channel:
+            type: string
+            const: orders
+          data:
+            type: object
+            properties:
+              order_id:
+                type: string
+              client_order_id:
+                type: string
+              symbol:
+                type: string
+              side:
+                type: string
+                enum: [buy, sell]
+              quantity:
+                type: number
+              filled_quantity:
+                type: number
+              remaining_quantity:
+                type: number
+              status:
+                type: string
+                enum: [pending, filled, partially_filled, cancelled, rejected]
+              price:
+                type: number
+              average_fill_price:
+                type: number
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    FillUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: fill
+          channel:
+            type: string
+            const: orders
+          data:
+            type: object
+            properties:
+              order_id:
+                type: string
+              fill_id:
+                type: string
+              symbol:
+                type: string
+              side:
+                type: string
+                enum: [buy, sell]
+              quantity:
+                type: number
+              price:
+                type: number
+              commission:
+                type: number
+              liquidity:
+                type: string
+                enum: [maker, taker]
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    OrderRejection:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: order_rejection
+          channel:
+            type: string
+            const: orders
+          data:
+            type: object
+            properties:
+              client_order_id:
+                type: string
+              symbol:
+                type: string
+              reason:
+                type: string
+              error_code:
+                type: string
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    # Portfolio Messages
+    PortfolioUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: portfolio_update
+          channel:
+            type: string
+            const: portfolio
+          data:
+            type: object
+            properties:
+              total_value:
+                type: number
+              cash:
+                type: number
+              positions_value:
+                type: number
+              day_pnl:
+                type: number
+              total_pnl:
+                type: number
+              buying_power:
+                type: number
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    PositionUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: position_update
+          channel:
+            type: string
+            const: portfolio
+          data:
+            type: object
+            properties:
+              symbol:
+                type: string
+              quantity:
+                type: number
+              average_price:
+                type: number
+              market_price:
+                type: number
+              market_value:
+                type: number
+              unrealized_pnl:
+                type: number
+              day_pnl:
+                type: number
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    PerformanceUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: performance_update
+          channel:
+            type: string
+            const: portfolio
+          data:
+            type: object
+            properties:
+              total_return:
+                type: number
+              day_return:
+                type: number
+              sharpe_ratio:
+                type: number
+              max_drawdown:
+                type: number
+              win_rate:
+                type: number
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    # Risk Messages
+    RiskUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: risk_update
+          channel:
+            type: string
+            const: risk
+          data:
+            type: object
+            properties:
+              portfolio_beta:
+                type: number
+              leverage:
+                type: number
+              concentration_risk:
+                type: number
+              risk_score:
+                type: number
+              margin_used:
+                type: number
+              margin_available:
+                type: number
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    RiskAlert:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: risk_alert
+          channel:
+            type: string
+            const: risk
+          data:
+            type: object
+            properties:
+              alert_type:
+                type: string
+                enum: [margin_call, position_limit, loss_limit, concentration]
+              severity:
+                type: string
+                enum: [low, medium, high, critical]
+              message:
+                type: string
+              affected_positions:
+                type: array
+                items:
+                  type: string
+              recommended_action:
+                type: string
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    VaRUpdate:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: var_update
+          channel:
+            type: string
+            const: risk
+          data:
+            type: object
+            properties:
+              value_at_risk:
+                type: number
+              expected_shortfall:
+                type: number
+              confidence_level:
+                type: number
+              time_horizon:
+                type: integer
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    # System Messages
+    SystemNotification:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: system_notification
+          channel:
+            type: string
+            const: system
+          data:
+            type: object
+            properties:
+              notification_type:
+                type: string
+                enum: [info, warning, error]
+              title:
+                type: string
+              message:
+                type: string
+              action_required:
+                type: boolean
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    MaintenanceAlert:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: maintenance_alert
+          channel:
+            type: string
+            const: system
+          data:
+            type: object
+            properties:
+              maintenance_type:
+                type: string
+                enum: [scheduled, emergency]
+              start_time:
+                type: string
+                format: date-time
+              end_time:
+                type: string
+                format: date-time
+              affected_services:
+                type: array
+                items:
+                  type: string
+              impact:
+                type: string
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    ServiceStatus:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: service_status
+          channel:
+            type: string
+            const: system
+          data:
+            type: object
+            properties:
+              service_name:
+                type: string
+              status:
+                type: string
+                enum: [up, down, degraded]
+              previous_status:
+                type: string
+                enum: [up, down, degraded]
+              message:
+                type: string
+          timestamp:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+
+    # Error Message
+    ErrorMessage:
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: error
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              details:
+                type: object
+          timestamp:
+            type: string
+            format: date-time
+
+  # Connection States
+  connectionStates:
+    connecting:
+      description: Initial connection state
+    authenticating:
+      description: Authentication in progress
+    connected:
+      description: Successfully connected and authenticated
+    disconnected:
+      description: Connection lost or closed
+    error:
+      description: Connection error state
+
+  # Rate Limits
+  rateLimits:
+    market_data:
+      description: Market data subscription limits
+      max_symbols: 100
+      max_updates_per_second: 1000
+    orders:
+      description: Order channel limits
+      max_orders_per_second: 10
+    general:
+      description: General WebSocket limits
+      max_connections_per_user: 5
+      max_messages_per_second: 100

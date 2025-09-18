@@ -12,7 +12,7 @@ import logging
 import secrets
 import time
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Dict, List, Optional, Set, Any, Tuple
@@ -667,8 +667,8 @@ class IdentityAccessManager:
         payload = {
             'user_id': user_id,
             'session_id': session_id,
-            'exp': datetime.utcnow() + timedelta(seconds=expires_in),
-            'iat': datetime.utcnow()
+            'exp': datetime.now(timezone.utc) + timedelta(seconds=expires_in),
+            'iat': datetime.now(timezone.utc)
         }
         
         return jwt.encode(payload, self.secret_key, algorithm='HS256')

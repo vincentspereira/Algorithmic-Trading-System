@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Any
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import time
 
 # Set up logging
@@ -73,7 +73,7 @@ class MonitoringFallbackSystem:
                     "title": title,
                     "description": message,
                     "color": 16711680,  # Red color
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }]
             }
             
@@ -164,7 +164,7 @@ class MonitoringFallbackSystem:
     def check_monitoring_health(self) -> Dict:
         """Check the health of monitoring systems."""
         health_status = {
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'systems': {},
             'issues': []
         }
@@ -202,7 +202,7 @@ class MonitoringFallbackSystem:
             'name': task_name,
             'command': command,
             'schedule': schedule,
-            'created_at': datetime.now().isoformat(),
+            'created_at': datetime.now(timezone.utc).isoformat(),
             'last_run': None,
             'status': 'pending',
             'fallback_triggered': False
@@ -233,7 +233,7 @@ class MonitoringFallbackSystem:
         """Execute a fallback monitoring task."""
         result = {
             'task_name': task_name,
-            'executed_at': datetime.now().isoformat(),
+            'executed_at': datetime.now(timezone.utc).isoformat(),
             'success': False,
             'output': '',
             'error': ''
@@ -255,7 +255,7 @@ class MonitoringFallbackSystem:
                 result['output'] = "Generic monitoring task completed"
                 result['success'] = True
                 
-            result['last_run'] = datetime.now().isoformat()
+            result['last_run'] = datetime.now(timezone.utc).isoformat()
             
         except Exception as e:
             result['error'] = str(e)

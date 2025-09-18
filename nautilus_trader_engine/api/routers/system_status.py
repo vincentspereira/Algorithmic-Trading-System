@@ -13,7 +13,7 @@ This module provides comprehensive system status information including:
 
 import logging
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -123,16 +123,16 @@ class SystemStatusService:
     """Service for checking system status and health"""
     
     def __init__(self):
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         self.version = "4.0.0"  # Current system version
     
     async def check_service_health(self, service_name: str, url: str, timeout: int = 5) -> ServiceStatus:
         """Check health of individual service"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         try:
             response = requests.get(f"{url}/health", timeout=timeout)
-            response_time = (datetime.utcnow() - start_time).total_seconds() * 1000
+            response_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
             
             if response.status_code == 200:
                 status_value = "healthy"
@@ -152,7 +152,7 @@ class SystemStatusService:
             return ServiceStatus(
                 name=service_name,
                 status=status_value,
-                last_check=datetime.utcnow(),
+                last_check=datetime.now(timezone.utc),
                 response_time_ms=response_time,
                 error_message=error_message,
                 version=version
@@ -162,7 +162,7 @@ class SystemStatusService:
             return ServiceStatus(
                 name=service_name,
                 status="unhealthy",
-                last_check=datetime.utcnow(),
+                last_check=datetime.now(timezone.utc),
                 response_time_ms=None,
                 error_message=str(e),
                 version=None
@@ -186,7 +186,7 @@ class SystemStatusService:
             connections = len(psutil.net_connections())
             
             # Uptime
-            uptime = (datetime.utcnow() - self.start_time).total_seconds()
+            uptime = (datetime.now(timezone.utc) - self.start_time).total_seconds()
             
             # Load average (Unix-like systems)
             try:
@@ -395,7 +395,7 @@ class SystemStatusService:
                 audit_logging_enabled=True,
                 feature_flags_enabled=security_service.redis_client is not None,
                 zero_trust_active=True,
-                last_security_scan=datetime.utcnow() - timedelta(hours=1),  # Mock
+                last_security_scan=datetime.now(timezone.utc) - timedelta(hours=1),  # Mock
                 active_sessions=25,  # Mock
                 failed_login_attempts_24h=3  # Mock
             )
@@ -419,7 +419,7 @@ class SystemStatusService:
             immutable_logging_enabled=True,
             data_encryption_enabled=True,
             backup_status="healthy",
-            last_compliance_check=datetime.utcnow() - timedelta(hours=24),
+            last_compliance_check=datetime.now(timezone.utc) - timedelta(hours=24),
             regulatory_flags=["SOX", "GDPR", "FINRA"]
         )
     
@@ -457,7 +457,7 @@ async def health_check():
     """Simple health check endpoint"""
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": status_service.version
     }
 
@@ -524,12 +524,12 @@ async def get_system_status(
             overall_status = "degraded"
         
         # Calculate uptime
-        uptime_seconds = (datetime.utcnow() - status_service.start_time).total_seconds()
+        uptime_seconds = (datetime.now(timezone.utc) - status_service.start_time).total_seconds()
         uptime_str = str(timedelta(seconds=int(uptime_seconds)))
         
         return SystemStatusResponse(
             overall_status=overall_status,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             uptime=uptime_str,
             version=status_service.version,
             environment="production",  # This should come from config
@@ -568,5 +568,5 @@ async def get_active_alerts(current_user = Depends(get_current_active_user)):
     """Get list of active system alerts"""
     return {
         "alerts": status_service.get_active_alerts(),
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }

@@ -3,6 +3,7 @@ Cache implementation for dependency monitoring data.
 """
 
 from datetime import datetime, timedelta
++from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 import json
 import redis
@@ -82,7 +83,7 @@ class DependencyCache:
     ) -> None:
         """Store historical data point"""
         key = self._make_key("historical", f"{tier}:{dependency}")
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
         
         # Store as a sorted set with timestamp score
         self.redis.zadd(
@@ -92,7 +93,7 @@ class DependencyCache:
         
         # Keep only last 30 days of data
         threshold = (
-            datetime.utcnow() - timedelta(days=30)
+            datetime.now(timezone.utc) - timedelta(days=30)
         ).isoformat()
         self.redis.zremrangebyscore(key, "-inf", threshold)
         

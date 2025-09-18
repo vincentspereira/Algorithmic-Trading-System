@@ -7,7 +7,7 @@ Provides administrative controls for manual dependency update management.
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 from enum import Enum
@@ -141,7 +141,7 @@ class ManualOverrideController:
         
         history.append({
             **override_data,
-            "logged_at": datetime.now().isoformat()
+            "logged_at": datetime.now(timezone.utc).isoformat()
         })
         
         # Keep only last 1000 entries
@@ -182,7 +182,7 @@ class ManualOverrideController:
     
     def create_override(self, request: OverrideRequest) -> str:
         """Create a new override request."""
-        override_id = f"override_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{request.dependency_name}"
+        override_id = f"override_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{request.dependency_name}"
         
         # Validate request
         if not self.validate_override_request(request):
@@ -206,8 +206,8 @@ class ManualOverrideController:
             "reason": request.reason,
             "requester": request.requester,
             "status": "approved" if (request.force or not requires_approval) else "pending_approval",
-            "created_at": datetime.now().isoformat(),
-            "expires_at": (datetime.now().timestamp() + request.expiry_hours * 3600),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "expires_at": (datetime.now(timezone.utc).timestamp() + request.expiry_hours * 3600),
             "conditions": request.conditions or {},
             "force": request.force,
             "requires_approval": requires_approval
@@ -260,7 +260,7 @@ class ManualOverrideController:
         # Update override status
         override_data["status"] = "approved"
         override_data["approver"] = approver
-        override_data["approved_at"] = datetime.now().isoformat()
+        override_data["approved_at"] = datetime.now(timezone.utc).isoformat()
         
         self._save_active_overrides()
         self._log_to_history(override_data)
@@ -301,7 +301,7 @@ class ManualOverrideController:
             
             # Update status
             override_data["status"] = "executed"
-            override_data["executed_at"] = datetime.now().isoformat()
+            override_data["executed_at"] = datetime.now(timezone.utc).isoformat()
             
             self._save_active_overrides()
             self._log_to_history(override_data)
@@ -316,7 +316,7 @@ class ManualOverrideController:
             # Update status to failed
             override_data["status"] = "failed"
             override_data["error"] = str(e)
-            override_data["failed_at"] = datetime.now().isoformat()
+            override_data["failed_at"] = datetime.now(timezone.utc).isoformat()
             
             self._save_active_overrides()
             self._log_to_history(override_data)
@@ -373,7 +373,7 @@ class ManualOverrideController:
                 "action": override_data["action"],
                 "priority": override_data["priority"],
                 "requester": override_data["requester"],
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             logger.info(f"Notification sent: {event_type} for {override_data['dependency_name']}")
@@ -395,7 +395,7 @@ class ManualOverrideController:
     
     def cleanup_expired_overrides(self):
         """Clean up expired overrides."""
-        current_time = datetime.now().timestamp()
+        current_time = datetime.now(timezone.utc).timestamp()
         expired = []
         
         for dep_name, override_data in self.active_overrides.items():
@@ -405,7 +405,7 @@ class ManualOverrideController:
         for dep_name in expired:
             override_data = self.active_overrides[dep_name]
             override_data["status"] = "expired"
-            override_data["expired_at"] = datetime.now().isoformat()
+            override_data["expired_at"] = datetime.now(timezone.utc).isoformat()
             
             self._log_to_history(override_data)
             del self.active_overrides[dep_name]

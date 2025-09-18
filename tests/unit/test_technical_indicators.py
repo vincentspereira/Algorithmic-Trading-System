@@ -252,32 +252,38 @@ class TestTechnicalIndicators:
             
             def calculate_rsi(prices, period=14):
                 """Calculate Relative Strength Index."""
-                if len(prices) < period + 1:
-                    return [None] * len(prices)
-                
-                deltas = [prices[i] - prices[i-1] for i in range(1, len(prices))]
+                n = len(prices)
+                if n < period:
+                    return [None] * n
+                # Price differences
+                deltas = [prices[i] - prices[i-1] for i in range(1, n)]
                 gains = [max(delta, 0) for delta in deltas]
                 losses = [abs(min(delta, 0)) for delta in deltas]
-                
-                rsi_values = [None]  # First value is None
-                
-                # Calculate initial average gain and loss
+
+                # Initialize output to full length with None
+                rsi_values = [None] * n
+
+                # Initial averages over first `period` deltas
                 avg_gain = sum(gains[:period]) / period
                 avg_loss = sum(losses[:period]) / period
-                
-                for i in range(period, len(deltas)):
+
+                # Compute RSI from index = period onwards
+                for i in range(period, n):
+                    # delta index corresponds to i-1
                     if avg_loss == 0:
-                        rsi = 100
+                        rsi = 100.0
                     else:
                         rs = avg_gain / avg_loss
                         rsi = 100 - (100 / (1 + rs))
-                    
-                    rsi_values.append(round(rsi, 2))
-                    
-                    # Update averages for next iteration
-                    avg_gain = ((avg_gain * (period - 1)) + gains[i]) / period
-                    avg_loss = ((avg_loss * (period - 1)) + losses[i]) / period
-                
+                    rsi_values[i] = round(rsi, 2)
+
+                    # Update averages for next step using current delta
+                    if i < n - 1:
+                        g = gains[i - 0]  # gains index = (i) - 0 corresponds to deltas[i]
+                        l = losses[i - 0]
+                        avg_gain = ((avg_gain * (period - 1)) + g) / period
+                        avg_loss = ((avg_loss * (period - 1)) + l) / period
+
                 return rsi_values
             
             def calculate_macd(prices, fast=12, slow=26, signal=9):

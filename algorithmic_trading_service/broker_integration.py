@@ -11,7 +11,7 @@ import asyncio
 import json
 import aiohttp
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Union
 from enum import Enum
 from dataclasses import dataclass, field
@@ -312,7 +312,7 @@ class BaseBroker(ABC):
                         balance=float(account.portfolio_value),
                         buying_power=float(account.buying_power),
                         cash_balance=float(account.cash),
-                        updated_at=datetime.utcnow()
+                        updated_at=datetime.now(timezone.utc)
                     )
                     await session.execute(update_stmt)
                 else:
@@ -326,8 +326,8 @@ class BaseBroker(ABC):
                         buying_power=float(account.buying_power),
                         cash_balance=float(account.cash),
                         is_active=True,
-                        created_at=datetime.utcnow(),
-                        updated_at=datetime.utcnow()
+                        created_at=datetime.now(timezone.utc),
+                        updated_at=datetime.now(timezone.utc)
                     )
                     session.add(new_account)
                 
@@ -366,7 +366,7 @@ class BaseBroker(ABC):
                             avg_cost=float(pos.avg_entry_price),
                             market_value=float(pos.market_value),
                             unrealized_pnl=float(pos.unrealized_pl),
-                            updated_at=datetime.utcnow()
+                            updated_at=datetime.now(timezone.utc)
                         )
                         await session.execute(update_stmt)
                     else:
@@ -380,8 +380,8 @@ class BaseBroker(ABC):
                             market_value=float(pos.market_value),
                             unrealized_pnl=float(pos.unrealized_pl),
                             realized_pnl=0.0,
-                            created_at=datetime.utcnow(),
-                            updated_at=datetime.utcnow()
+                            created_at=datetime.now(timezone.utc),
+                            updated_at=datetime.now(timezone.utc)
                         )
                         session.add(new_position)
                 
@@ -419,7 +419,7 @@ class BaseBroker(ABC):
                             status=order.status.value.upper(),
                             filled_quantity=float(order.filled_qty),
                             filled_price=float(order.filled_avg_price) if order.filled_avg_price else None,
-                            updated_at=datetime.utcnow()
+                            updated_at=datetime.now(timezone.utc)
                         )
                         await session.execute(update_stmt)
                     else:
@@ -437,7 +437,7 @@ class BaseBroker(ABC):
                             filled_quantity=float(order.filled_qty),
                             filled_price=float(order.filled_avg_price) if order.filled_avg_price else None,
                             created_at=order.created_at,
-                            updated_at=datetime.utcnow()
+                            updated_at=datetime.now(timezone.utc)
                         )
                         session.add(new_order)
                 
@@ -479,7 +479,7 @@ class AlpacaBroker(BaseBroker):
             if account:
                 self.is_connected = True
                 self.account_info = account
-                logger.info(f"Successfully connected to Alpaca API (Paper: {self.credentials.paper_trading})")
+                logger.info(f"Successfully connected to Alpaca API (Paper: {self.credentials.paper__trading})")
                 return True
             
             return False

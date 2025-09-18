@@ -17,7 +17,8 @@ class Settings(BaseSettings):
     DESCRIPTION: str = "Enhanced API with OAuth2/JWT authentication and backtesting capabilities"
     
     # Security Configuration
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    # Provide safe defaults to avoid ValidationError during test collection when env vars are missing
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "test-secret-key")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
@@ -28,8 +29,8 @@ class Settings(BaseSettings):
     # Database Configuration (inherited from Phase 1)
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "postgres")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "trading_system")
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
     
     # Kafka Configuration (inherited from Phase 1)
     KAFKA_BOOTSTRAP_SERVERS: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")

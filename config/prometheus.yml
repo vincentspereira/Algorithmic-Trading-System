@@ -1,0 +1,222 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'trading-system'
+    environment: 'development'
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Trading System API
+  - job_name: 'trading-api'
+    static_configs:
+      - targets: ['api:8001']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # Market Data Service
+  - job_name: 'market-data-service'
+    static_configs:
+      - targets: ['market-data:8001']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 8s
+
+  # Trading Engine
+  - job_name: 'trading-engine'
+    static_configs:
+      - targets: ['trading-engine:8002']
+    scrape_interval: 5s
+    metrics_path: /metrics
+    scrape_timeout: 4s
+
+  # Background Workers
+  - job_name: 'trading-workers'
+    static_configs:
+      - targets: ['worker:8003']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # PostgreSQL Database
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Redis Cache
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # Kafka
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+    scrape_interval: 30s
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # cAdvisor (Container Metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Nginx Metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 30s
+
+  # Custom Application Metrics
+  - job_name: 'trading-metrics'
+    static_configs:
+      - targets: ['api:8001', 'market-data:8001', 'trading-engine:8002']
+    scrape_interval: 15s
+    metrics_path: /api/v1/metrics
+    params:
+      format: ['prometheus']
+
+  # Blackbox Exporter for Health Checks
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://api:8000/health
+        - http://market-data:8001/health
+        - http://trading-engine:8002/health
+        - http://grafana:3000/api/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Service Discovery for Dynamic Targets
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+
+  # File-based Service Discovery
+  - job_name: 'file-sd'
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/targets/*.json'
+        - '/etc/prometheus/targets/*.yml'
+    refresh_interval: 30s
+
+# Recording Rules for Performance
+recording_rules:
+  - name: trading_system_rules
+    rules:
+      # API Request Rate
+      - record: trading:api_request_rate
+        expr: rate(http_requests_total[5m])
+      
+      # Error Rate
+      - record: trading:error_rate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+      
+      # Response Time Percentiles
+      - record: trading:response_time_p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+      
+      - record: trading:response_time_p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+      
+      # Trading Volume
+      - record: trading:volume_rate
+        expr: rate(trading_volume_total[5m])
+      
+      # Market Data Latency
+      - record: trading:market_data_latency_p95
+        expr: histogram_quantile(0.95, rate(market_data_latency_seconds_bucket[5m]))
+      
+      # Database Connection Pool
+      - record: trading:db_connections_active
+        expr: pg_stat_activity_count{state="active"}
+      
+      # Cache Hit Rate
+      - record: trading:cache_hit_rate
+        expr: rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))
+      
+      # Kafka Consumer Lag
+      - record: trading:kafka_consumer_lag
+        expr: kafka_consumer_lag_sum
+      
+      # System Resource Usage
+      - record: trading:cpu_usage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+      
+      - record: trading:memory_usage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+      
+      - record: trading:disk_usage
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100
+
+# Remote Write Configuration (for long-term storage)
+remote_write:
+  - url: "http://cortex:9009/api/prom/push"
+    queue_config:
+      max_samples_per_send: 1000
+      max_shards: 200
+      capacity: 2500
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'go_.*'
+        action: drop
+
+# Remote Read Configuration
+remote_read:
+  - url: "http://cortex:9009/api/prom/read"
+    read_recent: true

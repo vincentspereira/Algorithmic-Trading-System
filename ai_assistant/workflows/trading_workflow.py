@@ -8,7 +8,7 @@ involving multiple specialized agents: Analyst, Risk Manager, and Trader.
 import asyncio
 import logging
 from typing import Any, Dict, List, Optional, TypedDict
-from datetime import datetime
+from datetime import datetime, timezone
 
 from langgraph.graph import Graph, START, END
 from langgraph.checkpoint.memory import MemorySaver
@@ -150,7 +150,7 @@ class TradingWorkflow:
             
             # Update state
             state["analysis_result"] = analysis_result
-            state["metadata"]["analysis_timestamp"] = datetime.utcnow().isoformat()
+            state["metadata"]["analysis_timestamp"] = datetime.now(timezone.utc).isoformat()
             
             logger.info(f"Market analysis completed for {state['symbol']}")
             
@@ -186,7 +186,7 @@ class TradingWorkflow:
             
             # Update state
             state["risk_assessment"] = risk_assessment
-            state["metadata"]["risk_assessment_timestamp"] = datetime.utcnow().isoformat()
+            state["metadata"]["risk_assessment_timestamp"] = datetime.now(timezone.utc).isoformat()
             
             logger.info(f"Risk assessment completed for {state['symbol']}")
             
@@ -240,7 +240,7 @@ class TradingWorkflow:
             
             # Update state
             state["trade_decision"] = trade_decision
-            state["metadata"]["trade_decision_timestamp"] = datetime.utcnow().isoformat()
+            state["metadata"]["trade_decision_timestamp"] = datetime.now(timezone.utc).isoformat()
             
             logger.info(f"Trade decision made for {state['symbol']}: {trade_decision['action']}")
             
@@ -274,7 +274,7 @@ class TradingWorkflow:
                 
                 # Update state
                 state["execution_result"] = execution_result
-                state["metadata"]["execution_timestamp"] = datetime.utcnow().isoformat()
+                state["metadata"]["execution_timestamp"] = datetime.now(timezone.utc).isoformat()
                 
                 logger.info(f"Trade executed for {state['symbol']}: {execution_result.get('status')}")
             else:
@@ -306,7 +306,7 @@ class TradingWorkflow:
         state["execution_result"] = {
             "status": "error",
             "errors": state["errors"],
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         return state
@@ -393,5 +393,5 @@ class TradingWorkflow:
                 "symbol": symbol,
                 "status": "error",
                 "errors": [str(e)],
-                "metadata": {"error_timestamp": datetime.utcnow().isoformat()}
+                "metadata": {"error_timestamp": datetime.now(timezone.utc).isoformat()}
             }

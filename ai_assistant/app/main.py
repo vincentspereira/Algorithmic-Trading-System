@@ -1,6 +1,6 @@
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 import logging
 
@@ -83,7 +83,7 @@ async def http_exception_handler(request, exc):
         content={
             "error": exc.detail,
             "status_code": exc.status_code,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 
@@ -96,7 +96,7 @@ async def general_exception_handler(request, exc):
         content={
             "error": "Internal server error",
             "status_code": 500,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 

@@ -1,7 +1,7 @@
 
-from shared.config import settings
+from shared.config import Settings
 
-class APISettings(settings):
+class APISettings(Settings):
     # Add API-specific settings here
     pass
 

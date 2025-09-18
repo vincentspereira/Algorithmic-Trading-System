@@ -1,0 +1,42 @@
+{
+  "monitoring_interval": 5,
+  "metrics_retention_hours": 24,
+  "kafka_servers": ["localhost:9092"],
+  "redis_host": "localhost",
+  "redis_port": 6379,
+  "email_alerts": {
+    "enabled": false,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "username": "",
+    "password": "",
+    "recipients": []
+  },
+  "alert_thresholds": {
+    "cpu_warning": 80.0,
+    "cpu_critical": 95.0,
+    "memory_warning": 85.0,
+    "memory_critical": 95.0,
+    "disk_warning": 90.0,
+    "execution_time_warning": 1000.0,
+    "execution_time_critical": 5000.0
+  },
+  "components": {
+    "trading_engine": {
+      "enabled": true,
+      "metrics": ["execution_time_ms", "memory_usage_mb", "order_processing_rate"]
+    },
+    "market_data": {
+      "enabled": true,
+      "metrics": ["data_latency_ms", "throughput_msgs_sec", "connection_status"]
+    },
+    "risk_manager": {
+      "enabled": true,
+      "metrics": ["risk_calculation_time_ms", "position_checks_per_sec"]
+    },
+    "portfolio_manager": {
+      "enabled": true,
+      "metrics": ["portfolio_update_time_ms", "pnl_calculation_time_ms"]
+    }
+  }
+}

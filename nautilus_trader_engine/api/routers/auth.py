@@ -3,7 +3,7 @@ Authentication router for login and token management
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -11,9 +11,9 @@ from sqlalchemy.exc import IntegrityError
 
 from ..models.auth import TokenResponse, RefreshTokenRequest, UserInfo, AuthStatus
 from ..models.user import UserCreate, UserResponse
-from ..core.security import create_token_response
+from ..core.security import create_token_response, create_access_token
 from ..auth.dependencies import get_current_user, verify_refresh_token, security
-from ..auth.utils import hash_password, verify_password, create_access_token
+from ..auth.utils import hash_password, verify_password
 from ...database.database import get_db
 from ...database.models import User as DBUser
 
@@ -100,7 +100,7 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
 
     try:

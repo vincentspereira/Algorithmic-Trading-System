@@ -6,7 +6,7 @@ Provides tools for managing and updating Grafana dashboards.
 import json
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import requests
@@ -95,7 +95,7 @@ class DashboardManager:
         payload = {
             "dashboard": dashboard,
             "folderUid": folder,
-            "message": f"Updated at {datetime.utcnow().isoformat()}",
+            "message": f"Updated at {datetime.now(timezone.utc).isoformat()}",
             "overwrite": True
         }
         

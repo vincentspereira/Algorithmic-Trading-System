@@ -367,10 +367,9 @@ async def volume_profile_analysis():
     print(f"\\nVolume-Based Signals:")
     for signal in signals:
         print(f"  {signal.signal_type.upper()}: {signal.strength:.2f}")
-        print(f"    Direction: {signal.direction}")
-        print(f"    Target: ${signal.target_price:.2f}")
-        print(f"    Stop Loss: ${signal.stop_loss:.2f}")
-        print(f"    Confidence: {signal.confidence:.2f}")
+    print(f"    Target: ${signal.target_price:.2f}")
+    print(f"    Stop Loss: ${signal.stop_loss:.2f}")
+    print(f"    Confidence: {signal.confidence:.2f}")
     
     await pattern_engine.stop()
 ```

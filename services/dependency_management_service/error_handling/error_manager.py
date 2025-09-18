@@ -8,7 +8,7 @@ import logging
 import sys
 import traceback
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 from prometheus_client import Counter, Histogram
@@ -95,7 +95,7 @@ class DependencyError(Exception):
         self.category = category
         self.recovery_strategy = recovery_strategy
         self.correlation_id = correlation_id
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
         self.additional_data = kwargs
 
 T = TypeVar('T')
@@ -110,7 +110,7 @@ class ErrorManager:
         
     def handle_error(self, error: Union[DependencyError, Exception]) -> None:
         """Handle an error with appropriate logging and recovery"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         try:
             if isinstance(error, DependencyError):
@@ -127,7 +127,7 @@ class ErrorManager:
                 )
             else:
                 context = ErrorContext(
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     error_type=error.__class__.__name__,
                     message=str(error),
                     severity=ErrorSeverity.HIGH,
@@ -150,7 +150,7 @@ class ErrorManager:
             
         finally:
             # Record handling time
-            handling_time = (datetime.utcnow() - start_time).total_seconds()
+            handling_time = (datetime.now(timezone.utc) - start_time).total_seconds()
             ERROR_HANDLING_TIME.labels(
                 error_type=context.error_type
             ).observe(handling_time)

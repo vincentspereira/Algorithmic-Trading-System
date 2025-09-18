@@ -13,18 +13,26 @@ import sys
 import os
 import pandas as pd
 import numpy as np
+import unittest
 
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from nautilus_trader_engine.data_feeds import DataFeedManager, DataRequest, DataResponse, AssetClass
-from nautilus_trader_engine.indicators.volume_weighted import VolumeWeightedIndicators, MarketData
-from nautilus_trader_engine.kafka_manager import get_kafka_manager, initialize_kafka_manager
+from nautilus_trader_engine.indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators, MarketData
+from nautilus_trader_engine.core.kafka_manager import get_kafka_manager, initialize_kafka_manager
 from nautilus_trader_engine.adapters.ibkr_adapter import initialize_ibkr_adapter, get_ibkr_adapter
 
 
-async def test_end_to_end_pipeline():
-    """Test the complete end-to-end pipeline."""
+class TestEndToEndPipeline(unittest.TestCase):
+    def test_end_to_end_pipeline(self):
+        """Test the complete end-to-end pipeline."""
+        result = asyncio.run(end_to_end_pipeline())
+        self.assertTrue(result)
+
+
+async def end_to_end_pipeline():
+    """The complete end-to-end pipeline test."""
     print("Testing End-to-End Pipeline...")
     
     # Step 1: Initialize components
@@ -162,7 +170,7 @@ async def test_end_to_end_pipeline():
             
         # Get account info
         account_info = await ibkr_adapter.get_account_info()
-        print(f"  ✓ Account info retrieved: {account_info['balance']} {account_info['currency']}")
+        print(f"  ✓ Account info retrieved: {account_info.balance} {account_info.currency}")
         
         # Disconnect
         await ibkr_adapter.disconnect()
@@ -177,6 +185,4 @@ async def test_end_to_end_pipeline():
 
 
 if __name__ == "__main__":
-    # Run the test
-    result = asyncio.run(test_end_to_end_pipeline())
-    sys.exit(0 if result else 1)
+    unittest.main()

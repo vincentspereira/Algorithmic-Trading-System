@@ -86,7 +86,7 @@ class PerformanceValidator:
             try:
                 self.ib = IB()
                 await self.ib.connectAsync('127.0.0.1', 7497, clientId=0)
-                logger.info("✓ Connected to IBKR for latency testing")
+                logger.info("[PASS] Connected to IBKR for latency testing")
                 
                 # Test order execution latency
                 latency_measurements = []
@@ -133,7 +133,7 @@ class PerformanceValidator:
                     }
                     
                     if avg_latency < 100:
-                        logger.info(f"✓ Average latency: {avg_latency:.2f}μs (target: <100μs)")
+                        logger.info(f"[PASS] Average latency: {avg_latency:.2f}μs (target: <100μs)")
                         results["status"] = "PASSED"
                     else:
                         logger.warning(f"⚠ Average latency: {avg_latency:.2f}μs (exceeds 100μs target)")
@@ -142,7 +142,7 @@ class PerformanceValidator:
             except Exception as e:
                 results["status"] = "FAILED"
                 results["error"] = str(e)
-                logger.error(f"✗ Latency test failed: {e}")
+                logger.error(f"[FAIL] Latency test failed: {e}")
         
         else:
             # Simulated latency testing
@@ -157,7 +157,7 @@ class PerformanceValidator:
                 "meets_target": avg_latency < 100
             }
             results["status"] = "PASSED"
-            logger.info(f"✓ Simulated average latency: {avg_latency:.2f}μs")
+            logger.info(f"[PASS] Simulated average latency: {avg_latency:.2f}μs")
         
         self.test_results["execution_latency"] = results
     
@@ -231,13 +231,13 @@ class PerformanceValidator:
         max_tps = max(calc_tps, data_tps, concurrent_tps)
         if max_tps >= 100000:  # 100K TPS as intermediate milestone
             results["status"] = "PASSED"
-            logger.info(f"✓ Max throughput: {max_tps:,.0f} TPS")
+            logger.info(f"[PASS] Max throughput: {max_tps:,.0f} TPS")
         elif max_tps >= 50000:  # 50K TPS as minimum acceptable
             results["status"] = "WARNING"
             logger.warning(f"⚠ Max throughput: {max_tps:,.0f} TPS (below optimal)")
         else:
             results["status"] = "FAILED"
-            logger.error(f"✗ Max throughput: {max_tps:,.0f} TPS (insufficient)")
+            logger.error(f"[FAIL] Max throughput: {max_tps:,.0f} TPS (insufficient)")
         
         results["measurements"] = measurements
         
@@ -297,7 +297,7 @@ class PerformanceValidator:
         
         if avg_processing_time_us < 100:
             results["status"] = "PASSED"
-            logger.info(f"✓ Avg processing time: {avg_processing_time_us:.2f}μs per order")
+            logger.info(f"[PASS] Avg processing time: {avg_processing_time_us:.2f}μs per order")
         else:
             results["status"] = "WARNING"
             logger.warning(f"⚠ Avg processing time: {avg_processing_time_us:.2f}μs per order")
@@ -353,13 +353,13 @@ class PerformanceValidator:
         
         if data_points_per_second >= 100000:
             results["status"] = "PASSED"
-            logger.info(f"✓ Data processing: {data_points_per_second:,.0f} points/sec")
+            logger.info(f"[PASS] Data processing: {data_points_per_second:,.0f} points/sec")
         elif data_points_per_second >= 50000:
             results["status"] = "WARNING"
             logger.warning(f"⚠ Data processing: {data_points_per_second:,.0f} points/sec")
         else:
             results["status"] = "FAILED"
-            logger.error(f"✗ Data processing: {data_points_per_second:,.0f} points/sec")
+            logger.error(f"[FAIL] Data processing: {data_points_per_second:,.0f} points/sec")
         
         results["measurements"] = measurements
         self.test_results["data_processing"] = results
@@ -440,13 +440,13 @@ class PerformanceValidator:
         
         if total_ops_per_second >= 50000:
             results["status"] = "PASSED"
-            logger.info(f"✓ Concurrent performance: {total_ops_per_second:,.0f} ops/sec")
+            logger.info(f"[PASS] Concurrent performance: {total_ops_per_second:,.0f} ops/sec")
         elif total_ops_per_second >= 25000:
             results["status"] = "WARNING"
             logger.warning(f"⚠ Concurrent performance: {total_ops_per_second:,.0f} ops/sec")
         else:
             results["status"] = "FAILED"
-            logger.error(f"✗ Concurrent performance: {total_ops_per_second:,.0f} ops/sec")
+            logger.error(f"[FAIL] Concurrent performance: {total_ops_per_second:,.0f} ops/sec")
         
         results["measurements"] = measurements
         results["worker_results"] = worker_results
@@ -518,13 +518,13 @@ class PerformanceValidator:
         
         # Print results
         logger.info(f"Total Tests: {len(all_tests)}")
-        logger.info(f"✓ Passed: {passed}")
+        logger.info(f"[PASS] Passed: {passed}")
         logger.info(f"⚠ Warnings: {warnings}")
-        logger.info(f"✗ Failed: {failed}")
+        logger.info(f"[FAIL] Failed: {failed}")
         logger.info(f"Overall Performance: {performance_summary['overall_performance']}")
-        logger.info(f"Latency Target Met: {'✓' if performance_summary['latency_target_met'] else '✗'}")
-        logger.info(f"Throughput Acceptable: {'✓' if performance_summary['throughput_acceptable'] else '✗'}")
-        logger.info(f"Production Ready: {'✓ YES' if summary['ready_for_production'] else '✗ NO'}")
+        logger.info(f"Latency Target Met: {'[PASS]' if performance_summary['latency_target_met'] else '[FAIL]'}")
+        logger.info(f"Throughput Acceptable: {'[PASS]' if performance_summary['throughput_acceptable'] else '[FAIL]'}")
+        logger.info(f"Production Ready: {'[PASS] YES' if summary['ready_for_production'] else '[FAIL] NO'}")
         logger.info(f"Execution Time: {summary['total_execution_time']}s")
     
     async def cleanup(self):
@@ -532,7 +532,7 @@ class PerformanceValidator:
         try:
             if self.ib and self.ib.isConnected():
                 self.ib.disconnect()
-                logger.info("✓ IBKR connection closed")
+                logger.info("[PASS] IBKR connection closed")
         except Exception as e:
             logger.error(f"Cleanup error: {e}")
 

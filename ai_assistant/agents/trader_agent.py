@@ -8,7 +8,7 @@ with broker APIs to execute trading decisions.
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from enum import Enum
 
@@ -99,7 +99,7 @@ class TraderAgent(AgentBase):
                 return {
                     "status": "rejected",
                     "reason": validation_result["reason"],
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             
             # Create order from trade decision
@@ -121,7 +121,7 @@ class TraderAgent(AgentBase):
             return {
                 "status": "error",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     async def cancel_order(self, order_id: str) -> Dict[str, Any]:
@@ -151,7 +151,7 @@ class TraderAgent(AgentBase):
             
             if cancel_result["success"]:
                 order["status"] = OrderStatus.CANCELLED
-                order["cancelled_time"] = datetime.utcnow()
+                order["cancelled_time"] = datetime.now(timezone.utc)
                 
                 # Move to completed orders
                 self._completed_orders[order_id] = order
@@ -162,7 +162,7 @@ class TraderAgent(AgentBase):
                 return {
                     "status": "cancelled",
                     "order_id": order_id,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             else:
                 logger.error(f"Failed to cancel order {order_id}: {cancel_result.get('reason')}")
@@ -224,7 +224,7 @@ class TraderAgent(AgentBase):
             return {
                 "status": "success",
                 "positions": positions,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         
         except Exception as e:
@@ -232,7 +232,7 @@ class TraderAgent(AgentBase):
             return {
                 "status": "error",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def _validate_trade_decision(
@@ -310,7 +310,7 @@ class TraderAgent(AgentBase):
             "stop_price": trade_decision.get("stop_price"),
             "time_in_force": trade_decision.get("time_in_force", "DAY"),
             "status": OrderStatus.PENDING,
-            "created_time": datetime.utcnow(),
+            "created_time": datetime.now(timezone.utc),
             "filled_quantity": 0,
             "average_fill_price": 0,
             "fills": [],
@@ -346,7 +346,7 @@ class TraderAgent(AgentBase):
             if execution_result["success"]:
                 order["status"] = OrderStatus.SUBMITTED
                 order["broker_order_id"] = execution_result.get("broker_order_id")
-                order["submitted_time"] = datetime.utcnow()
+                order["submitted_time"] = datetime.now(timezone.utc)
                 
                 # Add to active orders
                 self._active_orders[order_id] = order
@@ -361,7 +361,7 @@ class TraderAgent(AgentBase):
                     "status": "submitted",
                     "order_id": order_id,
                     "broker_order_id": execution_result.get("broker_order_id"),
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             else:
                 order["status"] = OrderStatus.REJECTED
@@ -376,7 +376,7 @@ class TraderAgent(AgentBase):
                     "status": "rejected",
                     "reason": execution_result.get("reason"),
                     "order_id": order_id,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
         
         except Exception as e:
@@ -389,7 +389,7 @@ class TraderAgent(AgentBase):
                 "status": "error",
                 "error": str(e),
                 "order_id": order_id,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     async def _simulate_order_execution(self, order: Dict[str, Any]) -> Dict[str, Any]:
@@ -437,7 +437,7 @@ class TraderAgent(AgentBase):
             "fill_id": str(uuid.uuid4()),
             "quantity": order["quantity"],
             "price": fill_price,
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "commission": order["quantity"] * 0.01  # $0.01 per share
         }
         
@@ -446,7 +446,7 @@ class TraderAgent(AgentBase):
         order["filled_quantity"] = order["quantity"]
         order["average_fill_price"] = fill_price
         order["status"] = OrderStatus.FILLED
-        order["completed_time"] = datetime.utcnow()
+        order["completed_time"] = datetime.now(timezone.utc)
         
         # Move to completed orders
         order_id = order["order_id"]
@@ -545,7 +545,7 @@ class TraderAgent(AgentBase):
                     "fill_id": str(uuid.uuid4()),
                     "quantity": fill_quantity,
                     "price": order.get("limit_price", 150.0),
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": datetime.now(timezone.utc),
                     "commission": fill_quantity * 0.01
                 }
                 
@@ -558,7 +558,7 @@ class TraderAgent(AgentBase):
                 
                 if order["filled_quantity"] >= order["quantity"]:
                     order["status"] = OrderStatus.FILLED
-                    order["completed_time"] = datetime.utcnow()
+                    order["completed_time"] = datetime.now(timezone.utc)
                 else:
                     order["status"] = OrderStatus.PARTIALLY_FILLED
                 

@@ -2,7 +2,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from app.services.kafka_manager import KafkaManager
+from nautilus_trader_engine.core.kafka_manager import KafkaManager
 
 @pytest.fixture
 def kafka_manager():

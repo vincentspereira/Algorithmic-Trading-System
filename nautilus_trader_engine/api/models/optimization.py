@@ -6,7 +6,7 @@ These models define the structure for optimization requests, parameter ranges,
 results, and error handling for the hyperparameter optimization system.
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, Dict, Any, Union
 from datetime import date, datetime
 from enum import Enum
@@ -41,14 +41,13 @@ class ParameterRange(BaseModel):
             raise ValueError('max must be greater than min')
         return v
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "min": 5,
-                "max": 50,
-                "step": 1
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "min": 5,
+            "max": 50,
+            "step": 1
         }
+    })
 
 
 class OptimizationRequest(BaseModel):
@@ -134,23 +133,22 @@ class OptimizationRequest(BaseModel):
             raise ValueError('params cannot be empty')
         return v
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "ticker": "AAPL",
-                "start_date": "2023-01-01",
-                "end_date": "2023-12-31",
-                "strategy": "sma_crossover",
-                "initial_capital": 100000.0,
-                "params": {
-                    "sma_short": {"min": 5, "max": 20, "step": 1},
-                    "sma_long": {"min": 50, "max": 200, "step": 5}
-                },
-                "n_trials": 100,
-                "timeout": 300,
-                "objective": "sharpe_ratio"
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "ticker": "AAPL",
+            "start_date": "2023-01-01",
+            "end_date": "2023-12-31",
+            "strategy": "sma_crossover",
+            "initial_capital": 100000.0,
+            "params": {
+                "sma_short": {"min": 5, "max": 20, "step": 1},
+                "sma_long": {"min": 50, "max": 200, "step": 5}
+            },
+            "n_trials": 100,
+            "timeout": 300,
+            "objective": "sharpe_ratio"
         }
+    })
 
 
 class OptimizationResult(BaseModel):
@@ -191,17 +189,16 @@ class OptimizationResult(BaseModel):
         example=None
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "trial_number": 42,
-                "parameters": {"sma_short": 12, "sma_long": 85},
-                "objective_value": 1.25,
-                "metrics": {"total_return": 0.15, "max_drawdown": -0.08},
-                "status": "success",
-                "error": None
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "trial_number": 42,
+            "parameters": {"sma_short": 12, "sma_long": 85},
+            "objective_value": 1.25,
+            "metrics": {"total_return": 0.15, "max_drawdown": -0.08},
+            "status": "success",
+            "error": None
         }
+    })
 
 
 class OptimizationResponse(BaseModel):
@@ -281,27 +278,26 @@ class OptimizationResponse(BaseModel):
         description="Detailed results from all trials (optional)"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "timestamp": "2024-01-15T16:45:00Z",
-                "parameters": {
-                    "ticker": "AAPL",
-                    "strategy": "sma_crossover",
-                    "n_trials": 100,
-                    "objective": "sharpe_ratio"
-                },
-                "best_parameters": {"sma_short": 12, "sma_long": 85},
-                "best_value": 1.45,
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "status": "success",
+            "timestamp": "2024-01-15T16:45:00Z",
+            "parameters": {
+                "ticker": "AAPL",
+                "strategy": "sma_crossover",
                 "n_trials": 100,
-                "n_complete_trials": 95,
-                "n_failed_trials": 5,
-                "study_name": "sma_crossover_AAPL_20240115",
-                "optimization_time": 287.5,
-                "trials": None
-            }
+                "objective": "sharpe_ratio"
+            },
+            "best_parameters": {"sma_short": 12, "sma_long": 85},
+            "best_value": 1.45,
+            "n_trials": 100,
+            "n_complete_trials": 95,
+            "n_failed_trials": 5,
+            "study_name": "sma_crossover_AAPL_20240115",
+            "optimization_time": 287.5,
+            "trials": None
         }
+    })
 
 
 class OptimizationError(BaseModel):
@@ -340,16 +336,15 @@ class OptimizationError(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "error",
-                "timestamp": "2024-01-15T16:45:00Z",
-                "error": "Invalid strategy name: unknown_strategy not supported",
-                "details": "Supported strategies: sma_crossover, rsi_strategy",
-                "parameters": {
-                    "strategy": "unknown_strategy",
-                    "ticker": "AAPL"
-                }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "status": "error",
+            "timestamp": "2024-01-15T16:45:00Z",
+            "error": "Invalid strategy name: unknown_strategy not supported",
+            "details": "Supported strategies: sma_crossover, rsi_strategy",
+            "parameters": {
+                "strategy": "unknown_strategy",
+                "ticker": "AAPL"
             }
         }
+    })

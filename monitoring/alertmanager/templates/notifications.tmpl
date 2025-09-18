@@ -1,0 +1,324 @@
+{{ define "__subject" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }} {{ if gt (len .CommonLabels) (len .GroupLabels) }}({{ with .CommonLabels.Remove .GroupLabels.Names }}{{ .Values | join " " }}{{ end }}){{ end }}{{ end }}
+
+{{ define "__description" }}{{ end }}
+
+{{ define "__text_alert_list" }}{{ range . }}Labels:
+{{ range .Labels.SortedPairs }} - {{ .Name }} = {{ .Value }}
+{{ end }}Annotations:
+{{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
+{{ end }}Source: {{ .GeneratorURL }}
+{{ end }}{{ end }}
+
+{{ define "slack.default.title" }}{{ template "__subject" . }}{{ end }}
+{{ define "slack.default.text" }}{{ if gt (len .Alerts.Firing) 0 }}**Firing:**
+{{ template "__text_alert_list" .Alerts.Firing }}{{ end }}{{ if gt (len .Alerts.Resolved) 0 }}**Resolved:**
+{{ template "__text_alert_list" .Alerts.Resolved }}{{ end }}{{ end }}
+
+{{ define "email.default.subject" }}{{ template "__subject" . }}{{ end }}
+{{ define "email.default.html" }}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>{{ template "__subject" . }}</title>
+<style>
+/* Global Styles */
+body {
+  width: 100% !important;
+  height: 100%;
+  background-color: #f6f6f6;
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.container {
+  display: block !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  clear: both !important;
+}
+
+.content {
+  max-width: 600px;
+  margin: 0 auto;
+  display: block;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+/* Alert Status Styles */
+.alert-firing {
+  background-color: #e74c3c;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.alert-resolved {
+  background-color: #27ae60;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.alert-warning {
+  background-color: #f39c12;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+/* Alert Details */
+.alert-details {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.alert-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.alert-description {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.alert-labels {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.label-pair {
+  display: inline-block;
+  background-color: #e9ecef;
+  padding: 2px 8px;
+  margin: 2px;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #495057;
+}
+
+.severity-critical {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.severity-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.severity-info {
+  background-color: #17a2b8 !important;
+  color: white !important;
+}
+
+/* Footer */
+.footer {
+  background-color: #f8f9fa;
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 12px;
+  border-top: 1px solid #dee2e6;
+}
+
+.runbook-link {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.timestamp {
+  color: #6c757d;
+  font-size: 12px;
+  margin-top: 5px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🚨 Trading System Alert</h1>
+    <p>{{ if eq .Status "firing" }}{{ .Alerts.Firing | len }} alert(s) firing{{ else }}{{ .Alerts.Resolved | len }} alert(s) resolved{{ end }}</p>
+  </div>
+  
+  <div class="content">
+    {{ if gt (len .Alerts.Firing) 0 }}
+    <div class="alert-firing">
+      <h2>🔥 Firing Alerts</h2>
+    </div>
+    {{ range .Alerts.Firing }}
+    <div class="alert-details">
+      <div class="alert-title">{{ .Annotations.summary }}</div>
+      <div class="alert-description">{{ .Annotations.description }}</div>
+      
+      <div class="alert-labels">
+        <strong>Labels:</strong><br>
+        {{ range .Labels.SortedPairs }}
+        <span class="label-pair {{ if eq .Name "severity" }}severity-{{ .Value }}{{ end }}">{{ .Name }}: {{ .Value }}</span>
+        {{ end }}
+      </div>
+      
+      {{ if .Annotations.runbook_url }}
+      <a href="{{ .Annotations.runbook_url }}" class="runbook-link">📖 View Runbook</a>
+      {{ end }}
+      
+      <div class="timestamp">
+        <strong>Started:</strong> {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}
+      </div>
+    </div>
+    {{ end }}
+    {{ end }}
+    
+    {{ if gt (len .Alerts.Resolved) 0 }}
+    <div class="alert-resolved">
+      <h2>✅ Resolved Alerts</h2>
+    </div>
+    {{ range .Alerts.Resolved }}
+    <div class="alert-details">
+      <div class="alert-title">{{ .Annotations.summary }}</div>
+      <div class="alert-description">{{ .Annotations.description }}</div>
+      
+      <div class="alert-labels">
+        <strong>Labels:</strong><br>
+        {{ range .Labels.SortedPairs }}
+        <span class="label-pair">{{ .Name }}: {{ .Value }}</span>
+        {{ end }}
+      </div>
+      
+      <div class="timestamp">
+        <strong>Started:</strong> {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}<br>
+        <strong>Resolved:</strong> {{ .EndsAt.Format "2006-01-02 15:04:05 MST" }}
+      </div>
+    </div>
+    {{ end }}
+    {{ end }}
+  </div>
+  
+  <div class="footer">
+    <p>This alert was generated by the Trading System Monitoring Stack</p>
+    <p>For support, contact: ops-team@trading-system.com</p>
+    <p><small>Alert generated at {{ now.Format "2006-01-02 15:04:05 MST" }}</small></p>
+  </div>
+</div>
+</body>
+</html>
+{{ end }}
+
+{{ define "pagerduty.default.description" }}{{ template "__subject" . }}{{ end }}
+{{ define "pagerduty.default.client" }}{{ template "__subject" . }}{{ end }}
+{{ define "pagerduty.default.clientURL" }}{{ template "__alertmanagerURL" . }}{{ end }}
+{{ define "pagerduty.default.instances" }}{{ template "__text_alert_list" . }}{{ end }}
+
+{{ define "opsgenie.default.message" }}{{ template "__subject" . }}{{ end }}
+{{ define "opsgenie.default.description" }}{{ .CommonAnnotations.summary }}{{ if .CommonAnnotations.description }} - {{ .CommonAnnotations.description }}{{ end }}{{ end }}
+{{ define "opsgenie.default.source" }}{{ template "__alertmanagerURL" . }}{{ end }}
+
+<!-- Slack Templates -->
+{{ define "slack.trading.title" }}
+{{ if eq .Status "firing" }}🚨{{ else }}✅{{ end }} {{ .GroupLabels.alertname }}
+{{ end }}
+
+{{ define "slack.trading.text" }}
+{{ if eq .Status "firing" }}
+*🔥 FIRING ALERTS ({{ .Alerts.Firing | len }})*
+{{ range .Alerts.Firing }}
+*Alert:* {{ .Annotations.summary }}
+*Description:* {{ .Annotations.description }}
+*Severity:* {{ .Labels.severity | upper }}
+*Component:* {{ .Labels.component }}
+*Time:* {{ .StartsAt.Format "15:04:05 MST" }}
+{{ if .Annotations.runbook_url }}*Runbook:* <{{ .Annotations.runbook_url }}|View Runbook>{{ end }}
+---
+{{ end }}
+{{ end }}
+
+{{ if eq .Status "resolved" }}
+*✅ RESOLVED ALERTS ({{ .Alerts.Resolved | len }})*
+{{ range .Alerts.Resolved }}
+*Alert:* {{ .Annotations.summary }}
+*Duration:* {{ .StartsAt.Format "15:04:05" }} - {{ .EndsAt.Format "15:04:05 MST" }}
+---
+{{ end }}
+{{ end }}
+{{ end }}
+
+{{ define "slack.critical.text" }}
+🚨 *CRITICAL ALERT* 🚨
+@channel - Immediate attention required!
+
+{{ range .Alerts.Firing }}
+*🔥 {{ .Annotations.summary }}*
+{{ .Annotations.description }}
+
+*Component:* {{ .Labels.component }}
+*Instance:* {{ .Labels.instance }}
+*Started:* {{ .StartsAt.Format "15:04:05 MST" }}
+{{ if .Annotations.runbook_url }}
+*Runbook:* <{{ .Annotations.runbook_url }}|Emergency Procedures>{{ end }}
+
+{{ end }}
+{{ end }}
+
+{{ define "slack.risk.text" }}
+⚠️ *RISK MANAGEMENT ALERT* ⚠️
+
+{{ range .Alerts.Firing }}
+*Alert:* {{ .Annotations.summary }}
+*Details:* {{ .Annotations.description }}
+*Risk Level:* {{ .Labels.severity | upper }}
+*Time:* {{ .StartsAt.Format "15:04:05 MST" }}
+
+{{ end }}
+
+*Action Required:* Review risk parameters and take appropriate action.
+{{ end }}
+
+{{ define "slack.security.text" }}
+🔒 *SECURITY ALERT* 🔒
+
+{{ range .Alerts.Firing }}
+*Security Event:* {{ .Annotations.summary }}
+*Details:* {{ .Annotations.description }}
+*Severity:* {{ .Labels.severity | upper }}
+*Source:* {{ .Labels.instance }}
+*Time:* {{ .StartsAt.Format "15:04:05 MST" }}
+
+{{ end }}
+
+*Action Required:* Investigate immediately and follow security incident response procedures.
+{{ end }}

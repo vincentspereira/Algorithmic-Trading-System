@@ -1,16 +1,26 @@
+# Prometheus Configuration for Algorithmic Trading System
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
+  external_labels:
+    cluster: 'trading-system'
+    environment: 'production'
 
-rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
-
+# Alertmanager configuration
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          # - alertmanager:9093
+          - alertmanager:9093
+      path_prefix: /
+      scheme: http
+      timeout: 10s
+      api_version: v2
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+  - "/etc/prometheus/alert_rules/*.yml"
 
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
@@ -18,26 +28,63 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  # Trading system metrics
-  - job_name: 'trading-api'
+  # Trading Engine Metrics
+  - job_name: 'trading-engine'
     static_configs:
-      - targets: ['host.docker.internal:8000']
-    metrics_path: '/metrics'
-    scrape_interval: 10s
+      - targets: 
+        - 'host.docker.internal:8000'
+        - 'host.docker.internal:8001'
+        - 'host.docker.internal:8002'
+    scrape_interval: 5s  # High frequency for trading metrics
+    metrics_path: /metrics
+    scrape_timeout: 10s
 
-  # NautilusTrader engine metrics
-  - job_name: 'nautilus-trader'
+  # Portfolio Manager
+  - job_name: 'portfolio-manager'
     static_configs:
-      - targets: ['host.docker.internal:8001']
-    metrics_path: '/metrics'
+      - targets: ['portfolio-manager:8010']
     scrape_interval: 10s
+    metrics_path: /metrics
 
-  # AI Assistant metrics
-  - job_name: 'ai-assistant'
+  # Risk Manager
+  - job_name: 'risk-manager'
     static_configs:
-      - targets: ['host.docker.internal:8002']
-    metrics_path: '/metrics'
+      - targets: ['risk-manager:8020']
+    scrape_interval: 5s  # High frequency for risk metrics
+    metrics_path: /metrics
+
+  # Market Data Service
+  - job_name: 'market-data-service'
+    static_configs:
+      - targets: 
+        - 'market-data-service:8030'
+        - 'market-data-service:8031'
+    scrape_interval: 5s  # High frequency for market data
+    metrics_path: /metrics
+
+  # Order Management System
+  - job_name: 'order-management'
+    static_configs:
+      - targets: ['order-management:8040']
+    scrape_interval: 5s  # High frequency for order metrics
+    metrics_path: /metrics
+
+  # AI/ML Services
+  - job_name: 'ai-ml-services'
+    static_configs:
+      - targets: 
+        - 'ai-strategy-service:8050'
+        - 'ai-research-service:8051'
+        - 'ai-risk-service:8052'
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
     scrape_interval: 10s
+    metrics_path: /metrics
 
   # Database metrics
   - job_name: 'postgres-exporter'

@@ -1,0 +1,115 @@
+# Grafana Dashboard Provisioning Configuration
+# Automatically provisions dashboards for the trading system
+
+apiVersion: 1
+
+providers:
+  # Trading System Core Dashboards
+  - name: 'trading-system-core'
+    orgId: 1
+    folder: 'Trading System'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/core
+
+  # Database Monitoring Dashboards
+  - name: 'database-monitoring'
+    orgId: 1
+    folder: 'Database Monitoring'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/database
+
+  # System Infrastructure Dashboards
+  - name: 'infrastructure-monitoring'
+    orgId: 1
+    folder: 'Infrastructure'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/infrastructure
+
+  # Application Performance Dashboards
+  - name: 'application-performance'
+    orgId: 1
+    folder: 'Application Performance'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/application
+
+  # Business Metrics Dashboards
+  - name: 'business-metrics'
+    orgId: 1
+    folder: 'Business Metrics'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/business
+
+  # Security and Compliance Dashboards
+  - name: 'security-compliance'
+    orgId: 1
+    folder: 'Security & Compliance'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/security
+
+  # AI and ML Model Monitoring
+  - name: 'ai-ml-monitoring'
+    orgId: 1
+    folder: 'AI & ML Models'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/ai-ml
+
+  # Custom User Dashboards
+  - name: 'custom-dashboards'
+    orgId: 1
+    folder: 'Custom'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/custom
+
+  # Alert and Incident Management
+  - name: 'alert-management'
+    orgId: 1
+    folder: 'Alerts & Incidents'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/alerts
+
+  # Development and Testing Dashboards
+  - name: 'development-testing'
+    orgId: 1
+    folder: 'Development & Testing'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/dev-test

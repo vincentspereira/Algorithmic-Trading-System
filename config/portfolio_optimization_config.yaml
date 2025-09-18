@@ -1,0 +1,429 @@
+# Portfolio Optimization Configuration
+# Advanced configuration for PyPortfolioOpt and Riskfolio-Lib integration
+
+# Global Settings
+global:
+  risk_free_rate: 0.02  # 2% annual risk-free rate
+  trading_days_per_year: 252
+  default_lookback_period: 252  # 1 year of daily data
+  confidence_level: 0.95
+  currency: "USD"
+  timezone: "America/New_York"
+
+# Data Sources Configuration
+data_sources:
+  primary:
+    provider: "yahoo_finance"
+    api_key: null  # Free tier
+    rate_limit: 2000  # requests per hour
+    timeout: 30  # seconds
+  
+  fallback:
+    - provider: "alpha_vantage"
+      api_key: "${ALPHA_VANTAGE_API_KEY}"
+      rate_limit: 500
+      timeout: 30
+    
+    - provider: "finnhub"
+      api_key: "${FINNHUB_API_KEY}"
+      rate_limit: 300
+      timeout: 30
+
+# Optimization Methods Configuration
+optimization_methods:
+  mean_variance:
+    enabled: true
+    default_gamma: 1.0  # Risk aversion parameter
+    solver: "ECOS"  # ECOS, SCS, OSQP
+    max_iterations: 10000
+    
+  maximum_sharpe:
+    enabled: true
+    solver: "ECOS"
+    max_iterations: 10000
+    
+  minimum_variance:
+    enabled: true
+    solver: "OSQP"
+    max_iterations: 10000
+    
+  efficient_frontier:
+    enabled: true
+    n_points: 100  # Number of points on efficient frontier
+    target_returns: null  # Auto-generate if null
+    
+  black_litterman:
+    enabled: true
+    tau: 0.05  # Scaling factor for uncertainty of prior
+    market_cap_weights: true  # Use market cap for equilibrium weights
+    risk_aversion: 3.0  # Market risk aversion
+    
+  hierarchical_risk_parity:
+    enabled: true
+    linkage_method: "single"  # single, complete, average, ward
+    max_clusters: null  # Auto-determine if null
+    
+  risk_parity:
+    enabled: true
+    risk_budget: null  # Equal risk budget if null
+    solver: "SLSQP"
+    
+  cvar_optimization:
+    enabled: true
+    alpha: 0.05  # 95% confidence level
+    solver: "CLARABEL"
+    
+  max_diversification:
+    enabled: true
+    solver: "OSQP"
+
+# Risk Measures Configuration
+risk_measures:
+  variance:
+    enabled: true
+    shrinkage: "ledoit_wolf"  # ledoit_wolf, oas, constant_correlation
+    
+  semi_variance:
+    enabled: true
+    benchmark: 0.0  # Downside threshold
+    
+  cvar:
+    enabled: true
+    alpha: 0.05  # 95% confidence level
+    
+  worst_realization:
+    enabled: true
+    
+  maximum_drawdown:
+    enabled: true
+    
+  calmar_ratio:
+    enabled: true
+    
+  entropic_drawdown:
+    enabled: true
+    
+  ulcer_index:
+    enabled: true
+
+# Constraints Configuration
+constraints:
+  weight_bounds:
+    min_weight: 0.0  # Minimum weight per asset
+    max_weight: 0.4  # Maximum weight per asset
+    
+  sector_constraints:
+    enabled: false
+    max_sector_weight: 0.3
+    sector_mapping: {}  # Asset to sector mapping
+    
+  turnover_constraints:
+    enabled: false
+    max_turnover: 0.2  # 20% maximum turnover
+    
+  tracking_error:
+    enabled: false
+    max_tracking_error: 0.05  # 5% maximum tracking error
+    
+  leverage_constraints:
+    enabled: false
+    max_leverage: 1.0  # No leverage by default
+    
+  cardinality_constraints:
+    enabled: false
+    min_assets: 5
+    max_assets: 20
+
+# Transaction Costs Configuration
+transaction_costs:
+  enabled: true
+  
+  # Linear transaction costs (percentage of trade value)
+  linear_costs:
+    commission_rate: 0.001  # 0.1% commission
+    bid_ask_spread: 0.0005  # 0.05% bid-ask spread
+    market_impact: 0.0002  # 0.02% market impact
+    
+  # Fixed transaction costs (per trade)
+  fixed_costs:
+    commission_per_trade: 1.0  # $1 per trade
+    
+  # Minimum trade size to avoid excessive small trades
+  min_trade_size: 100  # $100 minimum trade
+  
+  # Transaction cost model
+  cost_model: "linear"  # linear, quadratic, piecewise
+
+# Performance Attribution Configuration
+performance_attribution:
+  enabled: true
+  
+  # Attribution methods
+  methods:
+    brinson_hood_beebower: true
+    brinson_fachler: true
+    factor_attribution: true
+    
+  # Factor models
+  factor_models:
+    fama_french_3:
+      enabled: true
+      factors: ["market", "size", "value"]
+      
+    fama_french_5:
+      enabled: false
+      factors: ["market", "size", "value", "profitability", "investment"]
+      
+    custom_factors:
+      enabled: false
+      factors: []
+  
+  # Sector attribution
+  sector_attribution:
+    enabled: true
+    sector_classification: "GICS"  # GICS, ICB, custom
+    
+  # Currency attribution (for international portfolios)
+  currency_attribution:
+    enabled: false
+    base_currency: "USD"
+
+# Backtesting Configuration
+backtesting:
+  enabled: true
+  
+  # Rebalancing settings
+  rebalancing:
+    frequency: "monthly"  # daily, weekly, monthly, quarterly
+    method: "periodic"  # periodic, threshold, volatility_target
+    threshold: 0.05  # 5% deviation threshold for threshold method
+    
+  # Performance metrics
+  metrics:
+    - "total_return"
+    - "annualized_return"
+    - "volatility"
+    - "sharpe_ratio"
+    - "sortino_ratio"
+    - "calmar_ratio"
+    - "max_drawdown"
+    - "var_95"
+    - "cvar_95"
+    - "skewness"
+    - "kurtosis"
+    - "beta"
+    - "alpha"
+    - "information_ratio"
+    - "treynor_ratio"
+    
+  # Benchmark comparison
+  benchmark:
+    ticker: "SPY"  # S&P 500 ETF
+    rebalancing_cost: 0.0  # Assume no rebalancing cost for benchmark
+
+# Risk Management Configuration
+risk_management:
+  enabled: true
+  
+  # Position limits
+  position_limits:
+    max_position_size: 0.1  # 10% maximum position
+    max_sector_exposure: 0.3  # 30% maximum sector exposure
+    
+  # Risk monitoring
+  risk_monitoring:
+    var_limit: 0.05  # 5% daily VaR limit
+    drawdown_limit: 0.15  # 15% maximum drawdown
+    volatility_limit: 0.25  # 25% annualized volatility limit
+    
+  # Stop-loss rules
+  stop_loss:
+    enabled: false
+    threshold: 0.1  # 10% stop-loss threshold
+    
+  # Stress testing
+  stress_testing:
+    enabled: true
+    scenarios:
+      - name: "market_crash"
+        market_shock: -0.2  # 20% market decline
+      - name: "interest_rate_shock"
+        rate_shock: 0.02  # 200 bps rate increase
+      - name: "volatility_spike"
+        vol_multiplier: 2.0  # Double volatility
+
+# Reporting Configuration
+reporting:
+  enabled: true
+  
+  # Report formats
+  formats:
+    - "pdf"
+    - "html"
+    - "json"
+    
+  # Report sections
+  sections:
+    - "executive_summary"
+    - "portfolio_composition"
+    - "performance_metrics"
+    - "risk_analysis"
+    - "attribution_analysis"
+    - "transaction_summary"
+    - "compliance_report"
+    
+  # Visualization settings
+  visualizations:
+    efficient_frontier: true
+    correlation_heatmap: true
+    performance_chart: true
+    drawdown_chart: true
+    sector_allocation: true
+    risk_decomposition: true
+    
+  # Export settings
+  export:
+    include_raw_data: false
+    compress_output: true
+    encryption: false
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  
+  # Log destinations
+  handlers:
+    console:
+      enabled: true
+      level: "INFO"
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+      
+    file:
+      enabled: true
+      level: "DEBUG"
+      filename: "logs/portfolio_optimization.log"
+      max_size: "10MB"
+      backup_count: 5
+      
+    kafka:
+      enabled: false
+      topic: "portfolio_optimization_logs"
+      bootstrap_servers: ["localhost:9092"]
+
+# Cache Configuration
+caching:
+  enabled: true
+  
+  # Cache backends
+  backend: "redis"  # redis, memory, file
+  
+  # Redis settings (if using Redis backend)
+  redis:
+    host: "localhost"
+    port: 6379
+    db: 0
+    password: null
+    
+  # Cache TTL settings (in seconds)
+  ttl:
+    price_data: 3600  # 1 hour
+    covariance_matrix: 1800  # 30 minutes
+    optimization_results: 900  # 15 minutes
+    
+  # Cache size limits
+  max_size: "1GB"
+  
+# Performance Configuration
+performance:
+  # Parallel processing
+  parallel_processing:
+    enabled: true
+    max_workers: 4  # Number of worker processes
+    
+  # Memory management
+  memory_management:
+    max_memory_usage: "2GB"
+    garbage_collection: true
+    
+  # Optimization solver settings
+  solver_settings:
+    default_solver: "ECOS"
+    solver_timeout: 300  # 5 minutes
+    
+    # Solver-specific settings
+    ECOS:
+      feastol: 1e-8
+      abstol: 1e-8
+      reltol: 1e-8
+      
+    OSQP:
+      eps_abs: 1e-8
+      eps_rel: 1e-8
+      max_iter: 10000
+      
+    SCS:
+      eps: 1e-6
+      max_iters: 10000
+
+# Development and Testing Configuration
+development:
+  # Debug settings
+  debug_mode: false
+  verbose_output: false
+  
+  # Testing settings
+  testing:
+    use_synthetic_data: false
+    random_seed: 42
+    
+  # Profiling
+  profiling:
+    enabled: false
+    output_file: "profile_results.prof"
+    
+# Integration Settings
+integration:
+  # Database connections
+  database:
+    enabled: false
+    connection_string: "postgresql://user:password@localhost:5432/portfolio_db"
+    
+  # Message queue (Kafka)
+  kafka:
+    enabled: false
+    bootstrap_servers: ["localhost:9092"]
+    topics:
+      optimization_requests: "portfolio_optimization_requests"
+      optimization_results: "portfolio_optimization_results"
+      
+  # API settings
+  api:
+    enabled: false
+    host: "0.0.0.0"
+    port: 8000
+    workers: 4
+    
+  # Monitoring and alerting
+  monitoring:
+    prometheus:
+      enabled: false
+      port: 9090
+      
+    grafana:
+      enabled: false
+      dashboard_url: "http://localhost:3000"
+      
+  # Notifications
+  notifications:
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      
+    slack:
+      enabled: false
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      
+    teams:
+      enabled: false
+      webhook_url: "${TEAMS_WEBHOOK_URL}"

@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import Mock, patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import numpy as np
 from monitoring.performance_optimizer import (
     PerformanceOptimizer,
@@ -107,7 +107,7 @@ class TestPerformanceOptimizer(unittest.TestCase):
     def test_window_size_cleanup(self):
         """Test that old data is cleaned up properly"""
         # Add data spanning more than window size
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         old_metrics = self._generate_test_metrics()
         
         with patch('datetime.datetime') as mock_datetime:

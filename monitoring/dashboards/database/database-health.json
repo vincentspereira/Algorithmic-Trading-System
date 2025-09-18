@@ -1,0 +1,290 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Database Health & Performance",
+    "tags": ["database", "postgresql", "clickhouse", "redis", "influxdb"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Database Services Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"postgresql|clickhouse|redis|influxdb|minio|elasticsearch|qdrant\"}",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "PostgreSQL - Connection Pool",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends{datname=\"trading_system\"}",
+            "legendFormat": "Active Connections"
+          },
+          {
+            "expr": "pg_settings_max_connections",
+            "legendFormat": "Max Connections"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Connections",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 3,
+        "title": "PostgreSQL - Cache Hit Ratio",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(pg_stat_database_blks_hit{datname=\"trading_system\"}[5m]) / (rate(pg_stat_database_blks_hit{datname=\"trading_system\"}[5m]) + rate(pg_stat_database_blks_read{datname=\"trading_system\"}[5m])) * 100",
+            "legendFormat": "Cache Hit Ratio %"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Percentage",
+            "min": 0,
+            "max": 100
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 4,
+        "title": "PostgreSQL - Transaction Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(pg_stat_database_xact_commit{datname=\"trading_system\"}[5m])",
+            "legendFormat": "Commits/sec"
+          },
+          {
+            "expr": "rate(pg_stat_database_xact_rollback{datname=\"trading_system\"}[5m])",
+            "legendFormat": "Rollbacks/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Transactions/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 5,
+        "title": "Redis - Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_memory_used_bytes",
+            "legendFormat": "Used Memory"
+          },
+          {
+            "expr": "redis_memory_max_bytes",
+            "legendFormat": "Max Memory"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Bytes",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        }
+      },
+      {
+        "id": 6,
+        "title": "Redis - Operations Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(redis_commands_processed_total[5m])",
+            "legendFormat": "Commands/sec"
+          },
+          {
+            "expr": "rate(redis_keyspace_hits_total[5m])",
+            "legendFormat": "Cache Hits/sec"
+          },
+          {
+            "expr": "rate(redis_keyspace_misses_total[5m])",
+            "legendFormat": "Cache Misses/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Operations/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 7,
+        "title": "ClickHouse - Query Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(clickhouse_query_total[5m])",
+            "legendFormat": "Queries/sec"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(clickhouse_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile latency"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Queries/sec | Latency (s)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 22
+        }
+      },
+      {
+        "id": 8,
+        "title": "Database Disk Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_database_size_bytes{datname=\"trading_system\"}",
+            "legendFormat": "PostgreSQL Size"
+          },
+          {
+            "expr": "clickhouse_database_size_bytes",
+            "legendFormat": "ClickHouse Size"
+          },
+          {
+            "expr": "redis_memory_used_bytes",
+            "legendFormat": "Redis Memory"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Bytes",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 30
+        }
+      },
+      {
+        "id": 9,
+        "title": "Database Error Rates",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(pg_stat_database_deadlocks{datname=\"trading_system\"}[5m])",
+            "legendFormat": "PostgreSQL Deadlocks/sec"
+          },
+          {
+            "expr": "rate(redis_rejected_connections_total[5m])",
+            "legendFormat": "Redis Rejected Connections/sec"
+          },
+          {
+            "expr": "rate(clickhouse_query_failed_total[5m])",
+            "legendFormat": "ClickHouse Failed Queries/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 38
+        }
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

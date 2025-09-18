@@ -1,0 +1,470 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Security & Compliance Monitoring",
+    "tags": ["security", "compliance", "authentication", "audit"],
+    "timezone": "browser",
+    "refresh": "1m",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Authentication Events",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(auth_login_attempts_total[5m])",
+            "legendFormat": "Login Attempts/min"
+          },
+          {
+            "expr": "rate(auth_login_success_total[5m])",
+            "legendFormat": "Successful Logins/min"
+          },
+          {
+            "expr": "rate(auth_login_failures_total[5m])",
+            "legendFormat": "Failed Logins/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Security Alerts",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(security_alerts_active{severity=\"critical\"})",
+            "legendFormat": "Critical Alerts"
+          },
+          {
+            "expr": "sum(security_alerts_active{severity=\"high\"})",
+            "legendFormat": "High Alerts"
+          },
+          {
+            "expr": "sum(security_alerts_active{severity=\"medium\"})",
+            "legendFormat": "Medium Alerts"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 1
+                },
+                {
+                  "color": "red",
+                  "value": 5
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "API Security Events",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(api_requests_blocked_total[5m])",
+            "legendFormat": "Blocked Requests/min"
+          },
+          {
+            "expr": "rate(api_rate_limit_exceeded_total[5m])",
+            "legendFormat": "Rate Limit Exceeded/min"
+          },
+          {
+            "expr": "rate(api_unauthorized_attempts_total[5m])",
+            "legendFormat": "Unauthorized Attempts/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "SSL/TLS Certificate Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "ssl_certificate_expiry_days",
+            "legendFormat": "{{domain}} - Days to Expiry"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "d",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 30
+                },
+                {
+                  "color": "green",
+                  "value": 90
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Compliance Violations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(compliance_violations_total{type=\"position_limit\"}[5m])",
+            "legendFormat": "Position Limit Violations/min"
+          },
+          {
+            "expr": "rate(compliance_violations_total{type=\"risk_limit\"}[5m])",
+            "legendFormat": "Risk Limit Violations/min"
+          },
+          {
+            "expr": "rate(compliance_violations_total{type=\"trading_hours\"}[5m])",
+            "legendFormat": "Trading Hours Violations/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Violations/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Audit Trail Events",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(audit_events_total{category=\"trade_execution\"}[5m])",
+            "legendFormat": "Trade Execution Events/min"
+          },
+          {
+            "expr": "rate(audit_events_total{category=\"user_action\"}[5m])",
+            "legendFormat": "User Action Events/min"
+          },
+          {
+            "expr": "rate(audit_events_total{category=\"system_change\"}[5m])",
+            "legendFormat": "System Change Events/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 7,
+        "title": "Data Encryption Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "data_encryption_enabled{component=\"database\"}",
+            "legendFormat": "Database Encryption"
+          },
+          {
+            "expr": "data_encryption_enabled{component=\"api\"}",
+            "legendFormat": "API Encryption"
+          },
+          {
+            "expr": "data_encryption_enabled{component=\"storage\"}",
+            "legendFormat": "Storage Encryption"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DISABLED",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "ENABLED",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Network Security Events",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(firewall_blocked_connections_total[5m])",
+            "legendFormat": "Firewall Blocks/min"
+          },
+          {
+            "expr": "rate(intrusion_detection_alerts_total[5m])",
+            "legendFormat": "IDS Alerts/min"
+          },
+          {
+            "expr": "rate(ddos_mitigation_events_total[5m])",
+            "legendFormat": "DDoS Events/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 9,
+        "title": "User Session Monitoring",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "active_user_sessions_total",
+            "legendFormat": "Active Sessions"
+          },
+          {
+            "expr": "rate(user_session_created_total[5m])",
+            "legendFormat": "New Sessions/min"
+          },
+          {
+            "expr": "rate(user_session_expired_total[5m])",
+            "legendFormat": "Expired Sessions/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Sessions / Sessions/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 30
+        }
+      },
+      {
+        "id": 10,
+        "title": "Privileged Access Monitoring",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(privileged_access_events_total{action=\"login\"}[5m])",
+            "legendFormat": "Admin Logins/min"
+          },
+          {
+            "expr": "rate(privileged_access_events_total{action=\"config_change\"}[5m])",
+            "legendFormat": "Config Changes/min"
+          },
+          {
+            "expr": "rate(privileged_access_events_total{action=\"data_access\"}[5m])",
+            "legendFormat": "Data Access/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 30
+        }
+      },
+      {
+        "id": 11,
+        "title": "Regulatory Reporting Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "regulatory_report_status{report_type=\"trade_reporting\"}",
+            "legendFormat": "Trade Reporting"
+          },
+          {
+            "expr": "regulatory_report_status{report_type=\"position_reporting\"}",
+            "legendFormat": "Position Reporting"
+          },
+          {
+            "expr": "regulatory_report_status{report_type=\"risk_reporting\"}",
+            "legendFormat": "Risk Reporting"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "FAILED",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "SUCCESS",
+                    "color": "green"
+                  },
+                  "2": {
+                    "text": "PENDING",
+                    "color": "yellow"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                },
+                {
+                  "color": "yellow",
+                  "value": 2
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 24,
+          "x": 0,
+          "y": 38
+        }
+      },
+      {
+        "id": 12,
+        "title": "Security Incident Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(security_incident_response_time_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile response time"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(security_incident_response_time_seconds_bucket[5m]))",
+            "legendFormat": "Median response time"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Response Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 44
+        }
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

@@ -375,3 +375,11 @@ class CacheCoherencyManager:
         except Exception as e:
             self.logger.error(f"Error in forced coherency check: {e}")
             return -1
+
+
+class CacheCoherency(CacheCoherencyManager):
+    """Backward-compatible alias expected by unit tests.
+    Provides the symbol name `CacheCoherency` while leveraging the existing
+    CacheCoherencyManager implementation.
+    """
+    pass

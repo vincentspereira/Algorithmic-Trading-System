@@ -16,7 +16,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import time
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -376,7 +376,7 @@ Details:
             message="Comprehensive report of dependency updates, security vulnerabilities, and system health.",
             severity=AlertSeverity.MEDIUM,
             alert_type=AlertType.WEEKLY_SUMMARY,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             details=summary_data,
             recipients=[],
             channels=['teams', 'email']  # Send to Teams and email for summaries
@@ -391,7 +391,7 @@ Details:
             message=message,
             severity=AlertSeverity.CRITICAL,
             alert_type=AlertType.SECURITY_VULNERABILITY,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             details=details or {},
             recipients=[],
             channels=['teams', 'discord', 'slack', 'email']  # All channels for critical alerts
@@ -415,7 +415,7 @@ Details:
             message=f"Vulnerability {vulnerability_data.get('id', 'Unknown')} found in {vulnerability_data.get('package', 'unknown package')} version {vulnerability_data.get('version', 'unknown')}",
             severity=severity,
             alert_type=AlertType.SECURITY_VULNERABILITY,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             details=vulnerability_data,
             recipients=[],
             channels=['teams', 'discord', 'email']  # Security alerts to key channels
@@ -430,7 +430,7 @@ Details:
             message=f"Breaking changes detected in {change_data.get('dependency', 'unknown dependency')} from version {change_data.get('from_version', 'unknown')} to {change_data.get('to_version', 'unknown')}",
             severity=AlertSeverity.HIGH,
             alert_type=AlertType.BREAKING_CHANGE,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             details=change_data,
             recipients=[],
             channels=['teams', 'discord', 'email']  # Breaking changes to key channels
@@ -522,11 +522,11 @@ def main():
         message="All monitoring systems are operational and up to date.",
         severity=AlertSeverity.LOW,
         alert_type=AlertType.SYSTEM_HEALTH,
-        timestamp=datetime.now().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         details={
             "monitoring_systems": ["GitHub Actions", "Renovate", "Dependabot"],
             "status": "All systems operational",
-            "last_check": datetime.now().isoformat()
+            "last_check": datetime.now(timezone.utc).isoformat()
         },
         recipients=["devops@company.com"],
         channels=['teams', 'email']

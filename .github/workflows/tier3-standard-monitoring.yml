@@ -1,0 +1,204 @@
+name: Tier 3 - Standard Repository Monitoring
+
+# Tier 3: UI components, documentation, and utility services
+# Runs every 6 hours with basic alerts
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  NOTIFICATION_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_STANDARD }}
+  DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_STANDARD }}
+  EMAIL_RECIPIENTS: ${{ secrets.STANDARD_EMAIL_LIST }}
+
+jobs:
+  basic-security:
+    name: Basic Security Check (Tier 3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        pip install bandit
+    
+    - name: Run basic security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+      continue-on-error: true
+    
+    - name: Check for high severity issues
+      run: |
+        python .github/scripts/check-high-severity.py --tier=3
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier3-security-${{ github.run_number }}
+        path: |
+          bandit-report.json
+          security-summary.json
+
+  dependency-audit:
+    name: Dependency Audit (Tier 3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Check for known vulnerabilities
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+    
+    - name: Analyze vulnerabilities
+      run: |
+        python .github/scripts/analyze-vulnerabilities.py --tier=3
+    
+    - name: Upload dependency report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier3-dependencies-${{ github.run_number }}
+        path: |
+          safety-report.json
+          vulnerability-summary.json
+
+  build-test:
+    name: Build and Basic Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js (if needed)
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+      if: hashFiles('package.json') != ''
+    
+    - name: Install Python dependencies
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+    
+    - name: Install Node dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm install
+        fi
+      if: hashFiles('package.json') != ''
+    
+    - name: Run basic tests
+      run: |
+        if [ -f pytest.ini ] || [ -d tests ]; then
+          pip install pytest
+          pytest --tb=short
+        elif [ -f package.json ]; then
+          npm test
+        fi
+    
+    - name: Generate build summary
+      run: |
+        python .github/scripts/generate-build-summary.py --tier=3
+    
+    - name: Upload build report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier3-build-${{ github.run_number }}
+        path: |
+          build-summary.json
+
+  code-lint:
+    name: Code Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install linting tools
+      run: |
+        pip install flake8
+    
+    - name: Run linting
+      run: |
+        flake8 . --format=json --output-file=lint-report.json || true
+    
+    - name: Analyze lint results
+      run: |
+        python .github/scripts/analyze-lint-results.py --tier=3
+    
+    - name: Upload lint report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier3-lint-${{ github.run_number }}
+        path: |
+          lint-report.json
+          lint-summary.json
+
+  notification-summary:
+    name: Send Tier 3 Summary
+    runs-on: ubuntu-latest
+    needs: [basic-security, dependency-audit, build-test, code-lint]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all reports
+      uses: actions/download-artifact@v3
+    
+    - name: Generate summary
+      run: |
+        python .github/scripts/generate-monitoring-summary.py \
+          --tier="3" \
+          --repository="${{ github.repository }}" \
+          --run-id="${{ github.run_number }}"
+    
+    - name: Send notifications (if issues found)
+      run: |
+        python .github/scripts/send-tier3-notifications.py \
+          --summary="monitoring-summary.json" \
+          --notify-on-issues-only
+      env:
+        TEAMS_WEBHOOK: ${{ env.NOTIFICATION_WEBHOOK }}
+        DISCORD_WEBHOOK: ${{ env.DISCORD_WEBHOOK }}
+        EMAIL_RECIPIENTS: ${{ env.EMAIL_RECIPIENTS }}

@@ -18,7 +18,7 @@ import numpy as np
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from nautilus_trader_engine.data_feeds import DataFeedManager, DataRequest, DataResponse, AssetClass
-from nautilus_trader_engine.indicators.volume_weighted import VolumeWeightedIndicators, MarketData
+from nautilus_trader_engine.indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators, MarketData
 from nautilus_trader_engine.adapters.ibkr_adapter import initialize_ibkr_adapter, get_ibkr_adapter
 
 

@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from uuid import uuid4
 
@@ -62,5 +62,5 @@ class APIResponse(BaseModel):
     success: bool
     data: Optional[Any] = None
     message: str = ""
-    timestamp: datetime = Field(default_factory=datetime.now)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     request_id: str = Field(default_factory=lambda: str(uuid4()))

@@ -4,13 +4,15 @@ Provides endpoints for security dashboard data
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 import json
 
-from ..main import verify_token, APIResponse, get_cached_data, set_cached_data
+from ..main import APIResponse, get_cached_data, set_cached_data
+from auth.middleware import AuthMiddleware, AuthContext
+from auth.oauth_service import UserRole, Permission
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/security", tags=["security"])
@@ -60,7 +62,7 @@ MOCK_VULNERABILITIES = [
         "severity": "high",
         "component": "NautilusTrader",
         "description": "Potential memory leak in order processing module",
-        "published_date": datetime.now() - timedelta(days=7),
+        "published_date": datetime.now(timezone.utc) - timedelta(days=7),
         "remediation": "Upgrade to version 2.0.2 or apply patch"
     },
     {
@@ -68,7 +70,7 @@ MOCK_VULNERABILITIES = [
         "severity": "medium",
         "component": "LangChain",
         "description": "Insecure temporary file creation",
-        "published_date": datetime.now() - timedelta(days=14),
+        "published_date": datetime.now(timezone.utc) - timedelta(days=14),
         "remediation": "Upgrade to version 0.1.6"
     },
     {
@@ -76,7 +78,7 @@ MOCK_VULNERABILITIES = [
         "severity": "critical",
         "component": "FastAPI",
         "description": "Remote code execution vulnerability in request parsing",
-        "published_date": datetime.now() - timedelta(days=3),
+        "published_date": datetime.now(timezone.utc) - timedelta(days=3),
         "remediation": "Upgrade to version 0.104.1 or later"
     }
 ]
@@ -175,7 +177,7 @@ def calculate_overall_risk_score(vulnerabilities: List[Dict], sast_findings: Lis
     return 0.0
 
 @router.get("/dashboard", response_model=APIResponse)
-async def get_security_dashboard(user: dict = Depends(verify_token)):
+async def get_security_dashboard(auth_context: AuthContext = Depends(AuthMiddleware.require_permission(Permission.SECURITY_READ))):
     """Get comprehensive security dashboard data"""
     try:
         # Check cache first
@@ -185,7 +187,7 @@ async def get_security_dashboard(user: dict = Depends(verify_token)):
         if cached_data and isinstance(cached_data, dict):
             # Check if cached data is recent (less than 5 minutes old)
             cached_timestamp = datetime.fromisoformat(cached_data.get("timestamp", ""))
-            if datetime.now() - cached_timestamp < timedelta(minutes=5):
+            if datetime.now(timezone.utc) - cached_timestamp < timedelta(minutes=5):
                 return APIResponse(
                     success=True, 
                     data=cached_data, 
@@ -200,7 +202,7 @@ async def get_security_dashboard(user: dict = Depends(verify_token)):
         )
         
         dashboard_data = {
-            "timestamp": datetime.now(),
+            "timestamp": datetime.now(timezone.utc),
             "overall_risk_score": overall_risk_score,
             "vulnerabilities": MOCK_VULNERABILITIES,
             "sast_findings": MOCK_SAST_FINDINGS,
@@ -228,7 +230,7 @@ async def get_security_dashboard(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve security dashboard data: {str(e)}")
 
 @router.get("/vulnerabilities", response_model=APIResponse)
-async def get_vulnerabilities(user: dict = Depends(verify_token)):
+async def get_vulnerabilities(auth_context: AuthContext = Depends(AuthMiddleware.require_permission(Permission.SECURITY_READ))):
     """Get current vulnerability information"""
     try:
         vulnerabilities = []
@@ -248,7 +250,7 @@ async def get_vulnerabilities(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve vulnerabilities: {str(e)}")
 
 @router.get("/sast-findings", response_model=APIResponse)
-async def get_sast_findings(user: dict = Depends(verify_token)):
+async def get_sast_findings(auth_context: AuthContext = Depends(AuthMiddleware.require_permission(Permission.SECURITY_READ))):
     """Get current SAST findings"""
     try:
         return APIResponse(
@@ -261,7 +263,7 @@ async def get_sast_findings(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve SAST findings: {str(e)}")
 
 @router.get("/threat-models", response_model=APIResponse)
-async def get_threat_models(user: dict = Depends(verify_token)):
+async def get_threat_models(auth_context: AuthContext = Depends(AuthMiddleware.require_permission(Permission.SECURITY_READ))):
     """Get current threat models"""
     try:
         return APIResponse(

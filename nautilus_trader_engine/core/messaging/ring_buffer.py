@@ -254,3 +254,11 @@ def create_ring_buffer(config: RingBufferConfig) -> LockFreeRingBuffer:
         return MultiConsumerRingBuffer(config.capacity)
     else:
         return LockFreeRingBuffer(config.capacity)
+
+
+class RingBuffer(LockFreeRingBuffer):
+    """
+    Backward-compatible alias for ring buffer used in unit tests.
+    Inherits from LockFreeRingBuffer to provide the expected symbol name.
+    """
+    pass

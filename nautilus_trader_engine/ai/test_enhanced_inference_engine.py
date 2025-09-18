@@ -8,11 +8,11 @@ import time
 import numpy as np
 from typing import Any
 
-from inference_engine import (
+from nautilus_trader_engine.ai.inference_engine import (
     InferenceEngine, InferenceRequest, InferencePriority, 
     InferenceMode, ModelOptimization
 )
-from model_manager import ModelManager, ModelConfig, ModelType, ModelPurpose
+from nautilus_trader_engine.ai.model_manager import ModelManager, ModelConfig, ModelType, ModelPurpose
 
 
 class MockModel:

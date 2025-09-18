@@ -9,7 +9,7 @@ Version: 1.0.0
 
 import asyncio
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Tuple
 from enum import Enum
 import logging
@@ -100,8 +100,8 @@ class OrderCreateRequest(BaseModel):
             raise ValueError("good_till_date only valid for GTD orders")
         if values.get('time_in_force') == TimeInForce.GTD and not v:
             raise ValueError("good_till_date required for GTD orders")
-        if v and v <= datetime.utcnow():
-            raise ValueError("good_till_date must be in the future")
+        if v and v <= datetime.now(timezone.utc):
+            raise ValueError("Good till date must be in the future.")
         return v
 
 class OrderUpdateRequest(BaseModel):
@@ -221,8 +221,8 @@ class OrderManager:
                 "avg_fill_price": None,
                 "status": OrderStatus.PENDING.value,
                 "time_in_force": request.time_in_force.value,
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
                 "order_metadata": {
                     "strategy_id": request.strategy_id,
                     "client_order_id": client_order_id,
@@ -271,7 +271,7 @@ class OrderManager:
                 raise OrderValidationError(f"Cannot update order in status: {order_data['status']}")
             
             # Prepare update data
-            update_data = {"updated_at": datetime.utcnow()}
+            update_data = {"updated_at": datetime.now(timezone.utc)}
             metadata_updates = {}
             
             if request.quantity is not None:
@@ -334,11 +334,11 @@ class OrderManager:
             # Update order status
             update_data = {
                 "status": OrderStatus.CANCELLED.value,
-                "updated_at": datetime.utcnow(),
+                "updated_at": datetime.now(timezone.utc),
                 "order_metadata": {
                     **order_data.get("order_metadata", {}),
                     "cancellation_reason": reason,
-                    "cancelled_at": datetime.utcnow().isoformat()
+                    "cancelled_at": datetime.now(timezone.utc).isoformat()
                 }
             }
             
@@ -469,7 +469,7 @@ class OrderManager:
         try:
             update_data = {
                 "status": new_status.value,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
             
             # Handle fill data

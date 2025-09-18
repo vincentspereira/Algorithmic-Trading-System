@@ -52,7 +52,7 @@ class ModelRegistry:
         Returns:
             The ID of the newly registered model.
         """
-        model_id = f"{agent_name}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        model_id = f"{agent_name}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         model_dir = os.path.join(self.registry_path, model_id)
         os.makedirs(model_dir, exist_ok=True)
 
@@ -62,7 +62,7 @@ class ModelRegistry:
         model_info = {
             "id": model_id,
             "agent_name": agent_name,
-            "registration_date": datetime.utcnow().isoformat(),
+            "registration_date": datetime.now(timezone.utc).isoformat(),
             "hyperparameters": hyperparams,
             "performance": performance_metrics,
             "path": os.path.join(model_dir, "model.zip"),

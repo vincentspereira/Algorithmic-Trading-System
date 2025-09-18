@@ -9,7 +9,7 @@ import asyncio
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, TypedDict
 from dataclasses import dataclass, field
 from enum import Enum
@@ -45,7 +45,7 @@ class AgentMessage:
     receiver: str = ""
     message_type: MessageType = MessageType.REQUEST
     content: Dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     correlation_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -57,7 +57,7 @@ class AgentResponse:
     data: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
     message: Optional[str] = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     execution_time: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -150,8 +150,8 @@ class AgentBase(ABC):
         self._metrics = {
             "messages_processed": 0,
             "errors_encountered": 0,
-            "start_time": datetime.utcnow(),
-            "last_activity": datetime.utcnow()
+            "start_time": datetime.now(timezone.utc),
+            "last_activity": datetime.now(timezone.utc)
         }
         
         # Initialize agent
@@ -194,7 +194,7 @@ class AgentBase(ABC):
         # In a real implementation, this would use the message bus (Kafka)
         # For now, just log the message
         self._metrics["messages_processed"] += 1
-        self._metrics["last_activity"] = datetime.utcnow()
+        self._metrics["last_activity"] = datetime.now(timezone.utc)
         
         return message
     
@@ -226,7 +226,7 @@ class AgentBase(ABC):
             
             self.status = AgentStatus.READY
             self._metrics["messages_processed"] += 1
-            self._metrics["last_activity"] = datetime.utcnow()
+            self._metrics["last_activity"] = datetime.now(timezone.utc)
             
             return response
         
@@ -282,7 +282,7 @@ class AgentBase(ABC):
         Returns:
             Agent status dictionary
         """
-        uptime = datetime.utcnow() - self._metrics["start_time"]
+        uptime = datetime.now(timezone.utc) - self._metrics["start_time"]
         
         return {
             "agent_id": self.agent_id,
@@ -301,7 +301,7 @@ class AgentBase(ABC):
         Returns:
             Performance metrics
         """
-        uptime = datetime.utcnow() - self._metrics["start_time"]
+        uptime = datetime.now(timezone.utc) - self._metrics["start_time"]
         
         return {
             "messages_processed": self._metrics["messages_processed"],

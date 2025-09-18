@@ -1,0 +1,860 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run nightly builds at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Code Quality and Security Checks
+  code-quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarCloud
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -r requirements.txt
+
+      - name: Run Black (Code Formatting)
+        run: black --check --diff .
+
+      - name: Run isort (Import Sorting)
+        run: isort --check-only --diff .
+
+      - name: Run flake8 (Linting)
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Run mypy (Type Checking)
+        run: mypy --config-file=pyproject.toml .
+
+      - name: Run bandit (Security Linting)
+        run: bandit -r . -f json -o bandit-report.json
+        continue-on-error: true
+
+      - name: Run safety (Dependency Security)
+        run: safety check --json --output safety-report.json
+        continue-on-error: true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # Unit Tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: |
+          pytest testing/unit/ \
+            --cov=src \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term \
+            --junitxml=junit-${{ matrix.python-version }}.xml \
+            --html=htmlcov/report-${{ matrix.python-version }}.html \
+            --self-contained-html \
+            -v
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: |
+            junit-${{ matrix.python-version }}.xml
+            htmlcov/
+            coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-${{ matrix.python-version }}
+
+  # Integration Tests
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: trading_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      
+      kafka:
+        image: confluentinc/cp-kafka:latest
+        env:
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+      
+      zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+        ports:
+          - 2181:2181
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -r requirements.txt
+
+      - name: Wait for services
+        run: |
+          # Wait for PostgreSQL
+          until pg_isready -h localhost -p 5432 -U testuser; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          
+          # Wait for Redis
+          until redis-cli -h localhost -p 6379 ping; do
+            echo "Waiting for Redis..."
+            sleep 2
+          done
+          
+          # Wait for Kafka
+          sleep 30  # Kafka takes longer to start
+
+      - name: Run database migrations
+        run: |
+          export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/trading_test"
+          python -m alembic upgrade head
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/trading_test
+
+      - name: Run integration tests
+        run: |
+          pytest testing/integration/ \
+            --cov=src \
+            --cov-report=xml \
+            --junitxml=junit-integration.xml \
+            -v
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/trading_test
+          REDIS_URL: redis://localhost:6379/0
+          KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+          TESTING: true
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: integration-test-results
+          path: |
+            junit-integration.xml
+            coverage.xml
+
+  # System Tests
+  system-tests:
+    name: System Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start system with Docker Compose
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 60  # Wait for all services to start
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run system tests
+        run: |
+          pytest testing/system/ \
+            --junitxml=junit-system.xml \
+            -v \
+            --tb=short
+        env:
+          SYSTEM_TEST_BASE_URL: http://localhost:8000
+          TESTING: true
+
+      - name: Collect system logs
+        if: always()
+        run: |
+          mkdir -p logs
+          docker-compose -f docker-compose.test.yml logs > logs/system-logs.txt
+
+      - name: Upload system test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: system-test-results
+          path: |
+            junit-system.xml
+            logs/
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose -f docker-compose.test.yml down -v
+
+  # UAT Tests
+  uat-tests:
+    name: User Acceptance Tests
+    runs-on: ubuntu-latest
+    needs: [system-tests]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run UAT tests
+        run: |
+          pytest testing/uat/ \
+            --junitxml=junit-uat.xml \
+            -v
+        env:
+          TESTING: true
+
+      - name: Upload UAT test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: uat-test-results
+          path: junit-uat.xml
+
+  # Performance Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [system-tests]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install locust
+
+      - name: Start system for performance testing
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 60
+
+      - name: Run performance tests
+        run: |
+          locust -f testing/performance/locustfile.py \
+            --host=http://localhost:8000 \
+            --users=100 \
+            --spawn-rate=10 \
+            --run-time=5m \
+            --html=performance-report.html \
+            --csv=performance \
+            --headless
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            performance-report.html
+            performance_*.csv
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose -f docker-compose.test.yml down -v
+
+  # Security Scanning
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: [code-quality]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Semgrep security scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/python
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+  # Build and Push Docker Images
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    if: github.event_name == 'push'
+    
+    strategy:
+      matrix:
+        service: [trading-engine, market-data, portfolio-manager, risk-manager, api-gateway, web-app]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Notification
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [code-quality, unit-tests, integration-tests, system-tests, uat-tests, security-scan]
+    if: always()
+    
+    steps:
+      - name: Notify Slack on Success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#trading-system-ci'
+          text: '✅ CI/CD Pipeline completed successfully for ${{ github.ref }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#trading-system-ci'
+          text: '❌ CI/CD Pipeline failed for ${{ github.ref }}. Check the logs for details.'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' && success()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            ## Changes in this Release
+            - Automated release from main branch
+            - Commit: ${{ github.sha }}
+            - All tests passed ✅
+            - Security scans completed ✅
+            
+            ## Test Results
+            - Unit Tests: ✅ Passed
+            - Integration Tests: ✅ Passed
+            - System Tests: ✅ Passed
+            - UAT Tests: ✅ Passed
+            - Security Scans: ✅ Completed
+          draft: false
+          prerelease: false
+        sleep 30
+        # Test database connection
+        python -c "import psycopg2; psycopg2.connect('host=localhost port=5432 dbname=trading_test user=postgres password=postgres')"
+        # Test Redis connection
+        python -c "import redis; redis.Redis(host='localhost', port=6379).ping()"
+
+    - name: Run unit tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trading_test
+        REDIS_URL: redis://localhost:6379/0
+        KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      run: |
+        pytest tests/unit/ -v --cov=. --cov-report=xml --cov-report=html --junitxml=junit.xml
+
+    - name: Run integration tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trading_test
+        REDIS_URL: redis://localhost:6379/0
+        KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      run: |
+        pytest tests/integration/ -v --junitxml=integration-junit.xml
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          junit.xml
+          integration-junit.xml
+          htmlcov/
+          coverage.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Frontend Tests
+  frontend-test:
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run frontend linting
+      working-directory: ./frontend
+      run: npm run lint
+
+    - name: Run frontend type checking
+      working-directory: ./frontend
+      run: npm run type-check
+
+    - name: Run frontend tests
+      working-directory: ./frontend
+      run: npm run test:coverage
+
+    - name: Upload frontend test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-test-results
+        path: frontend/coverage/
+
+  # Build Docker Images
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, frontend-test]
+    if: github.event_name != 'pull_request'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+          NODE_VERSION=${{ env.NODE_VERSION }}
+
+  # Security Scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request'
+    
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ needs.build.outputs.image-tag }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Deploy to Staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build, security-scan]
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.trading-system.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Deploy to staging
+      env:
+        IMAGE_TAG: ${{ needs.build.outputs.image-tag }}
+      run: |
+        export KUBECONFIG=kubeconfig
+        # Update deployment with new image
+        kubectl set image deployment/trading-system-api api=${{ env.IMAGE_TAG }} -n staging
+        kubectl set image deployment/trading-system-worker worker=${{ env.IMAGE_TAG }} -n staging
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/trading-system-api -n staging --timeout=600s
+        kubectl rollout status deployment/trading-system-worker -n staging --timeout=600s
+
+    - name: Run smoke tests
+      run: |
+        # Wait for services to be ready
+        sleep 60
+        
+        # Run basic health checks
+        curl -f https://staging.trading-system.com/health || exit 1
+        curl -f https://staging.trading-system.com/api/v1/health || exit 1
+
+  # Deploy to Production
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build, security-scan]
+    if: github.event_name == 'release'
+    environment:
+      name: production
+      url: https://trading-system.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Deploy to production
+      env:
+        IMAGE_TAG: ${{ needs.build.outputs.image-tag }}
+      run: |
+        export KUBECONFIG=kubeconfig
+        
+        # Blue-green deployment strategy
+        # Create new deployment
+        kubectl patch deployment trading-system-api -n production -p '{"spec":{"template":{"spec":{"containers":[{"name":"api","image":"'${{ env.IMAGE_TAG }}'"}]}}}}'
+        kubectl patch deployment trading-system-worker -n production -p '{"spec":{"template":{"spec":{"containers":[{"name":"worker","image":"'${{ env.IMAGE_TAG }}'"}]}}}}'
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/trading-system-api -n production --timeout=600s
+        kubectl rollout status deployment/trading-system-worker -n production --timeout=600s
+
+    - name: Run production smoke tests
+      run: |
+        # Wait for services to be ready
+        sleep 60
+        
+        # Run comprehensive health checks
+        curl -f https://trading-system.com/health || exit 1
+        curl -f https://trading-system.com/api/v1/health || exit 1
+        
+        # Test critical endpoints
+        curl -f https://trading-system.com/api/v1/market-data/health || exit 1
+        curl -f https://trading-system.com/api/v1/trading/health || exit 1
+
+    - name: Notify deployment success
+      uses: 8398a7/action-slack@v3
+      if: success()
+      with:
+        status: success
+        text: 'Production deployment successful! 🚀'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Notify deployment failure
+      uses: 8398a7/action-slack@v3
+      if: failure()
+      with:
+        status: failure
+        text: 'Production deployment failed! 🚨'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback on Failure
+  rollback:
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: failure() && github.event_name == 'release'
+    environment:
+      name: production
+    
+    steps:
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Rollback deployment
+      run: |
+        export KUBECONFIG=kubeconfig
+        
+        # Rollback to previous version
+        kubectl rollout undo deployment/trading-system-api -n production
+        kubectl rollout undo deployment/trading-system-worker -n production
+        
+        # Wait for rollback to complete
+        kubectl rollout status deployment/trading-system-api -n production --timeout=600s
+        kubectl rollout status deployment/trading-system-worker -n production --timeout=600s
+
+    - name: Notify rollback
+      uses: 8398a7/action-slack@v3
+      with:
+        status: warning
+        text: 'Production deployment rolled back due to failure! ⚠️'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Performance Tests
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install performance testing tools
+      run: |
+        pip install locust pytest-benchmark
+
+    - name: Run load tests
+      run: |
+        # Run Locust load tests against staging
+        locust -f tests/performance/locustfile.py --host=https://staging.trading-system.com --users=100 --spawn-rate=10 --run-time=5m --html=load-test-report.html --headless
+
+    - name: Upload performance test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-test-results
+        path: load-test-report.html
+
+  # Cleanup
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [deploy-production, deploy-staging, performance-test]
+    if: always()
+    
+    steps:
+    - name: Clean up old images
+      run: |
+        # This would typically clean up old container images
+        # Implementation depends on your container registry
+        echo "Cleanup completed"

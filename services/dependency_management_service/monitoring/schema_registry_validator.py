@@ -12,6 +12,7 @@ import os
 from typing import Dict, List, Optional, Any
 import logging
 from datetime import datetime
++from datetime import datetime, timezone
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -74,7 +75,7 @@ class SchemaRegistryValidator:
         validation_result = {
             "dependency": dependency_name,
             "version": dependency_version,
-            "validated_at": datetime.now().isoformat(),
+            "validated_at": datetime.now(timezone.utc).isoformat(),
             "compatible": True,
             "issues": [],
             "schema_subjects": [],
@@ -145,7 +146,7 @@ class SchemaRegistryValidator:
     def generate_compatibility_report(self, dependencies: List[Dict]) -> Dict:
         """Generate a comprehensive compatibility report."""
         report = {
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "schema_registry_url": self.schema_registry_url,
             "total_dependencies": len(dependencies),
             "compatible_dependencies": 0,

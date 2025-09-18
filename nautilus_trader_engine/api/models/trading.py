@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class PortfolioPosition(BaseModel):
@@ -13,7 +13,7 @@ class PortfolioResponse(BaseModel):
     cash: float = Field(..., description="Current cash balance")
     positions: List[PortfolioPosition] = Field(..., description="List of current positions")
     total_value: float = Field(..., description="Total portfolio value (cash + positions)")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class OrderRequest(BaseModel):
     symbol: str = Field(..., description="Symbol of the asset to trade")
@@ -30,7 +30,7 @@ class OrderResponse(BaseModel):
     price: Optional[float]
     side: str
     status: str = "PENDING"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class PositionGreeks(BaseModel):
     symbol: str
@@ -43,4 +43,4 @@ class RiskSnapshot(BaseModel):
     portfolio_var: float = Field(..., description="Portfolio Value at Risk (VaR)")
     position_greeks: List[PositionGreeks] = Field(..., description="Greeks for each position")
     concentration_metrics: dict = Field(..., description="Concentration metrics by asset class or sector")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

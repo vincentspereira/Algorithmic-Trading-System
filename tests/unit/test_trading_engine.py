@@ -10,7 +10,7 @@ Tests cover:
 import pytest
 import asyncio
 from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 import sys
@@ -52,7 +52,7 @@ class TestTradingEngine:
             price=Decimal('150.00'),
             status=OrderStatus.PENDING,
             time_in_force=TimeInForce.DAY,
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
         return mock
     
@@ -159,7 +159,7 @@ class TestTradingEngine:
                 price=Decimal('150.00'),
                 status=OrderStatus.FILLED,
                 time_in_force=TimeInForce.DAY,
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
         ]
         trading_engine.order_manager.get_orders.return_value = mock_orders

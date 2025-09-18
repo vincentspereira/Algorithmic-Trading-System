@@ -8,7 +8,7 @@ import logging
 import os
 import smtplib
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -123,7 +123,7 @@ class NotificationManager:
                         "color": color,
                         "text": message,
                         "footer": "Dependency Monitor",
-                        "ts": datetime.utcnow().timestamp()
+                        "ts": datetime.now(timezone.utc).timestamp()
                     }
                 ]
             }
@@ -211,7 +211,7 @@ class NotificationManager:
             html = template.render(
                 message=message,
                 level=level,
-                timestamp=datetime.utcnow().isoformat()
+                timestamp=datetime.now(timezone.utc).isoformat()
             )
             
             msg.attach(MIMEText(html, "html"))
@@ -297,7 +297,7 @@ class NotificationManager:
             template = self.template_env.get_template("weekly_summary.j2")
             summary = template.render(
                 updates_by_tier=updates_by_tier,
-                timestamp=datetime.utcnow().isoformat()
+                timestamp=datetime.now(timezone.utc).isoformat()
             )
             
             success = True

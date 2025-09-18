@@ -6,7 +6,7 @@ and serve as the backend for the AI assistant functionality.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 import logging
 
@@ -99,7 +99,7 @@ async def health_check():
 
     return HealthResponse(
         status="healthy",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         version="1.0.0",
         phase2_connection=phase2_connected
     )
@@ -148,7 +148,7 @@ async def chat_with_assistant(request: ChatRequest):
     The agent uses reasoning traces to show its thought process and tool usage.
     """
     session_id = request.session_id or str(uuid.uuid4())
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
 
     if agent_executor is None:
         logger.error("ReAct agent not initialized")
@@ -258,7 +258,7 @@ async def http_exception_handler(request, exc):
         content={
             "error": exc.detail,
             "status_code": exc.status_code,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 
@@ -271,7 +271,7 @@ async def general_exception_handler(request, exc):
         content={
             "error": "Internal server error",
             "status_code": 500,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 

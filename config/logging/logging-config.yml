@@ -1,0 +1,484 @@
+# Comprehensive Logging Configuration for Algorithmic Trading System
+# Structured logging with correlation IDs and centralized log aggregation
+
+# Global logging configuration
+global:
+  # Log level hierarchy: TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+  level: "INFO"
+  format: "json"  # json, text, or structured
+  timezone: "UTC"
+  
+  # Correlation ID configuration
+  correlation:
+    enabled: true
+    header_name: "X-Correlation-ID"
+    generate_if_missing: true
+    
+  # Output configuration
+  outputs:
+    - type: "console"
+      enabled: true
+      format: "text"  # Human-readable for development
+      
+    - type: "file"
+      enabled: true
+      path: "/var/log/trading-system/app.log"
+      format: "json"
+      rotation:
+        max_size: "100MB"
+        max_files: 10
+        max_age: "30d"
+        compress: true
+        
+    - type: "elasticsearch"
+      enabled: true
+      hosts:
+        - "http://elasticsearch:9200"
+      index_pattern: "trading-logs-%{+YYYY.MM.dd}"
+      
+    - type: "kafka"
+      enabled: true
+      brokers:
+        - "kafka:9092"
+      topic: "system-logs"
+      
+  # Sampling configuration for high-volume logs
+  sampling:
+    enabled: true
+    initial: 100
+    thereafter: 100
+    
+# Service-specific logging configurations
+services:
+  trading-engine:
+    level: "DEBUG"
+    
+    # Custom fields for trading operations
+    fields:
+      service: "trading-engine"
+      component: "core"
+      
+    # Specific loggers
+    loggers:
+      order_execution:
+        level: "INFO"
+        fields:
+          logger: "order_execution"
+        sample_rate: 1.0  # Log all order executions
+        
+      strategy_signals:
+        level: "INFO"
+        fields:
+          logger: "strategy_signals"
+        sample_rate: 1.0
+        
+      risk_checks:
+        level: "WARN"
+        fields:
+          logger: "risk_checks"
+        sample_rate: 1.0
+        
+      performance:
+        level: "DEBUG"
+        fields:
+          logger: "performance"
+        sample_rate: 0.1  # Sample 10% of performance logs
+        
+  market-data:
+    level: "INFO"
+    
+    fields:
+      service: "market-data"
+      component: "data-ingestion"
+      
+    loggers:
+      data_feed:
+        level: "INFO"
+        fields:
+          logger: "data_feed"
+        sample_rate: 0.01  # Sample 1% of data feed logs
+        
+      data_quality:
+        level: "WARN"
+        fields:
+          logger: "data_quality"
+        sample_rate: 1.0
+        
+      latency_monitoring:
+        level: "INFO"
+        fields:
+          logger: "latency_monitoring"
+        sample_rate: 0.1
+        
+  ai-assistant:
+    level: "INFO"
+    
+    fields:
+      service: "ai-assistant"
+      component: "ai-services"
+      
+    loggers:
+      model_inference:
+        level: "INFO"
+        fields:
+          logger: "model_inference"
+        sample_rate: 1.0
+        
+      conversation:
+        level: "DEBUG"
+        fields:
+          logger: "conversation"
+        sample_rate: 0.5
+        
+      rag_pipeline:
+        level: "INFO"
+        fields:
+          logger: "rag_pipeline"
+        sample_rate: 1.0
+        
+  portfolio-manager:
+    level: "INFO"
+    
+    fields:
+      service: "portfolio-manager"
+      component: "portfolio"
+      
+    loggers:
+      position_updates:
+        level: "INFO"
+        fields:
+          logger: "position_updates"
+        sample_rate: 1.0
+        
+      rebalancing:
+        level: "INFO"
+        fields:
+          logger: "rebalancing"
+        sample_rate: 1.0
+        
+      performance_attribution:
+        level: "DEBUG"
+        fields:
+          logger: "performance_attribution"
+        sample_rate: 0.2
+        
+  risk-manager:
+    level: "WARN"
+    
+    fields:
+      service: "risk-manager"
+      component: "risk-control"
+      
+    loggers:
+      limit_monitoring:
+        level: "INFO"
+        fields:
+          logger: "limit_monitoring"
+        sample_rate: 1.0
+        
+      var_calculation:
+        level: "INFO"
+        fields:
+          logger: "var_calculation"
+        sample_rate: 1.0
+        
+      stress_testing:
+        level: "INFO"
+        fields:
+          logger: "stress_testing"
+        sample_rate: 1.0
+        
+  order-management:
+    level: "INFO"
+    
+    fields:
+      service: "order-management"
+      component: "oms"
+      
+    loggers:
+      order_lifecycle:
+        level: "INFO"
+        fields:
+          logger: "order_lifecycle"
+        sample_rate: 1.0
+        
+      broker_communication:
+        level: "DEBUG"
+        fields:
+          logger: "broker_communication"
+        sample_rate: 0.5
+        
+      compliance_checks:
+        level: "WARN"
+        fields:
+          logger: "compliance_checks"
+        sample_rate: 1.0
+        
+  frontend:
+    level: "WARN"
+    
+    fields:
+      service: "frontend"
+      component: "ui"
+      
+    loggers:
+      user_actions:
+        level: "INFO"
+        fields:
+          logger: "user_actions"
+        sample_rate: 1.0
+        
+      api_calls:
+        level: "DEBUG"
+        fields:
+          logger: "api_calls"
+        sample_rate: 0.1
+        
+      errors:
+        level: "ERROR"
+        fields:
+          logger: "errors"
+        sample_rate: 1.0
+
+# Log message templates and structured formats
+templates:
+  # Trading operation templates
+  order_created:
+    message: "Order created"
+    fields:
+      - order_id
+      - symbol
+      - side
+      - quantity
+      - order_type
+      - price
+      - strategy_id
+      - timestamp
+      
+  order_executed:
+    message: "Order executed"
+    fields:
+      - order_id
+      - execution_id
+      - symbol
+      - executed_quantity
+      - execution_price
+      - commission
+      - slippage_bps
+      - execution_venue
+      - timestamp
+      
+  trade_settlement:
+    message: "Trade settled"
+    fields:
+      - trade_id
+      - settlement_date
+      - settlement_amount
+      - fees
+      - timestamp
+      
+  # Risk management templates
+  risk_limit_breach:
+    message: "Risk limit breached"
+    fields:
+      - limit_type
+      - current_value
+      - limit_value
+      - breach_percentage
+      - portfolio_id
+      - timestamp
+      
+  # Market data templates
+  market_data_received:
+    message: "Market data received"
+    fields:
+      - symbol
+      - data_type
+      - source
+      - latency_ms
+      - sequence_number
+      - timestamp
+      
+  # AI assistant templates
+  ai_request_processed:
+    message: "AI request processed"
+    fields:
+      - request_id
+      - user_id
+      - request_type
+      - model_used
+      - processing_time_ms
+      - confidence_score
+      - timestamp
+
+# Security and compliance logging
+security:
+  # Audit logging configuration
+  audit:
+    enabled: true
+    level: "INFO"
+    
+    # Events to audit
+    events:
+      - user_login
+      - user_logout
+      - order_creation
+      - order_modification
+      - order_cancellation
+      - trade_execution
+      - risk_limit_changes
+      - system_configuration_changes
+      - data_access
+      - api_key_usage
+      
+    # Audit log retention
+    retention:
+      period: "7y"  # 7 years for compliance
+      
+  # Sensitive data handling
+  sensitive_data:
+    # Fields to mask in logs
+    mask_fields:
+      - password
+      - api_key
+      - secret
+      - token
+      - ssn
+      - credit_card
+      
+    # PII handling
+    pii_handling:
+      enabled: true
+      hash_fields:
+        - user_id
+        - email
+        - phone_number
+        
+# Performance and monitoring
+performance:
+  # Async logging for high-performance
+  async_logging:
+    enabled: true
+    buffer_size: 1000
+    flush_interval: "1s"
+    
+  # Log aggregation settings
+  aggregation:
+    enabled: true
+    window_size: "1m"
+    
+    # Metrics to aggregate
+    metrics:
+      - log_count_by_level
+      - log_count_by_service
+      - error_rate
+      - warning_rate
+      
+# Error handling and alerting
+error_handling:
+  # Dead letter queue for failed log deliveries
+  dead_letter_queue:
+    enabled: true
+    topic: "failed-logs"
+    
+  # Retry configuration
+  retry:
+    max_attempts: 3
+    backoff_strategy: "exponential"
+    initial_delay: "1s"
+    max_delay: "30s"
+    
+  # Circuit breaker for log outputs
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_timeout: "30s"
+    
+# Log analysis and alerting
+analysis:
+  # Real-time log analysis
+  real_time:
+    enabled: true
+    
+    # Patterns to detect
+    patterns:
+      - name: "error_spike"
+        condition: "error_count > 10 in 1m"
+        action: "alert"
+        
+      - name: "trading_anomaly"
+        condition: "slippage_bps > 50"
+        action: "alert"
+        
+      - name: "latency_spike"
+        condition: "avg_latency > 1000ms in 5m"
+        action: "alert"
+        
+  # Log-based metrics
+  metrics:
+    enabled: true
+    
+    # Custom metrics from logs
+    custom_metrics:
+      - name: "orders_per_second"
+        query: "message:order_created"
+        type: "rate"
+        
+      - name: "average_slippage"
+        query: "message:order_executed"
+        field: "slippage_bps"
+        type: "avg"
+        
+      - name: "error_rate_by_service"
+        query: "level:ERROR"
+        group_by: "service"
+        type: "rate"
+
+# Development and debugging
+development:
+  # Enhanced logging for development
+  debug_mode:
+    enabled: false  # Set to true in development
+    
+  # Log sampling bypass for debugging
+  bypass_sampling:
+    enabled: false
+    
+  # Pretty printing for console output
+  pretty_print:
+    enabled: true
+    colors: true
+    
+# Environment-specific overrides
+environments:
+  development:
+    global:
+      level: "DEBUG"
+    outputs:
+      - type: "console"
+        enabled: true
+        format: "text"
+    sampling:
+      enabled: false
+      
+  staging:
+    global:
+      level: "INFO"
+    sampling:
+      enabled: true
+      initial: 50
+      thereafter: 50
+      
+  production:
+    global:
+      level: "WARN"
+    sampling:
+      enabled: true
+      initial: 100
+      thereafter: 100
+    security:
+      audit:
+        enabled: true
+    performance:
+      async_logging:
+        enabled: true

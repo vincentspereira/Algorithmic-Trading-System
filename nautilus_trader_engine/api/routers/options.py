@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Union
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel, Field, validator
 import numpy as np
+from datetime import datetime, timedelta, timezone
 
 # QuantLib imports
 try:
@@ -281,7 +282,7 @@ async def calculate_option_price(
             theta=result["theta"],
             vega=result["vega"],
             rho=result["rho"],
-            calculation_timestamp=datetime.utcnow()
+            calculation_timestamp=datetime.now(timezone.utc)
         )
         
     except Exception as e:
@@ -325,7 +326,7 @@ async def calculate_greeks(
             theta=result["theta"],
             vega=result["vega"],
             rho=result["rho"],
-            calculation_timestamp=datetime.utcnow()
+            calculation_timestamp=datetime.now(timezone.utc)
         )
         
     except Exception as e:
@@ -365,7 +366,7 @@ async def calculate_implied_volatility(
             option_type=request.option_type,
             market_price=request.market_price,
             implied_volatility=implied_vol,
-            calculation_timestamp=datetime.utcnow()
+            calculation_timestamp=datetime.now(timezone.utc)
         )
         
     except Exception as e:
@@ -382,6 +383,6 @@ async def options_health_check():
     return {
         "status": "healthy",
         "quantlib_available": QUANTLIB_AVAILABLE,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "service": "options_analytics"
     }

@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
 
-from model_manager import ModelManager, ModelConfig, ModelType, ModelPurpose
+from nautilus_trader_engine.ai.model_manager import ModelManager, ModelConfig, ModelType, ModelPurpose
 
 
 async def test_enhanced_model_manager():

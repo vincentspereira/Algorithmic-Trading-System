@@ -1,0 +1,681 @@
+Starting test execution...
+PYTHONPATH set to include project root, nautilus-trader fork, and engine.
+Virtual environment activated.
+Calling pytest...
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+metadata: {'Python': '3.13.5', 'Platform': 'Windows-11-10.0.26100-SP0', 'Packages': {'pytest': '8.4.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.10.0', 'dash': '3.2.0', 'Faker': '37.6.0', 'langsmith': '0.4.27', 'locust': '2.40.2', 'asyncio': '1.1.0', 'benchmark': '5.1.0', 'cov': '7.0.0', 'html': '4.1.1', 'metadata': '3.1.1', 'mock': '3.15.0', 'postgresql': '7.0.2', 'redis': '3.1.3', 'xdist': '3.8.0'}}
+rootdir: C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System
+configfile: pytest.ini
+plugins: anyio-4.10.0, dash-3.2.0, Faker-37.6.0, langsmith-0.4.27, locust-2.40.2, asyncio-1.1.0, benchmark-5.1.0, cov-7.0.0, html-4.1.1, metadata-3.1.1, mock-3.15.0, postgresql-7.0.2, redis-3.1.3, xdist-3.8.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 9 items
+
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_initialization PASSED [ 11%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_position_tracking PASSED [ 22%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_pnl_calculation PASSED [ 33%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_risk_metrics_calculation PASSED [ 44%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_rebalancing PASSED [ 55%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_performance_analytics PASSED [ 66%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_margin_management PASSED [ 77%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_optimization PASSED [ 88%]
+tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_stress_testing PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\.venv\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+shared\auth\user_manager.py:120
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\shared\auth\user_manager.py:120: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('username')
+
+shared\auth\user_manager.py:128
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\shared\auth\user_manager.py:128: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('password')
+
+shared\auth\user_manager.py:157
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\shared\auth\user_manager.py:157: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('new_password')
+
+<string>:8
+<string>:8
+<string>:8
+<string>:8
+<string>:8
+<string>:8
+<string>:8
+<string>:8
+  <string>:8: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+<string>:9
+<string>:9
+<string>:9
+<string>:9
+<string>:9
+<string>:9
+<string>:9
+<string>:9
+  <string>:9: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+<string>:14
+  <string>:14: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+<string>:15
+  <string>:15: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+<string>:22
+  <string>:22: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.5-final-0 _______________
+
+Name                                                                                          Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------------------------------------------------------
+SIMPLE_SYSTEM_DEMO.py                                                                           162    162     0%   11-277
+SYSTEM_VALIDATION_DEMO.py                                                                       445    445     0%   23-920
+__tmp_test_mfi_ad.py                                                                             30     30     0%   1-32
+algorithmic_trading_service\__init__.py                                                           0      0   100%
+algorithmic_trading_service\api\__init__.py                                                       0      0   100%
+algorithmic_trading_service\api\main.py                                                         344    344     0%   10-684
+algorithmic_trading_service\broker_integration.py                                               525    525     0%   10-984
+algorithmic_trading_service\cli\__init__.py                                                       0      0   100%
+algorithmic_trading_service\cli\cli.py                                                            9      9     0%   1-12
+algorithmic_trading_service\optimization_engines.py                                             192    192     0%   1-492
+algorithmic_trading_service\order_management.py                                                 326    326     0%   10-620
+algorithmic_trading_service\portfolio_management.py                                             224    224     0%   1-480
+algorithmic_trading_service\risk_management.py                                                  343    343     0%   10-819
+algorithmic_trading_service\strategy_framework.py                                               475    475     0%   10-928
+algorithmic_trading_service\strategy_pillars\__init__.py                                          7      7     0%   14-21
+api\__init__.py                                                                                   7      7     0%   8-26
+api\auth.py                                                                                      13     13     0%   2-42
+api\graphql_schema.py                                                                            73     73     0%   9-97
+api\main.py                                                                                     538    538     0%   18-1203
+api\routes\__init__.py                                                                            0      0   100%
+api\routes\backtest.py                                                                           17     17     0%   2-63
+api\routes\monitoring.py                                                                         86     86     0%   6-240
+api\routes\portfolio.py                                                                          25     25     0%   2-119
+api\routes\risk.py                                                                               30     30     0%   2-367
+api\routes\security.py                                                                          106    106     0%   6-276
+api\routes\strategy.py                                                                           17     17     0%   2-61
+api\routes\trading_mode.py                                                                      127    127     0%   7-341
+backtesting\__init__.py                                                                          55     55     0%   41-263
+backtesting\backtest_engine.py                                                                  267    267     0%   7-539
+backtesting\indicator_backtest.py                                                                29     29     0%   1-53
+backtesting\performance_analyzer.py                                                             294    294     0%   7-574
+backtesting\risk_analyzer.py                                                                    359    359     0%   7-707
+backtesting\scenario_analyzer.py                                                                286    286     0%   7-614
+backtesting\service\__init__.py                                                                   2      2     0%   7-9
+backtesting\service\backtest_executor.py                                                        155    155     0%   5-342
+backtesting\service\backtest_service.py                                                         142    142     0%   5-244
+backtesting\service\data_service.py                                                              73     73     0%   5-230
+backtesting\service\executors\__init__.py                                                         2      2     0%   7-9
+backtesting\service\executors\nautilus_executor.py                                              108    108     0%   8-244
+backtesting\service\main.py                                                                      21     21     0%   2-35
+backtesting\service\tests\__init__.py                                                             0      0   100%
+backtesting\service\tests\test_data_fetcher.py                                                   33     33     0%   1-68
+chaos_engineering_framework.py                                                                  157    157     0%   7-301
+check_missing_tests.py                                                                           25     25     0%   1-49
+core\__init__.py                                                                                  6      6     0%   7-15
+core\data_types.py                                                                              216    216     0%   7-393
+core\events.py                                                                                   88     88     0%   7-197
+core\portfolio.py                                                                               202    202     0%   7-432
+core\risk_management.py                                                                         228    228     0%   7-453
+debug_engine.py                                                                                  23     23     0%   6-39
+get-pip.py                                                                                       67     67     0%   23-26947
+market_data_service\__init__.py                                                                  47     47     0%   36-207
+market_data_service\api.py                                                                      191    191     0%   7-504
+market_data_service\backtest_simple.py                                                           54     54     0%   1-128
+market_data_service\config.py                                                                   207    207     0%   7-468
+market_data_service\data_feed_manager.py                                                        349    349     0%   11-717
+market_data_service\data_fetcher.py                                                             169    169     0%   1-231
+market_data_service\models.py                                                                    31     31     0%   1-35
+market_data_service\provider_configs.py                                                          77     77     0%   7-502
+nautilus_trader_engine\__init__.py                                                                1      0   100%
+nautilus_trader_engine\ai\__init__.py                                                             6      6     0%   6-12
+nautilus_trader_engine\ai\ab_testing.py                                                         417    417     0%   6-839
+nautilus_trader_engine\ai\inference_engine.py                                                   802    802     0%   6-1649
+nautilus_trader_engine\ai\model_manager.py                                                      629    629     0%   6-1285
+nautilus_trader_engine\ai\model_versioning.py                                                   340    340     0%   6-687
+nautilus_trader_engine\ai\pattern_recognition.py                                                556    556     0%   6-1359
+nautilus_trader_engine\ai\prediction_engine.py                                                 1004   1004     0%   6-2166
+nautilus_trader_engine\ai\sentiment_analyzer.py                                                1050   1050     0%   7-2348
+nautilus_trader_engine\ai\test_enhanced_inference_engine.py                                     128    128     0%   6-280
+nautilus_trader_engine\ai\test_enhanced_model_manager.py                                         70     70     0%   6-153
+nautilus_trader_engine\ai\test_enhanced_prediction_engine.py                                     65     65     0%   5-129
+nautilus_trader_engine\ai\test_pattern_recognition.py                                           167    167     0%   6-346
+nautilus_trader_engine\ai\test_sentiment_analysis.py                                            267    267     0%   5-606
+nautilus_trader_engine\analytics\__init__.py                                                      8      8     0%   7-37
+nautilus_trader_engine\analytics\cross_asset_analytics.py                                       481    481     0%   6-1023
+nautilus_trader_engine\analytics\dashboard_manager.py                                           136    136     0%   5-275
+nautilus_trader_engine\analytics\data_processor.py                                              108    108     0%   5-250
+nautilus_trader_engine\analytics\data_visualization.py                                          180    180     0%   5-335
+nautilus_trader_engine\analytics\liquidity_detection.py                                         561    561     0%   6-1241
+nautilus_trader_engine\analytics\metrics_calculator.py                                           98     98     0%   5-232
+nautilus_trader_engine\analytics\order_book_analytics.py                                        520    520     0%   6-1092
+nautilus_trader_engine\analytics\report_generator.py                                            126    126     0%   5-340
+nautilus_trader_engine\analytics\test_liquidity_detection.py                                    246    246     0%   5-658
+nautilus_trader_engine\analytics\test_order_book_analytics.py                                   238    238     0%   5-536
+nautilus_trader_engine\api\__init__.py                                                           14     14     0%   5-26
+nautilus_trader_engine\api\advanced_rest_api.py                                                 379    379     0%   6-956
+nautilus_trader_engine\api\auth\__init__.py                                                       4      4     0%   4-18
+nautilus_trader_engine\api\auth\dependencies.py                                                  28     28     0%   1-47
+nautilus_trader_engine\api\auth\jwt.py                                                           23     23     0%   1-31
+nautilus_trader_engine\api\auth\middleware.py                                                    10     10     0%   1-18
+nautilus_trader_engine\api\auth\utils.py                                                          6      6     0%   1-29
+nautilus_trader_engine\api\core\__init__.py                                                       1      1     0%   5
+nautilus_trader_engine\api\core\config.py                                                        23     23     0%   5-47
+nautilus_trader_engine\api\core\security.py                                                      46     46     0%   5-92
+nautilus_trader_engine\api\core\simple_config.py                                                 24     24     0%   6-43
+nautilus_trader_engine\api\generate_grpc_stubs.py                                                60     60     0%   16-115
+nautilus_trader_engine\api\generated\__init__.py                                                  0      0   100%
+nautilus_trader_engine\api\generated\market_data_pb2.py                                          19     19     0%   7-39
+nautilus_trader_engine\api\generated\market_data_pb2_grpc.py                                     30     30     0%   3-89
+nautilus_trader_engine\api\graphql_api.py                                                       506    506     0%   6-1174
+nautilus_trader_engine\api\main.py                                                              136    136     0%   1-361
+nautilus_trader_engine\api\models\__init__.py                                                     0      0   100%
+nautilus_trader_engine\api\models\auth.py                                                        26     26     0%   9-162
+nautilus_trader_engine\api\models\backtest.py                                                    67     67     0%   9-380
+nautilus_trader_engine\api\models\features.py                                                    45     45     0%   9-258
+nautilus_trader_engine\api\models\optimization.py                                                66     66     0%   9-339
+nautilus_trader_engine\api\models\options.py                                                    138    138     0%   6-272
+nautilus_trader_engine\api\models\trading.py                                                     40     40     0%   1-46
+nautilus_trader_engine\api\models\user.py                                                        13     13     0%   1-18
+nautilus_trader_engine\api\openapi_generator.py                                                 257    257     0%   6-794
+nautilus_trader_engine\api\routers\__init__.py                                                    1      1     0%   7
+nautilus_trader_engine\api\routers\auth.py                                                      107    107     0%   5-689
+nautilus_trader_engine\api\routers\backtest.py                                                   74     74     0%   5-446
+nautilus_trader_engine\api\routers\features.py                                                   26     26     0%   1-69
+nautilus_trader_engine\api\routers\optimization.py                                              116    116     0%   5-336
+nautilus_trader_engine\api\routers\options.py                                                   115    115     0%   13-383
+nautilus_trader_engine\api\routers\predictions.py                                                49     49     0%   17-110
+nautilus_trader_engine\api\routers\rl_optimization.py                                            47     47     0%   10-102
+nautilus_trader_engine\api\routers\strategy_builder.py                                           83     83     0%   1-136
+nautilus_trader_engine\api\routers\strategy_management.py                                         5      5     0%   2-8
+nautilus_trader_engine\api\routers\system_status.py                                             223    223     0%   14-569
+nautilus_trader_engine\api\routers\trading.py                                                    17     17     0%   2-43
+nautilus_trader_engine\api\routers\users.py                                                      47     47     0%   1-81
+nautilus_trader_engine\api\routers\websocket.py                                                 147    147     0%   12-292
+nautilus_trader_engine\api\session_manager.py                                                    22     22     0%   3-53
+nautilus_trader_engine\api\streaming.py                                                         159    159     0%   15-278
+nautilus_trader_engine\api\versioning.py                                                        269    269     0%   6-538
+nautilus_trader_engine\api\webhook_management.py                                                252    252     0%   6-598
+nautilus_trader_engine\assets\__init__.py                                                         4      4     0%   6-28
+nautilus_trader_engine\assets\asset_base.py                                                     242    242     0%   6-448
+nautilus_trader_engine\assets\asset_class_framework.py                                          189    189     0%   6-355
+nautilus_trader_engine\assets\equity.py                                                         155    155     0%   6-303
+nautilus_trader_engine\assets\forex_crypto_support.py                                           613    613     0%   7-1091
+nautilus_trader_engine\audit\__init__.py                                                         14     14     0%   5-32
+nautilus_trader_engine\audit\audit_manager.py                                                    31     31     0%   3-83
+nautilus_trader_engine\backtesting\__init__.py                                                   31     31     0%   12-63
+nautilus_trader_engine\backtesting\backtest_engine.py                                             4      4     0%   10-17
+nautilus_trader_engine\backtesting\backtrader_engine.py                                         111    111     0%   9-262
+nautilus_trader_engine\backtesting\base.py                                                       91     91     0%   8-197
+nautilus_trader_engine\backtesting\indicator_backtest.py                                         53     53     0%   1-95
+nautilus_trader_engine\backtesting\multi_strategy_portfolio_testing.py                          424    424     0%   7-849
+nautilus_trader_engine\backtesting\performance_analyzer.py                                      125    125     0%   8-341
+nautilus_trader_engine\backtesting\realistic_market_simulation.py                               336    336     0%   11-749
+nautilus_trader_engine\backtesting\report_generator.py                                           85     85     0%   8-195
+nautilus_trader_engine\backtesting\risk_manager.py                                               62     62     0%   8-181
+nautilus_trader_engine\backtesting\run_initial_backtest.py                                      212    212     0%   18-368
+nautilus_trader_engine\backtesting\strategy_optimizer.py                                        202    202     0%   8-382
+nautilus_trader_engine\backtesting\strategy_performance_attribution.py                          487    487     0%   11-1007
+nautilus_trader_engine\backtesting\trading_gym_engine.py                                        179    179     0%   8-389
+nautilus_trader_engine\backtesting\walk_forward_optimization.py                                 519    519     0%   11-1002
+nautilus_trader_engine\caching\__init__.py                                                        0      0   100%
+nautilus_trader_engine\caching\cache_client.py                                                   20     20     0%   11-49
+nautilus_trader_engine\compliance\__init__.py                                                    25     25     0%   5-62
+nautilus_trader_engine\compliance\aml_monitor.py                                                 25     25     0%   3-58
+nautilus_trader_engine\compliance\automated_compliance.py                                       594    594     0%   11-1498
+nautilus_trader_engine\compliance\basel_iii_calculator.py                                        16     16     0%   3-47
+nautilus_trader_engine\compliance\best_execution_analyzer.py                                     16     16     0%   3-63
+nautilus_trader_engine\compliance\compliance_framework.py                                       494    494     0%   28-1078
+nautilus_trader_engine\compliance\dodd_frank_reporter.py                                         18     18     0%   3-49
+nautilus_trader_engine\compliance\mifid_ii_reporter.py                                           16     16     0%   3-46
+nautilus_trader_engine\compliance\regulatory_reporting_system.py                                 15     15     0%   3-59
+nautilus_trader_engine\core\__init__.py                                                          26     17    35%   24-45
+nautilus_trader_engine\core\base_strategy.py                                                    178    178     0%   7-365
+nautilus_trader_engine\core\caching\__init__.py                                                   8      0   100%
+nautilus_trader_engine\core\caching\cache_coherency.py                                          219    178    19%   34-35, 51-68, 72-80, 84-93, 97-106, 110-125, 129-147, 151-164, 168-202, 206-222, 226-236, 240-263, 267-305, 309-317, 321-334, 338-346, 350, 363-377
+nautilus_trader_engine\core\caching\cache_manager.py                                            295    240    19%   81-120, 124-149, 153-172, 185-232, 253-298, 302-321, 325-335, 339-356, 360-372, 376-410, 415-425, 429-438, 442-455, 459-471, 475-483, 487-507, 511-524
+nautilus_trader_engine\core\caching\cache_metrics.py                                            242    193    20%   36-37, 53-84, 88, 98, 113, 125-140, 144-154, 158-167, 171-176, 180-186, 190-203, 207-209, 213-215, 219-237, 241-242, 246-253, 257-274, 287-304, 308-311, 327-329, 340-364, 368-381, 385-405, 409-451, 455-460, 464-482, 486-515
+nautilus_trader_engine\core\caching\l1_cache.py                                                 207    172    17%   35-57, 61-79, 87-105, 109-113, 117-126, 130-136, 140-148, 152-160, 164-166, 170-190, 194-203, 207-219, 223-235, 239-248, 252-264, 268-287, 292-296, 300-301, 305-308, 312-320, 324-331, 346-347, 351-352, 359
+nautilus_trader_engine\core\caching\l2_cache.py                                                 237    205    14%   14, 40-60, 64-82, 86-92, 96-116, 124-148, 152-171, 175-185, 189-210, 214-239, 243-276, 280-304, 308-321, 325-332, 336, 340, 344-352, 356-372, 376-399, 403-418
+nautilus_trader_engine\core\caching\l3_cache.py                                                 309    264    15%   17, 55-84, 88-108, 112-124, 128-157, 161-200, 208-251, 255-272, 276-300, 304-315, 319-344, 348-397, 401-439, 443-472, 476-484, 488-512, 516-523, 527-542, 546-581, 585-593
+nautilus_trader_engine\core\caching\types.py                                                     63     25    60%   41-49, 53-59, 63-66, 70-72, 87-88, 93
+nautilus_trader_engine\core\data_feed_manager.py                                                 53     53     0%   5-98
+nautilus_trader_engine\core\data_feeds.py                                                       478    478     0%   25-1126
+nautilus_trader_engine\core\infrastructure_example.py                                           121    121     0%   6-295
+nautilus_trader_engine\core\infrastructure_manager.py                                           212    160    25%   19-35, 75-90, 99-152, 156-190, 195-199, 204-206, 210-212, 216-218, 223, 227, 231, 235, 239, 244-267, 271, 282-319, 323-336, 340-343, 352, 362-364, 370-371, 376-381, 387-389
+nautilus_trader_engine\core\kafka_integration.py                                                274    274     0%   18-574
+nautilus_trader_engine\core\kafka_manager.py                                                    192    192     0%   11-429
+nautilus_trader_engine\core\main.py                                                             298    298     0%   9-695
+nautilus_trader_engine\core\messaging\__init__.py                                                 6      0   100%
+nautilus_trader_engine\core\messaging\message_bus.py                                            185    134    28%   43-44, 53, 58, 78-107, 111-127, 131-141, 145-152, 156-167, 182-216, 226-227, 235-254, 258-290, 294-314, 319-323, 327, 331-342, 346-348, 352-355, 359-368
+nautilus_trader_engine\core\messaging\metrics.py                                                224    177    21%   49-92, 96-106, 110-134, 138-148, 152-154, 158-161, 165-168, 172-173, 177-178, 182-183, 187-199, 231-246, 250-265, 269-286, 296-304, 308-320, 324-340, 344-362, 370-373, 383, 386, 390-413, 423-453
+nautilus_trader_engine\core\messaging\ring_buffer.py                                            115     82    29%   29-51, 60-79, 88-107, 120-130, 142-153, 157-163, 167, 171, 175, 179, 183, 195-196, 207-208, 214-215, 226-227, 233-234, 248-256
+nautilus_trader_engine\core\messaging\routing.py                                                191    136    29%   36-41, 50, 55, 60, 75-87, 103-144, 148-179, 192-225, 229-230, 240-241, 245-264, 271-273, 277-282, 286-292, 296-297, 308-310, 314, 318, 322, 326, 330-339, 343, 354, 357, 360
+nautilus_trader_engine\core\messaging\serialization.py                                          187    111    41%   73, 86-91, 107, 112, 120-124, 128-132, 136-141, 149, 158-163, 167-171, 175-180, 192-202, 215-248, 260-290, 295-302, 307-310, 314, 325-334, 338-350, 353, 357-360, 370-371, 374
+nautilus_trader_engine\core\metrics.py                                                          109    109     0%   11-381
+nautilus_trader_engine\core\networking\__init__.py                                                7      0   100%
+nautilus_trader_engine\core\networking\connection_pool.py                                       249    209    16%   32-39, 43-45, 49, 53, 57, 61-68, 72-76, 92-116, 120-129, 133-144, 148-200, 204-227, 231-250, 254-280, 284-306, 310-318, 322-330, 334-361, 365-385, 389-404, 408-419
+nautilus_trader_engine\core\networking\cpu_affinity.py                                          235    196    17%   42-55, 59-77, 81-93, 97-116, 120-139, 143-154, 158-187, 198-229, 233-254, 258-267, 271-280, 284-299, 303-313, 317-324, 328-346, 350-360, 364-379, 383-389, 393-395, 399, 403-408, 412
+nautilus_trader_engine\core\networking\kernel_bypass.py                                         282    231    18%   48-88, 92-111, 115-134, 138-172, 176-197, 201-228, 232-247, 251, 255-301, 305-329, 333-344, 348-352, 356-375, 379-384, 390, 394-411, 415-457, 461-470, 474-483, 487, 506-507, 511, 514, 525, 528, 531, 534, 537, 540, 543, 546
+nautilus_trader_engine\core\networking\network_manager.py                                       306    241    21%   71-74, 91-114, 118-170, 174-214, 222-240, 247-265, 271-291, 295-309, 318-352, 356-376, 380-389, 393-397, 401-410, 414-417, 421-430, 435-449, 453-459, 463-475, 479-517, 522-537, 541-552, 556-585
+nautilus_trader_engine\core\networking\network_metrics.py                                       215    177    18%   32-33, 49-83, 87-95, 99-108, 112-117, 123-124, 129-130, 134-146, 152-164, 170-172, 176-178, 182-226, 230-238, 242-313, 325-341, 345-374, 378-395, 399-405, 409-445
+nautilus_trader_engine\core\networking\numa_allocator.py                                        250    210    16%   43-60, 64-78, 83-91, 110-146, 150-170, 174-200, 204-225, 229-248, 252-279, 283-304, 308-354, 358-374, 378-384, 388-394, 398-412, 416, 420, 436-440, 444-457, 461-464, 468-470, 474, 478-485, 493-500
+nautilus_trader_engine\core\networking\test_networking.py                                        29     29     0%   6-79
+nautilus_trader_engine\core\order_management.py                                                  55     55     0%   5-139
+nautilus_trader_engine\core\portfolio_management.py                                             113     53    53%   24-26, 91-94, 113-133, 144, 179-205, 216, 250-272, 286, 310
+nautilus_trader_engine\core\risk_management.py                                                   42     42     0%   5-283
+nautilus_trader_engine\core\test_basic_integration.py                                            53     53     0%   6-105
+nautilus_trader_engine\core\test_infrastructure_integration.py                                  133    133     0%   6-269
+nautilus_trader_engine\core\trading_mode_manager.py                                             145    145     0%   13-330
+nautilus_trader_engine\data.py                                                                    6      6     0%   3-10
+nautilus_trader_engine\data\__init__.py                                                           3      3     0%   5-8
+nautilus_trader_engine\data\data_manager.py                                                      17     17     0%   5-69
+nautilus_trader_engine\data\market_data_stream.py                                                13     13     0%   3-31
+nautilus_trader_engine\data\multi_asset_manager.py                                               14     14     0%   3-48
+nautilus_trader_engine\data_feeds.py                                                              2      2     0%   5-15
+nautilus_trader_engine\events\__init__.py                                                         2      2     0%   5-7
+nautilus_trader_engine\events\event_bus.py                                                       22     22     0%   3-51
+nautilus_trader_engine\events\webhook_system.py                                                 346    346     0%   7-646
+nautilus_trader_engine\failover\__init__.py                                                       2      2     0%   5-7
+nautilus_trader_engine\failover\failover_manager.py                                              24     24     0%   3-72
+nautilus_trader_engine\feature_store\__init__.py                                                  5      5     0%   16-59
+nautilus_trader_engine\feature_store\feature_definitions.py                                     126    126     0%   14-560
+nautilus_trader_engine\feature_store\feature_store_config.py                                    163    163     0%   19-347
+nautilus_trader_engine\feature_store\setup_feast.py                                             266    266     0%   20-565
+nautilus_trader_engine\indicators\__init__.py                                                   176    176     0%   28-641
+nautilus_trader_engine\indicators\_sanity_check.py                                               48     48     0%   1-68
+nautilus_trader_engine\indicators\advanced_risk_factory.py                                      290    290     0%   10-592
+nautilus_trader_engine\indicators\advanced_statistical_methods.py                               404    404     0%   15-747
+nautilus_trader_engine\indicators\alternative_data_integration.py                               623    623     0%   29-1166
+nautilus_trader_engine\indicators\augmented_indicator.py                                        220    220     0%   18-432
+nautilus_trader_engine\indicators\behavioral_overlays.py                                         81     81     0%   10-185
+nautilus_trader_engine\indicators\consolidated_indicators.py                                    504    504     0%   7-1003
+nautilus_trader_engine\indicators\core_indicator_base.py                                        945    945     0%   21-1805
+nautilus_trader_engine\indicators\custom\__init__.py                                              9      9     0%   75-85
+nautilus_trader_engine\indicators\custom\multi_timeframe_engine.py                              443    443     0%   11-911
+nautilus_trader_engine\indicators\custom\smart_money_analysis.py                                344    344     0%   20-701
+nautilus_trader_engine\indicators\documentation_examples.py                                      91     91     0%   30-941
+nautilus_trader_engine\indicators\enhanced_data_integration.py                                  277    277     0%   15-503
+nautilus_trader_engine\indicators\enhanced_risk_factory.py                                      210    210     0%   6-445
+nautilus_trader_engine\indicators\error_handling.py                                             284    284     0%   7-495
+nautilus_trader_engine\indicators\factor_validation_system.py                                   382    382     0%   15-700
+nautilus_trader_engine\indicators\hardware_acceleration.py                                      436    436     0%   15-776
+nautilus_trader_engine\indicators\hft_optimizations.py                                          272    272     0%   7-463
+nautilus_trader_engine\indicators\indicator_manager.py                                          271    271     0%   16-519
+nautilus_trader_engine\indicators\machine_learning\__init__.py                                    7      7     0%   40-48
+nautilus_trader_engine\indicators\machine_learning\regime_adaptation_engine.py                  353    353     0%   11-642
+nautilus_trader_engine\indicators\multi_value_indicator.py                                       50     50     0%   11-99
+nautilus_trader_engine\indicators\pair_trading\__init__.py                                        3      3     0%   7-10
+nautilus_trader_engine\indicators\pair_trading\pairs_candlestick_patterns.py                    366    366     0%   7-854
+nautilus_trader_engine\indicators\pair_trading\pairs_trading_indicators.py                      421    421     0%   7-811
+nautilus_trader_engine\indicators\pattern_risk_management.py                                    186    186     0%   11-433
+nautilus_trader_engine\indicators\patterns\__init__.py                                            6      6     0%   86-93
+nautilus_trader_engine\indicators\patterns\institutional_candlestick_patterns.py                511    511     0%   15-1120
+nautilus_trader_engine\indicators\risk_management_factory.py                                    559    559     0%   27-1120
+nautilus_trader_engine\indicators\signal_execution_system.py                                    361    361     0%   16-767
+nautilus_trader_engine\indicators\system_integration_test.py                                    282    282     0%   11-752
+nautilus_trader_engine\indicators\technology_enhancements.py                                    605    605     0%   15-1340
+nautilus_trader_engine\indicators\test_candlestick_patterns.py                                    0      0   100%
+nautilus_trader_engine\indicators\test_pattern_suite.py                                         225    225     0%   7-458
+nautilus_trader_engine\indicators\testing_framework.py                                          365    365     0%   7-776
+nautilus_trader_engine\indicators\testing_validation_suite.py                                   720    720     0%   29-1544
+nautilus_trader_engine\indicators\traditional\__init__.py                                         9      9     0%   48-58
+nautilus_trader_engine\indicators\traditional\momentum_indicators.py                            705    705     0%   23-1345
+nautilus_trader_engine\indicators\traditional\trend_indicators.py                               655    655     0%   24-1366
+nautilus_trader_engine\indicators\traditional\volatility_indicators.py                          368    368     0%   23-821
+nautilus_trader_engine\indicators\traditional\volume_indicators.py                              550    550     0%   24-1054
+nautilus_trader_engine\indicators\volume_weighted\__init__.py                                     7      7     0%   56-64
+nautilus_trader_engine\indicators\volume_weighted\institutional_volume_profile.py               451    451     0%   20-859
+nautilus_trader_engine\indicators\volume_weighted\volume_confirmation.py                        332    332     0%   19-650
+nautilus_trader_engine\indicators\volume_weighted\volume_weighted_indicators.py                  67     67     0%   15-119
+nautilus_trader_engine\main.py                                                                  155    155     0%   26-364
+nautilus_trader_engine\monitoring\__init__.py                                                     4      4     0%   7-30
+nautilus_trader_engine\monitoring\data_feed_monitor.py                                          245    245     0%   6-605
+nautilus_trader_engine\monitoring\distributed_tracing.py                                        313    313     0%   7-558
+nautilus_trader_engine\monitoring\intelligent_alerting.py                                       623    623     0%   7-1213
+nautilus_trader_engine\monitoring\metrics_collection.py                                         414    414     0%   7-826
+nautilus_trader_engine\monitoring\performance_dashboard.py                                      579    579     0%   7-1320
+nautilus_trader_engine\monitoring\resource_monitor.py                                            15     15     0%   3-31
+nautilus_trader_engine\orders.py                                                                  5      5     0%   3-9
+nautilus_trader_engine\orders\__init__.py                                                         3      3     0%   5-8
+nautilus_trader_engine\orders\order_manager.py                                                   50     50     0%   5-146
+nautilus_trader_engine\orders\realtime_processor.py                                              13     13     0%   3-35
+nautilus_trader_engine\pnl\__init__.py                                                            2      2     0%   5-7
+nautilus_trader_engine\pnl\pnl_calculator.py                                                     35     35     0%   5-92
+nautilus_trader_engine\portfolio.py                                                               5      5     0%   3-9
+nautilus_trader_engine\portfolio\__init__.py                                                      2      2     0%   7-20
+nautilus_trader_engine\portfolio\advanced_portfolio_manager.py                                  328    328     0%   10-762
+nautilus_trader_engine\portfolio\basic_test.py                                                   18     18     0%   5-47
+nautilus_trader_engine\portfolio\integration_demo.py                                            107    107     0%   6-226
+nautilus_trader_engine\portfolio\portfolio_example.py                                           214    214     0%   6-403
+nautilus_trader_engine\portfolio\portfolio_integration.py                                       184    184     0%   6-561
+nautilus_trader_engine\portfolio\portfolio_observability.py                                     300    300     0%   6-624
+nautilus_trader_engine\portfolio\portfolio_optimization.py                                      317    317     0%   7-653
+nautilus_trader_engine\portfolio\simple_test.py                                                  76     76     0%   5-164
+nautilus_trader_engine\portfolio\test_portfolio_system.py                                       127    127     0%   5-268
+nautilus_trader_engine\privacy\__init__.py                                                        2      2     0%   5-7
+nautilus_trader_engine\privacy\privacy_manager.py                                                27     27     0%   3-80
+nautilus_trader_engine\risk.py                                                                    5      5     0%   3-9
+nautilus_trader_engine\risk\__init__.py                                                           5      5     0%   7-26
+nautilus_trader_engine\risk\advanced_risk_analytics.py                                          118    118     0%   7-264
+nautilus_trader_engine\risk\dynamic_hedging.py                                                  443    443     0%   7-986
+nautilus_trader_engine\risk\multi_asset_risk_manager.py                                          27     27     0%   5-84
+nautilus_trader_engine\risk\portfolio_optimizer.py                                              678    678     0%   7-1406
+nautilus_trader_engine\risk\realtime_monitor.py                                                  20     20     0%   3-66
+nautilus_trader_engine\risk\stress_testing.py                                                   410    410     0%   7-870
+nautilus_trader_engine\risk\test_portfolio_optimizer.py                                          29     29     0%   1-54
+nautilus_trader_engine\risk\test_var_engine.py                                                  245    245     0%   5-554
+nautilus_trader_engine\risk\unified_margin_system.py                                            530    530     0%   7-1130
+nautilus_trader_engine\risk\var_engine.py                                                       310    310     0%   6-655
+nautilus_trader_engine\rl\__init__.py                                                            10     10     0%   10-44
+nautilus_trader_engine\rl\agents.py                                                              23     23     0%   10-108
+nautilus_trader_engine\rl\blockly_integration.py                                                 29     29     0%   11-109
+nautilus_trader_engine\rl\environment.py                                                         63     63     0%   11-139
+nautilus_trader_engine\rl\finrl_config.py                                                        13     13     0%   8-117
+nautilus_trader_engine\rl\reward_functions.py                                                    49     49     0%   10-149
+nautilus_trader_engine\rl\training\__init__.py                                                    2      2     0%   10-18
+nautilus_trader_engine\rl\training\backtester.py                                                 37     37     0%   10-101
+nautilus_trader_engine\rl\training\data_preprocessor.py                                          20     20     0%   10-103
+nautilus_trader_engine\rl\training\feature_extractor.py                                          29     29     0%   10-91
+nautilus_trader_engine\rl\training\model_registry.py                                             41     41     0%   10-118
+nautilus_trader_engine\rl\training\model_trainer.py                                              33     33     0%   10-106
+nautilus_trader_engine\rl\utils\__init__.py                                                       2      2     0%   10-17
+nautilus_trader_engine\rl\utils\hyperparameter_tuning.py                                         21     21     0%   10-82
+nautilus_trader_engine\rl\utils\market_simulator.py                                              27     27     0%   10-87
+nautilus_trader_engine\rl\utils\performance_metrics.py                                           30     30     0%   10-75
+nautilus_trader_engine\rl\utils\visualization.py                                                 32     32     0%   10-73
+nautilus_trader_engine\smoke_mfi_ad.py                                                           30     30     0%   1-48
+nautilus_trader_engine\strategies.py                                                              5      5     0%   3-9
+nautilus_trader_engine\strategies\__init__.py                                                    42     42     0%   160-354
+nautilus_trader_engine\strategies\advanced_technical\__init__.py                                 11     11     0%   23-155
+nautilus_trader_engine\strategies\advanced_technical\elliott_wave_strategies.py                 440    440     0%   23-862
+nautilus_trader_engine\strategies\advanced_technical\fibonacci_strategies.py                    353    353     0%   23-745
+nautilus_trader_engine\strategies\advanced_technical\gann_strategies.py                         281    281     0%   22-707
+nautilus_trader_engine\strategies\advanced_technical\geometric_analysis.py                      442    442     0%   28-860
+nautilus_trader_engine\strategies\advanced_technical\harmonic_patterns.py                       435    435     0%   28-883
+nautilus_trader_engine\strategies\arbitrage\__init__.py                                          45     45     0%   30-219
+nautilus_trader_engine\strategies\arbitrage\arbitrage_strategies.py                             461    461     0%   16-952
+nautilus_trader_engine\strategies\arbitrage\index_arbitrage.py                                  282    282     0%   26-639
+nautilus_trader_engine\strategies\arbitrage\multi_factor_models.py                              467    467     0%   29-968
+nautilus_trader_engine\strategies\arbitrage\volatility_arbitrage.py                             344    344     0%   26-798
+nautilus_trader_engine\strategies\backtesting\__init__.py                                        13     13     0%   39-58
+nautilus_trader_engine\strategies\backtesting\backtest_engine.py                                314    314     0%   7-643
+nautilus_trader_engine\strategies\backtesting\config.py                                         129    129     0%   7-286
+nautilus_trader_engine\strategies\backtesting\data_manager.py                                   208    208     0%   13-479
+nautilus_trader_engine\strategies\backtesting\integration.py                                    411    411     0%   7-830
+nautilus_trader_engine\strategies\backtesting\metrics.py                                        328    328     0%   7-680
+nautilus_trader_engine\strategies\backtesting\performance_analyzer.py                           335    335     0%   7-761
+nautilus_trader_engine\strategies\backtesting\portfolio_simulator.py                            265    265     0%   13-591
+nautilus_trader_engine\strategies\backtesting\report_generator.py                               165    165     0%   13-525
+nautilus_trader_engine\strategies\backtesting\results.py                                        236    236     0%   7-414
+nautilus_trader_engine\strategies\backtesting\risk_analyzer.py                                  360    360     0%   7-876
+nautilus_trader_engine\strategies\backtesting\visualization.py                                  417    417     0%   7-1143
+nautilus_trader_engine\strategies\core\__init__.py                                               10     10     0%   22-47
+nautilus_trader_engine\strategies\core\base_institutional_strategy.py                           459    459     0%   13-1035
+nautilus_trader_engine\strategies\core\base_strategy.py                                         260    260     0%   17-589
+nautilus_trader_engine\strategies\core\strategy_config_schema.py                                235    235     0%   1-521
+nautilus_trader_engine\strategies\core\strategy_factory.py                                      197    197     0%   19-485
+nautilus_trader_engine\strategies\core\strategy_manager.py                                      279    279     0%   20-473
+nautilus_trader_engine\strategies\execution\__init__.py                                           7      7     0%   53-61
+nautilus_trader_engine\strategies\execution\execution_intent_utils.py                           190    190     0%   1-469
+nautilus_trader_engine\strategies\execution\execution_optimization.py                           602    602     0%   15-1208
+nautilus_trader_engine\strategies\machine_learning\__init__.py                                   11     11     0%   37-148
+nautilus_trader_engine\strategies\machine_learning\clustering_strategies.py                     361    361     0%   18-711
+nautilus_trader_engine\strategies\machine_learning\feature_engineering.py                       542    542     0%   24-1027
+nautilus_trader_engine\strategies\machine_learning\ml_trading_strategies.py                     689    689     0%   24-1337
+nautilus_trader_engine\strategies\machine_learning\model_manager.py                             458    458     0%   22-1043
+nautilus_trader_engine\strategies\machine_learning\reinforcement_learning.py                    451    451     0%   19-924
+nautilus_trader_engine\strategies\machine_learning\rl_strategy.py                                49     49     0%   10-113
+nautilus_trader_engine\strategies\machine_learning\supervised_strategies.py                     473    473     0%   26-1093
+nautilus_trader_engine\strategies\mean_reversion\__init__.py                                      7      7     0%   20-40
+nautilus_trader_engine\strategies\mean_reversion\bollinger_bands_mean_reversion_strategy.py     249    249     0%   23-656
+nautilus_trader_engine\strategies\mean_reversion\connors_rsi_mean_reversion_strategy.py         384    384     0%   26-892
+nautilus_trader_engine\strategies\mean_reversion\gap_fill_strategy.py                           427    427     0%   24-998
+nautilus_trader_engine\strategies\mean_reversion\ibs_mean_reversion_strategy.py                 338    338     0%   24-818
+nautilus_trader_engine\strategies\mean_reversion\ma_crossover_vwma_strategy.py                  259    259     0%   1-784
+nautilus_trader_engine\strategies\mean_reversion\mean_reversion_strategies.py                   379    379     0%   15-800
+nautilus_trader_engine\strategies\mean_reversion\overnight_reversal_strategy.py                 501    501     0%   26-1135
+nautilus_trader_engine\strategies\mean_reversion\rsi2_mean_reversion_strategy.py                804    804     0%   16-1461
+nautilus_trader_engine\strategies\mean_reversion\rsi2_strategy.py                               135    135     0%   7-383
+nautilus_trader_engine\strategies\mean_reversion\stochastic_mean_reversion_strategy.py          376    376     0%   24-911
+nautilus_trader_engine\strategies\mean_reversion\vix_mean_reversion_strategy.py                 413    413     0%   25-982
+nautilus_trader_engine\strategies\mean_reversion\williams_r_mean_reversion_strategy.py          307    307     0%   23-758
+nautilus_trader_engine\strategies\momentum\__init__.py                                           21     21     0%   35-187
+nautilus_trader_engine\strategies\momentum\adx_trend_following_strategy.py                      163    163     0%   17-386
+nautilus_trader_engine\strategies\momentum\coppock_curve_strategy.py                            350    350     0%   1-1049
+nautilus_trader_engine\strategies\momentum\dual_momentum_strategy.py                            244    244     0%   17-541
+nautilus_trader_engine\strategies\momentum\ichimoku_cloud_strategy.py                           359    359     0%   18-877
+nautilus_trader_engine\strategies\momentum\macd_crossover_strategy.py                           219    219     0%   17-501
+nautilus_trader_engine\strategies\momentum\momentum_breakout_strategies.py                      372    372     0%   16-725
+nautilus_trader_engine\strategies\momentum\momentum_strategies.py                               308    308     0%   15-653
+nautilus_trader_engine\strategies\momentum\moving_average_crossover.py                          134    134     0%   14-307
+nautilus_trader_engine\strategies\momentum\obv_trend_strategy.py                                407    407     0%   27-908
+nautilus_trader_engine\strategies\momentum\parabolic_sar_strategy.py                            283    283     0%   17-612
+nautilus_trader_engine\strategies\momentum\roc_momentum_strategy.py                             328    328     0%   17-693
+nautilus_trader_engine\strategies\momentum\supertrend_strategy.py                               370    370     0%   25-860
+nautilus_trader_engine\strategies\momentum\turtle_trading_strategy.py                           348    348     0%   18-818
+nautilus_trader_engine\strategies\momentum\vortex_indicator_strategy.py                         384    384     0%   29-881
+nautilus_trader_engine\strategies\multi_factor\__init__.py                                        0      0   100%
+nautilus_trader_engine\strategies\multi_factor\multi_factor_models.py                           636    636     0%   19-1232
+nautilus_trader_engine\strategies\pairs_trading\__init__.py                                      63     63     0%   27-183
+nautilus_trader_engine\strategies\pairs_trading\pair_selection.py                               385    385     0%   18-752
+nautilus_trader_engine\strategies\pairs_trading\pairs_strategies.py                             389    389     0%   18-886
+nautilus_trader_engine\strategies\pairs_trading\pairs_trading_convergence_strategies.py         607    607     0%   16-1228
+nautilus_trader_engine\strategies\pairs_trading\pairs_trading_divergence_strategies.py          444    444     0%   16-893
+nautilus_trader_engine\strategies\pairs_trading\pairs_trading_strategies.py                     363    363     0%   7-830
+nautilus_trader_engine\strategies\pairs_trading\performance_analytics.py                        497    497     0%   21-1025
+nautilus_trader_engine\strategies\pairs_trading\risk_management.py                              363    363     0%   23-887
+nautilus_trader_engine\strategies\pairs_trading\spread_indicators.py                            380    380     0%   19-803
+nautilus_trader_engine\strategies\regime_based\__init__.py                                        0      0   100%
+nautilus_trader_engine\strategies\regime_based\regime_aware_adaptive_strategies.py              598    598     0%   23-1255
+nautilus_trader_engine\strategies\seasonal\__init__.py                                            0      0   100%
+nautilus_trader_engine\strategies\seasonal\turnaround_tuesday_strategy.py                       366    366     0%   23-848
+nautilus_trader_engine\strategies\tests\__init__.py                                               3      3     0%   15-17
+nautilus_trader_engine\strategies\tests\test_integration.py                                     262    262     0%   18-718
+nautilus_trader_engine\strategies\utils\__init__.py                                               0      0   100%
+nautilus_trader_engine\strategies\utils\common_functions.py                                      82     82     0%   7-237
+nautilus_trader_engine\strategies\utils\logging_config.py                                       263    263     0%   10-616
+nautilus_trader_engine\strategies\utils\performance_tracker.py                                  278    278     0%   10-580
+nautilus_trader_engine\strategies\utils\portfolio_level_features.py                             557    557     0%   15-1089
+nautilus_trader_engine\strategies\utils\risk_management_enhancements.py                         496    496     0%   15-1041
+nautilus_trader_engine\strategies\utils\risk_management_utils.py                                161    161     0%   1-425
+nautilus_trader_engine\strategies\utils\risk_utils.py                                           107    107     0%   7-309
+nautilus_trader_engine\strategies\utils\signal_processing.py                                    312    312     0%   10-765
+nautilus_trader_engine\strategies\utils\strategy_utilities.py                                   215    215     0%   10-498
+nautilus_trader_engine\strategies\utils\technical_utils.py                                      136    136     0%   7-433
+nautilus_trader_engine\strategies\volatility_breakout\__init__.py                                27     27     0%   33-197
+nautilus_trader_engine\strategies\volatility_breakout\atr_breakout_strategy.py                  672    672     0%   28-1356
+nautilus_trader_engine\strategies\volatility_breakout\bollinger_squeeze_strategy.py             468    468     0%   27-991
+nautilus_trader_engine\strategies\volatility_breakout\donchian_breakout_strategy.py             622    622     0%   28-1274
+nautilus_trader_engine\strategies\volatility_breakout\range_breakout_strategies.py              344    344     0%   22-663
+nautilus_trader_engine\strategies\volatility_breakout\volatility_breakout_strategy.py           491    491     0%   1-1312
+nautilus_trader_engine\strategies\volatility_breakout\volatility_expansion_strategies.py        533    533     0%   23-950
+nautilus_trader_engine\test_ibkr_paper_connection.py                                             22     22     0%   1-46
+nautilus_trader_engine\test_integration.py                                                      227    227     0%   25-465
+nautilus_trader_engine\testing\__init__.py                                                        0      0   100%
+nautilus_trader_engine\testing\api_testing.py                                                   203    203     0%   10-373
+nautilus_trader_engine\testing\compatibility_testing.py                                         116    116     0%   10-256
+nautilus_trader_engine\testing\integration_testing.py                                            93     93     0%   10-201
+nautilus_trader_engine\testing\performance_testing.py                                           145    145     0%   10-290
+nautilus_trader_engine\testing\recovery_testing.py                                              112    112     0%   10-246
+nautilus_trader_engine\testing\security_testing.py                                              112    112     0%   10-246
+nautilus_trader_engine\testing\system_testing.py                                                 93     93     0%   10-201
+nautilus_trader_engine\testing\test_base.py                                                      69     69     0%   9-115
+nautilus_trader_engine\testing\testing_validation_suite.py                                      842    842     0%   28-1571
+nautilus_trader_engine\testing\unit_testing.py                                                  112    112     0%   11-237
+nautilus_trader_engine\testing\user_acceptance_testing.py                                        99     99     0%   10-216
+nautilus_trader_engine\trading\__init__.py                                                       17     17     0%   7-48
+nautilus_trader_engine\trading\compliance_engine.py                                             717    717     0%   6-1969
+nautilus_trader_engine\trading\execution_algorithms.py                                          802    802     0%   6-1638
+nautilus_trader_engine\trading\order_management.py                                              501    501     0%   7-964
+nautilus_trader_engine\trading\smart_order_router.py                                            909    909     0%   6-1986
+nautilus_trader_engine\trading\test_compliance_engine.py                                        197    197     0%   5-635
+nautilus_trader_engine\trading\test_execution_algorithms.py                                     228    228     0%   5-603
+nautilus_trader_engine\trading\test_order_lifecycle.py                                          264    264     0%   5-655
+nautilus_trader_engine\trading\test_smart_order_router.py                                       188    188     0%   5-531
+nautilus_trader_engine\utils\__init__.py                                                         41     41     0%   12-259
+nautilus_trader_engine\utils\fix_utils.py                                                        30     30     0%   1-60
+nautilus_trader_engine\utils\ib_utils.py                                                         46     46     0%   13-183
+nautilus_trader_engine\utils\logging_config.py                                                    8      8     0%   1-32
+nautilus_trader_engine\utils\shared_utilities.py                                                194    194     0%   12-539
+nautilus_trader_engine\utils\trading_utilities.py                                               195    195     0%   11-545
+nautilus_trader_engine\validation\__init__.py                                                     3      3     0%   5-8
+nautilus_trader_engine\validation\ibkr_integration_validator.py                                 219    219     0%   14-510
+nautilus_trader_engine\validation\order_validator.py                                             26     26     0%   5-85
+risk_manager\__init__.py                                                                          9      9     0%   10-27
+risk_manager\service.py                                                                         157    157     0%   10-360
+run_initial_backtest.py                                                                          18     18     0%   6-49
+services\order_management_service\src\auth_api.py                                               142     82    42%   112-145, 161-233, 248-265, 279-289, 303-332, 347-374, 390-417, 431, 445
+services\order_management_service\src\config.py                                                  26      1    96%   46
+services\order_management_service\src\kafka_consumer.py                                          41     26    37%   19-23, 27-31, 35-36, 40-42, 46-47, 51-59, 63-64, 68-69
+services\order_management_service\src\kafka_producer.py                                          26     14    46%   18-20, 24, 28, 32-38, 42-48, 52-58
+services\order_management_service\src\main.py                                                   199    124    38%   68-138, 173, 182, 191, 206-207, 227, 239, 269-285, 303-315, 335-353, 371-386, 408-419, 432-438, 448-457, 466-482, 492-501, 510-519, 524-526
+services\order_management_service\src\models.py                                                  40      0   100%
+services\order_management_service\src\order_manager.py                                           29     16    45%   17-18, 22-42, 46, 51, 55-59, 63, 67
+shared\__init__.py                                                                                4      0   100%
+shared\auth\__init__.py                                                                           6      0   100%
+shared\auth\exceptions.py                                                                       107     32    70%   19-22, 26, 52, 59, 66, 73, 85, 92, 99, 106, 113, 120, 132, 139, 146, 158, 165, 177, 184, 196, 203, 210, 222, 229, 236, 243, 250, 306, 318
+shared\auth\jwt_manager.py                                                                       91     59    35%   47, 71-91, 109-129, 144-171, 186, 200-232, 240-252, 263-273, 284-290
+shared\auth\middleware.py                                                                       176    135    23%   39-46, 52-94, 99-104, 108, 120, 145-196, 214-244, 259-291, 306-335, 350, 362, 374, 387-388, 400-404, 408-433
+shared\auth\rbac.py                                                                             182     76    58%   100-101, 105-106, 110, 311-322, 326, 337-352, 365, 374-375, 379, 390-404, 416-417, 421, 425, 436-448, 460-461, 473-480, 492-493, 505-506, 518-519, 533-535, 549-556, 562, 570-573
+shared\auth\user_manager.py                                                                     295    149    49%   76-83, 87-89, 93, 123, 125, 131, 133, 135, 137, 159-167, 222-226, 238, 254, 258, 291-295, 319-385, 395-406, 410, 414-415, 419-420, 436-468, 488-506, 520-536, 554-564, 580-588
+shared\config.py                                                                                 63     63     0%   2-87
+shared\kafka_client.py                                                                           86     86     0%   2-112
+shared\models\__init__.py                                                                         6      6     0%   7-13
+shared\models\market_data.py                                                                    192    192     0%   7-373
+shared\models\orders.py                                                                         294    294     0%   7-550
+shared\models\positions.py                                                                      305    305     0%   7-576
+shared\models\risk.py                                                                           319    319     0%   7-658
+shared\models\strategies.py                                                                     350    350     0%   7-652
+shared\utils\__init__.py                                                                         10      0   100%
+shared\utils\cache_manager.py                                                                   360    360     0%   12-595
+shared\utils\certificate_manager.py                                                             167    167     0%   7-482
+shared\utils\connection_pool.py                                                                 324    324     0%   12-512
+shared\utils\database_utils.py                                                                  169    112    34%   18-19, 23-24, 46, 60, 71, 82, 97-101, 105-118, 122-134, 148-160, 174-186, 196-202, 215-217, 221-230, 239-241, 251-257, 270-271, 285-292, 302-308, 320-322, 328-330, 336-338, 349-375, 400
+shared\utils\error_handling.py                                                                  225    147    35%   66-72, 79, 90, 101-106, 113, 125, 137, 148, 160, 193-212, 248-280, 284-316, 335-340, 343-359, 363, 370-371, 375-379, 393-398, 423-452, 457-466, 472, 498-503, 527-549, 556-558, 562-583, 587, 595-596
+shared\utils\formatting.py                                                                       90     77    14%   36-50, 70-77, 102-110, 130-142, 167-176, 201-223, 243-250, 269, 288-290, 309-318
+shared\utils\logging_utils.py                                                                   274    160    42%   25-26, 31-32, 77, 81, 85, 87, 91, 113-114, 127-129, 134, 141-144, 148-188, 195-196, 199-200, 203-204, 218-219, 231-261, 295-296, 305, 312, 332-333, 359-364, 375-377, 382-383, 440-506, 523-526, 533-534, 538-546, 550, 554, 558, 562, 566, 573-583, 590-601, 606-615, 621-629, 635-644, 649-671, 676-680, 685, 690, 695-702, 707-714
+shared\utils\metrics.py                                                                         359    359     0%   14-608
+shared\utils\rate_limiter.py                                                                    347    347     0%   13-636
+shared\utils\rate_limiting.py                                                                   230    183    20%   47-50, 54, 72-75, 91-95, 107-111, 115-141, 157-160, 172-176, 180-211, 233-236, 248-304, 319-322, 334-338, 342-369, 388-417, 429-439, 459-473, 487-502, 506-515, 522-546, 568-594
+shared\utils\secrets_manager.py                                                                 252    252     0%   7-424
+shared\utils\time_utils.py                                                                      158    131    17%   53-111, 137-152, 176-183, 201-242, 263-295, 316-349, 371-411, 436-450, 470-475, 498-510
+shared\utils\tls_config.py                                                                      153    153     0%   7-389
+shared\utils\validation.py                                                                      120    100    17%   33-48, 69-79, 100-104, 125-128, 149-157, 178-182, 203-209, 230-235, 254-258, 279-287, 308-311, 333-336, 368-397, 416-445, 463-476, 495-499
+start_nautilus.py                                                                               153    153     0%   21-365
+test_data_feed_monitor.py                                                                        38     38     0%   6-61
+test_graphql_api.py                                                                             156    156     0%   7-408
+test_ibkr_paper_connection.py                                                                   280    280     0%   15-677
+test_permissions.py                                                                              37     37     0%   1-46
+test_simple_server.py                                                                           100    100     0%   6-249
+tests\PHASE_1_COMPREHENSIVE_TEST_EXECUTION.py                                                   247    247     0%   14-679
+tests\__init__.py                                                                                 0      0   100%
+tests\conftest.py                                                                               335    203    39%   42-44, 50-52, 58, 101-102, 113-115, 121, 127, 133, 144, 150, 189-197, 203-219, 225-232, 257-269, 275-283, 289-298, 304-314, 320-340, 346, 363, 378, 408-426, 432-443, 449-463, 469-486, 496-506, 519-538, 548-564, 574-588, 594-606, 611-616, 621-628, 633-637, 642-645, 650-655, 661, 673, 685, 738-741, 745, 747, 749, 751, 754-755, 761, 763, 765
+tests\framework\__init__.py                                                                       2      2     0%   8-9
+tests\framework\api_integration_tester.py                                                       411    411     0%   19-977
+tests\framework\compatibility_test_runner.py                                                    409    409     0%   16-1022
+tests\framework\database_integration_tester.py                                                  641    641     0%   19-1614
+tests\framework\demo_database_integration_tester.py                                             225    225     0%   10-591
+tests\framework\demo_docker_orchestrator.py                                                     128    128     0%   9-190
+tests\framework\demo_environment_manager.py                                                      89     89     0%   9-131
+tests\framework\demo_integration_test_runner.py                                                 228    228     0%   10-558
+tests\framework\demo_secrets_manager.py                                                         158    158     0%   9-252
+tests\framework\demo_unit_test_runner.py                                                        190    190     0%   9-311
+tests\framework\docker_orchestrator.py                                                          549    549     0%   9-1159
+tests\framework\edge_case_framework.py                                                          300    300     0%   9-889
+tests\framework\environment_manager.py                                                          334    334     0%   8-743
+tests\framework\example_usage.py                                                                 88     88     0%   8-162
+tests\framework\integration_test_runner.py                                                      487    487     0%   19-1301
+tests\framework\load_test_runner.py                                                             589    589     0%   18-1349
+tests\framework\mock_framework.py                                                               346    346     0%   9-722
+tests\framework\recovery_test_runner.py                                                         407    407     0%   17-1095
+tests\framework\regression_test_runner.py                                                       431    431     0%   17-1058
+tests\framework\secrets_manager.py                                                              503    503     0%   9-1008
+tests\framework\test_database_integration_tester.py                                             340    340     0%   10-876
+tests\framework\test_docker_orchestrator.py                                                     388    388     0%   9-779
+tests\framework\test_edge_case_framework.py                                                     264    264     0%   9-555
+tests\framework\test_environment_manager.py                                                     278    278     0%   9-536
+tests\framework\test_integration_test_runner.py                                                 318    318     0%   10-703
+tests\framework\test_mock_framework.py                                                          338    338     0%   9-578
+tests\framework\test_secrets_manager.py                                                         304    304     0%   9-600
+tests\framework\test_unit_test_runner.py                                                        299    299     0%   9-656
+tests\framework\unit_test_runner.py                                                             388    388     0%   8-952
+tests\framework\usability_test_runner.py                                                        414    414     0%   17-1112
+tests\integration\__init__.py                                                                     0      0   100%
+tests\integration\comprehensive_integration_test_suite.py                                       289    289     0%   7-843
+tests\integration\data_consistency_tests.py                                                     212    212     0%   7-461
+tests\integration\integration_test_automation.py                                                259    259     0%   7-570
+tests\integration\run_all_integration_tests.py                                                   15     15     0%   1-30
+tests\integration\run_integration_test_validation.py                                            272    272     0%   7-592
+tests\integration\test_api_and_websockets.py                                                     36     36     0%   1-87
+tests\integration\test_api_integration.py                                                       312    312     0%   7-635
+tests\integration\test_auth_api.py                                                              204    204     0%   6-415
+tests\integration\test_config_mock.py                                                            97     97     0%   4-184
+tests\integration\test_data_pipeline.py                                                          41     41     0%   1-105
+tests\integration\test_database_integration.py                                                  248    248     0%   7-488
+tests\integration\test_end_to_end_integration.py                                                294    294     0%   7-628
+tests\integration\test_event_processing.py                                                      270    270     0%   7-704
+tests\integration\test_external_services.py                                                     371    371     0%   7-757
+tests\integration\test_kafka_integration.py                                                     306    306     0%   7-722
+tests\integration\test_monitoring_and_alerting.py                                                20     20     0%   1-62
+tests\integration\test_oms_broker_connectivity.py                                               223    223     0%   8-669
+tests\integration\test_performance_monitoring.py                                                443    443     0%   7-883
+tests\integration\test_portfolio_risk_integration.py                                            159    159     0%   13-677
+tests\integration\test_qdrant_integration.py                                                    172    172     0%   3-383
+tests\integration\test_rest_api.py                                                              169    169     0%   3-473
+tests\integration\test_security_integration.py                                                  451    451     0%   7-963
+tests\integration\test_strategy_execution.py                                                     30     30     0%   1-75
+tests\integration\test_trading_engine_market_data.py                                            177    177     0%   7-425
+tests\integration\test_trading_workflows.py                                                     183    183     0%   3-671
+tests\integration\test_vertical_slice.py                                                         19     19     0%   2-39
+tests\integration\test_websocket.py                                                             207    207     0%   3-510
+tests\production_readiness\__init__.py                                                            0      0   100%
+tests\production_readiness\fix_unicode_issues.py                                                 17     17     0%   7-46
+tests\production_readiness\production_readiness_automation.py                                   242    242     0%   7-547
+tests\production_readiness\production_readiness_framework.py                                    953    953     0%   7-2312
+tests\production_readiness\run_production_readiness_validation.py                               300    300     0%   7-661
+tests\production_readiness\test_production_readiness.py                                         277    277     0%   7-653
+tests\run_task_14_tests.py                                                                      221    221     0%   7-406
+tests\test_advanced_rest_api.py                                                                 383    383     0%   5-743
+tests\test_api_documentation_validation.py                                                      307    307     0%   7-577
+tests\test_asset_class_framework.py                                                             365    365     0%   6-870
+tests\test_asset_class_framework_simple.py                                                      131    131     0%   5-310
+tests\test_audit_reporting.py                                                                   372    372     0%   5-972
+tests\test_automated_compliance.py                                                              215    215     0%   5-610
+tests\test_consolidated_indicators.py                                                           102    102     0%   10-222
+tests\test_cross_asset_analytics.py                                                             230    230     0%   5-445
+tests\test_dashboard_builder.py                                                                 370    370     0%   5-842
+tests\test_data_feed_manager.py                                                                 192    192     0%   12-430
+tests\test_data_feeds.py                                                                        124    124     0%   7-251
+tests\test_distributed_tracing.py                                                               291    291     0%   5-502
+tests\test_documentation_task_14_1.py                                                           202    202     0%   8-480
+tests\test_end_to_end_pipeline.py                                                               322    322     0%   11-682
+tests\test_forex_crypto_support.py                                                              441    441     0%   6-971
+tests\test_fraud_detection.py                                                                   296    296     0%   5-890
+tests\test_graphql_api.py                                                                       308    308     0%   5-626
+tests\test_integration_framework.py                                                             286    286     0%   7-722
+tests\test_intelligent_alerting.py                                                              332    332     0%   5-739
+tests\test_kafka_service.py                                                                      32     32     0%   2-41
+tests\test_market_data_api.py                                                                   233    233     0%   7-504
+tests\test_metrics_collection.py                                                                301    301     0%   5-631
+tests\test_mobile_offline_capability.py                                                         273    273     0%   4-576
+tests\test_momentum_indicators.py                                                                83     83     0%   1-122
+tests\test_multi_strategy_portfolio_testing.py                                                  250    250     0%   5-523
+tests\test_order_pipeline.py                                                                     46     46     0%   1-74
+tests\test_performance_dashboard.py                                                             325    325     0%   5-610
+tests\test_realistic_market_simulation.py                                                       226    226     0%   5-701
+tests\test_strategy_performance_attribution.py                                                  338    338     0%   5-755
+tests\test_task_14_documentation_training.py                                                    318    318     0%   7-746
+tests\test_unified_margin_system.py                                                             245    245     0%   5-692
+tests\test_var_engine.py                                                                          0      0   100%
+tests\test_visualization_system.py                                                              285    285     0%   4-580
+tests\test_visualization_systems.py                                                             403    403     0%   4-794
+tests\test_walk_forward_optimization.py                                                         321    321     0%   5-676
+tests\test_webhook_system.py                     

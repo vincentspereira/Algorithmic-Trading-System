@@ -360,3 +360,94 @@ class MessageMetrics:
             lines.append(f"{name} {value}")
         
         return '\n'.join(lines)
+
+
+class MessagingMetrics:
+    """Backward-compatible facade used in tests.
+    Wraps MessageMetrics and exposes higher-level convenience methods.
+    """
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        self._metrics = MessageMetrics(max_history=self.config.get('max_history', 10000))
+        # Defaults for alert thresholds
+        self._thresholds = {
+            'min_messages_per_second': self.config.get('min_messages_per_second', 10000),
+            'max_avg_latency_ms': self.config.get('max_avg_latency_ms', 5.0),
+            'max_p99_latency_ms': self.config.get('max_p99_latency_ms', 20.0),
+            'max_error_rate': self.config.get('max_error_rate', 0.01),
+            'max_queue_depth': self.config.get('max_queue_depth', 10000),
+        }
+
+    # Passthrough helpers when needed by other parts of the system
+    def get_metrics(self) -> Dict[str, Any]:
+        return self._metrics.get_metrics()
+
+    def reset_metrics(self):
+        self._metrics.reset_metrics()
+
+    # High-level summary used by tests
+    def get_messaging_stats(self) -> Dict[str, Any]:
+        m = self._metrics.get_metrics()
+        messages_per_second = float(m['rates'].get('messages_processed_per_sec', 0.0))
+        # Avg and p99 latency across topics
+        latency_stats = m.get('latency_stats', {})
+        all_means = [s.get('mean_ms', 0.0) for s in latency_stats.values() if s]
+        all_p99s = [s.get('p99_ms', 0.0) for s in latency_stats.values() if s]
+        avg_latency_ms = (sum(all_means) / len(all_means)) if all_means else 0.0
+        p99_latency_ms = max(all_p99s) if all_p99s else 0.0
+        # Queue depth: take max across priorities
+        priorities = m.get('priorities', {})
+        queue_depth = 0
+        for p in priorities.values():
+            try:
+                queue_depth = max(queue_depth, int(p.get('queue_depth', 0)))
+            except Exception:
+                continue
+        # Error rate
+        counters = m.get('counters', {})
+        published = int(counters.get('messages_published_total', 0))
+        dropped = int(counters.get('messages_dropped_total', 0))
+        error_rate = (dropped / published) if published > 0 else 0.0
+        # Throughput (mbps): without payload sizes we conservatively return 0.0
+        throughput_mbps = 0.0
+        return {
+            'messages_per_second': messages_per_second,
+            'avg_latency_ms': avg_latency_ms,
+            'p99_latency_ms': p99_latency_ms,
+            'queue_depth': queue_depth,
+            'error_rate': error_rate,
+            'throughput_mbps': throughput_mbps,
+        }
+
+    def check_alert_conditions(self) -> Dict[str, Any]:
+        stats = self.get_messaging_stats()
+        alerts: List[Dict[str, Any]] = []
+        # Check thresholds and add alerts
+        if stats['messages_per_second'] < self._thresholds['min_messages_per_second']:
+            alerts.append({'level': 'warning', 'metric': 'messages_per_second',
+                           'value': stats['messages_per_second'],
+                           'threshold': self._thresholds['min_messages_per_second']})
+        if stats['avg_latency_ms'] > self._thresholds['max_avg_latency_ms']:
+            alerts.append({'level': 'warning', 'metric': 'latency',
+                           'value': stats['avg_latency_ms'],
+                           'threshold': self._thresholds['max_avg_latency_ms']})
+        if stats['p99_latency_ms'] > self._thresholds['max_p99_latency_ms']:
+            alerts.append({'level': 'warning', 'metric': 'p99_latency',
+                           'value': stats['p99_latency_ms'],
+                           'threshold': self._thresholds['max_p99_latency_ms']})
+        if stats['error_rate'] > self._thresholds['max_error_rate']:
+            alerts.append({'level': 'warning', 'metric': 'error_rate',
+                           'value': stats['error_rate'],
+                           'threshold': self._thresholds['max_error_rate']})
+        if stats['queue_depth'] > self._thresholds['max_queue_depth']:
+            alerts.append({'level': 'info', 'metric': 'queue_depth',
+                           'value': stats['queue_depth'],
+                           'threshold': self._thresholds['max_queue_depth']})
+        # Overall health
+        if any(a['level'] == 'warning' for a in alerts):
+            overall = 'warning'
+        elif any(a['level'] == 'critical' for a in alerts):
+            overall = 'critical'
+        else:
+            overall = 'good'
+        return {'alerts': alerts, 'overall_health': overall}

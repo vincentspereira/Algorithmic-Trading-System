@@ -11,7 +11,7 @@ import asyncio
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Tuple, Union
 from enum import Enum
 from dataclasses import dataclass, field
@@ -116,7 +116,7 @@ class StrategyPerformance:
     profit_factor: float = 0.0
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 class StrategyConfig(BaseModel):
     """Strategy configuration model"""
@@ -249,7 +249,7 @@ class BaseStrategy(ABC):
         """Update market data for symbol"""
         try:
             # Get latest data from market data service
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             start_time = end_time - timedelta(days=self.parameters.lookback_period)
             
             # This would call the actual market data service
@@ -477,7 +477,7 @@ class BaseStrategy(ABC):
     async def _update_performance_metrics(self):
         """Update real-time performance metrics"""
         # This would update performance based on actual trade results
-        self.performance.last_updated = datetime.utcnow()
+        self.performance.last_updated = datetime.now(timezone.utc)
 
 # ===========================================
 # CONCRETE STRATEGY IMPLEMENTATIONS
@@ -549,7 +549,7 @@ class MovingAverageCrossoverStrategy(BaseStrategy):
                     signal_type=SignalType.BUY,
                     strength=0.8,
                     price=current_price,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     strategy_name=self.name,
                     indicators={
                         'sma_fast': sma_fast_current,
@@ -572,7 +572,7 @@ class MovingAverageCrossoverStrategy(BaseStrategy):
                     signal_type=SignalType.SELL,
                     strength=0.8,
                     price=current_price,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     strategy_name=self.name,
                     indicators={
                         'sma_fast': sma_fast_current,
@@ -673,7 +673,7 @@ class MomentumStrategy(BaseStrategy):
                     signal_type=SignalType.BUY if strength > 0.7 else SignalType.BUY,
                     strength=strength,
                     price=current_price,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     strategy_name=self.name,
                     indicators={
                         'rsi': rsi_current,
@@ -703,7 +703,7 @@ class MomentumStrategy(BaseStrategy):
                     signal_type=SignalType.SELL if strength > 0.7 else SignalType.SELL,
                     strength=strength,
                     price=current_price,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     strategy_name=self.name,
                     indicators={
                         'rsi': rsi_current,

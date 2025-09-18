@@ -1,6 +1,6 @@
 import asyncio
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 class RealtimePredictionEngine:
     """
@@ -45,7 +45,7 @@ class RealtimePredictionEngine:
         
         return {
             "symbol": symbol,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "predictions": prediction,
         }
 
@@ -58,7 +58,7 @@ class RealtimePredictionEngine:
             return {"error": "Symbol not tracked"}
 
         predictions = []
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         for i in range(limit):
             # Simulate historical predictions from the past
             timestamp = current_time - timedelta(minutes=i)

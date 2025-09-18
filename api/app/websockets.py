@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 
 from fastapi import WebSocket
@@ -21,7 +21,7 @@ class ConnectionManager:
         self.active_connections.append(websocket)
         self.client_info[websocket] = {
             "client_id": client_id,
-            "connected_at": datetime.now(),
+            "connected_at": datetime.now(timezone.utc),
             "subscriptions": []
         }
         logger.info("WebSocket connected", client_id=client_id, total_connections=len(self.active_connections))

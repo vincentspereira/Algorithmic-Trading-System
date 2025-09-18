@@ -5,6 +5,8 @@ try:
     from nautilus_trader.adapters.interactive_brokers.common import IB
     from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersDataClientConfig
     from nautilus_trader.adapters.interactive_brokers.config import InteractiveBrokersExecClientConfig
+    from nautilus_trader.adapters.interactive_brokers.factories import InteractiveBrokersLiveDataClientFactory
+    from nautilus_trader.adapters.interactive_brokers.factories import InteractiveBrokersLiveExecClientFactory
     from nautilus_trader.config import TradingNodeConfig, CacheConfig, MessageBusConfig, LiveDataEngineConfig, LiveRiskEngineConfig, LiveExecEngineConfig, PortfolioConfig
     from nautilus_trader.model.identifiers import TraderId, Venue
     NAUTILUS_AVAILABLE = True
@@ -84,19 +86,18 @@ def get_ib_paper_trading_config() -> TradingNodeConfig:
         exec_engine=LiveExecEngineConfig(),
         portfolio=PortfolioConfig(),
         data_clients={
-            IB: InteractiveBrokersDataClientConfig(
-                host=IB_HOST,
-                port=settings.IB_PAPER_PORT,
-                client_id=settings.IB_PAPER_CLIENT_ID,
-                account=settings.IB_PAPER_ACCOUNT,
+            "IB": InteractiveBrokersDataClientConfig(
+                ibg_host=IB_HOST,
+                ibg_port=settings.IB_PAPER_PORT,
+                ibg_client_id=settings.IB_PAPER_CLIENT_ID,
             ),
         },
         exec_clients={
-            IB: InteractiveBrokersExecClientConfig(
-                host=IB_HOST,
-                port=settings.IB_PAPER_PORT,
-                client_id=settings.IB_PAPER_CLIENT_ID,
-                account=settings.IB_PAPER_ACCOUNT,
+            "IB": InteractiveBrokersExecClientConfig(
+                ibg_host=IB_HOST,
+                ibg_port=settings.IB_PAPER_PORT,
+                ibg_client_id=settings.IB_PAPER_CLIENT_ID,
+                account_id=settings.IB_PAPER_ACCOUNT,
             ),
         },
     )
@@ -114,36 +115,32 @@ def get_ib_live_trading_config() -> TradingNodeConfig:
         exec_engine=LiveExecEngineConfig(),
         portfolio=PortfolioConfig(),
         data_clients={
-            IB: InteractiveBrokersDataClientConfig(
-                host=IB_HOST,
-                port=settings.IB_LIVE_PORT,
-                client_id=settings.IB_LIVE_CLIENT_ID,
-                account=settings.IB_LIVE_ACCOUNT,
+            "IB": InteractiveBrokersDataClientConfig(
+                ibg_host=IB_HOST,
+                ibg_port=settings.IB_LIVE_PORT,
+                ibg_client_id=settings.IB_LIVE_CLIENT_ID,
             ),
         },
         exec_clients={
-            IB: InteractiveBrokersExecClientConfig(
-                host=IB_HOST,
-                port=settings.IB_LIVE_PORT,
-                client_id=settings.IB_LIVE_CLIENT_ID,
-                account=settings.IB_LIVE_ACCOUNT,
+            "IB": InteractiveBrokersExecClientConfig(
+                ibg_host=IB_HOST,
+                ibg_port=settings.IB_LIVE_PORT,
+                ibg_client_id=settings.IB_LIVE_CLIENT_ID,
+                account_id=settings.IB_LIVE_ACCOUNT,
             ),
         },
     )
 
 def get_ib_trading_node_config(mode: str) -> TradingNodeConfig:
     """
-    Returns the trading node configuration for the specified mode.
-
-    :param mode: 'paper' or 'live'
-    :return: A TradingNodeConfig instance for the selected mode.
+    Returns the trading node configuration based on the mode.
     """
-    if mode.lower() == "paper":
+    if mode == "paper":
         return get_ib_paper_trading_config()
-    elif mode.lower() == "live":
+    elif mode == "live":
         return get_ib_live_trading_config()
     else:
-        raise ValueError("Invalid mode specified. Choose 'paper' or 'live'.")
+        raise ValueError(f"Invalid mode: {mode}. Must be 'paper' or 'live'.")
 
 class IBPaperConfig:
     pass

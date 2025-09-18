@@ -17,7 +17,7 @@ import logging
 import os
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 
 import asyncpg
@@ -90,8 +90,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     permissions = Column(JSONB, default=list)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     last_login = Column(DateTime)
     
     __table_args__ = (
@@ -111,8 +111,8 @@ class TradingAccount(Base):
     account_type = Column(String(20), nullable=False)  # PAPER, LIVE
     api_credentials = Column(JSONB)  # Encrypted credentials
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     __table_args__ = (
         Index('idx_trading_accounts_user_id', 'user_id'),
@@ -137,8 +137,8 @@ class Order(Base):
     avg_fill_price = Column(Float)
     status = Column(String(20), nullable=False)  # PENDING, FILLED, CANCELLED
     time_in_force = Column(String(10), default="DAY")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     filled_at = Column(DateTime)
     order_metadata = Column(JSONB)
     
@@ -162,7 +162,7 @@ class Position(Base):
     market_value = Column(Float)
     unrealized_pnl = Column(Float)
     realized_pnl = Column(Float, default=0.0)
-    last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_updated = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     __table_args__ = (
         Index('idx_positions_user_id', 'user_id'),
@@ -180,8 +180,8 @@ class Strategy(Base):
     strategy_type = Column(String(50), nullable=False)
     parameters = Column(JSONB)
     is_active = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     __table_args__ = (
         Index('idx_strategies_user_id', 'user_id'),

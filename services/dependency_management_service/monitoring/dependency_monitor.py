@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 import requests
@@ -88,7 +88,10 @@ class DependencyMonitor:
             
         cron = croniter(schedule, last_run)
         next_run = cron.get_next(datetime)
-        return datetime.utcnow() >= next_run
+        # Ensure next_run is timezone-aware (UTC)
+        if next_run.tzinfo is None or next_run.tzinfo.utcoffset(next_run) is None:
+            next_run = next_run.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) >= next_run
         
     def check_vulnerabilities(
         self,
@@ -125,7 +128,7 @@ class DependencyMonitor:
                 params = {
                     "cpeName": dependency["cpe"],
                     "lastModStartDate": (
-                        datetime.utcnow() - timedelta(days=30)
+                        datetime.now(timezone.utc) - timedelta(days=30)
                     ).strftime("%Y-%m-%dT%H:%M:%S:000 UTC-00:00")
                 }
                 
@@ -211,8 +214,8 @@ class DependencyMonitor:
                 return DependencyStatus(
                     name=dependency["name"],
                     tier=tier,
-                    last_check=datetime.utcnow(),
-                    last_update=datetime.min,
+                    last_check=datetime.now(timezone.utc),
+                    last_update=datetime.min.replace(tzinfo=timezone.utc),
                     current_commit="unknown",
                     vulnerabilities=[],
                     health_status="error"
@@ -235,7 +238,7 @@ class DependencyMonitor:
             return DependencyStatus(
                 name=dependency["name"],
                 tier=tier,
-                last_check=datetime.utcnow(),
+                last_check=datetime.now(timezone.utc),
                 last_update=datetime.fromisoformat(
                     status["last_checked"].replace("Z", "+00:00")
                 ),
@@ -252,8 +255,8 @@ class DependencyMonitor:
             return DependencyStatus(
                 name=dependency["name"],
                 tier=tier,
-                last_check=datetime.utcnow(),
-                last_update=datetime.min,
+                last_check=datetime.now(timezone.utc),
+                last_update=datetime.min.replace(tzinfo=timezone.utc),
                 current_commit="unknown",
                 vulnerabilities=[],
                 health_status="error",
@@ -284,7 +287,7 @@ class DependencyMonitor:
             self.status_cache[f"{tier}/{dependency['name']}"] = status
             results.append(status)
             
-        self.last_run[tier] = datetime.utcnow()
+        self.last_run[tier] = datetime.now(timezone.utc)
         return results
         
     def monitor_all(self) -> Dict[str, List[DependencyStatus]]:

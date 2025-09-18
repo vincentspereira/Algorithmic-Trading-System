@@ -1,0 +1,69 @@
+{
+  "test_metadata": {
+    "timestamp": "2025-09-13T19:40:32.658220",
+    "total_tests": 11,
+    "passed_tests": 11,
+    "success_rate": 100.0,
+    "data_periods": 200
+  },
+  "test_results": [
+    "SMA: PASS",
+    "VWMA: PASS",
+    "VW_EMA: PASS",
+    "RSI: PASS",
+    "VW_RSI: PASS",
+    "MACD: PASS",
+    "VW_MACD: PASS",
+    "ATR: PASS",
+    "VW_ATR: PASS",
+    "BOLLINGER: PASS",
+    "VWAP: PASS"
+  ],
+  "indicator_results": {
+    "sma": {
+      "value": 103.35221568237398,
+      "signal": "sell"
+    },
+    "vwma": {
+      "value": 103.18973460393606,
+      "signal": "sell"
+    },
+    "vw_ema": {
+      "value": 99.36057078100679,
+      "signal": "sell"
+    },
+    "rsi": {
+      "value": 44.77965473469654,
+      "signal": "neutral"
+    },
+    "vw_rsi": {
+      "value": 95.65680207438035,
+      "signal": "sell"
+    },
+    "macd": {
+      "value": 2.836707241523797,
+      "signal": "sell"
+    },
+    "vw_macd": {
+      "value": 2.883590265394403,
+      "signal": "sell"
+    },
+    "atr": {
+      "value": 2.2303918148807886,
+      "signal": "neutral"
+    },
+    "vw_atr": {
+      "value": 2.297632822497879,
+      "signal": "neutral"
+    },
+    "bollinger": {
+      "value": 0.04111975437208472,
+      "signal": "buy"
+    },
+    "vwap": {
+      "value": 91.77436495064711,
+      "signal": "buy"
+    }
+  },
+  "phase1_readiness": "READY"
+}

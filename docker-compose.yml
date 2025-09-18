@@ -48,11 +48,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis for caching and session management
+  # Redis for caching and sessions
   redis:
-    image: redis:7.2-alpine
+    image: redis:7-alpine
     container_name: trading_redis
-    command: redis-server --requirepass redis_password_2024 --maxmemory 512mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --requirepass trading_redis_2024
     ports:
       - "6379:6379"
     volumes:
@@ -61,10 +61,110 @@ services:
       - phase1_trading_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "redis_password_2024", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 3s
       retries: 5
+
+  # Apache Kafka for event streaming
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: trading-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - phase1_trading_network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: trading-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - phase1_trading_network
+
+  # Kafka UI for monitoring
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: trading-kafka-ui
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    ports:
+      - "8080:8080"
+    networks:
+      - phase1_trading_network
+
+  # Monitoring Services
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: trading-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - phase1_trading_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: trading-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    networks:
+      - phase1_trading_network
+
+  # Jaeger for distributed tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: trading-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    networks:
+      - phase1_trading_network
 
   # Qdrant Vector Database
   qdrant:
@@ -87,151 +187,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Apache Kafka
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
-    container_name: trading_zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    volumes:
-      - zookeeper_data:/var/lib/zookeeper/data
-      - zookeeper_logs:/var/lib/zookeeper/log
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
-
-  kafka:
-    image: confluentinc/cp-kafka:7.4.0
-    container_name: trading_kafka
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-      - "19092:19092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_JMX_PORT: 19092
-      KAFKA_JMX_HOSTNAME: localhost
-      KAFKA_NUM_NETWORK_THREADS: 8
-      KAFKA_NUM_IO_THREADS: 16
-      KAFKA_SOCKET_SEND_BUFFER_BYTES: 102400
-      KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 102400
-      KAFKA_SOCKET_REQUEST_MAX_BYTES: 104857600
-      KAFKA_NUM_PARTITIONS: 3
-      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
-      KAFKA_LOG_RETENTION_HOURS: 168
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824
-      KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.4.0
-    container_name: trading_schema_registry
-    depends_on:
-      - kafka
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:29092
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
-      SCHEMA_REGISTRY_DEBUG: true
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/subjects"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: trading_kafka_ui
-    depends_on:
-      - kafka
-      - schema-registry
-    ports:
-      - "8080:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: trading_cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
-
-  # MinIO for object storage (S3 compatible)
-  minio:
-    image: minio/minio:latest
-    container_name: trading_minio
-    ports:
-      - "9001:9000"
-      - "9002:9001"
-    environment:
-      MINIO_ROOT_USER: trading_minio_user
-      MINIO_ROOT_PASSWORD: trading_minio_password_2024
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-
-  # Prometheus for monitoring
-  prometheus:
-    image: prom/prometheus:v2.47.0
-    container_name: trading_prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
-
-  # Grafana for visualization
-  grafana:
-    image: grafana/grafana:10.1.0
-    container_name: trading_grafana
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: grafana_admin_2024
-      GF_USERS_ALLOW_SIGN_UP: false
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana:/etc/grafana/provisioning
-    networks:
-      - phase1_trading_network
-    restart: unless-stopped
 
   # Elasticsearch for logging
   elasticsearch:
@@ -316,7 +271,491 @@ services:
       timeout: 10s
       retries: 5
 
-  # Order Processor Service
+  # =============================================================================
+  # Core Application Services
+  # =============================================================================
+
+  # Main API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: trading-api-gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - CLICKHOUSE_URL=http://clickhouse_user:clickhouse_password_2024@clickhouse:8123/trading_analytics
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-jwt-secret-key}
+      - API_V1_STR=/api/v1
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./config:/app/config
+    ports:
+      - "8001:8000"
+    networks:
+      - phase1_trading_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Market Data Service - Enhanced with Multi-Source Feeds and Fallback
+  market-data-service:
+    build:
+      context: ./market_data_service
+      dockerfile: Dockerfile
+      target: production
+    container_name: trading-market-data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    environment:
+      # Service Configuration
+      - SERVICE_NAME=market-data-service
+      - SERVICE_VERSION=1.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DEBUG=${DEBUG:-false}
+      
+      # Database Configuration
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/1
+      - CLICKHOUSE_URL=http://clickhouse_user:clickhouse_password_2024@clickhouse:8123/trading_analytics
+      
+      # Kafka Configuration
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_TOPIC_PREFIX=market_data
+      - KAFKA_PRODUCER_ENABLED=true
+      - KAFKA_CONSUMER_ENABLED=true
+      - KAFKA_COMPRESSION_TYPE=gzip
+      - KAFKA_BATCH_SIZE=16384
+      - KAFKA_LINGER_MS=10
+      
+      # Provider API Keys
+      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY:-}
+      - FINNHUB_API_KEY=${FINNHUB_API_KEY:-}
+      - POLYGON_API_KEY=${POLYGON_API_KEY:-}
+      - TWELVE_DATA_API_KEY=${TWELVE_DATA_API_KEY:-}
+      - OANDA_API_KEY=${OANDA_API_KEY:-}
+      - COINBASE_API_KEY=${COINBASE_API_KEY:-}
+      
+      # Multi-Source Configuration
+      - PRIMARY_PROVIDER=yahoo_finance
+      - FALLBACK_ENABLED=true
+      - FALLBACK_TIMEOUT=5
+      - MAX_FALLBACK_ATTEMPTS=3
+      
+      # Performance Configuration
+      - CACHE_TTL=300
+      - CACHE_MAX_SIZE=10000
+      - MAX_RETRIES=3
+      - RETRY_BACKOFF_FACTOR=2
+      - REQUEST_TIMEOUT=30
+      
+      # Rate Limiting
+      - RATE_LIMIT_REQUESTS_PER_MINUTE=60
+      - RATE_LIMIT_BURST_SIZE=10
+      - RATE_LIMIT_ENABLED=true
+      
+      # Circuit Breaker Configuration
+      - CIRCUIT_BREAKER_ENABLED=true
+      - CIRCUIT_BREAKER_FAILURE_THRESHOLD=5
+      - CIRCUIT_BREAKER_RECOVERY_TIMEOUT=60
+      - CIRCUIT_BREAKER_EXPECTED_EXCEPTION_RATIO=0.5
+      
+      # Health Check Configuration
+      - HEALTH_CHECK_INTERVAL=30
+      - HEALTH_CHECK_TIMEOUT=10
+      - PROVIDER_HEALTH_CHECK_ENABLED=true
+      
+      # Streaming Configuration
+      - WEBSOCKET_ENABLED=true
+      - WEBSOCKET_MAX_CONNECTIONS=1000
+      - STREAMING_BUFFER_SIZE=1000
+      - STREAMING_BATCH_SIZE=100
+      
+      # Asset Class Configuration
+      - STOCKS_ENABLED=true
+      - FOREX_ENABLED=true
+      - CRYPTO_ENABLED=true
+      - FUTURES_ENABLED=true
+      - OPTIONS_ENABLED=true
+      
+      # Data Quality Configuration
+      - DATA_VALIDATION_ENABLED=true
+      - OUTLIER_DETECTION_ENABLED=true
+      - DATA_NORMALIZATION_ENABLED=true
+      
+      # Monitoring Configuration
+      - METRICS_ENABLED=true
+      - PROMETHEUS_METRICS_PORT=9090
+      - JAEGER_TRACING_ENABLED=true
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+    volumes:
+      - ./logs:/app/logs
+      - ./data/market_data:/app/data
+      - ./market_data_service/cache:/app/cache
+      - ./config/market_data:/app/config
+    ports:
+      - "8002:8000"  # Main API port
+      - "8012:9090"  # Metrics port
+    networks:
+      - phase1_trading_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Trading Engine Service (Enhanced Nautilus Trader)
+  trading-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: trading-engine
+    container_name: trading-engine-enhanced
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/2
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - IBKR_PAPER_TRADING=${IBKR_PAPER_TRADING:-true}
+      - IBKR_HOST=${IBKR_HOST:-127.0.0.1}
+      - IBKR_PORT=${IBKR_PORT:-7497}
+      - IBKR_CLIENT_ID=${IBKR_CLIENT_ID:-1}
+      - RISK_MANAGEMENT_ENABLED=true
+      - MAX_POSITION_SIZE=${MAX_POSITION_SIZE:-10000}
+      - MAX_DAILY_LOSS=${MAX_DAILY_LOSS:-5000}
+    volumes:
+      - ./logs:/app/logs
+      - ./data/trading:/app/data
+    ports:
+      - "8003:8002"
+    networks:
+      - phase1_trading_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Portfolio Manager Service
+  portfolio-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: portfolio-manager
+    container_name: trading-portfolio-manager
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/3
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - PORTFOLIO_REBALANCE_FREQUENCY=${PORTFOLIO_REBALANCE_FREQUENCY:-daily}
+      - RISK_FREE_RATE=${RISK_FREE_RATE:-0.02}
+    volumes:
+      - ./logs:/app/logs
+      - ./data/portfolio:/app/data
+    ports:
+      - "8004:8003"
+    networks:
+      - phase1_trading_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Risk Manager Service
+  risk-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: risk-manager
+    container_name: trading-risk-manager
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/4
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - VAR_CONFIDENCE_LEVEL=${VAR_CONFIDENCE_LEVEL:-0.95}
+      - MAX_PORTFOLIO_VAR=${MAX_PORTFOLIO_VAR:-50000}
+      - STRESS_TEST_ENABLED=true
+    volumes:
+      - ./logs:/app/logs
+      - ./data/risk:/app/data
+    ports:
+      - "8005:8004"
+    networks:
+      - phase1_trading_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # AI Assistant Service
+  ai-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ai-assistant
+    container_name: trading-ai-assistant
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/5
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - VECTOR_DB_URL=http://qdrant:6333
+    volumes:
+      - ./logs:/app/logs
+      - ./data/ai:/app/data
+      - ./ai_assistant/rag/documents:/app/documents
+    ports:
+      - "8006:8005"
+    networks:
+      - phase1_trading_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =============================================================================
+  # Background Services
+  # =============================================================================
+
+  # Celery Worker for Background Tasks
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: worker
+    container_name: trading-celery-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/6
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - CELERY_BROKER_URL=redis://:trading_redis_2024@redis:6379/6
+      - CELERY_RESULT_BACKEND=redis://:trading_redis_2024@redis:6379/6
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - phase1_trading_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Celery Beat Scheduler
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: scheduler
+    container_name: trading-celery-beat
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/6
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - CELERY_BROKER_URL=redis://:trading_redis_2024@redis:6379/6
+      - CELERY_RESULT_BACKEND=redis://:trading_redis_2024@redis:6379/6
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - celery_beat_data:/app/celerybeat-schedule
+    networks:
+      - phase1_trading_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =============================================================================
+  # Development Tools
+  # =============================================================================
+
+  # Jupyter Lab for Data Analysis
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: trading-jupyter
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:trading_password_2024@postgres:5432/trading_system
+      - REDIS_URL=redis://:trading_redis_2024@redis:6379/7
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-trading-jupyter-token}
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - jupyter_data:/home/jovyan/work
+    ports:
+      - "8888:8888"
+    networks:
+      - phase1_trading_network
+    profiles:
+      - development
+    command: >
+      bash -c "jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root 
+               --NotebookApp.token='${JUPYTER_TOKEN:-trading-jupyter-token}' 
+               --NotebookApp.password='' --notebook-dir=/app/notebooks"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Frontend Application (Development)
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      args:
+        - NODE_ENV=development
+    container_name: trading-frontend-dev
+    depends_on:
+      - api-gateway
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8001
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8001
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    networks:
+      - phase1_trading_network
+    profiles:
+      - development
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Order Processor Service (Legacy - keeping for compatibility)
   order_processor:
     build:
       context: .
@@ -382,6 +821,56 @@ services:
   #     - phase1_trading_network
   #   restart: unless-stopped
 
+  # Cassandra - Wide-column NoSQL database
+  cassandra:
+    image: cassandra:4.1
+    container_name: trading_cassandra
+    ports:
+      - "9042:9042"  # CQL port
+      - "9160:9160"  # Thrift port
+    environment:
+      CASSANDRA_CLUSTER_NAME: "TradingCluster"
+      CASSANDRA_DC: "datacenter1"
+      CASSANDRA_RACK: "rack1"
+      CASSANDRA_ENDPOINT_SNITCH: "GossipingPropertyFileSnitch"
+      CASSANDRA_SEEDS: "cassandra"
+      CASSANDRA_PASSWORD: "cassandra_password_2024"
+      CASSANDRA_USER: "cassandra"
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+      - ./database/cassandra:/docker-entrypoint-initdb.d
+    networks:
+      - phase1_trading_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -u cassandra -p cassandra_password_2024 -e 'DESCRIBE KEYSPACES'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MongoDB - Document database
+  mongodb:
+    image: mongo:7.0
+    container_name: trading_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "mongo_user"
+      MONGO_INITDB_ROOT_PASSWORD: "mongo_password_2024"
+      MONGO_INITDB_DATABASE: "trading_system"
+      MONGO_REPLICA_SET: "rs0"
+    volumes:
+      - mongodb_data:/data/db
+      - ./database/mongodb:/docker-entrypoint-initdb.d
+    networks:
+      - phase1_trading_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   #// @PLACEHOLDER: Iceberg service definition is missing. Req ID: 1.2
   # iceberg-service:
   #   image: tabulario/spark-iceberg
@@ -404,6 +893,15 @@ volumes:
   prometheus_data:
   grafana_data:
   elasticsearch_data:
+  kibana_data:
+  jupyter_data:
+  mlflow_data:
+  airflow_logs:
+  airflow_dags:
+  airflow_plugins:
+  celery_beat_data:
+  cassandra_data:
+  mongodb_data:
   # influxdb_data:
   # loki_data:
   # jaeger_data:

@@ -6,12 +6,16 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Union, Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 from .config import settings
 
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# OAuth2 bearer token scheme for dependency injection
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
 def create_access_token(subject: Union[str, Any], expires_delta: Optional[timedelta] = None) -> str:
@@ -58,11 +62,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password: str) -> str:
-    """Hash a password"""
-    return pwd_context.hash(password)
-
-
 def create_token_response(user_id: str) -> dict:
     """Create a complete token response with access and refresh tokens"""
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -77,3 +76,17 @@ def create_token_response(user_id: str) -> dict:
         "token_type": "bearer",
         "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # in seconds
     }
+
+
+def get_current_active_user(token: str = Depends(oauth2_scheme)) -> dict:
+    """FastAPI dependency to authenticate current user via Bearer token.
+    Returns a minimal user dict if valid; raises 401 if invalid/missing.
+    """
+    subject = verify_token(token, token_type="access")
+    if not subject:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return {"user_id": subject}

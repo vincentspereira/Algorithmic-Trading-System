@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "total_indicators": 5,
+    "enabled_indicators": 5,
+    "total_weight": 7.1,
+    "by_type": {
+      "trend": 0,
+      "momentum": 5,
+      "volatility": 0,
+      "volume": 0,
+      "patterns": 0
+    },
+    "volume_weighted": true,
+    "concurrent_execution": true
+  },
+  "signal_result": {
+    "signal": "NEUTRAL",
+    "confidence": 0.0,
+    "strength": 0.0,
+    "contributing_indicators": [],
+    "metadata": {
+      "total_indicators": 0,
+      "buy_weight": 0.0,
+      "sell_weight": 0.0,
+      "total_weight": 0.0
+    }
+  },
+  "test_timestamp": "2025-09-12T12:44:33.001388"
+}

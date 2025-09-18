@@ -1,0 +1,355 @@
+# Prometheus Alerting Rules for Algorithmic Trading System
+# Critical alerts for system health, trading performance, and risk management
+
+groups:
+  - name: system_health
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on instance {{ $labels.instance }} has been down for more than 30 seconds."
+          runbook_url: "https://runbooks.trading-system.com/service-down"
+          
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% on {{ $labels.instance }} for more than 5 minutes."
+          
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% on {{ $labels.instance }} for more than 5 minutes."
+          
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is below 10% on {{ $labels.instance }} at {{ $labels.mountpoint }}."
+
+  - name: trading_engine
+    rules:
+      - alert: TradingEngineDown
+        expr: up{job="trading-engine"} == 0
+        for: 10s
+        labels:
+          severity: critical
+          category: trading
+        annotations:
+          summary: "Trading Engine is down"
+          description: "The trading engine has been down for more than 10 seconds. All trading operations are halted."
+          runbook_url: "https://runbooks.trading-system.com/trading-engine-down"
+          
+      - alert: HighOrderLatency
+        expr: histogram_quantile(0.95, rate(order_execution_latency_seconds_bucket[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High order execution latency"
+          description: "95th percentile order execution latency is above 100ms for more than 2 minutes."
+          
+      - alert: OrderExecutionFailureRate
+        expr: rate(trading_orders_failed_total[5m]) / rate(trading_orders_total[5m]) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+          category: trading
+        annotations:
+          summary: "High order execution failure rate"
+          description: "Order execution failure rate is above 5% for more than 1 minute."
+          
+      - alert: LowOrderFillRate
+        expr: rate(trading_orders_filled_total[5m]) / rate(trading_orders_total[5m]) < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: trading
+        annotations:
+          summary: "Low order fill rate"
+          description: "Order fill rate is below 80% for more than 5 minutes."
+          
+      - alert: HighSlippage
+        expr: avg(trading_slippage_bps) > 15
+        for: 3m
+        labels:
+          severity: warning
+          category: trading
+        annotations:
+          summary: "High trading slippage detected"
+          description: "Average slippage is above 15 basis points for more than 3 minutes."
+
+  - name: market_data
+    rules:
+      - alert: MarketDataFeedDown
+        expr: up{job="market-data"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: data
+        annotations:
+          summary: "Market data feed is down"
+          description: "Primary market data feed has been down for more than 30 seconds."
+          
+      - alert: HighMarketDataLatency
+        expr: histogram_quantile(0.95, rate(market_data_latency_seconds_bucket[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          category: data
+        annotations:
+          summary: "High market data latency"
+          description: "95th percentile market data latency is above 50ms for more than 2 minutes."
+          
+      - alert: MarketDataGap
+        expr: increase(market_data_gaps_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: warning
+          category: data
+        annotations:
+          summary: "Market data gap detected"
+          description: "Market data gap detected for {{ $labels.symbol }}. Data continuity may be compromised."
+          
+      - alert: StaleMarketData
+        expr: time() - market_data_last_update_timestamp > 60
+        for: 0s
+        labels:
+          severity: critical
+          category: data
+        annotations:
+          summary: "Stale market data detected"
+          description: "Market data for {{ $labels.symbol }} has not been updated for more than 60 seconds."
+
+  - name: risk_management
+    rules:
+      - alert: RiskLimitBreach
+        expr: risk_exposure_current / risk_exposure_limit > 0.95
+        for: 0s
+        labels:
+          severity: critical
+          category: risk
+        annotations:
+          summary: "Risk exposure limit nearly breached"
+          description: "Current risk exposure is at {{ $value | humanizePercentage }} of the limit."
+          runbook_url: "https://runbooks.trading-system.com/risk-limit-breach"
+          
+      - alert: HighVaR
+        expr: risk_var_1d > risk_var_limit
+        for: 1m
+        labels:
+          severity: critical
+          category: risk
+        annotations:
+          summary: "Value at Risk limit exceeded"
+          description: "1-day VaR ({{ $value }}) has exceeded the limit for more than 1 minute."
+          
+      - alert: MaxDrawdownExceeded
+        expr: risk_max_drawdown > 0.1
+        for: 0s
+        labels:
+          severity: critical
+          category: risk
+        annotations:
+          summary: "Maximum drawdown exceeded"
+          description: "Portfolio drawdown ({{ $value | humanizePercentage }}) has exceeded 10%."
+          
+      - alert: ConcentrationRisk
+        expr: max(position_exposure_percent) > 25
+        for: 5m
+        labels:
+          severity: warning
+          category: risk
+        annotations:
+          summary: "High position concentration detected"
+          description: "Single position exposure ({{ $value }}%) exceeds 25% of portfolio for {{ $labels.symbol }}."
+
+  - name: portfolio_management
+    rules:
+      - alert: PortfolioValueDrop
+        expr: (portfolio_total_value - portfolio_total_value offset 1h) / portfolio_total_value offset 1h < -0.05
+        for: 0s
+        labels:
+          severity: warning
+          category: portfolio
+        annotations:
+          summary: "Significant portfolio value drop"
+          description: "Portfolio value has dropped by more than 5% in the last hour."
+          
+      - alert: LowCashBalance
+        expr: portfolio_cash_balance / portfolio_total_value < 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: portfolio
+        annotations:
+          summary: "Low cash balance"
+          description: "Cash balance is below 5% of total portfolio value."
+          
+      - alert: UnrealizedLossesHigh
+        expr: abs(portfolio_unrealized_pnl) / portfolio_total_value > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          category: portfolio
+        annotations:
+          summary: "High unrealized losses"
+          description: "Unrealized losses exceed 10% of portfolio value."
+
+  - name: infrastructure
+    rules:
+      - alert: DatabaseConnectionsHigh
+        expr: database_connections_active / database_connections_max > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connections are above 80% of maximum for {{ $labels.database }}."
+          
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_lag_sum > 1000
+        for: 2m
+        labels:
+          severity: warning
+          category: infrastructure
+        annotations:
+          summary: "High Kafka consumer lag"
+          description: "Kafka consumer lag is above 1000 messages for topic {{ $labels.topic }}."
+          
+      - alert: RedisConnectionFailure
+        expr: redis_connected_clients == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "Redis connection failure"
+          description: "No Redis clients connected for more than 30 seconds."
+          
+      - alert: HighAPIErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          category: api
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is above 5% for endpoint {{ $labels.endpoint }}."
+
+  - name: ai_assistant
+    rules:
+      - alert: AIAssistantDown
+        expr: up{job="ai-assistant"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          category: ai
+        annotations:
+          summary: "AI Assistant service is down"
+          description: "AI Assistant has been down for more than 1 minute."
+          
+      - alert: HighAIResponseTime
+        expr: histogram_quantile(0.95, rate(ai_assistant_response_time_seconds_bucket[5m])) > 10
+        for: 3m
+        labels:
+          severity: warning
+          category: ai
+        annotations:
+          summary: "High AI Assistant response time"
+          description: "95th percentile AI response time is above 10 seconds."
+          
+      - alert: AIModelLoadFailure
+        expr: increase(ai_model_load_failures_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          category: ai
+        annotations:
+          summary: "AI model load failure"
+          description: "Failed to load AI model {{ $labels.model_name }}."
+
+  - name: broker_connectivity
+    rules:
+      - alert: BrokerDisconnected
+        expr: broker_connection_status == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: connectivity
+        annotations:
+          summary: "Broker connection lost"
+          description: "Connection to broker {{ $labels.broker }} has been lost for more than 30 seconds."
+          runbook_url: "https://runbooks.trading-system.com/broker-disconnected"
+          
+      - alert: HighBrokerLatency
+        expr: broker_order_latency_ms > 500
+        for: 2m
+        labels:
+          severity: warning
+          category: connectivity
+        annotations:
+          summary: "High broker latency"
+          description: "Broker {{ $labels.broker }} latency is above 500ms for more than 2 minutes."
+          
+      - alert: BrokerOrderRejectionRate
+        expr: rate(broker_orders_rejected_total[5m]) / rate(broker_orders_total[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: warning
+          category: connectivity
+        annotations:
+          summary: "High broker order rejection rate"
+          description: "Broker {{ $labels.broker }} is rejecting more than 10% of orders."
+
+  - name: security
+    rules:
+      - alert: UnauthorizedAccess
+        expr: increase(http_requests_total{status="401"}[5m]) > 10
+        for: 0s
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Multiple unauthorized access attempts"
+          description: "More than 10 unauthorized access attempts detected in 5 minutes."
+          
+      - alert: SuspiciousActivity
+        expr: increase(security_suspicious_activity_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: "Suspicious activity detected"
+          description: "Suspicious activity detected: {{ $labels.activity_type }}."
+          
+      - alert: CertificateExpiringSoon
+        expr: (ssl_certificate_expiry_timestamp - time()) / 86400 < 30
+        for: 0s
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.domain }} expires in {{ $value }} days."

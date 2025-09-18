@@ -1,0 +1,361 @@
+# Prometheus Alert Rules for Algorithmic Trading System
+# Comprehensive alerting for all 9 databases and system components
+
+groups:
+  # Database Health Alerts
+  - name: database_health
+    rules:
+      # PostgreSQL Alerts
+      - alert: PostgreSQLDown
+        expr: up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgresql
+          category: database
+        annotations:
+          summary: "PostgreSQL instance is down"
+          description: "PostgreSQL instance {{ $labels.instance }} has been down for more than 1 minute."
+          runbook_url: "https://runbooks.trading-system.com/postgresql-down"
+
+      - alert: PostgreSQLHighConnections
+        expr: (pg_stat_database_numbackends / pg_settings_max_connections) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+          category: database
+        annotations:
+          summary: "PostgreSQL high connection usage"
+          description: "PostgreSQL instance {{ $labels.instance }} is using {{ $value }}% of max connections."
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_activity_max_tx_duration[5m]) > 300
+        for: 2m
+        labels:
+          severity: warning
+          service: postgresql
+          category: performance
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "PostgreSQL instance {{ $labels.instance }} has queries running longer than 5 minutes."
+
+      # ClickHouse Alerts
+      - alert: ClickHouseDown
+        expr: up{job="clickhouse"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: clickhouse
+          category: database
+        annotations:
+          summary: "ClickHouse instance is down"
+          description: "ClickHouse instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: ClickHouseHighMemoryUsage
+        expr: (clickhouse_memory_usage_bytes / clickhouse_memory_limit_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: clickhouse
+          category: resource
+        annotations:
+          summary: "ClickHouse high memory usage"
+          description: "ClickHouse instance {{ $labels.instance }} memory usage is {{ $value }}%."
+
+      # Redis Alerts
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+          category: database
+        annotations:
+          summary: "Redis instance is down"
+          description: "Redis instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: RedisHighMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: redis
+          category: resource
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis instance {{ $labels.instance }} memory usage is {{ $value }}%."
+
+      - alert: RedisSlowLog
+        expr: increase(redis_slowlog_length[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: redis
+          category: performance
+        annotations:
+          summary: "Redis slow queries detected"
+          description: "Redis instance {{ $labels.instance }} has {{ $value }} slow queries in the last 5 minutes."
+
+      # InfluxDB Alerts
+      - alert: InfluxDBDown
+        expr: up{job="influxdb"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: influxdb
+          category: database
+        annotations:
+          summary: "InfluxDB instance is down"
+          description: "InfluxDB instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: InfluxDBHighWriteLatency
+        expr: influxdb_write_latency_p99 > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: influxdb
+          category: performance
+        annotations:
+          summary: "InfluxDB high write latency"
+          description: "InfluxDB instance {{ $labels.instance }} write latency P99 is {{ $value }}ms."
+
+      # MinIO/S3 Alerts
+      - alert: MinIODown
+        expr: up{job="minio"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: minio
+          category: storage
+        annotations:
+          summary: "MinIO instance is down"
+          description: "MinIO instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: MinIOHighDiskUsage
+        expr: (minio_disk_storage_used_bytes / minio_disk_storage_total_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: minio
+          category: storage
+        annotations:
+          summary: "MinIO high disk usage"
+          description: "MinIO instance {{ $labels.instance }} disk usage is {{ $value }}%."
+
+      # Elasticsearch Alerts
+      - alert: ElasticsearchDown
+        expr: up{job="elasticsearch"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: elasticsearch
+          category: database
+        annotations:
+          summary: "Elasticsearch instance is down"
+          description: "Elasticsearch instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 2m
+        labels:
+          severity: critical
+          service: elasticsearch
+          category: cluster
+        annotations:
+          summary: "Elasticsearch cluster status is red"
+          description: "Elasticsearch cluster {{ $labels.cluster }} status is red."
+
+      - alert: ElasticsearchHighJVMMemory
+        expr: (elasticsearch_jvm_memory_used_bytes / elasticsearch_jvm_memory_max_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: elasticsearch
+          category: resource
+        annotations:
+          summary: "Elasticsearch high JVM memory usage"
+          description: "Elasticsearch node {{ $labels.instance }} JVM memory usage is {{ $value }}%."
+
+      # Qdrant Alerts
+      - alert: QdrantDown
+        expr: up{job="qdrant"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: qdrant
+          category: database
+        annotations:
+          summary: "Qdrant instance is down"
+          description: "Qdrant instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: QdrantHighMemoryUsage
+        expr: (qdrant_memory_used_bytes / qdrant_memory_total_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: qdrant
+          category: resource
+        annotations:
+          summary: "Qdrant high memory usage"
+          description: "Qdrant instance {{ $labels.instance }} memory usage is {{ $value }}%."
+
+  # Trading System Alerts
+  - name: trading_system
+    rules:
+      - alert: TradingEngineDown
+        expr: up{job="trading-engine"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: trading-engine
+          category: trading
+        annotations:
+          summary: "Trading Engine is down"
+          description: "Trading Engine {{ $labels.instance }} has been down for more than 30 seconds."
+          runbook_url: "https://runbooks.trading-system.com/trading-engine-down"
+
+      - alert: HighOrderLatency
+        expr: histogram_quantile(0.95, rate(order_processing_duration_seconds_bucket[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: trading-engine
+          category: performance
+        annotations:
+          summary: "High order processing latency"
+          description: "95th percentile order processing latency is {{ $value }}s."
+
+      - alert: MarketDataLag
+        expr: time() - market_data_last_update_timestamp > 60
+        for: 1m
+        labels:
+          severity: critical
+          service: market-data
+          category: data
+        annotations:
+          summary: "Market data is stale"
+          description: "Market data for {{ $labels.symbol }} is {{ $value }}s behind."
+
+      - alert: PortfolioRiskBreach
+        expr: portfolio_var_breach_count > 0
+        for: 0s
+        labels:
+          severity: critical
+          service: risk-manager
+          category: risk
+        annotations:
+          summary: "Portfolio VaR breach detected"
+          description: "Portfolio {{ $labels.portfolio_id }} has breached VaR limits."
+
+  # System Resource Alerts
+  - name: system_resources
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: resource
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage on {{ $labels.instance }} is {{ $value }}%."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: resource
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage on {{ $labels.instance }} is {{ $value }}%."
+
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: resource
+        annotations:
+          summary: "High disk usage"
+          description: "Disk usage on {{ $labels.instance }} mount {{ $labels.mountpoint }} is {{ $value }}%."
+
+      - alert: DiskIOHigh
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: resource
+        annotations:
+          summary: "High disk I/O"
+          description: "Disk I/O utilization on {{ $labels.instance }} device {{ $labels.device }} is {{ $value }}%."
+
+  # Network and Connectivity Alerts
+  - name: network_connectivity
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: connectivity
+        annotations:
+          summary: "Service is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} is down."
+
+      - alert: HighNetworkErrors
+        expr: rate(node_network_receive_errs_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "High network errors"
+          description: "Network interface {{ $labels.device }} on {{ $labels.instance }} has {{ $value }} errors/sec."
+
+      - alert: SSLCertificateExpiry
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value | humanizeDuration }}."
+
+  # Kafka Alerts
+  - name: kafka_alerts
+    rules:
+      - alert: KafkaDown
+        expr: up{job="kafka"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: kafka
+          category: messaging
+        annotations:
+          summary: "Kafka broker is down"
+          description: "Kafka broker {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_lag_sum > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: kafka
+          category: messaging
+        annotations:
+          summary: "High Kafka consumer lag"
+          description: "Kafka consumer group {{ $labels.consumergroup }} has lag of {{ $value }} messages."
+
+      - alert: KafkaUnderReplicatedPartitions
+        expr: kafka_cluster_partition_under_replicated > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: kafka
+          category: messaging
+        annotations:
+          summary: "Kafka under-replicated partitions"
+          description: "Kafka cluster has {{ $value }} under-replicated partitions."

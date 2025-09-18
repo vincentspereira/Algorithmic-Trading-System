@@ -326,7 +326,7 @@ if GRAPHQL_AVAILABLE:
         
         @staticmethod
         def resolve_created_at(root, info):
-            return root.get('created_at', datetime.now().isoformat())
+            return root.get('created_at', datetime.now(timezone.utc).isoformat())
     
     class PositionType(ObjectType):
         """GraphQL Position type"""
@@ -364,7 +364,7 @@ if GRAPHQL_AVAILABLE:
         
         @staticmethod
         def resolve_timestamp(root, info):
-            return root.get('timestamp', datetime.now().isoformat())
+            return root.get('timestamp', datetime.now(timezone.utc).isoformat())
     
     class PortfolioType(ObjectType):
         """GraphQL Portfolio type"""

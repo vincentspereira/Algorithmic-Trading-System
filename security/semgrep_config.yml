@@ -1,0 +1,460 @@
+# Semgrep Configuration for Institutional Algorithmic Trading System
+# Advanced SAST rules for financial services and trading platforms
+
+rules:
+  # Financial Data Protection Rules
+  - id: hardcoded-financial-credentials
+    patterns:
+      - pattern-either:
+          - pattern: api_key = "..."
+          - pattern: secret_key = "..."
+          - pattern: access_token = "..."
+          - pattern: broker_password = "..."
+          - pattern: trading_key = "..."
+          - pattern: market_data_key = "..."
+    message: "Hardcoded financial API credentials detected"
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    metadata:
+      category: security
+      subcategory: [credentials]
+      compliance: [sox, pci-dss]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [trading, financial]
+
+  - id: insecure-financial-data-transmission
+    patterns:
+      - pattern-either:
+          - pattern: requests.get($URL, verify=False, ...)
+          - pattern: requests.post($URL, verify=False, ...)
+          - pattern: urllib.request.urlopen($URL, context=ssl._create_unverified_context())
+          - pattern: websocket.create_connection($URL, sslopt={"cert_reqs": ssl.CERT_NONE})
+    message: "Insecure transmission of financial data detected"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [crypto, network]
+      compliance: [sox, pci-dss, gdpr]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: HIGH
+      technology: [trading, market-data]
+
+  - id: weak-cryptography-financial
+    patterns:
+      - pattern-either:
+          - pattern: hashlib.md5(...)
+          - pattern: hashlib.sha1(...)
+          - pattern: random.random()
+          - pattern: random.randint(...)
+          - pattern: ssl.PROTOCOL_TLS
+          - pattern: ssl.PROTOCOL_SSLv2
+          - pattern: ssl.PROTOCOL_SSLv3
+    message: "Weak cryptography detected in financial system"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [crypto]
+      compliance: [sox, pci-dss]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [trading, security]
+
+  # Trading System Specific Rules
+  - id: unvalidated-trading-parameters
+    patterns:
+      - pattern-either:
+          - pattern: |
+              def place_order($SYMBOL, $QUANTITY, $PRICE, ...):
+                ...
+                # Missing input validation
+          - pattern: |
+              def execute_trade($PARAMS):
+                ...
+                # No parameter validation
+    message: "Trading parameters not validated - potential for erroneous trades"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [input-validation]
+      compliance: [sox]
+      confidence: MEDIUM
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [trading, risk-management]
+
+  - id: missing-trade-logging
+    patterns:
+      - pattern-either:
+          - pattern: |
+              def place_order(...):
+                ...
+                # Missing audit logging
+          - pattern: |
+              def cancel_order(...):
+                ...
+                # Missing audit logging
+    message: "Trading operations missing audit logging"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [audit]
+      compliance: [sox, mifid]
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: HIGH
+      technology: [trading, compliance]
+
+  - id: unsafe-market-data-processing
+    patterns:
+      - pattern-either:
+          - pattern: eval($MARKET_DATA)
+          - pattern: exec($MARKET_DATA)
+          - pattern: pickle.loads($MARKET_DATA)
+          - pattern: yaml.load($MARKET_DATA)
+    message: "Unsafe processing of market data - potential code injection"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [injection]
+      compliance: [sox]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [market-data, trading]
+
+  # Risk Management Rules
+  - id: missing-position-limits
+    patterns:
+      - pattern: |
+          def calculate_position_size($CAPITAL, $RISK, ...):
+            ...
+            # Missing position limit checks
+    message: "Position sizing without proper risk limits"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [business-logic]
+      compliance: [sox]
+      confidence: MEDIUM
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [risk-management, trading]
+
+  - id: unprotected-portfolio-operations
+    patterns:
+      - pattern-either:
+          - pattern: |
+              def liquidate_portfolio(...):
+                ...
+                # Missing authorization checks
+          - pattern: |
+              def transfer_funds($AMOUNT, ...):
+                ...
+                # Missing authorization
+    message: "Critical portfolio operations without proper authorization"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [authorization]
+      compliance: [sox, pci-dss]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [portfolio, trading]
+
+  # Data Privacy and Compliance Rules
+  - id: pii-in-trading-logs
+    patterns:
+      - pattern-either:
+          - pattern: logger.info(f"User {$USER_EMAIL} placed order")
+          - pattern: print(f"Account {$ACCOUNT_NUMBER} balance")
+          - pattern: log.debug(f"SSN: {$SSN}")
+    message: "Personally Identifiable Information in trading logs"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [privacy]
+      compliance: [gdpr, ccpa]
+      confidence: HIGH
+      impact: MEDIUM
+      likelihood: HIGH
+      technology: [logging, privacy]
+
+  - id: financial-data-exposure
+    patterns:
+      - pattern-either:
+          - pattern: print($ACCOUNT_BALANCE)
+          - pattern: logger.info($TRADING_STRATEGY)
+          - pattern: console.log($PORTFOLIO_VALUE)
+    message: "Sensitive financial data exposed in logs"
+    severity: WARNING
+    languages: [python, javascript, typescript]
+    metadata:
+      category: security
+      subcategory: [data-exposure]
+      compliance: [sox, gdpr]
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: HIGH
+      technology: [financial-data, logging]
+
+  # API Security Rules
+  - id: missing-api-rate-limiting
+    patterns:
+      - pattern: |
+          @app.route('/api/trade', methods=['POST'])
+          def place_trade():
+            ...
+            # Missing rate limiting
+    message: "Trading API endpoint missing rate limiting"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [api-security]
+      compliance: [sox]
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: HIGH
+      technology: [api, trading]
+
+  - id: unprotected-admin-endpoints
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @app.route('/admin/...')
+              def admin_function():
+                ...
+                # Missing authentication
+          - pattern: |
+              @app.route('/api/admin/...')
+              def admin_api():
+                ...
+                # Missing authorization
+    message: "Admin endpoints without proper protection"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [authentication, authorization]
+      compliance: [sox]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [api, admin]
+
+  # Database Security Rules
+  - id: sql-injection-trading
+    patterns:
+      - pattern-either:
+          - pattern: cursor.execute(f"SELECT * FROM trades WHERE symbol = '{$SYMBOL}'")
+          - pattern: cursor.execute("INSERT INTO orders VALUES (" + $VALUES + ")")
+          - pattern: query = f"UPDATE portfolio SET balance = {$BALANCE}"
+    message: "SQL injection vulnerability in trading database operations"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [injection]
+      compliance: [sox, pci-dss]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [database, trading]
+
+  - id: unencrypted-financial-database
+    patterns:
+      - pattern-either:
+          - pattern: psycopg2.connect(host=$HOST, database=$DB, user=$USER, password=$PASS)
+          - pattern: pymongo.MongoClient($URI)
+    message: "Database connection without encryption for financial data"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [crypto, database]
+      compliance: [sox, pci-dss]
+      confidence: MEDIUM
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [database, encryption]
+
+  # Configuration and Secrets Management
+  - id: hardcoded-database-credentials
+    patterns:
+      - pattern-either:
+          - pattern: DATABASE_URL = "postgresql://user:password@localhost/trading"
+          - pattern: MONGO_URI = "mongodb://admin:secret@localhost:27017/trades"
+          - pattern: REDIS_PASSWORD = "redis_secret_123"
+    message: "Hardcoded database credentials in trading system"
+    severity: ERROR
+    languages: [python, javascript, typescript]
+    metadata:
+      category: security
+      subcategory: [credentials]
+      compliance: [sox, pci-dss]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [database, credentials]
+
+  - id: insecure-session-management
+    patterns:
+      - pattern-either:
+          - pattern: session.permanent = False
+          - pattern: app.secret_key = "simple_key"
+          - pattern: jwt.encode($PAYLOAD, "weak_secret", algorithm="HS256")
+    message: "Insecure session management in trading application"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [session-management]
+      compliance: [sox]
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: HIGH
+      technology: [web, session]
+
+  # Algorithmic Trading Specific Rules
+  - id: unvalidated-algorithm-parameters
+    patterns:
+      - pattern: |
+          def backtest_strategy($PARAMS):
+            ...
+            # Missing parameter validation
+    message: "Algorithm parameters not validated - potential for incorrect backtesting"
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [input-validation]
+      compliance: [sox]
+      confidence: MEDIUM
+      impact: MEDIUM
+      likelihood: HIGH
+      technology: [backtesting, algorithms]
+
+  - id: missing-algorithm-version-control
+    patterns:
+      - pattern: |
+          def deploy_strategy($STRATEGY_CODE):
+            exec($STRATEGY_CODE)
+            # Missing version control and validation
+    message: "Algorithm deployment without proper version control"
+    severity: ERROR
+    languages: [python]
+    metadata:
+      category: security
+      subcategory: [code-injection]
+      compliance: [sox]
+      confidence: HIGH
+      impact: HIGH
+      likelihood: MEDIUM
+      technology: [algorithms, deployment]
+
+# Global configuration
+config:
+  # Severity levels: ERROR, WARNING, INFO
+  min_severity: WARNING
+  
+  # File patterns to exclude
+  exclude:
+    - "*/tests/*"
+    - "*/test_*"
+    - "*/.venv/*"
+    - "*/node_modules/*"
+    - "*/.git/*"
+    - "*/migrations/*"
+    - "*/static/*"
+    - "*/media/*"
+  
+  # File patterns to include
+  include:
+    - "*.py"
+    - "*.js"
+    - "*.ts"
+    - "*.jsx"
+    - "*.tsx"
+    - "*.yaml"
+    - "*.yml"
+    - "*.json"
+  
+  # Maximum file size to scan (in bytes)
+  max_file_size: 1048576  # 1MB
+  
+  # Timeout for scanning (in seconds)
+  timeout: 300  # 5 minutes
+  
+  # Enable/disable specific rule categories
+  categories:
+    security: true
+    performance: false
+    correctness: true
+    maintainability: false
+  
+  # Compliance frameworks to check
+  compliance_frameworks:
+    - sox
+    - pci-dss
+    - gdpr
+    - mifid
+    - ccpa
+  
+  # Technology-specific configurations
+  technology_configs:
+    trading:
+      enabled: true
+      strict_mode: true
+    financial:
+      enabled: true
+      strict_mode: true
+    market-data:
+      enabled: true
+      strict_mode: false
+    risk-management:
+      enabled: true
+      strict_mode: true
+  
+  # Reporting configuration
+  reporting:
+    include_fix_suggestions: true
+    include_compliance_mapping: true
+    include_severity_justification: true
+    group_by_file: true
+    show_rule_performance: false
+  
+  # Integration settings
+  integrations:
+    github_actions: true
+    sonarqube: false
+    jira: false
+    slack: false
+
+# Metadata
+metadata:
+  version: "1.0.0"
+  created_date: "2024-01-01"
+  last_updated: "2024-01-01"
+  owner: "Security Team"
+  description: "Semgrep configuration for institutional algorithmic trading system"
+  review_frequency: "monthly"
+  next_review_date: "2024-02-01"
+  tags:
+    - trading
+    - financial
+    - institutional
+    - compliance
+    - security

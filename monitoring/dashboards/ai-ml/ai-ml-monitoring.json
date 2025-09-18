@@ -1,0 +1,458 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AI/ML Model Monitoring",
+    "tags": ["ai", "ml", "models", "predictions", "agents"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Model Prediction Accuracy",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "model_prediction_accuracy{model_type=\"price_prediction\"}",
+            "legendFormat": "Price Prediction Accuracy"
+          },
+          {
+            "expr": "model_prediction_accuracy{model_type=\"volatility_prediction\"}",
+            "legendFormat": "Volatility Prediction Accuracy"
+          },
+          {
+            "expr": "model_prediction_accuracy{model_type=\"trend_prediction\"}",
+            "legendFormat": "Trend Prediction Accuracy"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Accuracy (%)",
+            "min": 0,
+            "max": 100
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "AI Agent Activity",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(ai_agent_active{agent_type=\"analyst\"})",
+            "legendFormat": "Active Analyst Agents"
+          },
+          {
+            "expr": "sum(ai_agent_active{agent_type=\"researcher\"})",
+            "legendFormat": "Active Researcher Agents"
+          },
+          {
+            "expr": "sum(ai_agent_active{agent_type=\"risk_manager\"})",
+            "legendFormat": "Active Risk Manager Agents"
+          },
+          {
+            "expr": "sum(ai_agent_active{agent_type=\"compliance\"})",
+            "legendFormat": "Active Compliance Agents"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Model Inference Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(model_inference_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(model_inference_duration_seconds_bucket[5m]))",
+            "legendFormat": "Median"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(model_inference_duration_seconds_bucket[5m]))",
+            "legendFormat": "99th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Latency (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Model Training Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "model_training_status{model_name=\"lstm_price_predictor\"}",
+            "legendFormat": "LSTM Price Predictor"
+          },
+          {
+            "expr": "model_training_status{model_name=\"transformer_sentiment\"}",
+            "legendFormat": "Transformer Sentiment"
+          },
+          {
+            "expr": "model_training_status{model_name=\"reinforcement_trader\"}",
+            "legendFormat": "Reinforcement Trader"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "IDLE",
+                    "color": "blue"
+                  },
+                  "1": {
+                    "text": "TRAINING",
+                    "color": "yellow"
+                  },
+                  "2": {
+                    "text": "COMPLETED",
+                    "color": "green"
+                  },
+                  "3": {
+                    "text": "FAILED",
+                    "color": "red"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Feature Drift Detection",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "feature_drift_score{feature=\"price_volatility\"}",
+            "legendFormat": "Price Volatility Drift"
+          },
+          {
+            "expr": "feature_drift_score{feature=\"volume_profile\"}",
+            "legendFormat": "Volume Profile Drift"
+          },
+          {
+            "expr": "feature_drift_score{feature=\"market_sentiment\"}",
+            "legendFormat": "Market Sentiment Drift"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Drift Score",
+            "min": 0,
+            "max": 1
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "query": {
+                "queryType": "",
+                "refId": "A"
+              },
+              "reducer": {
+                "type": "last",
+                "params": []
+              },
+              "evaluator": {
+                "params": [0.7],
+                "type": "gt"
+              }
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "5m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "Feature Drift Alert",
+          "noDataState": "no_data",
+          "notifications": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "AI Agent Communication",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ai_agent_messages_sent_total[5m])",
+            "legendFormat": "Messages Sent/min"
+          },
+          {
+            "expr": "rate(ai_agent_messages_received_total[5m])",
+            "legendFormat": "Messages Received/min"
+          },
+          {
+            "expr": "rate(ai_agent_decisions_made_total[5m])",
+            "legendFormat": "Decisions Made/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Events/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 7,
+        "title": "Model Performance Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "model_precision{model_type=\"classification\"}",
+            "legendFormat": "Precision"
+          },
+          {
+            "expr": "model_recall{model_type=\"classification\"}",
+            "legendFormat": "Recall"
+          },
+          {
+            "expr": "model_f1_score{model_type=\"classification\"}",
+            "legendFormat": "F1 Score"
+          },
+          {
+            "expr": "model_auc_score{model_type=\"classification\"}",
+            "legendFormat": "AUC Score"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Score",
+            "min": 0,
+            "max": 1
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Prediction Confidence Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "increase(model_prediction_confidence_bucket[5m])",
+            "legendFormat": "{{le}}",
+            "format": "heatmap"
+          }
+        ],
+        "heatmap": {
+          "xBucketSize": null,
+          "yBucketSize": null,
+          "xBucketNumber": null,
+          "yBucketNumber": null
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 9,
+        "title": "RAG Pipeline Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(rag_document_retrievals_total[5m])",
+            "legendFormat": "Document Retrievals/min"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(rag_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile query time"
+          },
+          {
+            "expr": "rag_retrieval_relevance_score",
+            "legendFormat": "Retrieval Relevance Score"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Retrievals/min | Seconds | Score",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 32
+        }
+      },
+      {
+        "id": 10,
+        "title": "Model Resource Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "model_cpu_usage_percent",
+            "legendFormat": "CPU Usage %"
+          },
+          {
+            "expr": "model_memory_usage_bytes / 1024 / 1024 / 1024",
+            "legendFormat": "Memory Usage (GB)"
+          },
+          {
+            "expr": "model_gpu_usage_percent",
+            "legendFormat": "GPU Usage %"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Usage % | GB",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 32
+        }
+      },
+      {
+        "id": 11,
+        "title": "Strategy AI Recommendations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ai_strategy_recommendations_total{action=\"buy\"}[5m])",
+            "legendFormat": "Buy Recommendations/min"
+          },
+          {
+            "expr": "rate(ai_strategy_recommendations_total{action=\"sell\"}[5m])",
+            "legendFormat": "Sell Recommendations/min"
+          },
+          {
+            "expr": "rate(ai_strategy_recommendations_total{action=\"hold\"}[5m])",
+            "legendFormat": "Hold Recommendations/min"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Recommendations/min",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 40
+        }
+      },
+      {
+        "id": 12,
+        "title": "Anomaly Detection Alerts",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(anomaly_detection_alerts{severity=\"high\"})",
+            "legendFormat": "High Severity Anomalies"
+          },
+          {
+            "expr": "sum(anomaly_detection_alerts{severity=\"medium\"})",
+            "legendFormat": "Medium Severity Anomalies"
+          },
+          {
+            "expr": "sum(anomaly_detection_alerts{severity=\"low\"})",
+            "legendFormat": "Low Severity Anomalies"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 1
+                },
+                {
+                  "color": "red",
+                  "value": 5
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 40
+        }
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

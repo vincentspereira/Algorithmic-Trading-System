@@ -1,0 +1,661 @@
+# Database Configuration for Algorithmic Trading System
+# Comprehensive configuration for all 9 databases
+
+global:
+  environment: "development"  # development, staging, production
+  encryption_at_rest: true
+  backup_enabled: true
+  monitoring_enabled: true
+  health_check_interval: 30  # seconds
+  connection_pool_size: 20
+  connection_timeout: 30
+  query_timeout: 300
+  retry_attempts: 3
+  retry_delay: 1000  # milliseconds
+
+# 1. PostgreSQL with pgvector - Primary OLTP database
+postgresql:
+  enabled: true
+  host: "localhost"
+  port: 5432
+  database: "trading_system"
+  username: "trading_user"
+  password: "${POSTGRES_PASSWORD}"
+  ssl_mode: "require"
+  max_connections: 100
+  shared_preload_libraries: "pg_stat_statements,pgvector"
+  extensions:
+    - "pgvector"  # Vector similarity search
+    - "pg_stat_statements"  # Query performance monitoring
+    - "uuid-ossp"  # UUID generation
+    - "btree_gin"  # GIN indexes for better performance
+  schemas:
+    - name: "trading"
+      tables:
+        - "orders"
+        - "positions"
+        - "portfolios"
+        - "strategies"
+        - "executions"
+    - name: "market_data"
+      tables:
+        - "symbols"
+        - "price_history"
+        - "fundamentals"
+        - "earnings"
+    - name: "risk"
+      tables:
+        - "risk_metrics"
+        - "var_calculations"
+        - "stress_tests"
+    - name: "compliance"
+      tables:
+        - "audit_logs"
+        - "regulatory_reports"
+        - "trade_surveillance"
+    - name: "ai_vectors"
+      tables:
+        - "document_embeddings"  # pgvector for RAG
+        - "strategy_embeddings"
+        - "market_sentiment_vectors"
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
+    compression: true
+
+# 2. ClickHouse - OLAP for analytics and time-series
+clickhouse:
+  enabled: true
+  host: "localhost"
+  port: 9000
+  http_port: 8123
+  database: "trading_analytics"
+  username: "clickhouse_user"
+  password: "${CLICKHOUSE_PASSWORD}"
+  cluster_name: "trading_cluster"
+  shard_count: 1
+  replica_count: 1
+  compression: "lz4"
+  tables:
+    - name: "market_data_ticks"
+      engine: "MergeTree"
+      partition_by: "toYYYYMM(timestamp)"
+      order_by: "(symbol, timestamp)"
+      ttl: "timestamp + INTERVAL 2 YEAR"
+    - name: "trade_executions"
+      engine: "ReplacingMergeTree"
+      partition_by: "toYYYYMM(execution_time)"
+      order_by: "(portfolio_id, execution_time)"
+    - name: "portfolio_performance"
+      engine: "SummingMergeTree"
+      partition_by: "toYYYYMM(date)"
+      order_by: "(portfolio_id, date)"
+    - name: "risk_metrics_history"
+      engine: "MergeTree"
+      partition_by: "toYYYYMM(calculation_date)"
+      order_by: "(portfolio_id, calculation_date)"
+  materialized_views:
+    - name: "daily_pnl_summary"
+      source_table: "trade_executions"
+      aggregation: "SUM(pnl) GROUP BY portfolio_id, toDate(execution_time)"
+  settings:
+    max_memory_usage: "10000000000"  # 10GB
+    max_execution_time: 300
+    max_query_size: "1000000000"  # 1GB
+
+# 3. DuckDB - In-process analytics and data processing
+duckdb:
+  enabled: true
+  database_path: "./data/duckdb/trading_analytics.duckdb"
+  memory_limit: "8GB"
+  threads: 4
+  extensions:
+    - "httpfs"  # HTTP/S3 file system
+    - "parquet"  # Parquet file support
+    - "json"  # JSON processing
+    - "spatial"  # Geospatial data
+  schemas:
+    - name: "backtesting"
+      tables:
+        - "backtest_results"
+        - "strategy_performance"
+        - "benchmark_comparisons"
+    - name: "research"
+      tables:
+        - "factor_analysis"
+        - "correlation_matrices"
+        - "statistical_tests"
+    - name: "temp_analytics"
+      tables:
+        - "temp_calculations"
+        - "staging_data"
+  settings:
+    enable_progress_bar: true
+    enable_profiling: true
+    checkpoint_threshold: "1GB"
+
+# 4. Qdrant - Vector database for AI/ML embeddings
+qdrant:
+  enabled: true
+  host: "localhost"
+  port: 6333
+  grpc_port: 6334
+  api_key: "${QDRANT_API_KEY}"
+  collections:
+    - name: "document_embeddings"
+      vector_size: 1536  # OpenAI ada-002 embedding size
+      distance: "Cosine"
+      shard_number: 1
+      replication_factor: 1
+      on_disk_payload: true
+      indexes:
+        - field: "document_type"
+          type: "keyword"
+        - field: "timestamp"
+          type: "datetime"
+    - name: "strategy_embeddings"
+      vector_size: 768  # BERT-base embedding size
+      distance: "Dot"
+      shard_number: 1
+      replication_factor: 1
+    - name: "market_sentiment_vectors"
+      vector_size: 384  # Sentence transformer embedding size
+      distance: "Cosine"
+      shard_number: 1
+      replication_factor: 1
+  settings:
+    storage_path: "./data/qdrant"
+    log_level: "INFO"
+    max_request_size_mb: 32
+    grpc_timeout: 30
+
+# 5. Apache Iceberg - Data lakehouse for large-scale analytics
+iceberg:
+  enabled: true
+  catalog_type: "hadoop"  # hadoop, hive, glue, nessie
+  warehouse_path: "./data/iceberg/warehouse"
+  catalog_properties:
+    warehouse: "./data/iceberg/warehouse"
+    uri: "thrift://localhost:9083"  # Hive Metastore URI
+  tables:
+    - name: "market_data_lake"
+      schema:
+        - name: "symbol"
+          type: "string"
+        - name: "timestamp"
+          type: "timestamp"
+        - name: "open"
+          type: "double"
+        - name: "high"
+          type: "double"
+        - name: "low"
+          type: "double"
+        - name: "close"
+          type: "double"
+        - name: "volume"
+          type: "long"
+      partition_spec:
+        - field: "symbol"
+          transform: "identity"
+        - field: "timestamp"
+          transform: "day"
+    - name: "trade_history_lake"
+      schema:
+        - name: "trade_id"
+          type: "string"
+        - name: "portfolio_id"
+          type: "string"
+        - name: "symbol"
+          type: "string"
+        - name: "side"
+          type: "string"
+        - name: "quantity"
+          type: "double"
+        - name: "price"
+          type: "double"
+        - name: "timestamp"
+          type: "timestamp"
+      partition_spec:
+        - field: "portfolio_id"
+          transform: "identity"
+        - field: "timestamp"
+          transform: "month"
+  settings:
+    format_version: 2
+    commit_retries: 3
+    commit_timeout_ms: 30000
+
+# 6. Redis - Caching and real-time data
+redis:
+  enabled: true
+  host: "localhost"
+  port: 6379
+  password: "${REDIS_PASSWORD}"
+  database: 0
+  ssl: false
+  cluster_mode: false
+  sentinel_mode: false
+  max_connections: 100
+  connection_pool_size: 20
+  socket_timeout: 30
+  socket_connect_timeout: 30
+  retry_on_timeout: true
+  health_check_interval: 30
+  key_patterns:
+    market_data: "market:*"
+    positions: "positions:*"
+    orders: "orders:*"
+    cache: "cache:*"
+    sessions: "session:*"
+    rate_limits: "ratelimit:*"
+  expiration_policies:
+    market_data_cache: 300  # 5 minutes
+    position_cache: 60  # 1 minute
+    order_cache: 3600  # 1 hour
+    session_cache: 86400  # 24 hours
+  memory_policy: "allkeys-lru"
+  maxmemory: "2gb"
+  persistence:
+    rdb_enabled: true
+    rdb_save_seconds: 900
+    rdb_save_changes: 1
+    aof_enabled: true
+    aof_fsync: "everysec"
+
+# 7. InfluxDB - Time-series database for metrics
+influxdb:
+  enabled: true
+  host: "localhost"
+  port: 8086
+  database: "trading_metrics"
+  username: "influx_user"
+  password: "${INFLUXDB_PASSWORD}"
+  ssl: false
+  verify_ssl: false
+  timeout: 30
+  retries: 3
+  organization: "trading_org"
+  bucket: "trading_metrics"
+  token: "${INFLUXDB_TOKEN}"
+  measurements:
+    - name: "market_data_latency"
+      tags:
+        - "source"
+        - "symbol"
+        - "exchange"
+      fields:
+        - "latency_ms"
+        - "message_count"
+    - name: "order_execution_metrics"
+      tags:
+        - "strategy"
+        - "symbol"
+        - "order_type"
+      fields:
+        - "execution_time_ms"
+        - "slippage_bps"
+        - "fill_ratio"
+    - name: "portfolio_metrics"
+      tags:
+        - "portfolio_id"
+        - "strategy"
+      fields:
+        - "total_value"
+        - "pnl"
+        - "drawdown"
+        - "sharpe_ratio"
+    - name: "system_performance"
+      tags:
+        - "service"
+        - "instance"
+      fields:
+        - "cpu_usage"
+        - "memory_usage"
+        - "disk_usage"
+        - "network_io"
+  retention_policies:
+    - name: "realtime"
+      duration: "24h"
+      replication: 1
+      default: true
+    - name: "daily"
+      duration: "30d"
+      replication: 1
+    - name: "monthly"
+      duration: "365d"
+      replication: 1
+
+# 8. MinIO/S3 - Object storage for files and backups
+minio:
+  enabled: true
+  endpoint: "localhost:9000"
+  access_key: "${MINIO_ACCESS_KEY}"
+  secret_key: "${MINIO_SECRET_KEY}"
+  secure: false  # Set to true for HTTPS
+  region: "us-east-1"
+  buckets:
+    - name: "trading-data"
+      versioning: true
+      encryption: true
+      lifecycle_rules:
+        - id: "delete_old_logs"
+          status: "Enabled"
+          expiration_days: 90
+          prefix: "logs/"
+    - name: "backups"
+      versioning: true
+      encryption: true
+      lifecycle_rules:
+        - id: "archive_old_backups"
+          status: "Enabled"
+          transition_days: 30
+          storage_class: "GLACIER"
+    - name: "market-data-archive"
+      versioning: false
+      encryption: true
+      lifecycle_rules:
+        - id: "compress_old_data"
+          status: "Enabled"
+          transition_days: 7
+          storage_class: "STANDARD_IA"
+    - name: "reports"
+      versioning: true
+      encryption: true
+      public_read: false
+    - name: "ml-models"
+      versioning: true
+      encryption: true
+      lifecycle_rules:
+        - id: "keep_latest_models"
+          status: "Enabled"
+          noncurrent_version_expiration_days: 30
+  settings:
+    max_file_size: "5GB"
+    multipart_threshold: "64MB"
+    multipart_chunksize: "16MB"
+    max_concurrency: 10
+
+# 9. Cassandra - Wide-column NoSQL database for high availability
+cassandra:
+  enabled: true
+  host: "localhost"
+  port: 9042
+  keyspace: "trading_system"
+  username: "cassandra"
+  password: "${CASSANDRA_PASSWORD}"
+  datacenter: "datacenter1"
+  replication_factor: 1
+  consistency_level: "LOCAL_QUORUM"
+  tables:
+    - name: "trade_history"
+      columns:
+        - name: "trade_id"
+          type: "uuid"
+          primary_key: true
+        - name: "portfolio_id"
+          type: "text"
+        - name: "symbol"
+          type: "text"
+        - name: "timestamp"
+          type: "timestamp"
+        - name: "quantity"
+          type: "decimal"
+        - name: "price"
+          type: "decimal"
+        - name: "side"
+          type: "text"
+      partition_key: "trade_id"
+      clustering_key: "timestamp"
+    - name: "market_data_wide"
+      columns:
+        - name: "symbol"
+          type: "text"
+          primary_key: true
+        - name: "timestamp"
+          type: "timestamp"
+          primary_key: true
+        - name: "open"
+          type: "decimal"
+        - name: "high"
+          type: "decimal"
+        - name: "low"
+          type: "decimal"
+        - name: "close"
+          type: "decimal"
+        - name: "volume"
+          type: "bigint"
+        - name: "vwap"
+          type: "decimal"
+      partition_key: "symbol"
+      clustering_key: "timestamp"
+  settings:
+    compaction_strategy: "SizeTieredCompactionStrategy"
+    compression: "LZ4Compressor"
+    gc_grace_seconds: 864000
+    read_repair_chance: 0.1
+
+# 10. MongoDB - Document database for flexible data storage
+mongodb:
+  enabled: true
+  host: "localhost"
+  port: 27017
+  database: "trading_system"
+  username: "mongo_user"
+  password: "${MONGODB_PASSWORD}"
+  auth_source: "admin"
+  replica_set: "rs0"
+  read_preference: "primaryPreferred"
+  write_concern: "majority"
+  collections:
+    - name: "user_profiles"
+      schema:
+        - name: "_id"
+          type: "ObjectId"
+        - name: "user_id"
+          type: "string"
+          index: true
+        - name: "preferences"
+          type: "object"
+        - name: "created_at"
+          type: "date"
+        - name: "updated_at"
+          type: "date"
+      indexes:
+        - keys: {"user_id": 1}
+          options: {"unique": true}
+        - keys: {"created_at": 1}
+    - name: "strategy_configurations"
+      schema:
+        - name: "_id"
+          type: "ObjectId"
+        - name: "strategy_id"
+          type: "string"
+          index: true
+        - name: "name"
+          type: "string"
+        - name: "parameters"
+          type: "object"
+        - name: "backtest_results"
+          type: "object"
+        - name: "created_at"
+          type: "date"
+        - name: "updated_at"
+          type: "date"
+      indexes:
+        - keys: {"strategy_id": 1}
+          options: {"unique": true}
+        - keys: {"name": 1}
+  settings:
+    wired_tiger_cache_size_gb: 1
+    journal_commit_interval_ms: 100
+    max_connections: 1000
+
+# 11. Elasticsearch - Search and log analytics
+elasticsearch:
+  enabled: true
+  hosts:
+    - "localhost:9200"
+  username: "elastic"
+  password: "${ELASTICSEARCH_PASSWORD}"
+  ssl: false
+  verify_certs: false
+  ca_certs: null
+  timeout: 30
+  max_retries: 3
+  retry_on_timeout: true
+  indices:
+    - name: "trading-logs"
+      settings:
+        number_of_shards: 1
+        number_of_replicas: 0
+        refresh_interval: "5s"
+      mappings:
+        properties:
+          timestamp:
+            type: "date"
+          level:
+            type: "keyword"
+          service:
+            type: "keyword"
+          message:
+            type: "text"
+            analyzer: "standard"
+          trade_id:
+            type: "keyword"
+          portfolio_id:
+            type: "keyword"
+    - name: "audit-trail"
+      settings:
+        number_of_shards: 2
+        number_of_replicas: 1
+        refresh_interval: "1s"
+      mappings:
+        properties:
+          timestamp:
+            type: "date"
+          user_id:
+            type: "keyword"
+          action:
+            type: "keyword"
+          resource:
+            type: "keyword"
+          details:
+            type: "object"
+    - name: "market-research"
+      settings:
+        number_of_shards: 1
+        number_of_replicas: 0
+      mappings:
+        properties:
+          title:
+            type: "text"
+            analyzer: "english"
+          content:
+            type: "text"
+            analyzer: "english"
+          symbols:
+            type: "keyword"
+          publication_date:
+            type: "date"
+          sentiment_score:
+            type: "float"
+  index_templates:
+    - name: "trading-template"
+      index_patterns:
+        - "trading-*"
+      settings:
+        number_of_shards: 1
+        number_of_replicas: 0
+        index.lifecycle.name: "trading-policy"
+  ilm_policies:
+    - name: "trading-policy"
+      phases:
+        hot:
+          actions:
+            rollover:
+              max_size: "1GB"
+              max_age: "7d"
+        warm:
+          min_age: "7d"
+          actions:
+            allocate:
+              number_of_replicas: 0
+        cold:
+          min_age: "30d"
+          actions:
+            allocate:
+              number_of_replicas: 0
+        delete:
+          min_age: "90d"
+
+# Connection pooling and monitoring
+connection_management:
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+  pool_pre_ping: true
+  echo: false  # Set to true for SQL debugging
+
+# Health checks configuration
+health_checks:
+  enabled: true
+  interval: 30  # seconds
+  timeout: 10  # seconds
+  endpoints:
+    postgresql: "/health/postgres"
+    clickhouse: "/health/clickhouse"
+    redis: "/health/redis"
+    influxdb: "/health/influxdb"
+    elasticsearch: "/health/elasticsearch"
+    minio: "/health/minio"
+    qdrant: "/health/qdrant"
+
+# Backup and disaster recovery
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  compression: true
+  encryption: true
+  destinations:
+    - type: "s3"
+      bucket: "trading-backups"
+      prefix: "database-backups/"
+    - type: "local"
+      path: "./backups/databases/"
+
+# Security settings
+security:
+  encryption_at_rest: true
+  encryption_in_transit: true
+  ssl_verify: true
+  certificate_path: "./certs/"
+  key_rotation_days: 90
+  audit_logging: true
+  access_logging: true
+  failed_login_attempts: 5
+  lockout_duration: 300  # seconds
+
+# Monitoring and alerting
+monitoring:
+  enabled: true
+  metrics_collection: true
+  log_level: "INFO"
+  prometheus_metrics: true
+  grafana_dashboards: true
+  alert_thresholds:
+    connection_pool_usage: 80  # percentage
+    query_response_time: 5000  # milliseconds
+    disk_usage: 85  # percentage
+    memory_usage: 90  # percentage
+    error_rate: 5  # percentage
+
+# Development and testing
+development:
+  seed_data: true
+  test_data_size: "small"  # small, medium, large
+  mock_external_services: true
+  debug_mode: false
+  profiling_enabled: false

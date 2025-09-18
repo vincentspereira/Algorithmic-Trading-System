@@ -1,0 +1,84 @@
+{
+  "timestamp": "2025-09-17T11:16:45.811215",
+  "mode": "paper",
+  "tests": {
+    "test_configuration_loading": {
+      "status": "PASSED",
+      "duration": 0.0,
+      "timestamp": "2025-09-17T11:16:45.812344",
+      "details": {
+        "success": true
+      }
+    },
+    "test_engine_initialization": {
+      "status": "PASSED",
+      "duration": 1.14,
+      "timestamp": "2025-09-17T11:16:46.952458",
+      "details": {
+        "success": true
+      }
+    },
+    "test_engine_startup": {
+      "status": "PASSED",
+      "duration": 2.008,
+      "timestamp": "2025-09-17T11:16:48.960767",
+      "details": {
+        "success": true
+      }
+    },
+    "test_connection_status": {
+      "status": "PASSED",
+      "duration": 0.001,
+      "timestamp": "2025-09-17T11:16:48.962141",
+      "details": {
+        "success": true
+      }
+    },
+    "test_health_check": {
+      "status": "PASSED",
+      "duration": 0.0,
+      "timestamp": "2025-09-17T11:16:48.962741",
+      "details": {
+        "success": true
+      }
+    },
+    "test_risk_management": {
+      "status": "PASSED",
+      "duration": 0.0,
+      "timestamp": "2025-09-17T11:16:48.963355",
+      "details": {
+        "success": true
+      }
+    },
+    "test_market_data_connection": {
+      "status": "PASSED",
+      "duration": 0.0,
+      "timestamp": "2025-09-17T11:16:48.964040",
+      "details": {
+        "success": true
+      }
+    },
+    "test_order_validation": {
+      "status": "PASSED",
+      "duration": 0.0,
+      "timestamp": "2025-09-17T11:16:48.964541",
+      "details": {
+        "success": true
+      }
+    },
+    "test_engine_shutdown": {
+      "status": "PASSED",
+      "duration": 0.002,
+      "timestamp": "2025-09-17T11:16:48.967034",
+      "details": {
+        "success": true
+      }
+    }
+  },
+  "summary": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  }
+}

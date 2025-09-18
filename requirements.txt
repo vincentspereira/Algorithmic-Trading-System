@@ -1,59 +1,45 @@
-# Data Processing and Analysis
-pandas>=2.1.0
-numpy>=1.24.0
-scipy>=1.11.0
-scikit-learn>=1.3.0
-alpha_vantage>=2.3.1
-
-# Database and Storage
-psycopg2-binary>=2.9.7
-sqlalchemy>=2.0.0
-redis>=5.0.0
-
-# Caching and Performance
-joblib>=1.3.0
-diskcache>=5.6.3
-
-# Configuration and Environment
-pyyaml>=6.0.1
-toml>=0.10.2
-configparser>=6.0.0
-
-# Logging and Monitoring
-loguru>=0.7.2
-prometheus-client>=0.19.0
-structlog>=24.1.0
-
-# Testing and Development
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
-pytest-cov>=4.1.0
-black>=23.9.0
-flake8>=6.1.0
-mypy>=1.6.0
-schedule>=1.2.0
-aioresponses>=0.7.4
-nautilus-ibapi>=10.30.1
-
-# Async and Concurrency
-asyncio>=3.4.3
-aiohttp>=3.9.0
-aiofiles>=23.2.0
-
-# Documentation
-sphinx>=7.2.0
-sphinx-rtd-theme>=1.3.0
-
-# Jupyter and Interactive Development
-jupyter>=1.0.0
-ipykernel>=6.26.0
-ipywidgets>=8.1.0
-
-# Optional GPU Support (uncomment if using CUDA)
-# torch-audio>=2.1.0
-# torch-vision>=0.16.0
-
-# Development and Code Quality
-pre-commit>=3.5.0
-isort>=5.12.0
-bandit>=1.7.5
+aiohappyeyeballs==2.6.1
+aiohttp==3.12.15
+aiosignal==1.4.0
+alpha_vantage==3.0.0
+attrs==25.3.0
+beautifulsoup4==4.13.5
+certifi==2025.8.3
+cffi==2.0.0
+charset-normalizer==3.4.3
+colorama==0.4.6
+curl_cffi==0.13.0
+frozendict==2.4.6
+frozenlist==1.7.0
+idna==3.10
+iniconfig==2.1.0
+lightgbm==4.6.0
+multidict==6.6.4
+multitasking==0.0.12
+numpy==2.3.3
+packaging==25.0
+pandas==2.3.2
+patsy==1.0.1
+peewee==3.18.2
+platformdirs==4.4.0
+pluggy==1.6.0
+propcache==0.3.2
+protobuf==6.32.1
+pycparser==2.23
+Pygments==2.19.2
+pytest==8.4.2
+python-dateutil==2.9.0.post0
+pytz==2025.2
+requests==2.32.5
+scipy==1.16.2
+six==1.17.0
+soupsieve==2.8
+statsmodels==0.14.5
+structlog==25.4.0
+typing_extensions==4.15.0
+tzdata==2025.2
+urllib3==2.5.0
+websockets==15.0.1
+yarl==1.20.1
+yfinance==0.2.66
+scikit-learn

@@ -42,6 +42,9 @@ class EnhancedRiskConfig:
     correlation_adjustment: bool = True
     regime_adjustment: bool = True
     volatility_scaling: bool = True
+    # Defaults used when callers omit portfolio_value/asset_price
+    default_portfolio_value: float = 100000.0
+    default_asset_price: float = 100.0
 
 
 @dataclass
@@ -76,13 +79,44 @@ class EnhancedRiskFactory:
         self.logger = logging.getLogger(__name__)
         self._risk_history = []
         self._performance_metrics = {}
-        
+        # Cached market context for compatibility with callers expecting this API
+        self._last_atr = None
+        self._last_volatility = None
+        self._last_prices = None
+        self._last_volumes = None
+
+    def update_market_data(self, prices, volumes):
+        """Compatibility method: cache recent prices/volumes and compute ATR/volatility.
+        - ATR approximation aligns with existing fallback: mean(abs(diff(prices))).
+        - Volatility approximated as std of log returns.
+        """
+        try:
+            import numpy as np  # local import to avoid hard dependency at module load
+            prices_arr = np.asarray(prices, dtype=float)
+            volumes_arr = np.asarray(volumes, dtype=float)
+            if prices_arr.size >= 2:
+                diffs = np.abs(np.diff(prices_arr))
+                self._last_atr = float(np.mean(diffs)) if diffs.size > 0 else 0.0
+                rets = np.diff(np.log(prices_arr))
+                self._last_volatility = float(np.std(rets)) if rets.size > 0 else 0.0
+            else:
+                self._last_atr = 0.0
+                self._last_volatility = 0.0
+            self._last_prices = prices_arr
+            self._last_volumes = volumes_arr
+        except Exception as e:
+            self.logger.error(f"update_market_data failed: {e}")
+            self._last_atr = self._last_atr if self._last_atr is not None else 0.0
+            self._last_volatility = self._last_volatility if self._last_volatility is not None else 0.0
+
     def calculate_position_size(self, 
                               signal_strength: float,
-                              portfolio_value: float,
-                              asset_price: float,
+                              portfolio_value: float = None,
+                              asset_price: float = None,
                               volatility: float = None,
-                              atr: float = None) -> float:
+                              atr: float = None,
+                              confidence: float = None,
+                              market_regime: str = None) -> float:
         """
         Calculate position size based on risk management rules.
         
@@ -90,14 +124,18 @@ class EnhancedRiskFactory:
         ----------
         signal_strength : float
             Signal strength from indicator (-1 to 1)
-        portfolio_value : float
-            Current portfolio value
-        asset_price : float
-            Current asset price
+        portfolio_value : float, optional
+            Current portfolio value; if omitted, defaults from config
+        asset_price : float, optional
+            Current asset price; if omitted, defaults from config
         volatility : float, optional
             Asset volatility for volatility-adjusted sizing
         atr : float, optional
             Average True Range for risk-based sizing
+        confidence : float, optional
+            Confidence (0-1) used to scale position size
+        market_regime : str, optional
+            Regime label used for regime-based scaling (e.g., 'trending_up', 'sideways', 'high_volatility')
             
         Returns
         -------
@@ -105,6 +143,12 @@ class EnhancedRiskFactory:
             Position size in units
         """
         try:
+            # Provide sensible defaults when not supplied
+            if portfolio_value is None:
+                portfolio_value = getattr(self.config, 'default_portfolio_value', 100000.0)
+            if asset_price is None or asset_price <= 0:
+                asset_price = getattr(self.config, 'default_asset_price', 100.0)
+            
             # Base position size calculation
             base_risk_amount = portfolio_value * self.config.base_risk_per_trade
             position_size = 0.0
@@ -128,13 +172,32 @@ class EnhancedRiskFactory:
                 else:
                     position_size = (base_risk_amount / asset_price) * abs(signal_strength)
                     
-            # Apply maximum position size limit
+            # Apply maximum position size limit (value-based)
             max_position_value = portfolio_value * self.config.max_position_size
             max_position_units = max_position_value / asset_price
             position_size = min(position_size, max_position_units)
             
-            # Apply signal strength
+            # Apply signal strength again (preserve previous behavior)
             position_size = position_size * abs(signal_strength)
+            
+            # Confidence scaling
+            if confidence is not None:
+                try:
+                    position_size *= float(np.clip(confidence, 0.0, 1.0))
+                except Exception:
+                    pass
+            
+            # Regime-based scaling
+            if self.config.regime_adjustment and market_regime:
+                regime = str(market_regime).lower()
+                regime_multiplier = 1.0
+                if 'sideways' in regime or 'range' in regime:
+                    regime_multiplier = 0.8
+                elif 'trend' in regime or 'bull' in regime or 'bear' in regime:
+                    regime_multiplier = 1.1
+                if 'extreme' in regime or ('high' in regime and 'vol' in regime):
+                    regime_multiplier *= 0.8
+                position_size *= regime_multiplier
             
             return position_size
             
@@ -149,80 +212,77 @@ class EnhancedRiskFactory:
                           volatility: float = None) -> float:
         """
         Calculate stop loss level.
-        
-        Parameters
-        ----------
-        entry_price : float
-            Entry price for the position
-        signal_direction : int
-            Direction of signal (-1 for short, 1 for long)
-        atr : float, optional
-            Average True Range for ATR-based stops
-        volatility : float, optional
-            Volatility for volatility-based stops
-            
-        Returns
-        -------
-        float
-            Stop loss price level
         """
         try:
-            stop_loss = entry_price
-            
-            if self.config.stop_loss_method == StopLossMethod.FIXED_PERCENTAGE:
-                stop_loss = entry_price * (1 - (self.config.atr_multiplier * 0.01) * signal_direction)
-                
-            elif self.config.stop_loss_method == StopLossMethod.ATR_TRAILING and atr:
-                stop_loss = entry_price - (atr * self.config.atr_multiplier * signal_direction)
-                
-            elif self.config.stop_loss_method == StopLossMethod.VOLATILITY_BASED and volatility:
-                stop_loss = entry_price - (volatility * self.config.atr_multiplier * 100 * signal_direction)
-                
+            # Normalize direction (support string inputs for backward-compatibility)
+            if isinstance(signal_direction, str):
+                direction = 1 if signal_direction.lower() in ("long", "buy", "bull") else -1
             else:
-                # Default fixed percentage
-                stop_loss = entry_price * (1 - (0.02 * signal_direction))
-                
+                direction = 1 if int(signal_direction) >= 0 else -1
+
+            # Use cached ATR/volatility if not provided
+            if atr is None:
+                atr = self._last_atr
+            if volatility is None:
+                volatility = self._last_volatility
+
+            stop_loss = entry_price
+            if self.config.stop_loss_method == StopLossMethod.FIXED_PERCENTAGE:
+                stop_loss = entry_price * (1 - (self.config.atr_multiplier * 0.01) * direction)
+            elif self.config.stop_loss_method == StopLossMethod.ATR_TRAILING and atr:
+                stop_loss = entry_price - (atr * self.config.atr_multiplier * direction)
+            elif self.config.stop_loss_method == StopLossMethod.VOLATILITY_BASED and volatility:
+                stop_loss = entry_price - (volatility * self.config.atr_multiplier * 100 * direction)
+            else:
+                stop_loss = entry_price * (1 - (0.02 * direction))
             return stop_loss
-            
         except Exception as e:
             self.logger.error(f"Error calculating stop loss: {e}")
-            return entry_price * (1 - (0.02 * signal_direction))
-            
+            try:
+                direction = 1 if (isinstance(signal_direction, str) and signal_direction.lower() in ("long", "buy", "bull")) or int(signal_direction) >= 0 else -1
+            except Exception:
+                direction = 1
+            return entry_price * (1 - (0.02 * direction))
+
     def calculate_take_profit(self, 
                             entry_price: float,
-                            stop_loss: float,
-                            signal_direction: int,
+                            stop_loss: float = None,
+                            signal_direction: int = None,
                             risk_reward_ratio: float = 2.0) -> float:
         """
         Calculate take profit level based on risk-reward ratio.
-        
-        Parameters
-        ----------
-        entry_price : float
-            Entry price for the position
-        stop_loss : float
-            Stop loss level
-        signal_direction : int
-            Direction of signal (-1 for short, 1 for long)
-        risk_reward_ratio : float
-            Desired risk-reward ratio
-            
-        Returns
-        -------
-        float
-            Take profit price level
+        Backward-compatible: if called with (entry_price, 'long'/'short'), infer stop_loss using cached ATR.
         """
         try:
-            risk_amount = abs(entry_price - stop_loss)
+            # Backward-compat handling: (entry_price, direction)
+            if signal_direction is None and isinstance(stop_loss, (str, int)):
+                dir_val = stop_loss
+                if isinstance(dir_val, str):
+                    direction = 1 if dir_val.lower() in ("long", "buy", "bull") else -1
+                else:
+                    direction = 1 if int(dir_val) >= 0 else -1
+                # Infer stop_loss using current settings and cached ATR/volatility
+                inferred_sl = self.calculate_stop_loss(entry_price=entry_price, signal_direction=direction)
+                stop_loss = inferred_sl
+                signal_direction = direction
+
+            # Final safety: default direction if still None
+            if signal_direction is None:
+                signal_direction = 1 if (stop_loss is not None and stop_loss < entry_price) else -1
+
+            risk_amount = abs(entry_price - (stop_loss if stop_loss is not None else entry_price * 0.98))
             reward_amount = risk_amount * risk_reward_ratio
-            take_profit = entry_price + (reward_amount * signal_direction)
+            take_profit = entry_price + (reward_amount * (1 if signal_direction > 0 else -1))
             return take_profit
-            
         except Exception as e:
             self.logger.error(f"Error calculating take profit: {e}")
-            risk_amount = abs(entry_price - stop_loss)
+            try:
+                direction = 1 if (isinstance(signal_direction, str) and signal_direction.lower() in ("long", "buy", "bull")) or int(signal_direction) >= 0 else -1
+            except Exception:
+                direction = 1
+            risk_amount = abs(entry_price - (stop_loss if stop_loss is not None else entry_price * 0.98))
             reward_amount = risk_amount * 2.0
-            return entry_price + (reward_amount * signal_direction)
+            return entry_price + (reward_amount * (1 if direction > 0 else -1))
             
     def adjust_for_risk(self, 
                        signal: float,

@@ -12,7 +12,7 @@ Version: 1.0.0
 import asyncio
 import logging
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 # Try to import ib_insync, which is the standard library for IBKR integration
@@ -124,7 +124,7 @@ class IBKRAdapter(BrokerAdapter):
                 "order": order,
                 "instrument": order.instrument_id,
                 "status": "SUBMITTED",
-                "timestamp": datetime.utcnow()
+                "timestamp": datetime.now(timezone.utc)
             }
             logger.info(f"Simulated order submission: {order} for {order.instrument_id}")
             return venue_order_id

@@ -20,7 +20,7 @@ import logging
 import json
 import time
 from typing import Dict, Any, List, Optional, Callable, Union
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 from enum import Enum
 import re
@@ -494,7 +494,7 @@ class EnhancedKafkaManager:
             "target_mps": target_mps,
             "performance_ratio": actual_mps / target_mps,
             "status": "PASS" if actual_mps >= target_mps else "NEEDS_OPTIMIZATION",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         self.performance_metrics["throughput_mps"] = actual_mps
@@ -512,7 +512,7 @@ class EnhancedKafkaManager:
             **self.performance_metrics,
             "active_consumers": len([c for c in self.consumers.values() if c.get("active")]),
             "total_consumers": len(self.consumers),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     
     async def close(self):

@@ -13,6 +13,8 @@ Author: Vincent S. Pereira
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import sys
@@ -21,6 +23,7 @@ import json
 import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
+import pytest
 
 # Add project paths
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -47,7 +50,7 @@ except ImportError:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class Phase1DataFeedTester:
+class TestPhase1DataFeeds:
     """Comprehensive data feed testing for Phase 1"""
     
     def __init__(self):
@@ -359,21 +362,44 @@ class Phase1DataFeedTester:
         
         return phase1_ready
 
+# ------------------------------
+# Pytest wrapper functions
+# ------------------------------
+def test_yahoo_finance_direct_smoke():
+    """Smoke test for Yahoo Finance direct access (pytest-discoverable)."""
+    tester = TestPhase1DataFeeds()
+    results = asyncio.run(tester.test_yahoo_finance_direct())
+    assert isinstance(results, dict)
+
+
+def test_alpha_vantage_direct_smoke():
+    """Smoke test for Alpha Vantage direct access without requiring API key.
+    If API key is set, this test is skipped to avoid long rate-limit sleeps.
+    """
+    if os.getenv("ALPHA_VANTAGE_API_KEY"):
+        pytest.skip("Alpha Vantage API key present; skipping long-running network test")
+    tester = TestPhase1DataFeeds()
+    results = asyncio.run(tester.test_alpha_vantage_direct())
+    assert isinstance(results, dict)
+    assert results.get("status") in {"NO_API_KEY", "NO_REQUESTS"}
+
+
+def test_fallback_sequence_smoke():
+    """Smoke test for fallback sequence; works even without feed manager."""
+    tester = TestPhase1DataFeeds()
+    asyncio.run(tester.setup())
+    results = asyncio.run(tester.test_fallback_sequence())
+    assert isinstance(results, dict)
+    # Either we have a proper result with fallback_order or no feed manager
+    assert ("fallback_order" in results) or (results.get("status") == "NO_FEED_MANAGER")
+
+
 async def main():
-    """Main test function"""
-    tester = Phase1DataFeedTester()
-    
-    try:
-        results = await tester.run_all_tests()
-        return results
-    except KeyboardInterrupt:
-        logger.info("\n⏹️ Test interrupted by user")
-        return None
-    except Exception as e:
-        logger.error(f"\n💥 Test failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return None
+    # Run all tests and print summary
+    tester = TestPhase1DataFeeds()
+    await tester.run_all_tests()
+    return tester.results
 
 if __name__ == "__main__":
     results = asyncio.run(main())
+    print(json.dumps(results, indent=2))

@@ -8,7 +8,7 @@ import json
 import os
 import sys
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 def send_teams_notification(webhook_url, message):
@@ -31,7 +31,7 @@ def send_teams_notification(webhook_url, message):
                 "value": "Critical Dependency Issue"
             }, {
                 "name": "Timestamp",
-                "value": datetime.now().isoformat()
+                "value": datetime.now(timezone.utc).isoformat()
             }, {
                 "name": "Repository",
                 "value": os.environ.get('GITHUB_REPOSITORY', 'Unknown')
@@ -61,7 +61,7 @@ def send_discord_notification(webhook_url, message):
             "title": "🚨 Critical Dependency Alert",
             "description": message,
             "color": 0xFF0000,  # Red color
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "footer": {
                 "text": "Algorithmic Trading System Dependency Monitor"
             },

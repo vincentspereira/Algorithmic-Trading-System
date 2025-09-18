@@ -16,8 +16,10 @@ import numpy as np
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from nautilus_trader.model.data.feed import CsvDataFeed
+from nautilus_trader_engine.adapters.ibkr_adapter import InteractiveBrokersAdapter
 from nautilus_trader_engine.data_feeds import DataFeedManager, AssetClass, DataSource
-from nautilus_trader_engine.indicators.volume_weighted import VolumeWeightedIndicators, MarketData
+from nautilus_trader_engine.indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators, MarketData
 
 
 def test_data_feeds():

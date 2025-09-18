@@ -14,7 +14,7 @@ This module provides:
 import asyncio
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 
@@ -417,7 +417,7 @@ class IBKRIntegrationValidator:
         passed_tests = sum(1 for r in self.results if r.success)
         
         report = {
-            "validation_timestamp": datetime.utcnow().isoformat(),
+            "validation_timestamp": datetime.now(timezone.utc).isoformat(),
             "summary": {
                 "total_tests": total_tests,
                 "passed_tests": passed_tests,
@@ -453,7 +453,7 @@ class IBKRIntegrationValidator:
 
     async def _save_results(self, report: Dict[str, Any]):
         """Save validation results to file."""
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         filename = f"ibkr_validation_report_{timestamp}.json"
         
         try:

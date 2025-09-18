@@ -182,12 +182,12 @@ class AlertManager:
                 
         if alert_data:
             return Alert(
-                id=f"{rule.name}_{datetime.utcnow().isoformat()}",
+                id=f"{rule.name}_{datetime.now(timezone.utc).isoformat()}",
                 rule_name=rule.name,
                 severity=rule.severity,
                 message=rule.description,
                 details=alert_data,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(timezone.utc)
             )
             
         return None

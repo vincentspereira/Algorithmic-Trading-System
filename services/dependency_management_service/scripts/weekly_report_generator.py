@@ -8,7 +8,7 @@ import json
 import os
 import sys
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from collections import defaultdict
 
@@ -98,7 +98,7 @@ class WeeklyReportGenerator:
     
     def generate_html_report(self, updates, security_alerts, failed_updates):
         """Generate HTML report for email/web viewing."""
-        report_date = datetime.now().strftime('%Y-%m-%d')
+        report_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
         
         html = f"""
 <!DOCTYPE html>
@@ -237,7 +237,7 @@ class WeeklyReportGenerator:
         message = f"""
 ## 📊 Weekly Dependency Report
 
-**Report Date:** {datetime.now().strftime('%Y-%m-%d')}
+**Report Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}
 
 ### Summary:
 - **Total Updates:** {summary['total_updates']}
@@ -260,7 +260,7 @@ class WeeklyReportGenerator:
             "summary": "Weekly Dependency Report",
             "sections": [{
                 "activityTitle": "📊 Weekly Dependency Report",
-                "activitySubtitle": f"Algorithmic Trading System - {datetime.now().strftime('%Y-%m-%d')}",
+                "activitySubtitle": f"Algorithmic Trading System - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
                 "markdown": True,
                 "text": message
             }]
@@ -277,7 +277,7 @@ class WeeklyReportGenerator:
     
     def save_report_file(self, html_report):
         """Save report to file system."""
-        report_date = datetime.now().strftime('%Y-%m-%d')
+        report_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
         reports_dir = self.base_path / 'reports'
         reports_dir.mkdir(exist_ok=True)
         

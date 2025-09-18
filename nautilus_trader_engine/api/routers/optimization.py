@@ -6,7 +6,7 @@ import logging
 import sys
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Union
 from fastapi import APIRouter, HTTPException, status, Depends
 import optuna
@@ -200,7 +200,7 @@ class OptimizationEngine:
             # Create response
             response = OptimizationResponse(
                 status="completed",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 parameters={
                     "ticker": self.request.ticker,
                     "start_date": self.request.start_date.isoformat(),
@@ -321,7 +321,7 @@ async def get_optimization_status(current_user_id: str = Depends(get_current_use
                 "timeout": 300,
                 "objective": "sharpe_ratio"
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "user_id": current_user_id
         }
         
@@ -329,13 +329,13 @@ async def get_optimization_status(current_user_id: str = Depends(get_current_use
         return {
             "status": "error",
             "error": f"Optimization modules not available: {str(e)}",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "user_id": current_user_id
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "user_id": current_user_id
         }

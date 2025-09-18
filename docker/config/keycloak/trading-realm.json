@@ -1,0 +1,310 @@
+{
+  "realm": "trading",
+  "displayName": "Algorithmic Trading System",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Algorithmic Trading System</span></div>",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "defaultRoles": ["offline_access", "uma_authorization", "default-roles-trading"],
+  "requiredCredentials": ["password"],
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpSupportedApplications": ["FreeOTP", "Google Authenticator"],
+  "webAuthnPolicyRpEntityName": "keycloak",
+  "webAuthnPolicySignatureAlgorithms": ["ES256"],
+  "webAuthnPolicyRpId": "",
+  "webAuthnPolicyAttestationConveyancePreference": "not specified",
+  "webAuthnPolicyAuthenticatorAttachment": "not specified",
+  "webAuthnPolicyRequireResidentKey": "not specified",
+  "webAuthnPolicyUserVerificationRequirement": "not specified",
+  "webAuthnPolicyCreateTimeout": 0,
+  "webAuthnPolicyAvoidSameAuthenticatorRegister": false,
+  "webAuthnPolicyAcceptableAaguids": [],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "firstName": "System",
+      "lastName": "Administrator",
+      "email": "admin@trading.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": true
+        }
+      ],
+      "realmRoles": ["admin", "trader", "analyst", "risk_manager", "compliance_officer"],
+      "clientRoles": {
+        "trading-frontend": ["admin"],
+        "trading-api": ["admin"]
+      }
+    },
+    {
+      "username": "trader1",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Trader",
+      "email": "trader@trading.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "trader123",
+          "temporary": true
+        }
+      ],
+      "realmRoles": ["trader", "analyst"],
+      "clientRoles": {
+        "trading-frontend": ["trader"],
+        "trading-api": ["trader"]
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "System Administrator - Full access to all system functions",
+        "composite": false
+      },
+      {
+        "name": "trader",
+        "description": "Trader - Can execute trades and manage portfolios",
+        "composite": false
+      },
+      {
+        "name": "analyst",
+        "description": "Analyst - Can view analytics and create strategies",
+        "composite": false
+      },
+      {
+        "name": "viewer",
+        "description": "Viewer - Read-only access to system data",
+        "composite": false
+      },
+      {
+        "name": "risk_manager",
+        "description": "Risk Manager - Can override risk controls and view risk metrics",
+        "composite": false
+      },
+      {
+        "name": "compliance_officer",
+        "description": "Compliance Officer - Can review trades and access compliance reports",
+        "composite": false
+      },
+      {
+        "name": "default-roles-trading",
+        "description": "Default roles for trading realm",
+        "composite": true,
+        "composites": {
+          "realm": ["offline_access", "uma_authorization"]
+        }
+      }
+    ]
+  },
+  "groups": [
+    {
+      "name": "Trading Team",
+      "path": "/Trading Team",
+      "realmRoles": ["trader", "analyst"]
+    },
+    {
+      "name": "Risk Management",
+      "path": "/Risk Management",
+      "realmRoles": ["risk_manager", "analyst"]
+    },
+    {
+      "name": "Compliance",
+      "path": "/Compliance",
+      "realmRoles": ["compliance_officer", "viewer"]
+    },
+    {
+      "name": "Administrators",
+      "path": "/Administrators",
+      "realmRoles": ["admin"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "trading-frontend",
+      "name": "Trading System Frontend",
+      "description": "Next.js frontend application for the trading system",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "trading-frontend-secret-2024",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://trading.local/*",
+        "https://trading.local/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://trading.local",
+        "https://trading.local"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "trading-api",
+      "name": "Trading System API",
+      "description": "Backend API services for the trading system",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "trading-api-secret-2024",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "fullScopeAllowed": false,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "trading-mobile",
+      "name": "Trading System Mobile",
+      "description": "Mobile application for the trading system",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "redirectUris": [
+        "trading://oauth/callback",
+        "http://localhost:8081/*"
+      ],
+      "webOrigins": ["+"],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "trading-permissions",
+      "description": "Trading system specific permissions",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Trading system permissions"
+      },
+      "protocolMappers": [
+        {
+          "name": "trading-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "trading_roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "protocolMappers": [
+    {
+      "name": "trading-permissions-mapper",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "userinfo.token.claim": "true",
+        "user.attribute": "trading_permissions",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "trading_permissions",
+        "jsonType.label": "String"
+      }
+    }
+  ],
+  "browserFlow": "browser",
+  "registrationFlow": "registration",
+  "directGrantFlow": "direct grant",
+  "resetCredentialsFlow": "reset credentials",
+  "clientAuthenticationFlow": "clients",
+  "dockerAuthenticationFlow": "docker auth",
+  "attributes": {
+    "frontendUrl": "http://keycloak.trading.local:8080",
+    "userManagedAccessAllowed": false,
+    "clientOfflineSessionIdleTimeout": 0,
+    "clientOfflineSessionMaxLifespan": 0
+  },
+  "keycloakVersion": "23.0.0",
+  "userManagedAccessAllowed": false
+}

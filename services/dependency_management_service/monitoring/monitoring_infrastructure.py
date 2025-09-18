@@ -6,7 +6,7 @@ Provides centralized logging, metrics collection, and monitoring functionality.
 import logging
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import psutil
@@ -143,7 +143,7 @@ class MonitoringSystem:
             network_io={"sent": 0, "recv": 0},  # Will be updated separately
             scan_times={},  # Will be updated during scans
             error_count=0,  # Will be updated when errors occur
-            last_update=datetime.utcnow(),
+            last_update=datetime.now(timezone.utc),
             health_score=self._calculate_health_score(dependency)
         )
     

@@ -5,7 +5,7 @@ Phase 5 Enterprise Feature - Options pricing and risk analytics
 
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
 
 
@@ -26,31 +26,30 @@ class OptionPricingRequest(BaseModel):
     option_type: OptionType = Field(..., description="Option type: call or put")
     dividend_yield: float = Field(0.0, ge=0, le=1, description="Dividend yield (as decimal)")
     
-    @validator('time_to_expiry')
+    @field_validator('time_to_expiry')
     def validate_time_to_expiry(cls, v):
         if v <= 0:
             raise ValueError('Time to expiry must be positive')
         return v
     
-    @validator('volatility')
+    @field_validator('volatility')
     def validate_volatility(cls, v):
         if v <= 0 or v > 5:
             raise ValueError('Volatility must be between 0 and 5 (500%)')
         return v
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "symbol": "AAPL240315C00150000",
-                "spot_price": 150.0,
-                "strike_price": 155.0,
-                "time_to_expiry": 0.25,
-                "risk_free_rate": 0.05,
-                "volatility": 0.25,
-                "option_type": "call",
-                "dividend_yield": 0.02
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL240315C00150000",
+            "spot_price": 150.0,
+            "strike_price": 155.0,
+            "time_to_expiry": 0.25,
+            "risk_free_rate": 0.05,
+            "volatility": 0.25,
+            "option_type": "call",
+            "dividend_yield": 0.02
         }
+    })
 
 
 class OptionPricingResponse(BaseModel):
@@ -83,19 +82,18 @@ class GreeksRequest(BaseModel):
     option_type: OptionType = Field(..., description="Option type: call or put")
     dividend_yield: float = Field(0.0, ge=0, le=1, description="Dividend yield")
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "symbol": "AAPL240315C00150000",
-                "spot_price": 150.0,
-                "strike_price": 155.0,
-                "time_to_expiry": 0.25,
-                "risk_free_rate": 0.05,
-                "volatility": 0.25,
-                "option_type": "call",
-                "dividend_yield": 0.02
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL240315C00150000",
+            "spot_price": 150.0,
+            "strike_price": 155.0,
+            "time_to_expiry": 0.25,
+            "risk_free_rate": 0.05,
+            "volatility": 0.25,
+            "option_type": "call",
+            "dividend_yield": 0.02
         }
+    })
 
 
 class GreeksResponse(BaseModel):
@@ -121,19 +119,18 @@ class ImpliedVolatilityRequest(BaseModel):
     option_type: OptionType = Field(..., description="Option type: call or put")
     dividend_yield: float = Field(0.0, ge=0, le=1, description="Dividend yield")
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "symbol": "AAPL240315C00150000",
-                "market_price": 5.50,
-                "spot_price": 150.0,
-                "strike_price": 155.0,
-                "time_to_expiry": 0.25,
-                "risk_free_rate": 0.05,
-                "option_type": "call",
-                "dividend_yield": 0.02
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL240315C00150000",
+            "market_price": 5.50,
+            "spot_price": 150.0,
+            "strike_price": 155.0,
+            "time_to_expiry": 0.25,
+            "risk_free_rate": 0.05,
+            "option_type": "call",
+            "dividend_yield": 0.02
         }
+    })
 
 
 class ImpliedVolatilityResponse(BaseModel):
@@ -162,22 +159,21 @@ class VolatilitySurfaceRequest(BaseModel):
     dividend_yield: float = Field(0.0, ge=0, le=1, description="Dividend yield")
     market_prices: Dict[str, float] = Field(..., description="Market prices keyed by 'strike_expiry'")
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "symbol": "AAPL",
-                "spot_price": 150.0,
-                "strikes": [140.0, 145.0, 150.0, 155.0, 160.0],
-                "expiries": [0.25, 0.5, 1.0],
-                "risk_free_rate": 0.05,
-                "dividend_yield": 0.02,
-                "market_prices": {
-                    "140.0_0.25": 12.50,
-                    "145.0_0.25": 8.75,
-                    "150.0_0.25": 5.50
-                }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL",
+            "spot_price": 150.0,
+            "strikes": [140.0, 145.0, 150.0, 155.0, 160.0],
+            "expiries": [0.25, 0.5, 1.0],
+            "risk_free_rate": 0.05,
+            "dividend_yield": 0.02,
+            "market_prices": {
+                "140.0_0.25": 12.50,
+                "145.0_0.25": 8.75,
+                "150.0_0.25": 5.50
             }
         }
+    })
 
 
 class VolatilitySurfaceResponse(BaseModel):
@@ -207,26 +203,25 @@ class OptionsPortfolioRiskRequest(BaseModel):
     dividend_yield: float = Field(0.0, ge=0, le=1, description="Dividend yield")
     volatility: float = Field(..., gt=0, le=5, description="Current implied volatility")
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "portfolio_name": "AAPL_Options_Portfolio",
-                "underlying_price": 150.0,
-                "positions": [
-                    {
-                        "symbol": "AAPL240315C00155000",
-                        "option_type": "call",
-                        "strike_price": 155.0,
-                        "time_to_expiry": 0.25,
-                        "quantity": 10,
-                        "market_price": 5.50
-                    }
-                ],
-                "risk_free_rate": 0.05,
-                "dividend_yield": 0.02,
-                "volatility": 0.25
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "portfolio_name": "AAPL_Options_Portfolio",
+            "underlying_price": 150.0,
+            "positions": [
+                {
+                    "symbol": "AAPL240315C00155000",
+                    "option_type": "call",
+                    "strike_price": 155.0,
+                    "time_to_expiry": 0.25,
+                    "quantity": 10,
+                    "market_price": 5.50
+                }
+            ],
+            "risk_free_rate": 0.05,
+            "dividend_yield": 0.02,
+            "volatility": 0.25
         }
+    })
 
 
 class PortfolioGreeks(BaseModel):
@@ -261,13 +256,12 @@ class OptionChainRequest(BaseModel):
     symbol: str = Field(..., description="Underlying symbol")
     expiry_dates: Optional[List[str]] = Field(None, description="Specific expiry dates (YYYY-MM-DD)")
     
-    class Config:
-        schema_extra = {
-            "example": {
-                "symbol": "AAPL",
-                "expiry_dates": ["2024-03-15", "2024-06-21"]
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL",
+            "expiry_dates": ["2024-03-15", "2024-06-21"]
         }
+    })
 
 
 class OptionChainResponse(BaseModel):

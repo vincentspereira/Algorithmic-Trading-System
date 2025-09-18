@@ -8,7 +8,7 @@ import time
 from unittest.mock import Mock, AsyncMock
 from typing import List, Dict, Any
 
-from .sentiment_analyzer import (
+from nautilus_trader_engine.ai.sentiment_analyzer import (
     SentimentScore,
     SentimentSource,
     SentimentPolarity,
@@ -17,10 +17,10 @@ from .sentiment_analyzer import (
     EnhancedSentimentPipeline,
     SentimentAnomalyDetector
 )
-from .inference_engine import InferenceEngine, InferenceRequest, InferencePriority
-from .model_manager import ModelManager
-from ..core.messaging.message_bus import MessageBus
-from ..core.caching.cache_manager import CacheManager
+from nautilus_trader_engine.ai.inference_engine import InferenceEngine, InferenceRequest, InferencePriority
+from nautilus_trader_engine.ai.model_manager import ModelManager
+from nautilus_trader_engine.core.messaging.message_bus import MessageBus
+from nautilus_trader_engine.core.caching.cache_manager import CacheManager
 
 
 class TestSentimentScore:

@@ -15,7 +15,7 @@ import json
 import time
 import hashlib
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Set, Any, Callable
 from functools import wraps
 from dataclasses import dataclass, field
@@ -27,11 +27,18 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 import jwt
 from passlib.context import CryptContext
-import redis
+# Optional dependencies: Redis and Kafka may not be installed in test/runtime
+try:
+    import redis  # type: ignore
+except Exception:  # pragma: no cover - optional dep not available
+    redis = None  # type: ignore
 from sqlalchemy.orm import Session
 
-# Kafka for audit trails
-from kafka import KafkaProducer
+# Kafka for audit trails (optional)
+try:
+    from kafka import KafkaProducer  # type: ignore
+except Exception:  # pragma: no cover - optional dep not available
+    KafkaProducer = None  # type: ignore
 import uuid
 
 # Configure logging
@@ -163,28 +170,42 @@ class SecurityService:
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.security = HTTPBearer()
         
-        # Initialize Redis for rate limiting and session management
+        # Defer external client initialization to first use to avoid import-time side effects
+        self.redis_client = None
+        self.kafka_producer = None
+    
+    def _init_redis(self):
+        """Lazily initialize Redis client if available."""
+        if self.redis_client is not None:
+            return
+        if redis is None:
+            return
         try:
-            self.redis_client = redis.from_url(config.redis_url)
+            self.redis_client = redis.from_url(self.config.redis_url)  # type: ignore[attr-defined]
+            # Verify connection is healthy
             self.redis_client.ping()
             logger.info("Redis connection established for security service")
-        except Exception as e:
+        except Exception as e:  # pragma: no cover - network dependent
             logger.error(f"Failed to connect to Redis: {e}")
             self.redis_client = None
-        
-        # Initialize Kafka producer for audit logging
-        if config.enable_audit_logging:
-            try:
-                self.kafka_producer = KafkaProducer(
-                    bootstrap_servers=config.kafka_bootstrap_servers,
-                    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-                    key_serializer=lambda k: k.encode('utf-8') if k else None
-                )
-                logger.info("Kafka producer initialized for audit logging")
-            except Exception as e:
-                logger.error(f"Failed to initialize Kafka producer: {e}")
-                self.kafka_producer = None
-        else:
+    
+    def _init_kafka(self):
+        """Lazily initialize Kafka producer if available and enabled."""
+        if self.kafka_producer is not None:
+            return
+        if not self.config.enable_audit_logging:
+            return
+        if KafkaProducer is None:
+            return
+        try:
+            self.kafka_producer = KafkaProducer(
+                bootstrap_servers=self.config.kafka_bootstrap_servers,
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                key_serializer=lambda k: k.encode('utf-8') if k else None
+            )
+            logger.info("Kafka producer initialized for audit logging")
+        except Exception as e:  # pragma: no cover - network dependent
+            logger.error(f"Failed to initialize Kafka producer: {e}")
             self.kafka_producer = None
     
     def hash_password(self, password: str) -> str:
@@ -198,7 +219,7 @@ class SecurityService:
     def create_access_token(self, data: Dict[str, Any]) -> str:
         """Create JWT access token"""
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=self.config.access_token_expire_minutes)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=self.config.access_token_expire_minutes)
         to_encode.update({"exp": expire, "type": "access"})
         
         return jwt.encode(to_encode, self.config.jwt_secret_key, algorithm=self.config.jwt_algorithm)
@@ -206,7 +227,7 @@ class SecurityService:
     def create_refresh_token(self, data: Dict[str, Any]) -> str:
         """Create JWT refresh token"""
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(days=self.config.refresh_token_expire_days)
+        expire = datetime.now(timezone.utc) + timedelta(days=self.config.refresh_token_expire_days)
         to_encode.update({"exp": expire, "type": "refresh"})
         
         return jwt.encode(to_encode, self.config.jwt_secret_key, algorithm=self.config.jwt_algorithm)
@@ -221,7 +242,8 @@ class SecurityService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has expired"
             )
-        except jwt.JWTError:
+        except Exception:
+            # Use broad exception to avoid tight coupling to specific jwt exception types across versions
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
@@ -229,6 +251,9 @@ class SecurityService:
     
     def check_rate_limit(self, identifier: str, limit: int = None, window: int = None) -> bool:
         """Check if request is within rate limits"""
+        # Initialize redis lazily
+        if self.redis_client is None:
+            self._init_redis()
         if not self.redis_client:
             return True  # Allow if Redis is not available
         
@@ -257,6 +282,9 @@ class SecurityService:
     
     def log_audit_event(self, event: AuditEvent):
         """Log audit event to Kafka for immutable storage"""
+        # Initialize kafka lazily
+        if self.kafka_producer is None:
+            self._init_kafka()
         if not self.kafka_producer:
             logger.warning("Audit logging disabled - Kafka producer not available")
             return
@@ -411,7 +439,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
         # Create audit event
         audit_event = AuditEvent(
             event_id=event_id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             user_id=user_id,
             user_role=user_role,
             action=f"{method} {url}",
@@ -437,7 +465,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
 class FeatureFlagService:
     """Feature flag service for dynamic system control"""
     
-    def __init__(self, redis_client: redis.Redis):
+    def __init__(self, redis_client: Any):
         self.redis_client = redis_client
         self.default_flags = {
             "trading_enabled": True,

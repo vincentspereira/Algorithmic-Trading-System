@@ -1,7 +1,7 @@
 import asyncio
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 
 class PredictionStream:
     """
@@ -64,7 +64,7 @@ class PredictionStream:
                     "symbol": random.choice(["AAPL", "GOOGL", "MSFT"]),
                     "price": random.uniform(100, 1000),
                     "volume": random.randint(1000, 100000),
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
                 await self._process_message(mock_message)
                 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         async def get_prediction(self, symbol):
             return {
                 "symbol": symbol,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "predictions": {
                     "1min": {"prediction": random.uniform(100, 102), "confidence": random.random()},
                 }

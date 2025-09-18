@@ -1,6 +1,7 @@
 
 from fastapi import APIRouter, Depends
 
+from datetime import datetime, timezone
 from api.app.models import APIResponse
 from nautilus_trader_engine.core.order_management import OrderManager
 from app.core.security import verify_token
@@ -18,7 +19,7 @@ async def get_portfolio_positions(user: dict = Depends(verify_token)):
             "total_value": sum(pos.get("market_value", 0) for pos in positions),
             "total_pnl": sum(pos.get("unrealized_pnl", 0) for pos in positions),
             "position_count": len(positions),
-            "last_updated": datetime.now()
+            "last_updated": datetime.now(timezone.utc)
         }
 
         return APIResponse(

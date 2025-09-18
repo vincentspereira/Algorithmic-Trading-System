@@ -6,7 +6,7 @@ These models define the structure for feature requests, feature sets, technical 
 and responses from the feature engineering system.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -82,20 +82,19 @@ class FeatureRequest(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "symbol": "AAPL",
-                "start_date": "2023-01-01T00:00:00Z",
-                "end_date": "2023-12-31T23:59:59Z",
-                "aggregation": "daily",
-                "feature_types": ["technical_indicators", "price_features"],
-                "indicators": {
-                    "sma": {"periods": [10, 20, 50]},
-                    "rsi": {"period": 14}
-                }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL",
+            "start_date": "2023-01-01T00:00:00Z",
+            "end_date": "2023-12-31T23:59:59Z",
+            "aggregation": "daily",
+            "feature_types": ["technical_indicators", "price_features"],
+            "indicators": {
+                "sma": {"periods": [10, 20, 50]},
+                "rsi": {"period": 14}
             }
         }
+    })
 
 
 class FeatureSet(BaseModel):
@@ -134,23 +133,22 @@ class FeatureSet(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "technical_indicators",
-                "description": "Technical analysis indicators including moving averages, RSI, and MACD",
-                "data": {
-                    "sma_10": [150.25, 151.30, 152.15],
-                    "sma_20": [148.75, 149.80, 150.90],
-                    "rsi_14": [65.2, 68.5, 72.1]
-                },
-                "metadata": {
-                    "calculation_time": "2024-01-15T10:30:00Z",
-                    "data_points": 252,
-                    "missing_values": 0
-                }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "name": "technical_indicators",
+            "description": "Technical analysis indicators including moving averages, RSI, and MACD",
+            "data": {
+                "sma_10": [150.25, 151.30, 152.15],
+                "sma_20": [148.75, 149.80, 150.90],
+                "rsi_14": [65.2, 68.5, 72.1]
+            },
+            "metadata": {
+                "calculation_time": "2024-01-15T10:30:00Z",
+                "data_points": 252,
+                "missing_values": 0
             }
         }
+    })
 
 
 class FeaturesResponse(BaseModel):
@@ -195,30 +193,29 @@ class FeaturesResponse(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "symbol": "AAPL",
-                "start_date": "2023-01-01T00:00:00Z",
-                "end_date": "2023-12-31T23:59:59Z",
-                "aggregation": "daily",
-                "features": [
-                    {
-                        "name": "technical_indicators",
-                        "description": "Technical analysis indicators",
-                        "data": {
-                            "sma_10": [150.25, 151.30, 152.15],
-                            "rsi_14": [65.2, 68.5, 72.1]
-                        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "symbol": "AAPL",
+            "start_date": "2023-01-01T00:00:00Z",
+            "end_date": "2023-12-31T23:59:59Z",
+            "aggregation": "daily",
+            "features": [
+                {
+                    "name": "technical_indicators",
+                    "description": "Technical analysis indicators",
+                    "data": {
+                        "sma_10": [150.25, 151.30, 152.15],
+                        "rsi_14": [65.2, 68.5, 72.1]
                     }
-                ],
-                "summary": {
-                    "total_features": 25,
-                    "calculation_time_seconds": 2.5,
-                    "data_quality_score": 0.98
                 }
+            ],
+            "summary": {
+                "total_features": 25,
+                "calculation_time_seconds": 2.5,
+                "data_quality_score": 0.98
             }
         }
+    })
 
 
 class FeaturesError(BaseModel):
@@ -258,17 +255,16 @@ class FeaturesError(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "error",
-                "timestamp": "2024-01-15T10:30:00Z",
-                "error": "Invalid symbol: XYZ not found in data provider",
-                "details": "The symbol 'XYZ' is not available in our market data feed",
-                "parameters": {
-                    "symbol": "XYZ",
-                    "start_date": "2023-01-01T00:00:00Z",
-                    "end_date": "2023-12-31T23:59:59Z"
-                }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "status": "error",
+            "timestamp": "2024-01-15T10:30:00Z",
+            "error": "Invalid symbol: XYZ not found in data provider",
+            "details": "The symbol 'XYZ' is not available in our market data feed",
+            "parameters": {
+                "symbol": "XYZ",
+                "start_date": "2023-01-01T00:00:00Z",
+                "end_date": "2023-12-31T23:59:59Z"
             }
         }
+    })

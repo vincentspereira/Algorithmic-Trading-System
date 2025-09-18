@@ -23,8 +23,21 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import json
 
-from .technical_indicators import TechnicalIndicators, IndicatorResult, IndicatorType
-from .advanced_indicators import AdvancedIndicators
+# Replace stale imports with consolidated factories and core result types
+from .core_indicator_base import IndicatorResult
+from .trend_indicators import (
+    create_sma, create_ema, create_vwma, create_hma
+)
+from .momentum_indicators import (
+    create_rsi, create_macd, create_stochastic
+)
+from .volatility_indicators import (
+    create_bollinger_bands, create_atr, create_keltner_channels, create_standard_deviation
+)
+from .volume_indicators import (
+    create_vwap, create_obv, create_mfi
+)
+from .pattern_indicators import create_pattern_detector
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,7 +55,7 @@ class MarketData:
     
 @dataclass
 class IndicatorConfig:
-    """Configuration for individual indicators"""
+    """Configuration for individual indicators (manager-level)"""
     name: str
     enabled: bool = True
     weight: float = 1.0
@@ -62,102 +75,174 @@ class IndicatorManager:
     """Comprehensive technical indicator management system"""
     
     def __init__(self):
-        self.indicators = {}
+        self.indicators: Dict[str, IndicatorConfig] = {}
+        self.indicator_instances: Dict[str, Any] = {}
         self.results_cache = {}
         self.executor = ThreadPoolExecutor(max_workers=4)
         self.initialize_indicators()
         
     def initialize_indicators(self):
-        """Initialize all 34 technical indicators"""
+        """Initialize supported technical indicators using consolidated factories"""
         
-        # Trend Indicators (12) - Enhanced with volume weighting
+        # Trend Indicators (supported)
         trend_indicators = [
             IndicatorConfig("sma", True, 1.0, {"period": 20}),
             IndicatorConfig("ema", True, 1.2, {"period": 20}),
-            IndicatorConfig("vwma", True, 1.8, {"period": 20}),  # Higher weight - volume weighted
-            IndicatorConfig("vw_ema", True, 1.6, {"period": 20}),  # Volume weighted EMA
+            IndicatorConfig("vwma", True, 1.8, {"period": 20}),
+            IndicatorConfig("vw_ema", True, 1.6, {"period": 20, "volume_weighted": True}),  # map to EMA with volume weighting
             IndicatorConfig("hull_ma", True, 1.1, {"period": 16}),
-            IndicatorConfig("kaufman_ama", True, 1.3, {"period": 14}),
-            IndicatorConfig("dema", True, 1.0, {"period": 20}),
-            IndicatorConfig("tema", True, 1.0, {"period": 20}),
-            IndicatorConfig("wma", True, 1.0, {"period": 20}),
-            IndicatorConfig("mama", True, 0.9, {"fastlimit": 0.5, "slowlimit": 0.05}),
-            IndicatorConfig("t3", True, 1.0, {"period": 14, "vfactor": 0.7}),
-            IndicatorConfig("vw_keltner_ema", True, 1.4, {"period": 20, "atr_period": 14})  # VW Keltner EMA
         ]
         
-        # Momentum Indicators (12) - Enhanced with volume weighting
+        # Momentum Indicators (supported)
         momentum_indicators = [
             IndicatorConfig("rsi", True, 1.2, {"period": 14}),
-            IndicatorConfig("vw_rsi", True, 1.6, {"period": 14}),  # Volume weighted RSI
-            IndicatorConfig("macd", True, 1.3, {"fast": 12, "slow": 26, "signal": 9}),
-            IndicatorConfig("vw_macd", True, 1.8, {"fast": 12, "slow": 26, "signal": 9}),  # Volume weighted MACD
-            IndicatorConfig("stochastic", True, 1.2, {"k_period": 14, "d_period": 3}),
-            IndicatorConfig("williams_r", True, 1.0, {"period": 14}),
-            IndicatorConfig("cci", True, 1.1, {"period": 20}),
-            IndicatorConfig("roc", True, 1.0, {"period": 12}),
-            IndicatorConfig("momentum", True, 0.9, {"period": 10}),
-            IndicatorConfig("ppo", True, 1.0, {"fast": 12, "slow": 26}),
-            IndicatorConfig("trix", True, 0.8, {"period": 14}),
-            IndicatorConfig("ultimate_oscillator", True, 1.2, {"period1": 7, "period2": 14, "period3": 28})
+            IndicatorConfig("vw_rsi", True, 1.6, {"period": 14, "enable_volume_weighting": True}),
+            IndicatorConfig("macd", True, 1.3, {"fast_period": 12, "slow_period": 26, "signal_period": 9}),
+            IndicatorConfig("vw_macd", True, 1.8, {"fast_period": 12, "slow_period": 26, "signal_period": 9, "enable_volume_weighting": True}),
+            IndicatorConfig("stochastic", True, 1.2, {"k_period": 14, "d_period": 3, "smooth_k": 3}),
         ]
         
-        # Volatility Indicators (8) - Enhanced with volume weighting
+        # Volatility Indicators (supported)
         volatility_indicators = [
             IndicatorConfig("bollinger_bands", True, 1.3, {"period": 20, "std_dev": 2.0}),
             IndicatorConfig("atr", True, 1.1, {"period": 14}),
-            IndicatorConfig("vw_atr", True, 1.5, {"period": 14}),  # Volume weighted ATR
-            IndicatorConfig("vw_atrp", True, 1.4, {"period": 14}),  # Volume weighted ATRP
-            IndicatorConfig("keltner_channels", True, 1.1, {"period": 20, "multiplier": 2.0}),
-            IndicatorConfig("donchian_channels", True, 1.0, {"period": 20}),
+            IndicatorConfig("vw_atr", True, 1.5, {"period": 14, "volume_weighted": True}),
+            IndicatorConfig("keltner_channels", True, 1.1, {"period": 20, "atr_multiplier": 2.0}),
             IndicatorConfig("standard_deviation", True, 0.9, {"period": 20}),
-            IndicatorConfig("average_deviation", True, 0.8, {"period": 20})
         ]
         
-        # Volume Indicators (8) - Enhanced with volume weighting
+        # Volume Indicators (supported subset)
         volume_indicators = [
-            IndicatorConfig("vwap", True, 1.8, {}),  # High weight for volume-based
+            IndicatorConfig("vwap", True, 1.8, {}),
             IndicatorConfig("obv", True, 1.6, {}),
-            IndicatorConfig("ad_line", True, 1.5, {}),
             IndicatorConfig("mfi", True, 1.4, {"period": 14}),
-            IndicatorConfig("chaikin_oscillator", True, 1.3, {"fast": 3, "slow": 10}),
-            IndicatorConfig("volume_rate_of_change", True, 1.2, {"period": 14}),
-            IndicatorConfig("ease_of_movement", True, 1.1, {"period": 14}),
-            IndicatorConfig("negative_volume_index", True, 1.0, {})
         ]
         
-        # Candlestick Pattern Indicators (2) - Visual pattern recognition
+        # Candlestick Pattern Indicators (consolidated)
         pattern_indicators = [
-            IndicatorConfig("candlestick_patterns", True, 1.6, {}),  # High weight for pattern signals
-            IndicatorConfig("pattern_strength_analysis", True, 1.4, {})  # Volume-confirmed patterns
+            IndicatorConfig("candlestick_patterns", True, 1.6, {}),
         ]
         
-        # Combine all indicators (Total: 40+ indicators including patterns)
-        all_indicators = (trend_indicators + momentum_indicators + 
-                         volatility_indicators + volume_indicators + pattern_indicators)
+        # Combine supported indicators
+        all_indicators = trend_indicators + momentum_indicators + volatility_indicators + volume_indicators + pattern_indicators
         
+        # Register configs and create instances
+        self.indicators.clear()
+        self.indicator_instances.clear()
         for indicator in all_indicators:
             self.indicators[indicator.name] = indicator
+            instance = self._create_indicator_instance(indicator.name, indicator.params or {})
+            if instance is not None:
+                self.indicator_instances[indicator.name] = instance
+            else:
+                logger.warning(f"Factory not found or unsupported for indicator: {indicator.name}")
             
-        logger.info(f"Initialized {len(all_indicators)} technical indicators (including volume-weighted variants + candlestick patterns)")
+        logger.info(f"Initialized {len(self.indicator_instances)} indicator instances (from {len(all_indicators)} configured)")
+    
+    def _create_indicator_instance(self, name: str, params: Dict[str, Any]):
+        """Create indicator instance using consolidated factories"""
+        try:
+            lname = name.lower()
+            # Trend
+            if lname == "sma":
+                return create_sma(period=int(params.get("period", 20)), volume_weighted=bool(params.get("volume_weighted", False)))
+            if lname == "ema":
+                return create_ema(period=int(params.get("period", 20)), volume_weighted=bool(params.get("volume_weighted", False)))
+            if lname == "vwma":
+                return create_vwma(period=int(params.get("period", 20)))
+            if lname == "vw_ema":
+                return create_ema(period=int(params.get("period", 20)), volume_weighted=True)
+            if lname == "hull_ma":
+                return create_hma(period=int(params.get("period", 16)), volume_weighted=bool(params.get("volume_weighted", False)))
+            
+            # Momentum
+            if lname == "rsi":
+                return create_rsi(period=int(params.get("period", 14)), **{k: v for k, v in params.items() if k != "period"})
+            if lname == "vw_rsi":
+                # Enable volume weighting via config flag
+                p = dict(params)
+                p.setdefault("enable_volume_weighting", True)
+                p.setdefault("period", 14)
+                return create_rsi(period=int(p.pop("period")), **p)
+            if lname == "macd":
+                return create_macd(
+                    fast_period=int(params.get("fast_period", 12)),
+                    slow_period=int(params.get("slow_period", 26)),
+                    signal_period=int(params.get("signal_period", 9)),
+                    **{k: v for k, v in params.items() if k not in {"fast_period", "slow_period", "signal_period"}}
+                )
+            if lname == "vw_macd":
+                p = dict(params)
+                p.setdefault("enable_volume_weighting", True)
+                return create_macd(
+                    fast_period=int(p.pop("fast_period", 12)),
+                    slow_period=int(p.pop("slow_period", 26)),
+                    signal_period=int(p.pop("signal_period", 9)),
+                    **p
+                )
+            if lname == "stochastic":
+                return create_stochastic(
+                    k_period=int(params.get("k_period", 14)),
+                    d_period=int(params.get("d_period", 3)),
+                    smooth_k=int(params.get("smooth_k", 3)),
+                    **{k: v for k, v in params.items() if k not in {"k_period", "d_period", "smooth_k"}}
+                )
+            
+            # Volatility
+            if lname == "bollinger_bands":
+                return create_bollinger_bands(
+                    period=int(params.get("period", 20)),
+                    std_dev=float(params.get("std_dev", 2.0)),
+                    volume_weighted=bool(params.get("volume_weighted", False)),
+                    **{k: v for k, v in params.items() if k not in {"period", "std_dev", "volume_weighted"}}
+                )
+            if lname == "atr":
+                return create_atr(period=int(params.get("period", 14)), volume_weighted=bool(params.get("volume_weighted", False)))
+            if lname == "vw_atr":
+                return create_atr(period=int(params.get("period", 14)), volume_weighted=True)
+            if lname == "keltner_channels":
+                return create_keltner_channels(
+                    period=int(params.get("period", 20)),
+                    atr_multiplier=float(params.get("atr_multiplier", 2.0)),
+                    volume_weighted=bool(params.get("volume_weighted", False)),
+                    **{k: v for k, v in params.items() if k not in {"period", "atr_multiplier", "volume_weighted"}}
+                )
+            if lname == "standard_deviation":
+                return create_standard_deviation(period=int(params.get("period", 20)), volume_weighted=bool(params.get("volume_weighted", False)))
+            
+            # Volume
+            if lname == "vwap":
+                return create_vwap(**{k: v for k, v in params.items()})
+            if lname == "obv":
+                return create_obv(**{k: v for k, v in params.items()})
+            if lname == "mfi":
+                return create_mfi(period=int(params.get("period", 14)), **{k: v for k, v in params.items() if k != "period"})
+            
+            # Patterns
+            if lname in {"candlestick_patterns", "pattern_strength_analysis"}:
+                return create_pattern_detector(**{k: v for k, v in params.items()})
+            
+            return None
+        except Exception as e:
+            logger.error(f"Failed to create indicator instance for {name}: {e}")
+            return None
         
     async def calculate_indicators(self, market_data: MarketData) -> Dict[str, IndicatorResult]:
         """Calculate all enabled indicators for given market data"""
         
-        results = {}
-        tasks = []
+        results: Dict[str, IndicatorResult] = {}
+        tasks: List[Tuple[str, asyncio.Task]] = []
         
         for name, config in self.indicators.items():
             if not config.enabled:
                 continue
-                
-            # Create calculation task
-            task = asyncio.create_task(
-                self._calculate_single_indicator(name, config, market_data)
-            )
+            if name not in self.indicator_instances:
+                logger.warning(f"No instance available for indicator: {name}")
+                continue
+            
+            task = asyncio.create_task(self._calculate_single_indicator(name, config, market_data))
             tasks.append((name, task))
         
-        # Execute all calculations concurrently
         for name, task in tasks:
             try:
                 result = await task
@@ -171,83 +256,49 @@ class IndicatorManager:
     
     async def _calculate_single_indicator(self, name: str, config: IndicatorConfig, 
                                         market_data: MarketData) -> Optional[IndicatorResult]:
-        """Calculate a single indicator"""
+        """Calculate a single indicator by sequentially feeding OHLCV data"""
         
-        try:
-            params = config.params or {}
-            
-            # Trend Indicators
-            if name == "sma":
-                return TechnicalIndicators.sma(market_data.close, **params)
-            elif name == "ema":
-                return TechnicalIndicators.ema(market_data.close, **params)
-            elif name == "vwma":
-                return TechnicalIndicators.vwma(market_data.close, market_data.volume, **params)
-            elif name == "vw_ema":
-                return TechnicalIndicators.vw_ema(market_data.close, market_data.volume, **params)
-            elif name == "hull_ma":
-                return AdvancedIndicators.hull_ma(market_data.close, **params)
-            elif name == "kaufman_ama":
-                return AdvancedIndicators.kaufman_ama(market_data.close, **params)
-                
-            # Momentum Indicators
-            elif name == "rsi":
-                return TechnicalIndicators.rsi(market_data.close, **params)
-            elif name == "vw_rsi":
-                return TechnicalIndicators.vw_rsi(market_data.close, market_data.volume, **params)
-            elif name == "macd":
-                return TechnicalIndicators.macd(market_data.close, **params)
-            elif name == "vw_macd":
-                return TechnicalIndicators.vw_macd(market_data.close, market_data.volume, **params)
-            elif name == "stochastic":
-                return AdvancedIndicators.stochastic(market_data.high, market_data.low, market_data.close, **params)
-            elif name == "williams_r":
-                return AdvancedIndicators.williams_r(market_data.high, market_data.low, market_data.close, **params)
-            elif name == "cci":
-                return AdvancedIndicators.cci(market_data.high, market_data.low, market_data.close, **params)
-                
-            # Volatility Indicators
-            elif name == "bollinger_bands":
-                return TechnicalIndicators.bollinger_bands(market_data.close, **params)
-            elif name == "atr":
-                return TechnicalIndicators.atr(market_data.high, market_data.low, market_data.close, **params)
-            elif name == "vw_atr":
-                return TechnicalIndicators.vw_atr(market_data.high, market_data.low, market_data.close, market_data.volume, **params)
-            elif name == "vw_atrp":
-                return TechnicalIndicators.vw_atrp(market_data.high, market_data.low, market_data.close, market_data.volume, **params)
-            elif name == "keltner_channels":
-                return AdvancedIndicators.keltner_channels(market_data.high, market_data.low, market_data.close, **params)
-            elif name == "donchian_channels":
-                return AdvancedIndicators.donchian_channels(market_data.high, market_data.low, **params)
-                
-            # Volume Indicators
-            elif name == "vwap":
-                return TechnicalIndicators.vwap(market_data.high, market_data.low, market_data.close, market_data.volume)
-            elif name == "obv":
-                return TechnicalIndicators.obv(market_data.close, market_data.volume)
-            elif name == "ad_line":
-                return AdvancedIndicators.ad_line(market_data.high, market_data.low, market_data.close, market_data.volume)
-            elif name == "mfi":
-                return AdvancedIndicators.mfi(market_data.high, market_data.low, market_data.close, market_data.volume, **params)
-                
-            # Candlestick Pattern Indicators
-            elif name == "candlestick_patterns":
-                return TechnicalIndicators.candlestick_patterns(
-                    market_data.open, market_data.high, market_data.low, market_data.close, market_data.volume
-                )
-            elif name == "pattern_strength_analysis":
-                return TechnicalIndicators.pattern_strength_analysis(
-                    market_data.open, market_data.high, market_data.low, market_data.close, market_data.volume
-                )
-                
-            # Add implementations for remaining indicators...
-            else:
-                logger.warning(f"Indicator {name} not implemented yet")
-                return None
-                
-        except Exception as e:
-            logger.error(f"Error in {name}: {e}")
+        instance = self.indicator_instances.get(name)
+        if instance is None:
             return None
+        
+        loop = asyncio.get_running_loop()
+        
+        def compute_last_result() -> Optional[IndicatorResult]:
+            try:
+                # Reset instance state for a fresh run
+                if hasattr(instance, 'reset'):
+                    instance.reset()
+                last_result: Optional[IndicatorResult] = None
+                
+                # Iterate over time series
+                for ts in market_data.close.index:
+                    price = float(market_data.close.loc[ts])
+                    volume = float(market_data.volume.loc[ts]) if market_data.volume is not None else 1.0
+                    
+                    # Pattern detector needs full OHLC
+                    if name in {"candlestick_patterns", "pattern_strength_analysis"} and hasattr(instance, 'calculate'):
+                        ohlc_data = {
+                            'open': float(market_data.open.loc[ts]),
+                            'high': float(market_data.high.loc[ts]),
+                            'low': float(market_data.low.loc[ts]),
+                            'close': price,
+                        }
+                        result = instance.calculate(price=price, volume=volume, timestamp=ts, ohlc_data=ohlc_data)
+                    else:
+                        # Default streaming update API
+                        result = instance.update(price=price, volume=volume, timestamp=ts)
+                    
+                    if result is not None:
+                        last_result = result
+                
+                return last_result
+            except Exception as e:
+                logger.error(f"Error in compute_last_result for {name}: {e}")
+                return None
+        
+        # Offload computation to thread pool to avoid blocking event loop
+        return await loop.run_in_executor(self.executor, compute_last_result)
     
     def aggregate_signals(self, indicator_results: Dict[str, IndicatorResult]) -> SignalResult:
         """Aggregate signals from all indicators with volume weighting"""
@@ -255,19 +306,44 @@ class IndicatorManager:
         buy_weight = 0.0
         sell_weight = 0.0
         total_weight = 0.0
-        contributing_indicators = []
+        contributing_indicators: List[str] = []
         
         for name, result in indicator_results.items():
-            config = self.indicators[name]
-            weight = config.weight * result.strength
+            config = self.indicators.get(name)
+            if config is None:
+                continue
             
-            if result.signal == "BUY":
+            # Extract signal direction and strength robustly across implementations
+            sig = getattr(result, 'signal', None)
+            if sig is None:
+                continue
+            
+            # Determine signal type string
+            if hasattr(sig, 'signal_type'):
+                stype = getattr(sig, 'signal_type')
+                stype_name = getattr(stype, 'name', str(stype))
+            else:
+                stype_name = getattr(sig, 'name', str(sig))  # enum or string
+            
+            # Determine strength/confidence
+            if hasattr(sig, 'strength') and isinstance(getattr(sig, 'strength'), (int, float)):
+                strength_val = float(sig.strength)
+            elif hasattr(result, 'strength') and isinstance(getattr(result, 'strength'), (int, float)):
+                strength_val = float(result.strength)
+            elif hasattr(result, 'confidence') and isinstance(getattr(result, 'confidence'), (int, float)):
+                strength_val = float(result.confidence)
+            else:
+                strength_val = 1.0
+            
+            weight = (config.weight or 1.0) * max(0.0, min(strength_val, 1.0))
+            
+            if 'BUY' in stype_name.upper():
                 buy_weight += weight
                 contributing_indicators.append(f"{name}(BUY)")
-            elif result.signal == "SELL":
+            elif 'SELL' in stype_name.upper():
                 sell_weight += weight
                 contributing_indicators.append(f"{name}(SELL)")
-                
+            
             total_weight += weight
         
         # Determine final signal
@@ -332,24 +408,24 @@ class IndicatorManager:
         total_weight = 0.0
         
         for name, config in self.indicators.items():
-            if config.enabled:
+            if config.enabled and name in self.indicator_instances:
                 enabled_count += 1
                 total_weight += config.weight
                 
-                # Categorize by type (enhanced with patterns)
-                if any(x in name.lower() for x in ["sma", "ema", "vwma", "vw_ema", "hull", "kaufman", "dema", "tema", "wma", "mama", "t3", "keltner_ema"]):
+                lname = name.lower()
+                if lname in {"sma", "ema", "vwma", "vw_ema", "hull_ma"}:
                     by_type["trend"] += 1
-                elif any(x in name.lower() for x in ["rsi", "vw_rsi", "macd", "vw_macd", "stochastic", "williams", "cci", "roc", "momentum", "ppo", "trix", "ultimate"]):
+                elif lname in {"rsi", "vw_rsi", "macd", "vw_macd", "stochastic"}:
                     by_type["momentum"] += 1
-                elif any(x in name.lower() for x in ["bollinger", "atr", "vw_atr", "vw_atrp", "keltner", "donchian", "deviation"]):
+                elif lname in {"bollinger_bands", "atr", "vw_atr", "keltner_channels", "standard_deviation"}:
                     by_type["volatility"] += 1
-                elif any(x in name.lower() for x in ["vwap", "obv", "volume", "mfi", "chaikin", "ease", "negative", "ad_line"]):
+                elif lname in {"vwap", "obv", "mfi"}:
                     by_type["volume"] += 1
-                elif any(x in name.lower() for x in ["candlestick", "pattern"]):
+                elif lname in {"candlestick_patterns", "pattern_strength_analysis"}:
                     by_type["patterns"] += 1
         
         return {
-            "total_indicators": len(self.indicators),
+            "total_indicators": len(self.indicator_instances),
             "enabled_indicators": enabled_count,
             "total_weight": total_weight,
             "by_type": by_type,
@@ -362,7 +438,7 @@ class IndicatorManager:
 async def test_indicator_manager():
     """Test the indicator manager with sample data"""
     
-    logger.info("🧪 Testing Technical Indicator Manager (30+ Indicators)")
+    logger.info("🧪 Testing Technical Indicator Manager (Consolidated)")
     logger.info("=" * 60)
     
     # Create sample market data

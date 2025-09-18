@@ -30,7 +30,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from data_feeds import DataFeedManager, AssetClass
 from backtesting.backtrader_engine import BacktraderEngine
 from backtesting.trading_gym_engine import TradingGymEngine
-from strategies.moving_average_crossover import MovingAverageCrossover, MovingAverageCrossoverGym
+from nautilus_trader_engine.strategies.moving_average_crossover import MovingAverageCrossover, MovingAverageCrossoverGym
 
 # Import indicators with fallback support
 try:

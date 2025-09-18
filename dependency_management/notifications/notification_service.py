@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from typing import List, Dict, Any
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class NotificationService:
                 "summary": title,
                 "sections": [{
                     "activityTitle": title,
-                    "activitySubtitle": f"Alert generated at {datetime.now().isoformat()}",
+                    "activitySubtitle": f"Alert generated at {datetime.now(timezone.utc).isoformat()}",
                     "activityImage": "https://teamsnodesample.azurewebsites.net/static/img/image5.png",
                     "facts": [
                         {
@@ -154,7 +154,7 @@ class NotificationService:
             
             # Email report
             if self.email_user:
-                subject = f"Weekly Dependency Monitoring Report - {datetime.now().strftime('%Y-%m-%d')}"
+                subject = f"Weekly Dependency Monitoring Report - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
                 results.append(self.send_email_notification(subject, report_content, recipients))
             
             # Slack notification
@@ -176,7 +176,7 @@ class NotificationService:
         """Generate formatted report content"""
         content = f"""
 ALGORITHMIC TRADING SYSTEM - DEPENDENCY MONITORING REPORT
-Generated: {datetime.now().isoformat()}
+Generated: {datetime.now(timezone.utc).isoformat()}
 
 SUMMARY:
 {report_data.get('summary', 'No summary available')}

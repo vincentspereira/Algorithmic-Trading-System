@@ -13,7 +13,7 @@ import time
 import psutil
 import argparse
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -215,7 +215,7 @@ async def initialize_connections():
         service_status.duckdb_connected = True
         metrics.update_db_connection_status("duckdb", True)
 
-        service_status.last_health_check = datetime.utcnow().isoformat()
+        service_status.last_health_check = datetime.now(timezone.utc).isoformat()
 
     except Exception as e:
         logger.error(f"Failed to initialize connections: {e}")
@@ -252,7 +252,7 @@ async def root():
     return {
         "message": "Nautilus Trader Engine - Phase 1",
         "status": "running",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.get("/health")
@@ -263,7 +263,7 @@ async def health_check():
         await update_system_metrics()
         
         # Update last health check time
-        service_status.last_health_check = datetime.utcnow().isoformat()
+        service_status.last_health_check = datetime.now(timezone.utc).isoformat()
         
         # Check if all critical services are connected
         if service_status.is_healthy():
@@ -291,7 +291,7 @@ async def health_check():
             content={
                 "status": "error",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         )
 
@@ -404,7 +404,7 @@ async def run_backtest(request: Dict[str, Any] = None):
         # Prepare response
         response = {
             "status": "completed",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "parameters": {
                 "symbol": symbol,
                 "year": year,
@@ -452,20 +452,20 @@ async def backtest_status():
                 "fast_period": 10,
                 "slow_period": 30
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
     except ImportError as e:
         return {
             "status": "error",
             "error": f"Backtest modules not available: {str(e)}",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 # Kafka Integration API Endpoints
@@ -479,7 +479,7 @@ async def kafka_status():
                 content={
                     "status": "disconnected",
                     "error": "Kafka not initialized",
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             )
         
@@ -493,7 +493,7 @@ async def kafka_status():
                 "kafka_connected": service_status.kafka_connected,
                 "kafka_streaming": service_status.kafka_streaming
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
     except Exception as e:
@@ -503,7 +503,7 @@ async def kafka_status():
             content={
                 "status": "error",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         )
 
@@ -569,7 +569,7 @@ async def get_streaming_symbols():
             return {
                 "symbols": [],
                 "error": "Kafka not connected",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         
         kafka_manager = await get_kafka_manager()
@@ -582,7 +582,7 @@ async def get_streaming_symbols():
         return {
             "symbols": [],
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 @app.get("/api/v1/kafka/topics")
@@ -593,7 +593,7 @@ async def get_kafka_topics():
             return {
                 "topics": [],
                 "error": "Kafka not connected",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         
         kafka_manager = await get_kafka_manager()
@@ -606,7 +606,7 @@ async def get_kafka_topics():
         return {
             "topics": [],
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 @app.post("/api/v1/kafka/test")
@@ -619,7 +619,7 @@ async def test_kafka_connection():
                 content={
                     "success": False,
                     "error": "Kafka not connected",
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
             )
         
@@ -641,7 +641,7 @@ async def test_kafka_connection():
             content={
                 "success": False,
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         )
 

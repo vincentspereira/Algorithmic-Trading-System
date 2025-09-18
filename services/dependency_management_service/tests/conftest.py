@@ -8,7 +8,7 @@ import os
 import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Union
 from unittest.mock import MagicMock, patch
@@ -186,7 +186,7 @@ def create_mock_release(
     mock_release = MagicMock()
     mock_release.tag_name = f"v{tag_name}"
     mock_release.body = body
-    mock_release.created_at = created_at or datetime.utcnow()
+    mock_release.created_at = created_at or datetime.now(timezone.utc)
     mock_release.html_url = f"https://github.com/test/test-dep/releases/tag/v{tag_name}"
     return mock_release
 
@@ -315,5 +315,7 @@ def pytest_configure(config):
         "markers",
         "performance: mark test as performance test"
     )
+    config.addinivalue_line(
+        "markers",
         "asyncio: mark test to run in an async context"
     )

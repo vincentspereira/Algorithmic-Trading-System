@@ -7,7 +7,7 @@ trading signals using various data sources and AI models.
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from ..models.forecasting_model_factory import ForecastingModelFactory, ModelType
@@ -78,7 +78,7 @@ class AnalystAgent(AgentBase):
             
             analysis_result = {
                 "symbol": symbol,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "analysis_type": analysis_type
             }
             
@@ -143,7 +143,7 @@ class AnalystAgent(AgentBase):
             "high_24h": 152.50,
             "low_24h": 147.80,
             "market_cap": 2500000000,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     
     async def _perform_technical_analysis(

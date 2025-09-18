@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter
 from prometheus_client import generate_latest
@@ -16,7 +16,7 @@ async def health_check():
     # want to check the status of all dependencies (e.g., database, Kafka).
     return {
         "status": "healthy",
-        "timestamp": datetime.now(),
+        "timestamp": datetime.now(timezone.utc),
         "version": "1.0.0",
     }
 

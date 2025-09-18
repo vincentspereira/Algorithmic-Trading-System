@@ -9,7 +9,7 @@ Version: 1.0.0
 
 import asyncio
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Tuple
 from enum import Enum
 from dataclasses import dataclass
@@ -101,7 +101,7 @@ class RiskViolation:
     
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(timezone.utc)
 
 class RiskAssessmentRequest(BaseModel):
     """Risk assessment request"""
@@ -322,7 +322,7 @@ class RiskManager:
                 risk_level=risk_level,
                 active_violations=active_violations,
                 risk_metrics=risk_metrics,
-                last_updated=datetime.utcnow()
+                last_updated=datetime.now(timezone.utc)
             )
             
         except Exception as e:
@@ -794,7 +794,7 @@ class RiskManager:
     async def _get_active_violations(self, account_id: str) -> List[Dict[str, Any]]:
         """Get active risk violations for account"""
         # Filter recent violations for this account
-        cutoff_time = datetime.utcnow() - timedelta(hours=1)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=1)
         active_violations = [
             {
                 "type": v.violation_type.value,

@@ -419,3 +419,10 @@ class CPUAffinityManager:
             'cpu_count': len(self._cpu_info),
             'physical_cpu_count': len(set(cpu.physical_id for cpu in self._cpu_info.values()))
         }
+
+# Backward-compatible alias for unit tests expecting CPUAffinity
+class CPUAffinity(CPUAffinityManager):
+    """Alias class for CPUAffinityManager to satisfy unit test imports.
+    The tests patch this symbol, so no additional implementation is required.
+    """
+    pass

@@ -5,7 +5,7 @@ React Native mobile application with push notifications and biometric authentica
 import logging
 import json
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -48,7 +48,7 @@ class PushNotification:
     
     def __post_init__(self):
         if self.created_at is None:
-            self.created_at = datetime.now()
+            self.created_at = datetime.now(timezone.utc)
 
 
 class MobileAPIServer:
@@ -92,7 +92,7 @@ class MobileAPIServer:
                     device_id=device_id,
                     push_token=push_token or "",
                     biometric_enabled=False,
-                    last_login=datetime.now(),
+                    last_login=datetime.now(timezone.utc),
                     app_version=app_version
                 )
                 
@@ -103,10 +103,10 @@ class MobileAPIServer:
                     token = jwt.encode({
                         'user_id': user_id,
                         'device_id': device_id,
-                        'exp': datetime.utcnow().timestamp() + 86400  # 24 hours
+                        'exp': datetime.now(timezone.utc).timestamp() + 86400  # 24 hours
                     }, self.app.config['SECRET_KEY'], algorithm='HS256')
                 else:
-                    token = f"token_{user_id}_{datetime.now().timestamp()}"
+                    token = f"token_{user_id}_{datetime.now(timezone.utc).timestamp()}"
                 
                 return jsonify({
                     'success': True,
@@ -148,10 +148,10 @@ class MobileAPIServer:
                         token = jwt.encode({
                             'user_id': user_id,
                             'device_id': self.mobile_users[user_id].device_id,
-                            'exp': datetime.utcnow().timestamp() + 86400
+                            'exp': datetime.now(timezone.utc).timestamp() + 86400
                         }, self.app.config['SECRET_KEY'], algorithm='HS256')
                     else:
-                        token = f"bio_token_{user_id}_{datetime.now().timestamp()}"
+                        token = f"bio_token_{user_id}_{datetime.now(timezone.utc).timestamp()}"
                     
                     return jsonify({
                         'success': True,
@@ -198,7 +198,7 @@ class MobileAPIServer:
             return jsonify({
                 'success': True,
                 'watchlist': watchlist,
-                'last_updated': datetime.now().isoformat()
+                'last_updated': datetime.now(timezone.utc).isoformat()
             })
         
         @self.app.route('/mobile/api/portfolio/summary', methods=['GET'])
@@ -217,7 +217,7 @@ class MobileAPIServer:
             return jsonify({
                 'success': True,
                 'summary': summary,
-                'last_updated': datetime.now().isoformat()
+                'last_updated': datetime.now(timezone.utc).isoformat()
             })
         
         @self.app.route('/mobile/api/orders/quick', methods=['POST'])
@@ -231,13 +231,13 @@ class MobileAPIServer:
             
             # Create quick order (market order)
             order = {
-                'order_id': f"MOBILE_{datetime.now().timestamp()}",
+                'order_id': f"MOBILE_{datetime.now(timezone.utc).timestamp()}",
                 'symbol': data['symbol'],
                 'side': data['side'],
                 'quantity': data['quantity'],
                 'order_type': 'market',
                 'status': 'pending',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
             # Send push notification
@@ -285,12 +285,12 @@ class MobileAPIServer:
             data = request.get_json()
             
             alert = {
-                'alert_id': f"ALERT_{datetime.now().timestamp()}",
+                'alert_id': f"ALERT_{datetime.now(timezone.utc).timestamp()}",
                 'symbol': data.get('symbol'),
                 'type': data.get('type'),  # price_above, price_below
                 'target_price': data.get('target_price'),
                 'status': 'active',
-                'created_at': datetime.now().isoformat()
+                'created_at': datetime.now(timezone.utc).isoformat()
             }
             
             return jsonify({'success': True, 'alert': alert})
@@ -350,14 +350,14 @@ class MobileAPIServer:
                     'action_id': action.get('action_id'),
                     'type': action.get('type'),
                     'status': 'processed',
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 }
                 processed_actions.append(action_result)
             
             return jsonify({
                 'success': True,
                 'processed_actions': processed_actions,
-                'sync_timestamp': datetime.now().isoformat()
+                'sync_timestamp': datetime.now(timezone.utc).isoformat()
             })
     
     def _send_push_notification(self, user_id: str, title: str, message: str, data: Dict[str, Any] = None):
@@ -370,7 +370,7 @@ class MobileAPIServer:
             return
         
         notification = PushNotification(
-            notification_id=f"PUSH_{datetime.now().timestamp()}",
+            notification_id=f"PUSH_{datetime.now(timezone.utc).timestamp()}",
             user_id=user_id,
             title=title,
             message=message,

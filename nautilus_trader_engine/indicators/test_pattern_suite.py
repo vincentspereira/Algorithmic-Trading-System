@@ -11,7 +11,7 @@ from typing import List, Dict, Any
 import time
 from unittest.mock import patch
 
-from .pattern_indicators import (
+from nautilus_trader_engine.indicators.pattern_indicators import (
     ConsolidatedPatternDetector, create_pattern_detector,
     PatternResult, PatternType, PatternStrength,
     CandleData, VolumeProfile, MarketRegime

@@ -8,7 +8,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from unittest.mock import Mock, AsyncMock
 
-from .var_engine import (
+from nautilus_trader_engine.risk.var_engine import (
     VaREngine, VaRMethod, ConfidenceLevel, TimeHorizon,
     VaRResult, PortfolioPosition, VaRBacktestResult,
     HistoricalVaRCalculator, ParametricVaRCalculator,

@@ -1,0 +1,925 @@
+........................................................................ [ 42%]
+......F.FFFFFF.............FFF.......................................... [ 85%]
+......FFFFFFFFF.........                                                 [100%]
+================================== FAILURES ===================================
+_________________ TestMessageRouting.test_topic_based_routing _________________
+
+self = <test_messaging_system.TestMessageRouting object at 0x0000022281057B10>
+mock_router = <MagicMock name='MessageRouter' id='2347943730480'>
+
+    @patch('nautilus_trader_engine.core.messaging.routing.MessageRouter')
+    def test_topic_based_routing(self, mock_router):
+        """Test topic-based message routing."""
+        mock_router_instance = Mock()
+        mock_router.return_value = mock_router_instance
+    
+        # Mock routing behavior
+        mock_router_instance.add_route.return_value = True
+        mock_router_instance.route_message.return_value = 'handler_001'
+        mock_router_instance.get_route_stats.return_value = {
+            'total_routes': 5,
+            'active_handlers': 3,
+            'messages_routed': 1000
+        }
+    
+        from nautilus_trader_engine.core.messaging.routing import MessageRouter
+        router = MessageRouter(self.routing_config)
+    
+        # Test route addition
+        result = router.add_route('market_data.*', 'market_data_handler')
+        assert result is True
+    
+        # Test message routing
+>       handler = router.route_message('market_data.EURUSD', self.sample_message)
+                                                             ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'TestMessageRouting' object has no attribute 'sample_message'
+
+tests\unit\test_messaging_system.py:244: AttributeError
+_____________ TestSerialization.test_serialization_initialization _____________
+
+args = (<test_messaging_system.TestSerialization object at 0x0000022281057C50>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000022281047CB0>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.messaging.serialization' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\messaging\\serialization.py'> does not have the attribute 'MessageSerializer'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+________________ TestSerialization.test_message_serialization _________________
+
+args = (<test_messaging_system.TestSerialization object at 0x0000022281057D90>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000022281044F30>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.messaging.serialization' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\messaging\\serialization.py'> does not have the attribute 'MessageSerializer'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+_______________ TestSerialization.test_compression_performance ________________
+
+args = (<test_messaging_system.TestSerialization object at 0x00000222FFED7230>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000022281044BB0>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.messaging.serialization' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\messaging\\serialization.py'> does not have the attribute 'MessageSerializer'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+__________________ TestSerialization.test_schema_validation ___________________
+
+args = (<test_messaging_system.TestSerialization object at 0x00000222FFED7360>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x00000222810451D0>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.messaging.serialization' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\messaging\\serialization.py'> does not have the attribute 'MessageSerializer'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+________________ TestMessagingMetrics.test_metrics_collection _________________
+
+args = (<test_messaging_system.TestMessagingMetrics object at 0x0000022281057ED0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x0000022281045550>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.messaging.metrics' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\messaging\\metrics.py'> does not have the attribute 'MessagingMetrics'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+________________ TestMessagingMetrics.test_performance_alerts _________________
+
+args = (<test_messaging_system.TestMessagingMetrics object at 0x00000222810C0050>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x00000222810457F0>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.messaging.metrics' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\messaging\\metrics.py'> does not have the attribute 'MessagingMetrics'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+_____________ TestKernelBypass.test_kernel_bypass_initialization ______________
+
+args = (<test_networking_system.TestKernelBypass object at 0x00000222810C0B90>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x00000222810B9A90>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.networking.kernel_bypass' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\networking\\kernel_bypass.py'> does not have the attribute 'KernelBypass'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+___________________ TestKernelBypass.test_dpdk_integration ____________________
+
+args = (<test_networking_system.TestKernelBypass object at 0x00000222810C0CD0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x00000222810B9B70>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.networking.kernel_bypass' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\networking\\kernel_bypass.py'> does not have the attribute 'KernelBypass'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+_________________ TestKernelBypass.test_zero_copy_operations __________________
+
+args = (<test_networking_system.TestKernelBypass object at 0x00000222FFED7BB0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Program Files\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Program Files\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+C:\Program Files\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <unittest.mock._patch object at 0x00000222810B9C50>
+
+    def get_original(self):
+        target = self.getter()
+        name = self.attribute
+    
+        original = DEFAULT
+        local = False
+    
+        try:
+            original = target.__dict__[name]
+        except (AttributeError, KeyError):
+            original = getattr(target, name, DEFAULT)
+        else:
+            local = True
+    
+        if name in _builtins and isinstance(target, ModuleType):
+            self.create = True
+    
+        if not self.create and original is DEFAULT:
+>           raise AttributeError(
+                "%s does not have the attribute %r" % (target, name)
+            )
+E           AttributeError: <module 'nautilus_trader_engine.core.networking.kernel_bypass' from 'C:\\Users\\Vincent_Pereira\\Projects\\Algo_Trading_Projects\\Trae\\Algorithmic Trading System\\nautilus_trader_engine\\core\\networking\\kernel_bypass.py'> does not have the attribute 'KernelBypass'
+
+C:\Program Files\Python313\Lib\unittest\mock.py:1467: AttributeError
+____________ TestPortfolioManagement.test_portfolio_initialization ____________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC266AD0>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347943738208'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_portfolio_initialization(self, mock_portfolio_manager):
+        """Test portfolio initialization."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.initialize_portfolio.return_value = {
+            'portfolio_id': 'PORT_001',
+            'status': 'initialized',
+            'created_at': datetime.now().isoformat()
+        }
+    
+        # Test portfolio initialization
+        manager = PortfolioManager()
+        result = manager.initialize_portfolio('ACC_001', 'USD', 100000.0)
+    
+>       assert result['portfolio_id'] == 'PORT_001'
+E       AssertionError: assert 'PORT_0CE68D51' == 'PORT_001'
+E         
+E         - PORT_001
+E         + PORT_0CE68D51
+
+tests\unit\test_unit_portfolio_management.py:49: AssertionError
+_______________ TestPortfolioManagement.test_position_tracking ________________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC266990>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347943736864'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_position_tracking(self, mock_portfolio_manager):
+        """Test position tracking functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.get_positions.return_value = {
+            'positions': [
+                {
+                    'symbol': 'EURUSD',
+                    'quantity': 100000,
+                    'side': 'LONG',
+                    'entry_price': 1.0850,
+                    'current_price': 1.0860,
+                    'unrealized_pnl': 100.0,
+                    'realized_pnl': 0.0
+                },
+                {
+                    'symbol': 'GBPUSD',
+                    'quantity': 50000,
+                    'side': 'SHORT',
+                    'entry_price': 1.2650,
+                    'current_price': 1.2640,
+                    'unrealized_pnl': 50.0,
+                    'realized_pnl': 0.0
+                }
+            ],
+            'total_positions': 2
+        }
+    
+        # Test position tracking
+        manager = PortfolioManager()
+        result = manager.get_positions('PORT_001')
+    
+>       assert result['total_positions'] == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'total_positions'
+
+tests\unit\test_unit_portfolio_management.py:87: KeyError
+________________ TestPortfolioManagement.test_pnl_calculation _________________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222A7CE5480>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347943732832'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_pnl_calculation(self, mock_portfolio_manager):
+        """Test P&L calculation functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.calculate_pnl.return_value = {
+            'total_unrealized_pnl': 150.0,
+            'total_realized_pnl': 250.0,
+            'total_pnl': 400.0,
+            'pnl_by_symbol': {
+                'EURUSD': {'unrealized': 100.0, 'realized': 150.0},
+                'GBPUSD': {'unrealized': 50.0, 'realized': 100.0}
+            },
+            'calculation_time': datetime.now().isoformat()
+        }
+    
+        # Test P&L calculation
+        manager = PortfolioManager()
+        result = manager.calculate_pnl('PORT_001')
+    
+>       assert result['total_pnl'] == 400.0
+               ^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'total_pnl'
+
+tests\unit\test_unit_portfolio_management.py:113: KeyError
+____________ TestPortfolioManagement.test_risk_metrics_calculation ____________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222A7CE4D60>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347943731824'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_risk_metrics_calculation(self, mock_portfolio_manager):
+        """Test risk metrics calculation."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.calculate_risk_metrics.return_value = {
+            'var_95': 2500.0,
+            'var_99': 4000.0,
+            'expected_shortfall': 5000.0,
+            'sharpe_ratio': 1.25,
+            'sortino_ratio': 1.45,
+            'max_drawdown': 0.08,
+            'volatility': 0.15,
+            'beta': 0.85,
+            'calculation_date': datetime.now().date().isoformat()
+        }
+    
+        # Test risk metrics calculation
+        manager = PortfolioManager()
+        result = manager.calculate_risk_metrics('PORT_001')
+    
+>       assert result['var_95'] == 2500.0
+               ^^^^^^^^^^^^^^^^
+E       KeyError: 'var_95'
+
+tests\unit\test_unit_portfolio_management.py:141: KeyError
+_____________ TestPortfolioManagement.test_portfolio_rebalancing ______________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC22B0B0>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347960813952'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_portfolio_rebalancing(self, mock_portfolio_manager):
+        """Test portfolio rebalancing functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.rebalance_portfolio.return_value = {
+            'rebalance_id': 'REB_001',
+            'target_allocations': {
+                'EURUSD': 0.4,
+                'GBPUSD': 0.3,
+                'USDJPY': 0.3
+            },
+            'current_allocations': {
+                'EURUSD': 0.5,
+                'GBPUSD': 0.5,
+                'USDJPY': 0.0
+            },
+            'required_trades': [
+                {'symbol': 'EURUSD', 'action': 'SELL', 'quantity': 20000},
+                {'symbol': 'GBPUSD', 'action': 'SELL', 'quantity': 10000},
+                {'symbol': 'USDJPY', 'action': 'BUY', 'quantity': 30000}
+            ],
+            'rebalance_status': 'pending'
+        }
+    
+        # Test portfolio rebalancing
+        manager = PortfolioManager()
+        target_allocations = {'EURUSD': 0.4, 'GBPUSD': 0.3, 'USDJPY': 0.3}
+        result = manager.rebalance_portfolio('PORT_001', target_allocations)
+    
+>       assert result['rebalance_status'] == 'pending'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'rebalance_status'
+
+tests\unit\test_unit_portfolio_management.py:178: KeyError
+_____________ TestPortfolioManagement.test_performance_analytics ______________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC3AB680>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347960823024'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_performance_analytics(self, mock_portfolio_manager):
+        """Test performance analytics functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.get_performance_analytics.return_value = {
+            'total_return': 0.12,
+            'annualized_return': 0.15,
+            'monthly_returns': [0.02, 0.01, 0.03, -0.01, 0.02],
+            'win_rate': 0.65,
+            'profit_factor': 1.8,
+            'average_win': 150.0,
+            'average_loss': -80.0,
+            'largest_win': 500.0,
+            'largest_loss': -200.0,
+            'consecutive_wins': 5,
+            'consecutive_losses': 2,
+            'analysis_period': '2024-01-01 to 2024-06-01'
+        }
+    
+        # Test performance analytics
+        manager = PortfolioManager()
+        result = manager.get_performance_analytics('PORT_001')
+    
+>       assert result['total_return'] == 0.12
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'total_return'
+
+tests\unit\test_unit_portfolio_management.py:208: KeyError
+_______________ TestPortfolioManagement.test_margin_management ________________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC3AB790>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347960824032'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_margin_management(self, mock_portfolio_manager):
+        """Test margin management functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.calculate_margin_requirements.return_value = {
+            'total_margin_required': 5000.0,
+            'available_margin': 45000.0,
+            'margin_utilization': 0.10,
+            'margin_by_position': {
+                'EURUSD': 2500.0,
+                'GBPUSD': 2500.0
+            },
+            'margin_call_level': 0.80,
+            'stop_out_level': 0.90,
+            'margin_status': 'healthy'
+        }
+    
+        # Test margin management
+        manager = PortfolioManager()
+        result = manager.calculate_margin_requirements('PORT_001')
+    
+>       assert result['margin_utilization'] == 0.10
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'margin_utilization'
+
+tests\unit\test_unit_portfolio_management.py:237: KeyError
+_____________ TestPortfolioManagement.test_portfolio_optimization _____________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC475450>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347960825040'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_portfolio_optimization(self, mock_portfolio_manager):
+        """Test portfolio optimization functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.optimize_portfolio.return_value = {
+            'optimization_id': 'OPT_001',
+            'objective': 'maximize_sharpe',
+            'optimal_weights': {
+                'EURUSD': 0.35,
+                'GBPUSD': 0.25,
+                'USDJPY': 0.20,
+                'AUDUSD': 0.20
+            },
+            'expected_return': 0.18,
+            'expected_volatility': 0.12,
+            'expected_sharpe': 1.50,
+            'optimization_constraints': {
+                'max_weight': 0.40,
+                'min_weight': 0.05,
+                'max_volatility': 0.15
+            },
+            'optimization_status': 'completed'
+        }
+    
+        # Test portfolio optimization
+        manager = PortfolioManager()
+        constraints = {'max_weight': 0.40, 'min_weight': 0.05}
+        result = manager.optimize_portfolio(
+            'PORT_001', 'maximize_sharpe', constraints
+        )
+    
+>       assert result['optimization_status'] == 'completed'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'optimization_status'
+
+tests\unit\test_unit_portfolio_management.py:275: KeyError
+____________ TestPortfolioManagement.test_portfolio_stress_testing ____________
+
+self = <test_unit_portfolio_management.TestPortfolioManagement object at 0x00000222AC475550>
+mock_portfolio_manager = <MagicMock name='PortfolioManager' id='2347960826048'>
+
+    @patch('nautilus_trader_engine.core.portfolio_management.PortfolioManager')
+    def test_portfolio_stress_testing(self, mock_portfolio_manager):
+        """Test portfolio stress testing functionality."""
+        # Mock portfolio manager
+        mock_manager = Mock()
+        mock_portfolio_manager.return_value = mock_manager
+        mock_manager.run_stress_test.return_value = {
+            'stress_test_id': 'STRESS_001',
+            'scenarios': {
+                'market_crash': {
+                    'portfolio_value_change': -15000.0,
+                    'percentage_change': -15.0,
+                    'worst_position': 'EURUSD',
+                    'worst_position_loss': -8000.0
+                },
+                'interest_rate_shock': {
+                    'portfolio_value_change': -5000.0,
+                    'percentage_change': -5.0,
+                    'worst_position': 'GBPUSD',
+                    'worst_position_loss': -3000.0
+                },
+                'currency_crisis': {
+                    'portfolio_value_change': -12000.0,
+                    'percentage_change': -12.0,
+                    'worst_position': 'EURUSD',
+                    'worst_position_loss': -7000.0
+                }
+            },
+            'overall_risk_assessment': 'moderate',
+            'recommendations': [
+                'Consider reducing EURUSD exposure',
+                'Increase diversification across currency pairs'
+            ]
+        }
+    
+        # Test portfolio stress testing
+        manager = PortfolioManager()
+        scenarios = ['market_crash', 'interest_rate_shock', 'currency_crisis']
+        result = manager.run_stress_test('PORT_001', scenarios)
+    
+>       assert result['overall_risk_assessment'] == 'moderate'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'overall_risk_assessment'
+
+tests\unit\test_unit_portfolio_management.py:320: KeyError
+============================== warnings summary ===============================
+nautilus_trader_engine\database\database.py:14
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+nautilus_trader_engine\database\models.py:6
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\nautilus_trader_engine\database\models.py:6: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+..\..\..\..\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:291
+  C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+..\..\..\..\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:341
+  C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:341: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+..\..\..\..\AppData\Roaming\Python\Python313\site-packages\pythonjsonlogger\jsonlogger.py:11
+  C:\Users\Vincent_Pereira\AppData\Roaming\Python\Python313\site-packages\pythonjsonlogger\jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_indicator_engine_initialization
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_trend_indicators_calculation
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_momentum_indicators_calculation
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_volatility_indicators_calculation
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_oscillator_indicators_calculation
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_signal_generation
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_multi_timeframe_analysis
+tests/unit/test_technical_indicators.py::TestTechnicalIndicators::test_custom_indicator_support
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_technical_indicators.py:41: FutureWarning: 'H' is deprecated and will be removed in a future version, please use 'h' instead.
+    dates = pd.date_range(start='2024-01-01', periods=100, freq='1H')
+
+tests/unit/test_trading_engine.py::TestTradingEngine::test_place_order_success
+tests/unit/test_trading_engine.py::TestTradingEngine::test_place_order_risk_check_failed
+tests/unit/test_trading_engine.py::TestTradingEngine::test_cancel_order_success
+tests/unit/test_trading_engine.py::TestTradingEngine::test_get_positions
+tests/unit/test_trading_engine.py::TestTradingEngine::test_get_orders_with_filters
+tests/unit/test_trading_engine.py::TestTradingEngine::test_websocket_connection_manager
+tests/unit/test_trading_engine.py::TestTradingEngine::test_broadcast_order_update
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_trading_engine.py:55: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow()
+
+tests/unit/test_trading_engine.py::TestTradingEngine::test_get_orders_with_filters
+  C:\Users\Vincent_Pereira\Projects\Algo_Trading_Projects\Trae\Algorithmic Trading System\tests\unit\test_trading_engine.py:162: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/unit/test_messaging_system.py::TestMessageRouting::test_topic_based_routing
+FAILED tests/unit/test_messaging_system.py::TestSerialization::test_serialization_initialization
+FAILED tests/unit/test_messaging_system.py::TestSerialization::test_message_serialization
+FAILED tests/unit/test_messaging_system.py::TestSerialization::test_compression_performance
+FAILED tests/unit/test_messaging_system.py::TestSerialization::test_schema_validation
+FAILED tests/unit/test_messaging_system.py::TestMessagingMetrics::test_metrics_collection
+FAILED tests/unit/test_messaging_system.py::TestMessagingMetrics::test_performance_alerts
+FAILED tests/unit/test_networking_system.py::TestKernelBypass::test_kernel_bypass_initialization
+FAILED tests/unit/test_networking_system.py::TestKernelBypass::test_dpdk_integration
+FAILED tests/unit/test_networking_system.py::TestKernelBypass::test_zero_copy_operations
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_initialization
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_position_tracking
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_pnl_calculation
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_risk_metrics_calculation
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_rebalancing
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_performance_analytics
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_margin_management
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_optimization
+FAILED tests/unit/test_unit_portfolio_management.py::TestPortfolioManagement::test_portfolio_stress_testing

@@ -17,7 +17,7 @@ Phase: 1 - Core System Development
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Union
 import json
 import uuid
@@ -42,9 +42,12 @@ from nautilus_trader_engine.indicators.comprehensive_indicators import Comprehen
 from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 from nautilus_trader_engine.core.order_management import OrderManager
 from services.kafka_service import KafkaService
+from auth.middleware import AuthMiddleware, AuthContext
+from auth.keycloak_client import KeycloakConfig
+from auth.oauth_service import UserRole, Permission
 
 # Import monitoring route models
-from routes.monitoring import DependencyHealth, VulnerabilityInfo, SystemMetrics, HealthDashboardData
+from api.routes.monitoring import DependencyHealth, VulnerabilityInfo, SystemMetrics, HealthDashboardData, MOCK_DEPENDENCIES, MOCK_VULNERABILITIES, MOCK_ALERTS, MOCK_METRICS
 
 # Configure structured logging
 structlog.configure(
@@ -135,7 +138,7 @@ class APIResponse(BaseModel):
     success: bool
     data: Optional[Any] = None
     message: str = ""
-    timestamp: datetime = Field(default_factory=datetime.now)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     request_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
 # ===========================================
@@ -156,7 +159,7 @@ class ConnectionManager:
         self.active_connections.append(websocket)
         self.client_info[websocket] = {
             "client_id": client_id,
-            "connected_at": datetime.now(),
+            "connected_at": datetime.now(timezone.utc),
             "subscriptions": []
         }
         active_websockets.inc()
@@ -241,13 +244,26 @@ app.add_middleware(
     allow_origins=["*"],  # Configure appropriately for production
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# Security
+# Security and Authentication
 security = HTTPBearer()
+
+# Initialize Keycloak configuration
+keycloak_config = KeycloakConfig(
+    server_url="http://keycloak:8080",
+    realm="trading-system",
+    client_id="trading-api",
+    client_secret="your-client-secret",  # Should be loaded from environment
+    admin_username="admin",
+    admin_password="admin123"  # Should be loaded from environment
+)
+
+# Initialize authentication middleware
+auth_middleware = AuthMiddleware(keycloak_config=keycloak_config)
 
 # Global instances
 connection_manager = ConnectionManager()
@@ -271,13 +287,37 @@ except:
 # AUTHENTICATION & MIDDLEWARE
 # ===========================================
 
-async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Verify JWT token (simplified for demo)"""
-    # In production, implement proper JWT validation
-    token = credentials.credentials
-    if not token or token == "invalid":
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
-    return {"user_id": "demo_user", "permissions": ["read", "write", "trade"]}
+# Authentication dependencies
+get_current_user = auth_middleware.get_current_user
+get_admin_user = auth_middleware.get_admin_user
+
+# Permission-based dependencies
+def require_trading_permission(auth_context: AuthContext = Depends(get_current_user)) -> AuthContext:
+    """Require trading permission"""
+    if "trade:execute" not in auth_context.permissions:
+        raise HTTPException(
+            status_code=403,
+            detail="Trading permission required"
+        )
+    return auth_context
+
+def require_portfolio_read(auth_context: AuthContext = Depends(get_current_user)) -> AuthContext:
+    """Require portfolio read permission"""
+    if "read:portfolio" not in auth_context.permissions:
+        raise HTTPException(
+            status_code=403,
+            detail="Portfolio read permission required"
+        )
+    return auth_context
+
+def require_market_data_access(auth_context: AuthContext = Depends(get_current_user)) -> AuthContext:
+    """Require market data access permission"""
+    if "read:market_data" not in auth_context.permissions:
+        raise HTTPException(
+            status_code=403,
+            detail="Market data access permission required"
+        )
+    return auth_context
 
 # ===========================================
 # UTILITY FUNCTIONS
@@ -313,6 +353,111 @@ async def set_cached_data(key: str, data: Any, ttl: int = 300):
         logger.error("Cache write error", key=key, error=str(e))
 
 # ===========================================
+# AUTHENTICATION ENDPOINTS
+# ===========================================
+
+@app.post("/auth/login")
+async def login(username: str, password: str):
+    """Login with username/password (local authentication)"""
+    try:
+        async with auth_middleware:
+            token = await auth_middleware.oauth_service.authenticate_user(username, password)
+            if token:
+                return {
+                    "access_token": token.access_token,
+                    "token_type": "bearer",
+                    "expires_in": 3600,
+                    "refresh_token": token.refresh_token,
+                    "user_id": token.user_id,
+                    "username": token.username,
+                    "roles": token.roles,
+                    "permissions": token.permissions
+                }
+            else:
+                raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        logger.error("Login failed", username=username, error=str(e))
+        raise HTTPException(status_code=401, detail="Authentication failed")
+
+@app.get("/auth/oidc/authorize")
+async def oidc_authorize(redirect_uri: str):
+    """Get OIDC authorization URL"""
+    try:
+        async with auth_middleware:
+            auth_url = await auth_middleware.oauth_service.get_oidc_authorization_url(redirect_uri)
+            return {"authorization_url": auth_url}
+    except Exception as e:
+        logger.error("OIDC authorization failed", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to generate authorization URL")
+
+@app.post("/auth/oidc/callback")
+async def oidc_callback(code: str, redirect_uri: str):
+    """Handle OIDC callback with authorization code"""
+    try:
+        async with auth_middleware:
+            token = await auth_middleware.oauth_service.authenticate_with_oidc_code(code, redirect_uri)
+            if token:
+                return {
+                    "access_token": token.access_token,
+                    "token_type": "bearer",
+                    "expires_in": 3600,
+                    "refresh_token": token.refresh_token,
+                    "id_token": token.id_token,
+                    "user_id": token.user_id,
+                    "username": token.username,
+                    "roles": token.roles,
+                    "permissions": token.permissions,
+                    "is_oidc": True
+                }
+            else:
+                raise HTTPException(status_code=401, detail="Invalid authorization code")
+    except Exception as e:
+        logger.error("OIDC callback failed", code=code, error=str(e))
+        raise HTTPException(status_code=401, detail="OIDC authentication failed")
+
+@app.post("/auth/refresh")
+async def refresh_token(refresh_token: str):
+    """Refresh access token"""
+    try:
+        async with auth_middleware:
+            new_token = await auth_middleware.oauth_service.refresh_token(refresh_token)
+            if new_token:
+                return {
+                    "access_token": new_token.access_token,
+                    "token_type": "bearer",
+                    "expires_in": 3600,
+                    "refresh_token": new_token.refresh_token
+                }
+            else:
+                raise HTTPException(status_code=401, detail="Invalid refresh token")
+    except Exception as e:
+        logger.error("Token refresh failed", error=str(e))
+        raise HTTPException(status_code=401, detail="Token refresh failed")
+
+@app.post("/auth/logout")
+async def logout(auth_context: AuthContext = Depends(get_current_user)):
+    """Logout user and revoke tokens"""
+    try:
+        async with auth_middleware:
+            await auth_middleware.oauth_service.logout_user(auth_context.user_id)
+            return {"message": "Successfully logged out"}
+    except Exception as e:
+        logger.error("Logout failed", user_id=auth_context.user_id, error=str(e))
+        raise HTTPException(status_code=500, detail="Logout failed")
+
+@app.get("/auth/user")
+async def get_current_user_info(auth_context: AuthContext = Depends(get_current_user)):
+    """Get current user information"""
+    return {
+        "user_id": auth_context.user_id,
+        "username": auth_context.username,
+        "roles": auth_context.roles,
+        "permissions": auth_context.permissions,
+        "is_authenticated": auth_context.is_authenticated,
+        "mfa_required": auth_context.mfa_required
+    }
+
+# ===========================================
 # HEALTH & METRICS ENDPOINTS
 # ===========================================
 
@@ -321,7 +466,7 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "timestamp": datetime.now(),
+        "timestamp": datetime.now(timezone.utc),
         "version": "1.0.0",
         "services": {
             "redis": REDIS_AVAILABLE,
@@ -344,7 +489,7 @@ async def get_metrics():
 async def get_market_data(
     request: MarketDataRequest,
     background_tasks: BackgroundTasks,
-    user: dict = Depends(verify_token)
+    auth_context: AuthContext = Depends(require_market_data_access)
 ):
     """Get historical market data for symbols"""
     with api_duration.time():
@@ -401,7 +546,7 @@ async def get_market_data(
             raise HTTPException(status_code=500, detail=f"Failed to retrieve market data: {str(e)}")
 
 @app.get("/api/v1/market-data/quote/{symbol}")
-async def get_real_time_quote(symbol: str, user: dict = Depends(verify_token)):
+async def get_real_time_quote(symbol: str, auth_context: AuthContext = Depends(require_market_data_access)):
     """Get real-time quote for a symbol"""
     try:
         quote = await data_feed_manager.get_real_time_quote(symbol.upper())
@@ -418,7 +563,7 @@ async def get_real_time_quote(symbol: str, user: dict = Depends(verify_token)):
 async def calculate_indicators(
     request: IndicatorRequest,
     background_tasks: BackgroundTasks,
-    user: dict = Depends(verify_token)
+    auth_context: AuthContext = Depends(require_market_data_access)
 ):
     """Calculate technical indicators for a symbol"""
     with api_duration.time():
@@ -507,7 +652,7 @@ async def calculate_indicators(
                 "symbol": request.symbol.symbol,
                 "indicators": all_indicators,
                 "summary": summary,
-                "calculation_time": datetime.now(),
+                "calculation_time": datetime.now(timezone.utc),
                 "data_points": len(market_data)
             }
             
@@ -526,7 +671,7 @@ async def calculate_indicators(
             raise HTTPException(status_code=500, detail=f"Indicator calculation failed: {str(e)}")
 
 @app.get("/api/v1/indicators/available")
-async def get_available_indicators(user: dict = Depends(verify_token)):
+async def get_available_indicators(auth_context: AuthContext = Depends(get_current_user)):
     """Get list of available indicators"""
     indicators_info = {
         "trend_indicators": [
@@ -559,15 +704,12 @@ async def get_available_indicators(user: dict = Depends(verify_token)):
 # ===========================================
 
 @app.post("/api/v1/trading-events", response_model=APIResponse)
-async def post_trading_event(request: OrderRequest, user: dict = Depends(verify_token)):
+async def post_trading_event(request: OrderRequest, auth_context: AuthContext = Depends(require_trading_permission)):
     """Post a trading event to Kafka"""
     try:
-        if "trade" not in user.get("permissions", []):
-            raise HTTPException(status_code=403, detail="Trading permission required")
-        
         event = request.dict()
-        event["user_id"] = user["user_id"]
-        event["timestamp"] = datetime.now().isoformat()
+        event["user_id"] = auth_context.user_id
+        event["timestamp"] = datetime.now(timezone.utc).isoformat()
 
         await kafka_service.kafka_client.send_message('trading_events', event)
 
@@ -580,18 +722,14 @@ async def post_trading_event(request: OrderRequest, user: dict = Depends(verify_
 @app.post("/api/v1/orders", response_model=APIResponse)
 async def submit_order(
     request: OrderRequest,
-    user: dict = Depends(verify_token)
+    auth_context: AuthContext = Depends(require_trading_permission)
 ):
     """Submit a new trading order by sending it to Kafka for processing"""
     try:
-        # Check user permissions
-        if "trade" not in user.get("permissions", []):
-            raise HTTPException(status_code=403, detail="Trading permission required")
-        
         # Prepare the order event for Kafka
         order_event = request.dict()
-        order_event["user_id"] = user["user_id"]
-        order_event["timestamp"] = datetime.now().isoformat()
+        order_event["user_id"] = auth_context.user_id
+        order_event["timestamp"] = datetime.now(timezone.utc).isoformat()
         order_event["request_id"] = str(uuid.uuid4()) # Add a unique request ID for traceability
 
         # Send the order request to a Kafka topic for asynchronous processing
@@ -621,12 +759,12 @@ async def get_orders(
     status: Optional[str] = None,
     symbol: Optional[str] = None,
     limit: int = 100,
-    user: dict = Depends(verify_token)
+    auth_context: AuthContext = Depends(require_portfolio_read)
 ):
     """Get user's orders with optional filtering"""
     try:
         orders = await order_manager.get_orders(
-            user_id=user["user_id"],
+            user_id=auth_context.user_id,
             status=status,
             symbol=symbol,
             limit=limit
@@ -639,20 +777,20 @@ async def get_orders(
         )
         
     except Exception as e:
-        logger.error("Failed to retrieve orders", user_id=user["user_id"], error=str(e))
+        logger.error("Failed to retrieve orders", user_id=auth_context.user_id, error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to retrieve orders: {str(e)}")
 
 @app.delete("/api/v1/orders/{order_id}")
-async def cancel_order(order_id: str, user: dict = Depends(verify_token)):
+async def cancel_order(order_id: str, auth_context: AuthContext = Depends(require_trading_permission)):
     """Cancel an existing order"""
     try:
-        result = await order_manager.cancel_order(order_id, user["user_id"])
+        result = await order_manager.cancel_order(order_id, auth_context.user_id)
         
         # Broadcast cancellation via WebSocket
         await connection_manager.broadcast_all({
             "type": "order_cancelled",
             "data": {"order_id": order_id, "result": result},
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
         
         return APIResponse(
@@ -670,16 +808,16 @@ async def cancel_order(order_id: str, user: dict = Depends(verify_token)):
 # ===========================================
 
 @app.get("/api/v1/portfolio/positions")
-async def get_portfolio_positions(user: dict = Depends(verify_token)):
+async def get_portfolio_positions(auth_context: AuthContext = Depends(require_portfolio_read)):
     """Get user's portfolio positions"""
     try:
-        positions = await order_manager.get_positions(user["user_id"])
+        positions = await order_manager.get_positions(auth_context.user_id)
         
         portfolio_summary = {
             "total_value": sum(pos.get("market_value", 0) for pos in positions),
             "total_pnl": sum(pos.get("unrealized_pnl", 0) for pos in positions),
             "position_count": len(positions),
-            "last_updated": datetime.now()
+            "last_updated": datetime.now(timezone.utc)
         }
         
         return APIResponse(
@@ -689,18 +827,18 @@ async def get_portfolio_positions(user: dict = Depends(verify_token)):
         )
         
     except Exception as e:
-        logger.error("Failed to retrieve positions", user_id=user["user_id"], error=str(e))
+        logger.error("Failed to retrieve positions", user_id=auth_context.user_id, error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to retrieve positions: {str(e)}")
 
 @app.get("/api/v1/portfolio/performance")
 async def get_portfolio_performance(
     period: str = "1d",
-    user: dict = Depends(verify_token)
+    auth_context: AuthContext = Depends(require_portfolio_read)
 ):
     """Get portfolio performance metrics"""
     try:
         performance = await order_manager.get_portfolio_performance(
-            user_id=user["user_id"],
+            user_id=auth_context.user_id,
             period=period
         )
         
@@ -711,7 +849,7 @@ async def get_portfolio_performance(
         )
         
     except Exception as e:
-        logger.error("Failed to retrieve performance", user_id=user["user_id"], error=str(e))
+        logger.error("Failed to retrieve performance", user_id=auth_context.user_id, error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to retrieve performance: {str(e)}")
 
 # ===========================================
@@ -719,7 +857,7 @@ async def get_portfolio_performance(
 # ===========================================
 
 @app.get("/api/v1/monitoring/health-dashboard", response_model=APIResponse)
-async def get_health_dashboard(user: dict = Depends(verify_token)):
+async def get_health_dashboard(auth_context: AuthContext = Depends(get_current_user)):
     """Get comprehensive health dashboard data"""
     try:
         # Check cache first
@@ -729,7 +867,7 @@ async def get_health_dashboard(user: dict = Depends(verify_token)):
         if cached_data and isinstance(cached_data, dict):
             # Check if cached data is recent (less than 30 seconds old)
             cached_timestamp = datetime.fromisoformat(cached_data.get("timestamp", ""))
-            if datetime.now() - cached_timestamp < timedelta(seconds=30):
+            if datetime.now(timezone.utc) - cached_timestamp < timedelta(seconds=30):
                 return APIResponse(
                     success=True, 
                     data=cached_data, 
@@ -738,16 +876,16 @@ async def get_health_dashboard(user: dict = Depends(verify_token)):
         
         # Generate fresh data (in a real implementation, this would query actual services)
         # For now, we'll use mock data from our monitoring route
-        from routes.monitoring import MOCK_DEPENDENCIES, MOCK_VULNERABILITIES, MOCK_ALERTS, MOCK_METRICS
+
         
         dashboard_data = {
-            "timestamp": datetime.now(),
+            "timestamp": datetime.now(timezone.utc),
             "system_status": "healthy",
             "system_metrics": MOCK_METRICS,
             "dependencies": MOCK_DEPENDENCIES,
             "vulnerabilities": MOCK_VULNERABILITIES,
             "alerts": MOCK_ALERTS,
-            "last_scan": datetime.now() - timedelta(minutes=5)
+            "last_scan": datetime.now(timezone.utc) - timedelta(minutes=5)
         }
         
         # Convert datetime objects to strings for JSON serialization
@@ -780,10 +918,10 @@ async def get_health_dashboard(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve health dashboard data: {str(e)}")
 
 @app.get("/api/v1/monitoring/dependencies", response_model=APIResponse)
-async def get_dependencies_health(user: dict = Depends(verify_token)):
+async def get_dependencies_health(auth_context: AuthContext = Depends(get_current_user)):
     """Get health status of all dependencies"""
     try:
-        from routes.monitoring import MOCK_DEPENDENCIES
+
         
         # Convert datetime objects to strings
         dependencies = []
@@ -803,10 +941,10 @@ async def get_dependencies_health(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve dependencies health: {str(e)}")
 
 @app.get("/api/v1/monitoring/vulnerabilities", response_model=APIResponse)
-async def get_vulnerabilities(user: dict = Depends(verify_token)):
+async def get_vulnerabilities(auth_context: AuthContext = Depends(get_current_user)):
     """Get current vulnerability information"""
     try:
-        from routes.monitoring import MOCK_VULNERABILITIES
+
         
         # Convert datetime objects to strings
         vulnerabilities = []
@@ -826,10 +964,10 @@ async def get_vulnerabilities(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve vulnerabilities: {str(e)}")
 
 @app.get("/api/v1/monitoring/system-metrics", response_model=APIResponse)
-async def get_system_metrics(user: dict = Depends(verify_token)):
+async def get_system_metrics(auth_context: AuthContext = Depends(get_current_user)):
     """Get current system metrics"""
     try:
-        from routes.monitoring import MOCK_METRICS
+
         return APIResponse(
             success=True,
             data=MOCK_METRICS,
@@ -860,13 +998,13 @@ async def websocket_market_data(websocket: WebSocket, client_id: str):
                     await websocket.send_json({
                         "type": "subscription_confirmed",
                         "symbol": symbol,
-                        "timestamp": datetime.now().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     })
             
             elif data.get("type") == "ping":
                 await websocket.send_json({
                     "type": "pong",
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 })
                 
     except WebSocketDisconnect:
@@ -889,13 +1027,13 @@ async def websocket_trading(websocket: WebSocket, client_id: str):
                 # Subscribe to order updates for this user
                 await websocket.send_json({
                     "type": "order_subscription_confirmed",
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 })
             
             elif data.get("type") == "ping":
                 await websocket.send_json({
                     "type": "pong",
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 })
                 
     except WebSocketDisconnect:
@@ -926,7 +1064,7 @@ async def market_data_streamer():
                                 "type": "market_data",
                                 "symbol": symbol,
                                 "data": quote,
-                                "timestamp": datetime.now().isoformat()
+                                "timestamp": datetime.now(timezone.utc).isoformat()
                             })
                     except Exception as e:
                         logger.error("Failed to stream data", symbol=symbol, error=str(e))
@@ -979,7 +1117,7 @@ async def indicator_calculator():
                                         "strength": macd_result.strength
                                     }
                                 },
-                                "timestamp": datetime.now().isoformat()
+                                "timestamp": datetime.now(timezone.utc).isoformat()
                             }
                             
                             await connection_manager.broadcast_to_symbol(symbol, indicator_update)

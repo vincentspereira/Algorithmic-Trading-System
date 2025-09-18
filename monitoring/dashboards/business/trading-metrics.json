@@ -1,0 +1,372 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Trading Business Metrics",
+    "tags": ["business", "trading", "portfolio", "pnl", "risk"],
+    "timezone": "browser",
+    "refresh": "1m",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Portfolio Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "portfolio_total_value_usd",
+            "legendFormat": "Total Value"
+          },
+          {
+            "expr": "portfolio_daily_pnl_usd",
+            "legendFormat": "Daily P&L"
+          },
+          {
+            "expr": "portfolio_unrealized_pnl_usd",
+            "legendFormat": "Unrealized P&L"
+          },
+          {
+            "expr": "portfolio_realized_pnl_usd",
+            "legendFormat": "Realized P&L"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": -10000
+                },
+                {
+                  "color": "yellow",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1000
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Portfolio Performance Over Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "portfolio_total_value_usd",
+            "legendFormat": "Total Portfolio Value"
+          },
+          {
+            "expr": "portfolio_cumulative_pnl_usd",
+            "legendFormat": "Cumulative P&L"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Value (USD)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 3,
+        "title": "Daily P&L Distribution",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "portfolio_daily_pnl_usd",
+            "legendFormat": "Daily P&L"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "P&L (USD)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Active Positions by Asset Class",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (asset_class) (trading_positions_open{asset_class=~\"stocks|forex|crypto|futures|options\"})",
+            "legendFormat": "{{asset_class}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 5,
+        "title": "Portfolio Allocation by Asset Class",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (asset_class) (portfolio_allocation_percent{asset_class=~\"stocks|forex|crypto|futures|options\"})",
+            "legendFormat": "{{asset_class}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Trading Volume by Strategy",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (strategy) (rate(trading_volume_usd_total[1h]))",
+            "legendFormat": "{{strategy}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Volume (USD/hour)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 7,
+        "title": "Strategy Performance Comparison",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (strategy) (strategy_pnl_usd)",
+            "legendFormat": "{{strategy}} P&L"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "P&L (USD)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Risk Metrics",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "portfolio_var_95_percent",
+            "legendFormat": "VaR 95%"
+          },
+          {
+            "expr": "portfolio_max_drawdown_percent",
+            "legendFormat": "Max Drawdown %"
+          },
+          {
+            "expr": "portfolio_sharpe_ratio",
+            "legendFormat": "Sharpe Ratio"
+          },
+          {
+            "expr": "portfolio_beta",
+            "legendFormat": "Portfolio Beta"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": -2
+                },
+                {
+                  "color": "yellow",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 24,
+          "x": 0,
+          "y": 32
+        }
+      },
+      {
+        "id": 9,
+        "title": "Order Success Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(trading_orders_filled_total[5m]) / rate(trading_orders_submitted_total[5m]) * 100",
+            "legendFormat": "Fill Rate %"
+          },
+          {
+            "expr": "rate(trading_orders_rejected_total[5m]) / rate(trading_orders_submitted_total[5m]) * 100",
+            "legendFormat": "Rejection Rate %"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Percentage",
+            "min": 0,
+            "max": 100
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 38
+        }
+      },
+      {
+        "id": 10,
+        "title": "Slippage Analysis",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(order_slippage_basis_points_bucket[5m]))",
+            "legendFormat": "95th percentile slippage (bps)"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(order_slippage_basis_points_bucket[5m]))",
+            "legendFormat": "Median slippage (bps)"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Slippage (basis points)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 38
+        }
+      },
+      {
+        "id": 11,
+        "title": "Top Performing Assets",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (symbol) (position_pnl_usd))",
+            "legendFormat": "{{symbol}}",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 46
+        }
+      },
+      {
+        "id": 12,
+        "title": "Worst Performing Assets",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "bottomk(10, sum by (symbol) (position_pnl_usd))",
+            "legendFormat": "{{symbol}}",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 46
+        }
+      },
+      {
+        "id": 13,
+        "title": "Trading Costs Analysis",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(trading_commission_usd_total[1h]))",
+            "legendFormat": "Commission Costs/hour"
+          },
+          {
+            "expr": "sum(rate(trading_spread_cost_usd_total[1h]))",
+            "legendFormat": "Spread Costs/hour"
+          },
+          {
+            "expr": "sum(rate(trading_market_impact_usd_total[1h]))",
+            "legendFormat": "Market Impact/hour"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Cost (USD/hour)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 54
+        }
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

@@ -1,0 +1,265 @@
+# Jaeger Configuration for Algorithmic Trading System
+# Provides distributed tracing across all microservices
+
+jaeger:
+  service_name: "algorithmic-trading-system"
+  
+  # Sampling configuration
+  sampler:
+    type: "probabilistic"
+    param: 0.1  # Sample 10% of traces in production
+    
+  # Reporter configuration
+  reporter:
+    log_spans: true
+    buffer_flush_interval: 1s
+    queue_size: 100
+    
+  # Agent configuration
+  agent:
+    host: "jaeger-agent"
+    port: 6831
+    
+  # Collector configuration
+  collector:
+    endpoint: "http://jaeger-collector:14268/api/traces"
+    
+  # Tags applied to all spans
+  tags:
+    - key: "environment"
+      value: "${ENVIRONMENT:development}"
+    - key: "version"
+      value: "${APP_VERSION:1.0.0}"
+    - key: "service.namespace"
+      value: "trading"
+
+# Service-specific configurations
+services:
+  trading-engine:
+    service_name: "trading-engine"
+    sampler:
+      type: "probabilistic"
+      param: 1.0  # Sample all trading engine traces
+    tags:
+      - key: "component"
+        value: "core-engine"
+      - key: "tier"
+        value: "critical"
+        
+  market-data:
+    service_name: "market-data-service"
+    sampler:
+      type: "probabilistic"
+      param: 0.5  # Sample 50% of market data traces
+    tags:
+      - key: "component"
+        value: "data-ingestion"
+      - key: "tier"
+        value: "high"
+        
+  ai-assistant:
+    service_name: "ai-assistant"
+    sampler:
+      type: "probabilistic"
+      param: 0.3  # Sample 30% of AI assistant traces
+    tags:
+      - key: "component"
+        value: "ai-services"
+      - key: "tier"
+        value: "medium"
+        
+  portfolio-manager:
+    service_name: "portfolio-manager"
+    sampler:
+      type: "probabilistic"
+      param: 0.8  # Sample 80% of portfolio traces
+    tags:
+      - key: "component"
+        value: "portfolio"
+      - key: "tier"
+        value: "high"
+        
+  risk-manager:
+    service_name: "risk-manager"
+    sampler:
+      type: "probabilistic"
+      param: 1.0  # Sample all risk management traces
+    tags:
+      - key: "component"
+        value: "risk-control"
+      - key: "tier"
+        value: "critical"
+        
+  order-management:
+    service_name: "order-management-system"
+    sampler:
+      type: "probabilistic"
+      param: 1.0  # Sample all OMS traces
+    tags:
+      - key: "component"
+        value: "order-management"
+      - key: "tier"
+        value: "critical"
+        
+  frontend:
+    service_name: "frontend-web"
+    sampler:
+      type: "probabilistic"
+      param: 0.1  # Sample 10% of frontend traces
+    tags:
+      - key: "component"
+        value: "user-interface"
+      - key: "tier"
+        value: "low"
+
+# Trace configuration
+tracing:
+  # Operation name patterns to always trace
+  always_trace:
+    - "order.create"
+    - "order.execute"
+    - "order.cancel"
+    - "trade.execute"
+    - "risk.check"
+    - "portfolio.update"
+    - "market_data.tick"
+    - "strategy.signal"
+    
+  # Operation name patterns to never trace
+  never_trace:
+    - "health.check"
+    - "metrics.collect"
+    - "log.write"
+    
+  # Custom span tags for trading operations
+  span_tags:
+    order_operations:
+      - "order.id"
+      - "order.type"
+      - "order.side"
+      - "order.symbol"
+      - "order.quantity"
+      - "order.price"
+      - "broker.name"
+      
+    trade_operations:
+      - "trade.id"
+      - "trade.symbol"
+      - "trade.quantity"
+      - "trade.price"
+      - "trade.commission"
+      - "execution.venue"
+      
+    market_data_operations:
+      - "symbol"
+      - "data.type"
+      - "data.source"
+      - "latency.ms"
+      
+    risk_operations:
+      - "risk.type"
+      - "risk.level"
+      - "portfolio.id"
+      - "limit.type"
+      - "limit.value"
+      
+    ai_operations:
+      - "model.name"
+      - "model.version"
+      - "request.type"
+      - "response.confidence"
+      - "processing.time.ms"
+
+# Performance settings
+performance:
+  # Maximum number of spans in memory
+  max_spans: 10000
+  
+  # Span buffer size
+  span_buffer_size: 1000
+  
+  # Flush interval for spans
+  flush_interval: "5s"
+  
+  # Maximum trace duration before forced completion
+  max_trace_duration: "30s"
+  
+  # Enable/disable trace sampling based on system load
+  adaptive_sampling:
+    enabled: true
+    cpu_threshold: 80.0
+    memory_threshold: 85.0
+    reduced_sampling_rate: 0.01
+
+# Storage configuration
+storage:
+  # Trace retention period
+  retention_period: "168h"  # 7 days
+  
+  # Elasticsearch configuration (if using ES backend)
+  elasticsearch:
+    servers:
+      - "http://elasticsearch:9200"
+    index_prefix: "jaeger-traces"
+    
+  # Cassandra configuration (alternative backend)
+  cassandra:
+    servers:
+      - "cassandra:9042"
+    keyspace: "jaeger_v1_dc1"
+    
+# Security settings
+security:
+  # Enable TLS for collector communication
+  tls:
+    enabled: false
+    cert_file: "/etc/jaeger/tls/cert.pem"
+    key_file: "/etc/jaeger/tls/key.pem"
+    ca_file: "/etc/jaeger/tls/ca.pem"
+    
+  # Authentication settings
+  auth:
+    enabled: false
+    type: "bearer"
+    token_file: "/etc/jaeger/auth/token"
+
+# Logging configuration
+logging:
+  level: "info"
+  format: "json"
+  
+# Health check configuration
+health_check:
+  enabled: true
+  port: 14269
+  
+# Metrics configuration
+metrics:
+  enabled: true
+  backend: "prometheus"
+  http_route: "/metrics"
+  
+# UI configuration
+ui:
+  base_path: "/jaeger"
+  static_assets: "/etc/jaeger/ui"
+  
+# Query service configuration
+query:
+  port: 16686
+  base_path: "/"
+  static_files: "/etc/jaeger/ui/"
+  ui_config: "/etc/jaeger/ui-config.json"
+  
+# Collector service configuration
+collector:
+  port: 14268
+  grpc_port: 14250
+  zipkin_port: 9411
+  
+# Agent service configuration
+agent:
+  port: 6831
+  compact_port: 6832
+  binary_port: 6833
+  http_port: 5778

@@ -5,7 +5,7 @@ Collects and exports metrics for visualization in Grafana.
 
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from prometheus_client import (
     Counter,
@@ -257,8 +257,8 @@ class MetricsCollector:
                 ERROR_COUNT,
                 {'dependency': dependency, 'tier': tier}
             )),
-            last_check=self.last_collection.get(f"{dependency}_check", datetime.min),
-            last_scan=self.last_collection.get(f"{dependency}_scan", datetime.min)
+            last_check=self.last_collection.get(f"{dependency}_check", datetime.min.replace(tzinfo=timezone.utc)),
+            last_scan=self.last_collection.get(f"{dependency}_scan", datetime.min.replace(tzinfo=timezone.utc))
         )
         
     def _get_metric_value(

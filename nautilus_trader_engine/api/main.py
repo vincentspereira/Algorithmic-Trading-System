@@ -9,9 +9,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.openapi.utils import get_openapi
 
 # New imports for Phase 4
-from datetime import datetime
+from datetime import datetime, timezone
 from .core.config import settings
-from .routers import auth, backtest, optimization, features, strategy_builder, rl_optimization, trading, users, websocket
+from .routers import auth, backtest, optimization, features, strategy_builder, trading, users
 from nautilus_trader_engine.database.database import Base, engine
 
 # Phase 5 - Enterprise Security and Monitoring
@@ -42,7 +42,12 @@ risk_management_service = RiskManagementService()
 from nautilus_trader_engine.services.trading_gateway import TradingGateway
 trading_gateway = trading.trading_gateway # Use the gateway from the trading router
 
-import logstash
+# Optional Logstash integration
+try:
+    import logstash  # type: ignore
+    _LOGSTASH_AVAILABLE = True
+except Exception:
+    _LOGSTASH_AVAILABLE = False
 
 # Configure logging
 host = 'logstash'
@@ -51,7 +56,17 @@ port = 5044
 # Get the logger and add a handler
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-logger.addHandler(logstash.TCPLogstashHandler(host, port, version=1))
+if _LOGSTASH_AVAILABLE:
+    try:
+        logger.addHandler(logstash.TCPLogstashHandler(host, port, version=1))
+    except Exception:
+        # Fallback to a simple stream handler if Logstash handler fails
+        if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+            logger.addHandler(logging.StreamHandler())
+else:
+    # Ensure at least one handler exists to avoid "No handlers could be found" warnings
+    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        logger.addHandler(logging.StreamHandler())
 
 
 @asynccontextmanager
@@ -158,7 +173,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "status": "validation_error",
             "message": "Request validation failed",
             "details": exc.errors(),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 
@@ -172,7 +187,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
             "status": "error",
             "message": exc.detail,
             "status_code": exc.status_code,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 
@@ -185,7 +200,7 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "status": "internal_error",
             "message": "An unexpected error occurred",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     )
 
@@ -301,7 +316,20 @@ app.include_router(backtest.router, prefix=f"{settings.API_V1_STR}/backtest", ta
 app.include_router(optimization.router, prefix=f"{settings.API_V1_STR}/optimise", tags=["Optimization"], dependencies=[Depends(get_current_active_user)])
 app.include_router(features.router, prefix=f"{settings.API_V1_STR}/features", tags=["Features"], dependencies=[Depends(get_current_active_user)])
 app.include_router(strategy_builder.router, prefix=f"{settings.API_V1_STR}/strategy-builder", tags=["Strategy Builder"], dependencies=[Depends(get_current_active_user)])
-app.include_router(rl_optimization.router, prefix=f"{settings.API_V1_STR}/rl-optimization", tags=["RL Optimization"], dependencies=[Depends(get_current_active_user)])
+
+# RL router is optional and only included if dependencies are available
+try:
+    from .routers import rl_optimization as _rl_optimization
+    app.include_router(_rl_optimization.router, prefix=f"{settings.API_V1_STR}/rl-optimization", tags=["RL Optimization"], dependencies=[Depends(get_current_active_user)])
+except Exception as e:
+    logger.warning(f"RL Optimization router disabled due to missing dependencies: {e}")
+
+# WebSocket router is optional to avoid hard dependency on Kafka during tests
+try:
+    from .routers import websocket as _websocket_router
+    app.include_router(_websocket_router.router)
+except Exception as e:
+    logger.warning(f"WebSocket router disabled due to missing dependencies: {e}")
 
 # Phase 5 - Enterprise Features
 from .routers import options, system_status

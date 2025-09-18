@@ -1,0 +1,226 @@
+# InfluxDB 2.x Configuration for Algorithmic Trading System
+# Optimized for high-frequency market data ingestion and querying
+
+# HTTP configuration
+http-bind-address = ":8086"
+http-https-enabled = false
+# http-https-certificate = "/etc/ssl/influxdb.pem"
+# http-https-private-key = "/etc/ssl/influxdb-key.pem"
+http-max-row-limit = 0
+http-max-connection-limit = 0
+http-shared-secret = ""
+http-realm = "InfluxDB"
+http-log-enabled = true
+http-suppress-write-log = false
+http-access-log-path = ""
+http-access-log-status-filters = []
+http-write-tracing = false
+http-pprof-enabled = true
+http-pprof-auth-enabled = false
+http-debug-pprof-enabled = false
+http-ping-auth-enabled = false
+http-https-insecure-skip-verify = false
+
+# Reporting configuration
+reporting-disabled = true
+
+# Bind address configuration
+bind-address = ":8088"
+
+# Storage engine configuration
+storage-directory = "/var/lib/influxdb2"
+storage-wal-fsync-delay = "0s"
+storage-validate-keys = false
+storage-cache-max-memory-size = "1g"
+storage-cache-snapshot-memory-size = "25m"
+storage-cache-snapshot-write-cold-duration = "10m"
+storage-compact-full-write-cold-duration = "4h"
+storage-compact-throughput-burst = "48m"
+storage-max-concurrent-compactions = 0
+storage-max-index-log-file-size = "1m"
+storage-series-id-set-cache-size = 100
+storage-series-file-max-concurrent-snapshot-compactions = 0
+storage-tsm-use-madv-willneed = false
+storage-write-timeout = "10s"
+storage-query-timeout = "0s"
+
+# Query configuration
+query-concurrency = 1024
+query-initial-memory-bytes = 0
+query-max-memory-bytes = 0
+query-memory-bytes = 9223372036854775807
+query-queue-size = 1024
+
+# Log configuration
+log-level = "info"
+log-format = "auto"
+
+# Flux configuration
+flux-enabled = true
+flux-log-enabled = false
+
+# Assets configuration
+assets-path = ""
+
+# Session configuration
+session-length = 60
+session-renew-disabled = false
+
+# TLS configuration
+tls-cert = ""
+tls-key = ""
+tls-min-version = "1.2"
+tls-strict-ciphers = false
+
+# Profiling configuration
+pprof-disabled = false
+
+# Metrics configuration
+metrics-disabled = false
+
+# Tracing configuration
+tracing-type = ""
+
+# UI configuration
+ui-disabled = false
+
+# Vault configuration
+vault-addr = "http://vault:8200"
+vault-cacert = ""
+vault-capath = ""
+vault-client-cert = ""
+vault-client-key = ""
+vault-client-timeout = "60s"
+vault-max-retries = 0
+vault-skip-verify = false
+vault-tls-server-name = ""
+vault-token = ""
+
+# Secret store configuration
+secret-store = "vault"
+
+# Testing configuration
+testing-always-allow-setup = false
+
+# Feature flags
+feature-flags = {
+  # Enable new query engine
+  "query-engine" = "flux",
+  # Enable new storage engine features
+  "storage-engine" = "tsm1",
+  # Enable advanced indexing
+  "advanced-indexing" = true,
+  # Enable compression optimizations
+  "compression-optimizations" = true,
+  # Enable parallel query execution
+  "parallel-queries" = true,
+  # Enable write-ahead logging optimizations
+  "wal-optimizations" = true
+}
+
+# Instance configuration
+instance-id = "trading-system-influxdb"
+
+# Hardening configuration
+hardening-enabled = true
+
+# NATS configuration (for clustering)
+# nats-port = 4222
+# nats-max-payload-bytes = 1048576
+
+# Bolt configuration
+bolt-path = "/var/lib/influxdb2/influxd.bolt"
+
+# Engine configuration
+engine-path = "/var/lib/influxdb2/engine"
+
+# SQLite configuration
+sqlite-path = "/var/lib/influxdb2/influxd.sqlite"
+
+# Key configuration
+key-name = "influxdb-key"
+
+# Ping configuration
+ping-disabled = false
+
+# No tasks configuration
+no-tasks = false
+
+# Store configuration
+store = "bolt"
+
+# E2E testing configuration
+e2e-testing = false
+
+# Upgrade configuration
+upgrade = false
+
+# Downgrade configuration
+downgrade = false
+
+# Print configuration
+print-config = false
+
+# Environment variables that can override config
+# INFLUXD_CONFIG_PATH - Path to config file
+# INFLUXD_BOLT_PATH - Path to bolt database
+# INFLUXD_ENGINE_PATH - Path to storage engine
+# INFLUXD_HTTP_BIND_ADDRESS - HTTP bind address
+# INFLUXD_QUERY_CONCURRENCY - Query concurrency limit
+# INFLUXD_QUERY_QUEUE_SIZE - Query queue size
+# INFLUXD_LOG_LEVEL - Log level
+# INFLUXD_STORAGE_CACHE_MAX_MEMORY_SIZE - Storage cache max memory
+# INFLUXD_STORAGE_WAL_FSYNC_DELAY - WAL fsync delay
+# INFLUXD_HTTP_MAX_ROW_LIMIT - HTTP max row limit
+# INFLUXD_FLUX_ENABLED - Enable Flux query language
+# INFLUXD_METRICS_DISABLED - Disable metrics
+# INFLUXD_PPROF_DISABLED - Disable pprof
+# INFLUXD_UI_DISABLED - Disable UI
+# INFLUXD_TRACING_TYPE - Tracing type (jaeger, etc.)
+# INFLUXD_REPORTING_DISABLED - Disable usage reporting
+# INFLUXD_SESSION_LENGTH - Session length in minutes
+# INFLUXD_TLS_CERT - TLS certificate path
+# INFLUXD_TLS_KEY - TLS private key path
+# INFLUXD_SECRET_STORE - Secret store type
+# INFLUXD_VAULT_ADDR - Vault address
+# INFLUXD_VAULT_TOKEN - Vault token
+# INFLUXD_FEATURE_FLAGS - Feature flags JSON
+# INFLUXD_INSTANCE_ID - Instance ID
+# INFLUXD_HARDENING_ENABLED - Enable security hardening
+
+# Trading-specific optimizations
+# These settings are optimized for:
+# - High-frequency market data ingestion
+# - Low-latency queries for real-time trading decisions
+# - Efficient storage of time-series financial data
+# - Scalability for multiple trading strategies
+# - Integration with monitoring and alerting systems
+
+# Performance tuning notes:
+# 1. storage-cache-max-memory-size: Set to 1GB for better caching
+# 2. query-concurrency: Set to 1024 for high concurrent query load
+# 3. query-queue-size: Set to 1024 to handle query bursts
+# 4. storage-wal-fsync-delay: Set to 0s for immediate durability
+# 5. http-max-row-limit: Set to 0 (unlimited) for large result sets
+# 6. flux-enabled: Enabled for advanced analytics queries
+# 7. metrics-disabled: Set to false for monitoring integration
+# 8. Feature flags enabled for performance optimizations
+
+# Security considerations:
+# 1. hardening-enabled: Set to true for production security
+# 2. reporting-disabled: Set to true to prevent data leakage
+# 3. TLS should be enabled in production with proper certificates
+# 4. Vault integration for secret management
+# 5. Session management with appropriate timeout
+
+# Monitoring integration:
+# 1. Metrics enabled for Prometheus scraping
+# 2. Pprof enabled for performance profiling
+# 3. Logging configured for centralized log management
+# 4. Tracing can be enabled for distributed tracing
+
+# Backup and recovery:
+# 1. Regular snapshots of bolt database
+# 2. Engine path backup for time-series data
+# 3. Configuration backup for disaster recovery
+# 4. Monitoring of storage usage and performance

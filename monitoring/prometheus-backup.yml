@@ -1,0 +1,244 @@
+# Prometheus Configuration for Algorithmic Trading System
+# Monitors all 9 databases and system components with comprehensive metrics collection
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'trading-system'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
+# Scrape configuration
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # Database Health Monitor
+  - job_name: 'database-health-monitor'
+    static_configs:
+      - targets: ['localhost:8090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: postgres-exporter:9187
+
+  # ClickHouse Exporter
+  - job_name: 'clickhouse'
+    static_configs:
+      - targets: ['clickhouse-exporter:9116']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: redis-exporter:9121
+
+  # InfluxDB Metrics
+  - job_name: 'influxdb'
+    static_configs:
+      - targets: ['influxdb:8086']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # MinIO Exporter
+  - job_name: 'minio'
+    static_configs:
+      - targets: ['minio:9000']
+    scrape_interval: 30s
+    metrics_path: /minio/v2/metrics/cluster
+    bearer_token_file: /etc/prometheus/minio-token
+
+  # Elasticsearch Exporter
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch-exporter:9114']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Qdrant Metrics
+  - job_name: 'qdrant'
+    static_configs:
+      - targets: ['qdrant:6333']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # cAdvisor (Container Metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Kafka Exporter
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Zookeeper Exporter
+  - job_name: 'zookeeper'
+    static_configs:
+      - targets: ['zookeeper-exporter:7000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Trading Engine Metrics
+  - job_name: 'trading-engine'
+    static_configs:
+      - targets: ['trading-engine:8091']
+    scrape_interval: 5s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  # Market Data Service
+  - job_name: 'market-data-service'
+    static_configs:
+      - targets: ['market-data-service:8092']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # Portfolio Manager
+  - job_name: 'portfolio-manager'
+    static_configs:
+      - targets: ['portfolio-manager:8093']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Risk Manager
+  - job_name: 'risk-manager'
+    static_configs:
+      - targets: ['risk-manager:8094']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Order Management System
+  - job_name: 'order-management'
+    static_configs:
+      - targets: ['order-management:8095']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # Notification Service
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:8096']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Web Application
+  - job_name: 'web-app'
+    static_configs:
+      - targets: ['web-app:3000']
+    scrape_interval: 30s
+    metrics_path: /api/metrics
+
+  # Nginx Exporter
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Blackbox Exporter (Endpoint Monitoring)
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://postgresql:5432
+        - http://clickhouse:8123/ping
+        - http://redis:6379
+        - http://influxdb:8086/health
+        - http://minio:9000/minio/health/live
+        - http://elasticsearch:9200/_cluster/health
+        - http://qdrant:6333/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # SSL Certificate Monitoring
+  - job_name: 'ssl-certificates'
+    metrics_path: /probe
+    params:
+      module: [ssl_expiry]
+    static_configs:
+      - targets:
+        - https://trading-system.com:443
+        - https://api.trading-system.com:443
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+# Remote write configuration disabled - thanos-receive not available
+# remote_write:
+#   - url: "http://thanos-receive:19291/api/v1/receive"
+#     queue_config:
+#       max_samples_per_send: 1000
+#       max_shards: 200
+#       capacity: 2500
+
+# Note: Storage, web, and feature configurations are handled via command-line arguments in docker-compose.yml
+# These sections are not valid in prometheus.yml configuration file

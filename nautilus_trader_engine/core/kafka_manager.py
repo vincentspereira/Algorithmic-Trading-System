@@ -12,10 +12,10 @@ import asyncio
 import logging
 import time
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import structlog
 
-from kafka_integration import (
+from .kafka_integration import (
     MarketDataStreamer, 
     KafkaConfig, 
     MarketDataTopic, 
@@ -231,7 +231,7 @@ class KafkaManager:
                     "client_id": self.config.client_id,
                     "group_id": self.config.group_id
                 },
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             return status
@@ -241,7 +241,7 @@ class KafkaManager:
             return {
                 "initialized": self.is_initialized,
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     async def get_streaming_symbols(self) -> Dict[str, Any]:
@@ -263,7 +263,7 @@ class KafkaManager:
             return {
                 "symbols": symbols_info,
                 "count": len(symbols_info),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -271,7 +271,7 @@ class KafkaManager:
             return {
                 "symbols": [],
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     async def publish_trading_signal(self, signal: Dict[str, Any]) -> Dict[str, Any]:
@@ -330,7 +330,7 @@ class KafkaManager:
                 "producer_connected": producer_test,
                 "consumer_connected": consumer_test,
                 "bootstrap_servers": self.bootstrap_servers,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -338,7 +338,7 @@ class KafkaManager:
             return {
                 "success": False,
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     async def get_kafka_topics(self) -> Dict[str, Any]:
@@ -362,7 +362,7 @@ class KafkaManager:
             return {
                 "topics": topics_info,
                 "count": len(topics_info),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -370,7 +370,7 @@ class KafkaManager:
             return {
                 "topics": [],
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     async def close(self):

@@ -11,7 +11,7 @@ This module provides comprehensive authentication and authorization using:
 import asyncio
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Tuple
 import json
 import jwt
@@ -61,7 +61,7 @@ class KeycloakClient:
         try:
             # Check cache first
             if (self.jwks_cache and self.jwks_cache_time and 
-                datetime.now().timestamp() - self.jwks_cache_time < self.config.jwks_cache_duration):
+                datetime.now(timezone.utc).timestamp() - self.jwks_cache_time < self.config.jwks_cache_duration):
                 return self.jwks_cache
                 
             async with httpx.AsyncClient() as client:
@@ -72,7 +72,7 @@ class KeycloakClient:
                 
                 # Cache the result
                 self.jwks_cache = jwks
-                self.jwks_cache_time = datetime.now().timestamp()
+                self.jwks_cache_time = datetime.now(timezone.utc).timestamp()
                 
                 return jwks
         except Exception as e:
@@ -263,7 +263,7 @@ class MFAService:
         if session_id not in self.mfa_attempts:
             self.mfa_attempts[session_id] = {}
         self.mfa_attempts[session_id]["verified"] = True
-        self.mfa_attempts[session_id]["verified_at"] = datetime.now().timestamp()
+        self.mfa_attempts[session_id]["verified_at"] = datetime.now(timezone.utc).timestamp()
 
 class OAuth2AuthenticationService:
     """Main OAuth2 authentication service"""

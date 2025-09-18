@@ -27,7 +27,7 @@ from kafka import KafkaProducer, KafkaConsumer, TopicPartition
 from kafka.errors import KafkaError, KafkaTimeoutError
 import structlog
 
-from data_feeds import DataFeedManager, DataResponse, AssetClass, DataSource
+from .data_feeds import DataFeedManager, DataResponse, AssetClass, DataSource
 from nautilus_trader_engine.services.prediction_service import PredictionService
 
 # Configure structured logging

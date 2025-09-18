@@ -64,7 +64,7 @@ class ExportManager:
         """Collect data for export"""
         data = {
             "metadata": {
-                "export_date": datetime.utcnow(),
+                "export_date": datetime.now(timezone.utc),
                 "parameters": request.dict()
             },
             "dependencies": {},

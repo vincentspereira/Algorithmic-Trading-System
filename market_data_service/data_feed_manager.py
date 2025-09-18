@@ -456,11 +456,8 @@ class DataFeedManager:
     
     def _initialize_providers(self):
         """Initialize available data providers"""
-        from .providers.yahoo_finance_provider import YahooFinanceProvider
-        from .providers.alpha_vantage_provider import AlphaVantageProvider
-        from .providers.finnhub_provider import FinnhubProvider
-        from .providers.polygon_provider import PolygonProvider
-        from .providers.twelve_data_provider import TwelveDataProvider
+        # Remove unconditional imports of external provider modules to avoid import-time failures
+        # when optional provider packages/files are unavailable. We'll import lazily only if needed.
         
         # Initialize Yahoo Finance (free, no API key required)
         self.providers[DataProvider.YAHOO_FINANCE] = YahooFinanceProvider()
@@ -470,20 +467,32 @@ class DataFeedManager:
         if alpha_vantage_key:
             self.providers[DataProvider.ALPHA_VANTAGE] = AlphaVantageProvider(alpha_vantage_key)
         
-        # Initialize Finnhub if API key is available
+        # Initialize Finnhub if API key is available (lazy import)
         finnhub_key = getattr(settings, 'FINNHUB_API_KEY', None)
         if finnhub_key:
-            self.providers[DataProvider.FINNHUB] = FinnhubProvider(finnhub_key)
+            try:
+                from .providers.finnhub_provider import FinnhubProvider
+                self.providers[DataProvider.FINNHUB] = FinnhubProvider(finnhub_key)
+            except Exception as e:
+                logger.warning(f"FinnhubProvider unavailable: {e}")
         
-        # Initialize Polygon if API key is available
+        # Initialize Polygon if API key is available (lazy import)
         polygon_key = getattr(settings, 'POLYGON_API_KEY', None)
         if polygon_key:
-            self.providers[DataProvider.POLYGON] = PolygonProvider(polygon_key)
+            try:
+                from .providers.polygon_provider import PolygonProvider
+                self.providers[DataProvider.POLYGON] = PolygonProvider(polygon_key)
+            except Exception as e:
+                logger.warning(f"PolygonProvider unavailable: {e}")
         
-        # Initialize Twelve Data if API key is available
+        # Initialize Twelve Data if API key is available (lazy import)
         twelve_data_key = getattr(settings, 'TWELVE_DATA_API_KEY', None)
         if twelve_data_key:
-            self.providers[DataProvider.TWELVE_DATA] = TwelveDataProvider(twelve_data_key)
+            try:
+                from .providers.twelve_data_provider import TwelveDataProvider
+                self.providers[DataProvider.TWELVE_DATA] = TwelveDataProvider(twelve_data_key)
+            except Exception as e:
+                logger.warning(f"TwelveDataProvider unavailable: {e}")
         
         logger.info(f"Initialized {len(self.providers)} data providers")
     

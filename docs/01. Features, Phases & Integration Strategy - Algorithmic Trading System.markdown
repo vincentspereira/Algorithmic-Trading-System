@@ -6,12 +6,15 @@ This project aims to build a comprehensive, enterprise-grade **algorithmic tradi
 
 The architecture is designed as a set of distinct microservices that communicate through an **Apache Kafka event bus**. This event-driven approach decouples services, provides data replayability for robust testing, and scales to handle high-frequency data streams for professional traders. The system's standout feature is a sophisticated **Agentic AI Assistant**, which acts as the platform's "brain," enabling users to manage trading, research, and analysis via natural language commands. The core trading engine is **NautilusTrader**, a high-performance, Python-based platform with Rust components, designed for event-driven backtesting and live trading across all asset classes. The Agentic AI Assistant leverages **TradingAgent** for multi-agent decision-making, **OpenBB** for financial data integration, and **TA-Lib/ta-lib-python** (primary wrapper) & **Bukosabino/ta** (secondary wrapper) for technical analysis, forming a robust AI-driven trading brain.
 
-The system incorporates advanced forecasting from **Stock-Prediction-Models** and **LSTM-Neural-Network-for-Time-Series-Prediction**, with real-time predictions enabled by **Real-time-stock-market-prediction** for live trading. **VectorBT** provides GPU-accelerated backtesting, while **TradingGym** complement NautilusTrader for flexible strategy development and simulated environments. Additional features include portfolio optimisation (**PyPortfolioOpt**, **Riskfolio-Lib**), anomaly detection (**PyOD**), no-code strategy building (**Blockly**), visualisation (**react-financial-charts**, **Plotly Dash**), explainable AI (**SHAP**), reinforcement learning (**FinRL**), and advanced NLP (**Transformers**, **PyTorch**), alongside options analytics (**QuantLib**).j
+To enhance usability for non-technical users, the Agentic AI Assistant includes an **Intelligent User Guidance System**. This component proactively recommends appropriate tools and features based on the user's query, context, goals, and experience level, drawing from a structured **Tool Taxonomy** of platform capabilities (e.g., NautilusTrader strategies, VectorBT backtesting, Plotly Dash visualisations, Blockly builder, Riskfolio-Lib optimizer, Market Scanner, etc.). After a tool is invoked, it predicts and suggests the next most probable steps with rationale, maintaining workflow momentum. The system integrates with the RAG pipeline for grounded recommendations, MCPs for context-aware guidance, and the Kafka event bus for broadcasting suggestions as events (e.g., ai.recommendation.generated, user.next_step.suggested), allowing seamless consumption by other services like the UI or analytics.
+
+The system incorporates advanced forecasting from **Stock-Prediction-Models** and **LSTM-Neural-Network-for-Time-Series-Prediction**, with real-time predictions enabled by **Real-time-stock-market-prediction** for live trading. **VectorBT** provides GPU-accelerated backtesting, while **TradingGym** complement NautilusTrader for flexible strategy development and simulated environments. Additional features include portfolio optimisation (**PyPortfolioOpt**, **Riskfolio-Lib**), anomaly detection (**PyOD**), no-code strategy building (**Blockly**), visualisation (**react-financial-charts**, **Plotly Dash**), explainable AI (**SHAP**), reinforcement learning (**FinRL**), and advanced NLP (**Transformers**, **PyTorch**), alongside options analytics (**QuantLib**).
 
 **Key Characteristics**
 
 - High Performance: Microsecond-level latency for trading operations
 - Scalable: Horizontal scaling across multiple nodes
+- User-Friendly: Intelligent guidance for non-technical users via proactive AI recommendations.
 - Resilient: Fault-tolerant with automatic failover
 - Secure: Enterprise-grade security with zero-trust architecture
 - Observable: Comprehensive monitoring and alerting
@@ -23,6 +26,7 @@ The system incorporates advanced forecasting from **Stock-Prediction-Models** an
     - Independent Deployment: Services can be deployed independently
     - Technology Diversity: Services can use different technologies
     - Fault Isolation: Failure in one service doesn't affect others
+    - User-Centric Design: Proactive guidance and context-aware suggestions to enhance usability.
     - Automated Self-Healing: Microservices are designed with automated self-healing mechanisms to detect and restore normal functionality for faulty components, minimising downtime and preventing cascading failures.
 2. **Event-Driven Architecture**
     - Asynchronous Communication: Services communicate via events
@@ -193,7 +197,84 @@ The system incorporates advanced forecasting from **Stock-Prediction-Models** an
             - Test context retention with multi-turn conversations (e.g., “Run a backtest” followed by “Explain the results”).
         - **Purpose**: Ensures the AI assistant operates efficiently, retains context, and scales for future enhancements.
     - **Defined AI Workflows:** Employs LangGraph to define and manage stateful workflows for complex, multi-step task execution (e.g., query → data retrieval → analysis → response).
-11. **Enterprise Security and Risk Management:** Platform is built with,
+11. **Intelligent User Guidance System:**
+    - This system will proactively assist non-technical users by:
+        - Recommending the most appropriate tools and features based on the user's current context, goals, and experience level.
+        - Predicting and suggesting the next most probable steps after a user has invoked a tool, providing a clear "next best action" to maintain workflow momentum and ensure successful outcomes.
+    - This component must be deeply integrated into the platform's multi-agent architecture, leveraging the Apache Kafka event bus, MCPs (Model Context Protocols), and the existing RAG pipeline to function as a seamless, context-aware guide. It should draw from a structured Tool Taxonomy cataloging all platform capabilities, ensuring recommendations are grounded in the system's features (e.g., NautilusTrader for trading, VectorBT for backtesting, Plotly Dash for visualisations, Blockly for no-code strategies, Riskfolio-Lib for optimisation, Market Scanner for real-time scanning).
+    - **Core Functionality:**
+        - **Tool Recommendation Engine:**
+            - **Input:** Analyse the user's natural language query, current session activity (e.g., recent tools used), historical interactions (stored in PostgreSQL), and stated or inferred goals (e.g., "I want to find undervalued stocks," "Why did my strategy lose money yesterday?"). Infer user experience level from profile data or session patterns (Novice User: prefers no-code; Advanced User: prefers Python Studio).
+            - **Processing:** Match the user's intent against a structured "Tool Taxonomy" (see below) using NLP (Transformers/PyTorch) and similarity search (Qdrant/pgvector). Rank recommendations by relevance score (cosine similarity >0.7), user level, and historical success rates. Limit to 2-3 suggestions to avoid overwhelming users.
+            - **Output:** Provide a ranked list of 2-3 recommended tools or features. For each, include:
+                - Brief, non-technical explanation of why it's suggested (e.g., "Based on your goal of finding momentum stocks, I recommend the Market Scanner—it uses real-time Kafka feeds to identify assets with high volume and price surges.").
+                - Confidence score (0-1).
+                - Quick-start snippet or example command (e.g., "Type: 'Scan for stocks with RSI >70'").
+            - **Edge Cases:** Handle ambiguous queries by asking clarifying questions; fallback to popular tools for novices.
+        - **Next-Step Predictor:**
+            - **Input:** Detect tool completion via Kafka events (e.g., backtest.completed, chart.rendered, strategy.saved). Use session state (MCPs) and historical user data (from ClickHouse analytics).
+            - **Processing:** Employ a state machine (e.g., finite-state machine in Python) combined with ML-based prediction (e.g., sequence modeling with LSTM) trained on anonymised user workflows. Factor in user level (novice: suggest simple steps; advanced: complex optimisations). Use RAG to ground suggestions in documentation.
+            - **Output:** Proactively suggest 1-2 next steps with:
+                - Action description (e.g., "Next, deploy this strategy to a paper account.").
+                - Rationale (e.g., "This validates real-market performance without risk, as 85% of users do after backtesting.").
+                - Confidence score and optional alternatives.
+            - **Edge Cases:** If no clear next step, suggest exploration (e.g., "Explore the Strategy Marketplace for similar ideas.").
+    - **Architectural Integration:**
+        - **Event-Driven Communication:** Broadcast recommendations as Kafka events (e.g., ai.guidance.recommendation.generated, ai.guidance.next_step.suggested) with structured payloads (JSON schemas in Schema Registry). This allows UI to display suggestions, analytics to track usage, and other agents (e.g., OpenHands) to incorporate guidance.
+        - **MCP (Model Context Protocol) Integration:** Register as an MCP tool/server with Archon, enabling other agents to query for guidance (e.g., Codename Goose requesting next DevOps step). Use MCPs to maintain user context (e.g., session goals, past suggestions).
+        - **RAG Integration:** Query RAGFlow-powered knowledge base (Qdrant/pgvector) for platform docs to ensure suggestions are accurate and up-to-date.
+        - **UI Integration:** Display suggestions as non-intrusive cards/prompts in Lobe Chat and Next.js UI (e.g., sidebar or popover). Make clickable to auto-invoke tools. Support voice delivery for AR/voice trading.
+        - **Feedback Loop:** Log user interactions with suggestions (e.g., accepted/ignored) to Kafka for ML retraining, improving accuracy over time.
+    - **Tool Taxonomy & Knowledge Base:**
+        - Create/maintain a tool_taxonomy.json file cataloging all platform features:
+            - tool_id: Unique identifier (e.g., market_scanner).
+            - name: Human-readable name.
+            - description: Brief, non-technical overview.
+            - user_level: Enum (novice, intermediate, advanced).
+            - inputs: Required parameters (e.g., symbols, timeframes).
+            - outputs: Expected results (e.g., scan results, charts).
+            - common_next_steps: Array of probable follow-ups (e.g., after backtest: deploy strategy).
+            - keywords: For intent matching (e.g., "momentum", "scan").
+        - Taxonomy must cover: NautilusTrader strategies, VectorBT backtesting, Plotly Dash charts, Blockly builder, Riskfolio-Lib optimiser, Market Scanner, etc.
+        - Store in Git for version control; ingest into RAG for dynamic querying.
+    - **Experience Level Adaptation:**
+        - Infer level from user profile (self-reported or derived from usage history).
+        - Novice User: Suggest simple tools (e.g., Blockly over Python Studio) with step-by-step guidance.
+        - Advanced User: Suggest complex tools (e.g., FinRL) with minimal explanation.
+    - **Implementation Tasks:**
+        - **Task 1: Foundation (Backend)**
+            - **Define Tool Taxonomy:** Create the initial tool_taxonomy.json schema and populate it with data for the core components listed in the architecture document (NautilusTrader, VectorBT, Blockly, Risk Manager, Market Scanner, Charting modules, etc.).
+            - **Develop Recommendation Service:** Build a new microservice, guidance_service, in Python. It should:
+                - Expose a REST/gRPC endpoint (e.g., POST /recommend) that accepts a context payload (user query, session history).
+                - Implement the logic to match context against the tool taxonomy.
+                - Publish its recommendations to a dedicated Kafka topic.
+            - **Develop Prediction Service:** Within the same service, create logic for the next-step predictor. It should listen for Kafka events signalling tool completion (e.g., strategy.backtest.completed) and generate prediction events.
+        - **Task 2: Integration & Intelligence**
+            - **Integrate with Archon MCP:** Register the guidance_service as a tool with the Archon MCP server. Define protocols for other agents to request recommendations (get_tool_recommendation).
+            - **Connect to RAG:** Implement a function within the service that queries the RAG pipeline (via its API) to fetch relevant documentation snippets to enrich recommendation rationales.
+            - **Implement Context Gathering:** Add functionality to the service to query other microservices (via Kafka or gRPC) for richer user context, such as recent portfolio performance or active strategies.
+        - **Task 3: Frontend & Presentation**
+            - **UI Component for Lobe Chat/Next.js:** Develop a React component that subscribes to the relevant Kafka topics (via a WebSocket connection) and displays recommendations and predictions as interactive suggestions within the user interface.
+            - **Testing & Validation:** Create unit and integration tests. Use historical user session data (or simulated data) to validate that recommendations are relevant and accurate. Test the full flow: user query -> AI Assistant -> Guidance Service -> Kafka -> UI display.
+    - **Testing & Validation:**
+        - Unit Tests: >90% coverage for recommendation engine and predictor (Pytest).
+        - Integration Tests: Verify Kafka events, MCP calls, and RAG accuracy.
+        - End-to-End Tests: Simulate user sessions (e.g., novice querying "find good stocks" → recommend Scanner → suggest backtest).
+        - Accuracy Metrics: >85% relevant recommendations; measure via user feedback simulation.
+        - Edge Cases: Handle ambiguous queries, failed tool invocations, or novice using advanced features.
+    - **Deliverables:**
+        - A fully implemented Intelligent User Guidance System as a microservice.
+        - A complete and extendable  tool_taxonomy.json with all platform tools.
+        - MCP integration for inter-agent communication.
+        - Real-time UI components displaying suggestions.
+        - Updated AI Assistant with guidance integration.
+        - Comprehensive Documentation: User guide for suggestions, developer guide for extending taxonomy.
+        - Test suite with 100+ cases covering all scenarios.
+    - **Success Metrics:**
+        - **Relevance:** >80% of tool recommendations are deemed "helpful" in user testing.
+        - **Adoption:** >60% of suggested "next steps" are clicked on or acted upon by users.
+        - **Performance:** The service responds with recommendations in under 500ms.
+12. **Enterprise Security and Risk Management:** Platform is built with,
     - **Zero-Trust architecture**
     - Real-time risk hub for pre-trade checks and account-level circuit breakers.
     - Role-based access control (**RBAC**)
@@ -203,7 +284,7 @@ The system incorporates advanced forecasting from **Stock-Prediction-Models** an
     - User and Entity Behaviour Analytics **(UEBA)**
     - Threat Modelling by Design
     - Formalised Backup Strategy
-12. **Incorporate Custom Volume-Weighted Indicators**
+13. **Incorporate Custom Volume-Weighted Indicators**
     - **Action**: Extend the technical indicator framework with volume-weighted calculations using **TA-Lib** and **NumPy**.
     - **Details**:
         - Develop custom volume-weighted technical indicators (e.g., VW SMA, VW EMA, VW MACD) using TA-Lib/ta-lib-python (primary wrapper) & Bukosabino/ta (secondary wrapper) and NumPy, as specified below:
@@ -748,6 +829,74 @@ Dynamic Tool Loading (5): This powerful feature means we can expand the system's
         - It is designed for speed and scalability.
         - It powers AI/ML, analytics, and data-intensive workloads with industry-leading performance.
         - <https://github.com/minio/minio>
+    - **Elasticsearch:**
+        - Elasticsearch is a distributed search and analytics engine, scalable data store and vector database optimized for speed and relevance on production-scale workloads.
+        - It is the foundation of Elastic’s open Stack platform.
+        - Search in near real-time over massive datasets, perform vector searches, integrate with generative AI applications, and much more.
+        - Use cases enabled by Elasticsearch include:
+            - [Retrieval Augmented Generation (RAG)](https://www.elastic.co/search-labs/blog/articles/retrieval-augmented-generation-rag)
+            - [Vector search](https://www.elastic.co/search-labs/blog/categories/vector-search)
+            - Full-text search
+            - Logs
+            - Metrics
+            - Application performance monitoring (APM)
+            - Security logs
+        - <https://github.com/elastic/elasticsearch>
+    - **Apache Cassandra:**
+        - Apache Cassandra is a highly scalable partitioned row store.
+        - Rows are organized into tables with a required primary key.
+        - [Partitioning](https://cwiki.apache.org/confluence/display/CASSANDRA2/Partitioners) means that Cassandra can distribute your data across multiple machines in an application-transparent matter.
+        - Cassandra will automatically repartition as machines are added and removed from the cluster.
+        - [Row store](https://cwiki.apache.org/confluence/display/CASSANDRA2/DataModel) means that like relational databases, Cassandra organizes data by rows and columns.
+        - **Key features**
+            - **Decentralized architecture:** Cassandra uses a peer-to-peer model where every node in the cluster is identical and can perform the same functions. This eliminates the risk of a single point of failure and makes the system resilient to outages.
+            - **Linear scalability:** You can increase read and write throughput by adding more nodes to the cluster, using inexpensive commodity hardware. Cassandra automatically redistributes data to maintain an even load balance.
+            - **Tuneable consistency:** Cassandra follows the CAP theorem, which states that a distributed system can only provide two of the three guarantees: Consistency, Availability, and Partition tolerance. By default, Cassandra is an "AP" system (available and partition-tolerant), but it allows you to choose your desired consistency level on a per-query basis. This lets you balance performance and availability with strong data consistency.
+            - **Seamless data replication:** Data is replicated across multiple nodes and can be spread across different data centres or geographic regions. This ensures low latency for users worldwide and protects against regional outages.
+            - **Flexible data model:** It is a wide-column store that supports flexible schemas, unlike rigid relational database management systems (RDBMS). Rows in the same table can have different columns, which is efficient for handling sparse data.
+            - **High write performance:** Cassandra's storage engine is optimized for high-volume, write-intensive workloads. It first logs writes to a commit log and then writes them to an in-memory memtable, ensuring fast, low-latency writes before flushing data to disk.
+            - **Cassandra Query Language (CQL):** While it is a NoSQL database, Cassandra provides the SQL-like CQL for interacting with data. This makes it easier for developers with an SQL background to learn and use.
+        - **Common use cases**
+            - Cassandra's strengths make it a popular choice for applications that need to manage large, dynamic datasets with high availability and write performance.
+            - **Internet of Things (IoT):** Manages massive amounts of real-time sensor data and event streams from connected devices.
+            - **Financial services:** Used for fraud detection and real-time transaction processing, which require analysing large, diverse datasets instantaneously.
+            - **Retail and e-commerce:** Powers personalized product recommendations, manages product catalogues and inventory, and handles high transaction volumes during peak seasons.
+            - **Social media and entertainment:** Stores user activity logs, messages, and content metadata. Companies like Netflix and Instagram use Cassandra to handle data from millions of users.
+            - **Messaging and communication:** Provides scalable and reliable message storage for communication platforms.
+            - **Time-series data:** Efficiently stores and retrieves timestamped data for monitoring systems, telematics, and weather history.
+        - **Considerations for use**
+            - While Cassandra offers many benefits, it is not a suitable choice for every project.
+            - **Not for small datasets:** The operational overhead of managing a distributed system means Cassandra is not the best fit for applications with small amounts of data.
+            - **Not ideal for ad-hoc queries:** Because of its distributed nature, Cassandra does not support advanced query patterns like multi-table joins or aggregates. The data model should be designed around your access patterns.
+            - **Eventual consistency:** Though it is tuneable, Cassandra's default is eventual consistency. Applications that require strict ACID compliance may be better suited for a traditional relational database.
+            - **Complex data modelling:** Its flexible schema requires careful upfront data modelling tailored to your specific queries. Poor data modelling can lead to performance issues.
+        - <https://github.com/apache/cassandra>
+    - **MongoDB:**
+        - A MongoDB database is a popular NoSQL document database that stores data in flexible, JSON-like documents (BSON format) rather than traditional rows and columns.
+        - It is designed for horizontal scalability and features a flexible schema, allowing developers to easily manage structured, unstructured, and semi-structured data for modern applications.
+        - MongoDB provides features like indexing for fast access, [replication](https://www.google.com/search?sca_esv=d262380f444288af&rlz=1C1JJTC_enIN1031IN1031&sxsrf=AE3TifMH9x9uwsMJY0kvBQZ8YFQT652s9g%3A1758122394169&q=replication&sa=X&ved=2ahUKEwj2r5qmjOCPAxVPQUEAHV0RBRYQxccNegQINRAB&mstk=AUtExfACVxWAR5lPHN9RcuvUMkha1Gthkd0Russ1Q-UVPIVvYIhWzZqXFJsV7bSEW7XjYfrtjlvspgG_Gj8uCZnS2HDgCfXFzATC-e27qYEsz0iovCWWKle7JlYLjgqrs85aybHwTkVGhLayznq8gDXi2dr_pUf2Ee1pZJFypFfwPM8eAzx6oAdFYqKc40CWL4Q3OZoBZwrcfoSu1960dJu2Y0156aEygFTEZM-BO_LP8uq937YHDhniDwJS2MWEbNBANaf8CNEVMC0icjK3hLxzNRPr&csui=3) for high availability, and supports complex queries, making it a powerful choice for a wide range of applications, including web, mobile, and AI.
+        - **Key Characteristics**
+            - **Document-Oriented Data Model**: Data is stored in BSON documents, which are binary representations of JSON.
+            - **Flexible Schema**: Unlike relational databases, MongoDB doesn't require a rigid, predefined schema, allowing for variation in data structure between documents within the same collection.
+            - [**NoSQL**](https://www.google.com/search?sca_esv=d262380f444288af&rlz=1C1JJTC_enIN1031IN1031&sxsrf=AE3TifMH9x9uwsMJY0kvBQZ8YFQT652s9g%3A1758122394169&q=NoSQL&sa=X&ved=2ahUKEwj2r5qmjOCPAxVPQUEAHV0RBRYQxccNegUIsAEQAQ&mstk=AUtExfACVxWAR5lPHN9RcuvUMkha1Gthkd0Russ1Q-UVPIVvYIhWzZqXFJsV7bSEW7XjYfrtjlvspgG_Gj8uCZnS2HDgCfXFzATC-e27qYEsz0iovCWWKle7JlYLjgqrs85aybHwTkVGhLayznq8gDXi2dr_pUf2Ee1pZJFypFfwPM8eAzx6oAdFYqKc40CWL4Q3OZoBZwrcfoSu1960dJu2Y0156aEygFTEZM-BO_LP8uq937YHDhniDwJS2MWEbNBANaf8CNEVMC0icjK3hLxzNRPr&csui=3) **Database**: As a NoSQL database, it offers a different approach to data storage and management than traditional relational (SQL) databases.
+            - **Horizontal Scalability**: Built on a scale-out architecture, it can distribute large amounts of data across many machines for high performance and handling huge datasets.
+            - **Rich Feature Set**: Includes ad hoc queries, indexing for performance, real-time aggregation, replication for data protection, and supports ACID transactions.
+        - **How It Works**
+            - **Databases**: A container for collections.
+            - [**Collections**](https://www.google.com/search?sca_esv=d262380f444288af&rlz=1C1JJTC_enIN1031IN1031&sxsrf=AE3TifMH9x9uwsMJY0kvBQZ8YFQT652s9g%3A1758122394169&q=Collections&sa=X&ved=2ahUKEwj2r5qmjOCPAxVPQUEAHV0RBRYQxccNegUIzQEQAQ&mstk=AUtExfACVxWAR5lPHN9RcuvUMkha1Gthkd0Russ1Q-UVPIVvYIhWzZqXFJsV7bSEW7XjYfrtjlvspgG_Gj8uCZnS2HDgCfXFzATC-e27qYEsz0iovCWWKle7JlYLjgqrs85aybHwTkVGhLayznq8gDXi2dr_pUf2Ee1pZJFypFfwPM8eAzx6oAdFYqKc40CWL4Q3OZoBZwrcfoSu1960dJu2Y0156aEygFTEZM-BO_LP8uq937YHDhniDwJS2MWEbNBANaf8CNEVMC0icjK3hLxzNRPr&csui=3)**:** Similar to tables in a relational database, but instead of rows, they contain BSON documents.
+            - **Documents**: The basic unit of data, analogous to a row in a relational database, holding various data types and structures.
+            - **Fields**: Within documents, fields are like columns in a relational database and can be indexed to improve query performance.
+        - **Benefits**
+            - **Developer Agility**: The flexible schema and document model map well to application objects, simplifying development and making it easier to adapt to changing data requirements.
+            - **Performance**: Features like indexing, ad hoc queries, and real-time aggregation provide powerful ways to access and analyze data efficiently.
+            - **Scalability & Availability**: Built for horizontal scaling and high availability through replication and distribution across multiple systems.
+            - **Versatility**: Can store and process structured, unstructured, and semistructured data, making it suitable for modern, complex applications.
+        - **Common Use Cases**
+            - Modern web and mobile applications.
+            - Applications with a need for flexible data models.
+            - Data storage for Artificial Intelligence (AI) and machine learning, which requires fluid and instantly accessible data.
+            - Managing large volumes of data and enabling rapid development cycles.
+        - <https://github.com/mongodb/mongo>
 10. **Order Management & Execution Layer:**
     - **FIX Gateway:**
         - Institutional-grade trading connectivity.
@@ -857,7 +1006,7 @@ Dynamic Tool Loading (5): This powerful feature means we can expand the system's
         - Jaeger maps the flow of requests and data as they traverse a distributed system.
         - These requests may make calls to multiple services, which may introduce their own delays or errors.
         - Jaeger connects the dots between these disparate components, helping to identify performance bottlenecks, troubleshoot errors, and improve overall application reliability.
-        - It utilises [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/"%20\t%20"_blank) framework as the base and extends it to implement Jaeger’s unique features.
+        - It utilises [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) framework as the base and extends it to implement Jaeger’s unique features.
         - It brings significant improvements and changes, making Jaeger more flexible, extensible, and better aligned with the OpenTelemetry project.
         - OpenTelemetry is the de-facto standard for application instrumentation providing the foundation for observability.
         - Jaeger is now based on the cornerstone of this project, the OpenTelemetry Collector.
@@ -1109,32 +1258,35 @@ To balance the benefits of upstream updates with the stability of your customise
 37. <https://github.com/redis/redis>
 38. <https://github.com/influxdata/influxdb>
 39. <https://github.com/minio/minio>
-40. <https://github.com/quickfix-j/quickfixj>
-41. <https://github.com/fix8/fix8>
-42. <https://github.com/feast-dev/feast>
-43. <https://github.com/tecton-ai>
-44. <https://github.com/prometheus/prometheus>
-45. <https://github.com/grafana/grafana>
-46. <https://github.com/grafana/tempo>
-47. <https://github.com/bloomberg/memray>
-48. <https://github.com/elastic/elasticsearch>
-49. <https://github.com/grafana/loki>
-50. <https://github.com/jaegertracing/jaeger>
-51. <https://github.com/prometheus/alertmanager>
-52. <https://github.com/deviantony/docker-elk>
-53. <https://github.com/Unleash/unleash>
-54. <https://github.com/PyCQA/bandit>
-55. <https://github.com/react-financial/react-financial-charts>
-56. <https://github.com/plotly/dash>
-57. <https://github.com/optuna/optuna>
-58. <https://github.com/robertmartin8/PyPortfolioOpt>
-59. <https://github.com/dcajasn/Riskfolio-Lib>
-60. <https://github.com/yzhao062/pyod>
-61. <https://github.com/shap/shap>
-62. <https://github.com/google/blockly>
-63. <https://github.com/huggingface/transformers>
-64. <https://github.com/pytorch/pytorch>
-65. <https://github.com/AI4Finance-Foundation/FinRL>
+40. <https://github.com/elastic/elasticsearch>
+41. <https://github.com/apache/cassandra>
+42. <https://github.com/mongodb/mongo>
+43. <https://github.com/quickfix-j/quickfixj>
+44. <https://github.com/fix8/fix8>
+45. <https://github.com/feast-dev/feast>
+46. <https://github.com/tecton-ai>
+47. <https://github.com/prometheus/prometheus>
+48. <https://github.com/grafana/grafana>
+49. <https://github.com/grafana/tempo>
+50. <https://github.com/bloomberg/memray>
+51. <https://github.com/elastic/elasticsearch>
+52. <https://github.com/grafana/loki>
+53. <https://github.com/jaegertracing/jaeger>
+54. <https://github.com/prometheus/alertmanager>
+55. <https://github.com/deviantony/docker-elk>
+56. <https://github.com/Unleash/unleash>
+57. <https://github.com/PyCQA/bandit>
+58. <https://github.com/react-financial/react-financial-charts>
+59. <https://github.com/plotly/dash>
+60. <https://github.com/optuna/optuna>
+61. <https://github.com/robertmartin8/PyPortfolioOpt>
+62. <https://github.com/dcajasn/Riskfolio-Lib>
+63. <https://github.com/yzhao062/pyod>
+64. <https://github.com/shap/shap>
+65. <https://github.com/google/blockly>
+66. <https://github.com/huggingface/transformers>
+67. <https://github.com/pytorch/pytorch>
+68. <https://github.com/AI4Finance-Foundation/FinRL>
 
 **Initial Prompt**
 
@@ -1614,6 +1766,13 @@ Be assigned to the "Placeholder Review" backlog.
       - Elevate the existing RAG pipeline in \`/ai_assistant\` from a reactive tool into a proactive intelligence engine.
       - Create a dedicated "Researcher" agent tasked with continuously monitoring external data sources (e.g., news feeds, SEC filing APIs), automatically processing new documents via RAGFlow, and updating the vector database (Qdrant or pgvector) in real-time.
       - This ensures all other agents are always accessing the most current, pre-processed knowledge base.
+  - **Intelligent User Guidance System Integration:**
+    - Develop a Tool Recommendation Engine that analyses user queries and session context to suggest 2-3 relevant tools from the platform's Tool Taxonomy, with explanations and confidence scores.
+    - Implement a Next-Step Predictor using state machines and historical data to suggest subsequent actions after tool invocation, including rationale.
+    - Create a structured Tool Taxonomy JSON cataloguing all platform features (e.g., NautilusTrader, VectorBT, Blockly, Market Scanner, etc.).
+    - Integrate with RAG pipeline for grounding suggestions in platform documentation.
+    - Use MCPs for maintaining user context across guidance sessions.
+    - Broadcast recommendations as Kafka events for UI and analytics consumption.
   - **Integrate Reinforcement Learning with FinRL and RLOps:**
     - Deploy FinRL for RL-based strategy optimization, training on historical data (ClickHouse/Iceberg) and custom indicators (e.g., VW MFI, Normalized ATR).
     - Build an RLOps pipeline: Automated training (PyTorch), model versioning (MinIO), drift detection (Prometheus metrics), retraining triggers (e.g., performance drop >5%), and monitoring (accuracy, reward metrics).
@@ -1663,6 +1822,7 @@ Be assigned to the "Placeholder Review" backlog.
   - **RAG Pipeline Implementation:**
     - Configure Unstructured.io for data parsing (news, filings), generate embeddings, store in Qdrant/Elasticsearch/Redis.
     - Build retrieval logic for AI Assistant, integrate with Kafka for real-time document updates, test latency/accuracy.
+  - **Intelligent User Guidance System Integration:**
   - **FinRL and RLOps Deployment:**
     - Set up FinRL environment, train RL models on historical data (ClickHouse) with custom indicators.
     - Implement RLOps: Training pipeline (PyTorch, Kubernetes jobs), versioning (MinIO), monitoring (Prometheus), retraining logic.
@@ -1931,6 +2091,10 @@ docker compose --profile pro up -d
     - Integrate Whisper for high-accuracy speech-to-text (e.g., transcribe “Buy 100 AAPL at limit $150”) with >95% accuracy.
     - Extend LLM voice mode (mobile/desktop) for command execution, linking to Agentic AI Assistant for natural language strategy adjustments.
     - Test voice workflows: End-to-end command → trade execution, validate latency (<500ms).
+  - **Enhance Intelligent User Guidance System:**
+    - Integrate with voice trading and AR interfaces for contextual recommendations (e.g., suggest next steps in AR portfolio view).
+    - Extend Next-Step Predictor with predictive analytics from historical user workflows.
+    - Enhance Tool Recommendation Engine with user feedback loops for continuous improvement.
   - **Build a Fully Functional Strategy Marketplace:**
     - Enhance Phase 5’s prototype into a production-ready marketplace for sharing, rating, and monetizing NautilusTrader strategies (Blockly/AI-generated).
     - Implement backend with Postgres/pgvector for metadata, Qdrant for vectorized search, and Redis for caching, with payment integration (e.g., Stripe for subscriptions).
@@ -1982,6 +2146,7 @@ docker compose --profile pro up -d
   - **Voice-Driven Trading Enhancement:**
     - Integrate Whisper for speech-to-text (>95% accuracy), extend LLM voice mode for command execution.
     - Test: End-to-end voice command → trade, measure latency (<500ms).
+  - **Enhance Intelligent User Guidance System:**
   - **Production-Ready Strategy Marketplace:**
     - Upgrade marketplace backend (Postgres/pgvector, Qdrant, Redis) with Stripe payments.
     - Build React/Next.js UI for strategy browsing/rating/monetization.
@@ -2017,4 +2182,3 @@ docker compose --profile pro up -d
     - Use placeholders, follow incremental protocol.
 - **Deliverables:** WebXR AR interfaces; voice trading modules; marketplace with monetization; HFT optimizations; advanced AI; blockchain prototypes; observability/compliance upgrades; security enhancements; test suites; documentation (Mermaid, guides); validated system.
 - **Acknowledge:** Confirm that you have understood this directive and are ready to begin development.
-- 

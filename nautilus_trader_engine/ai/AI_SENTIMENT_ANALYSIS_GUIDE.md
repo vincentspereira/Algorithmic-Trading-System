@@ -410,7 +410,7 @@ async def sentiment_trading_signals():
         print(f"\\n{symbol} Sentiment Trading Signals:")
         
         for signal in signals:
-            print(f"  {signal.signal_type.upper()} - {signal.direction}")
+            print(f"  {signal.signal_type.upper()}")
             print(f"    Strength: {signal.strength:.3f}")
             print(f"    Confidence: {signal.confidence:.3f}")
             print(f"    Timeframe: {signal.timeframe}")
@@ -553,13 +553,13 @@ async def sentiment_trading_strategy():
         
         async def on_sentiment_signal(self, signal):
             if signal.confidence > self.sentiment_threshold:
-                if signal.direction == "bullish":
+                if signal.signal_type in {SignalType.BUY, SignalType.STRONG_BUY}:
                     await self.place_buy_order(
                         symbol=signal.entity,
                         size=self.position_size,
                         reason=f"Bullish sentiment: {signal.strength:.2f}"
                     )
-                elif signal.direction == "bearish":
+                elif signal.signal_type in {SignalType.SELL, SignalType.STRONG_SELL}:
                     await self.place_sell_order(
                         symbol=signal.entity,
                         size=self.position_size,

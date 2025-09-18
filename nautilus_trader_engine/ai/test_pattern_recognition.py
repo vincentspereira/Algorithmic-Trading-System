@@ -9,7 +9,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from typing import List
 
-from pattern_recognition import (
+from nautilus_trader_engine.ai.pattern_recognition import (
     PatternRecognitionEngine, MarketData, PatternType, 
     PatternSignal, CandlestickPatternDetector, ChartPatternDetector,
     VolumePatternDetector, AnomalyDetector

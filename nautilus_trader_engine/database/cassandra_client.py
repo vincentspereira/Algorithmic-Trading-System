@@ -16,7 +16,7 @@ Phase: 1 - Core System Validation & Hardening
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional, Union
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import os
 from dataclasses import dataclass, asdict
@@ -371,7 +371,7 @@ class CassandraManager:
                 statement.consistency_level = ConsistencyLevel.LOCAL_QUORUM
                 
                 metadata_str = json.dumps(data.metadata) if data.metadata else None
-                created_at = data.created_at or datetime.now()
+                created_at = data.created_at or datetime.now(timezone.utc)
                 
                 self.session.execute(statement, (
                     data.id,
@@ -387,7 +387,7 @@ class CassandraManager:
                 
                 # Add to fallback data
                 data_dict = asdict(data)
-                data_dict["created_at"] = data.created_at.isoformat() if data.created_at else datetime.now().isoformat()
+                data_dict["created_at"] = data.created_at.isoformat() if data.created_at else datetime.now(timezone.utc).isoformat()
                 self.fallback_data[table_name].append(data_dict)
                 
                 # Save to file

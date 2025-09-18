@@ -2,7 +2,7 @@
 import pytest
 from datetime import datetime
 
-from app.status.service_status import ServiceStatus
+from nautilus_trader_engine.core.app.status.service_status import ServiceStatus
 
 def test_service_status_initialization():
     status = ServiceStatus()

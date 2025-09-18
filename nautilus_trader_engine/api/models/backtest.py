@@ -6,7 +6,7 @@ These models define the structure for backtest requests, results, performance me
 and error handling for the backtesting system.
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, Dict, Any
 from datetime import date, datetime
 from enum import Enum
@@ -91,18 +91,17 @@ class BacktestRequest(BaseModel):
     def ticker_must_be_uppercase(cls, v):
         return v.upper().strip()
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "ticker": "AAPL",
-                "start_date": "2023-01-01",
-                "end_date": "2023-12-31",
-                "strategy_name": "moving_average_crossover",
-                "initial_capital": 100000.0,
-                "fast_period": 10,
-                "slow_period": 30
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "ticker": "AAPL",
+            "start_date": "2023-01-01",
+            "end_date": "2023-12-31",
+            "strategy_name": "moving_average_crossover",
+            "initial_capital": 100000.0,
+            "fast_period": 10,
+            "slow_period": 30
         }
+    })
 
 
 class PerformanceMetrics(BaseModel):
@@ -197,27 +196,26 @@ class PerformanceMetrics(BaseModel):
         example=115470.0
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "total_return": 0.1547,
-                "annual_return": 0.1234,
-                "sharpe_ratio": 1.25,
-                "max_drawdown": -0.0823,
-                "volatility": 0.1456,
-                "calmar_ratio": 1.50,
-                "sortino_ratio": 1.78,
-                "total_trades": 45,
-                "winning_trades": 28,
-                "losing_trades": 17,
-                "win_rate": 0.6222,
-                "avg_win": 1250.75,
-                "avg_loss": -850.25,
-                "profit_factor": 1.85,
-                "initial_capital": 100000.0,
-                "final_capital": 115470.0
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "total_return": 0.1547,
+            "annual_return": 0.1234,
+            "sharpe_ratio": 1.25,
+            "max_drawdown": -0.0823,
+            "volatility": 0.1456,
+            "calmar_ratio": 1.50,
+            "sortino_ratio": 1.78,
+            "total_trades": 45,
+            "winning_trades": 28,
+            "losing_trades": 17,
+            "win_rate": 0.6222,
+            "avg_win": 1250.75,
+            "avg_loss": -850.25,
+            "profit_factor": 1.85,
+            "initial_capital": 100000.0,
+            "final_capital": 115470.0
         }
+    })
 
 
 class BacktestResult(BaseModel):
@@ -247,21 +245,20 @@ class BacktestResult(BaseModel):
         example=None
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "engine_name": "Backtrader",
-                "status": "success",
-                "metrics": {
-                    "total_return": 0.1547,
-                    "sharpe_ratio": 1.25,
-                    "max_drawdown": -0.0823,
-                    "total_trades": 45,
-                    "win_rate": 0.6222
-                },
-                "error": None
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "engine_name": "Backtrader",
+            "status": "success",
+            "metrics": {
+                "total_return": 0.1547,
+                "sharpe_ratio": 1.25,
+                "max_drawdown": -0.0823,
+                "total_trades": 45,
+                "win_rate": 0.6222
+            },
+            "error": None
         }
+    })
 
 
 class BacktestResponse(BaseModel):
@@ -312,36 +309,35 @@ class BacktestResponse(BaseModel):
         description="Summary metrics from the best performing engine"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "success",
-                "timestamp": "2024-01-15T14:30:00Z",
-                "parameters": {
-                    "ticker": "AAPL",
-                    "start_date": "2023-01-01",
-                    "end_date": "2023-12-31",
-                    "strategy_name": "moving_average_crossover",
-                    "initial_capital": 100000.0
-                },
-                "data_points": 252,
-                "results": {
-                    "Backtrader": {
-                        "engine_name": "Backtrader",
-                        "status": "success",
-                        "metrics": {
-                            "total_return": 0.1547,
-                            "sharpe_ratio": 1.25
-                        }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "status": "success",
+            "timestamp": "2024-01-15T14:30:00Z",
+            "parameters": {
+                "ticker": "AAPL",
+                "start_date": "2023-01-01",
+                "end_date": "2023-12-31",
+                "strategy_name": "moving_average_crossover",
+                "initial_capital": 100000.0
+            },
+            "data_points": 252,
+            "results": {
+                "Backtrader": {
+                    "engine_name": "Backtrader",
+                    "status": "success",
+                    "metrics": {
+                        "total_return": 0.1547,
+                        "sharpe_ratio": 1.25
                     }
-                },
-                "summary": {
-                    "total_return": 0.1547,
-                    "sharpe_ratio": 1.25,
-                    "max_drawdown": -0.0823
                 }
+            },
+            "summary": {
+                "total_return": 0.1547,
+                "sharpe_ratio": 1.25,
+                "max_drawdown": -0.0823
             }
         }
+    })
 
 
 class BacktestError(BaseModel):
@@ -381,17 +377,16 @@ class BacktestError(BaseModel):
         }
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "status": "error",
-                "timestamp": "2024-01-15T14:30:00Z",
-                "error": "Invalid ticker symbol: XYZ not found",
-                "details": "The ticker symbol 'XYZ' is not available in the data provider",
-                "parameters": {
-                    "ticker": "XYZ",
-                    "start_date": "2023-01-01",
-                    "end_date": "2023-12-31"
-                }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "status": "error",
+            "timestamp": "2024-01-15T14:30:00Z",
+            "error": "Invalid ticker symbol: XYZ not found",
+            "details": "The ticker symbol 'XYZ' is not available in the data provider",
+            "parameters": {
+                "ticker": "XYZ",
+                "start_date": "2023-01-01",
+                "end_date": "2023-12-31"
             }
         }
+    })

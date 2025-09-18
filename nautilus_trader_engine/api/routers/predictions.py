@@ -16,7 +16,7 @@ Version: 2.0.0
 
 import asyncio
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 
 import websockets
@@ -91,7 +91,7 @@ async def get_historical_predictions(
     """
     # This should be implemented to fetch data from a time-series database or log files.
     mock_history = [
-        {"timestamp": datetime.utcnow().isoformat(), "prediction": 150.0 + i * 0.1, "symbol": symbol}
+        {"timestamp": datetime.now(timezone.utc).isoformat(), "prediction": 150.0 + i * 0.1, "symbol": symbol}
         for i in range(limit)
     ]
     return {"status": "success", "data": mock_history}
@@ -105,6 +105,6 @@ async def get_model_accuracy():
         "1min_horizon": {"mean_absolute_error": 0.05, "accuracy": 0.85},
         "5min_horizon": {"mean_absolute_error": 0.12, "accuracy": 0.78},
         "15min_horizon": {"mean_absolute_error": 0.25, "accuracy": 0.72},
-        "last_updated": datetime.utcnow().isoformat()
+        "last_updated": datetime.now(timezone.utc).isoformat()
     }
     return {"status": "success", "data": mock_accuracy}

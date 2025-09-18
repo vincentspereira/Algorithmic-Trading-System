@@ -21,9 +21,12 @@ except ImportError:
     class Indicator(ABC):
         pass  # Mock base class
 
-if VOLUME_CONFIRMATION_AVAILABLE:
+# Safe import for VolumeConfirmationMixin with availability flag
+try:
     from .volume_confirmation import VolumeConfirmationMixin
-else:
+    VOLUME_CONFIRMATION_AVAILABLE = True
+except ImportError:
+    VOLUME_CONFIRMATION_AVAILABLE = False
     class VolumeConfirmationMixin:
         pass  # Mock if not available
 

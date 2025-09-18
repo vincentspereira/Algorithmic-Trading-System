@@ -7,7 +7,7 @@ Tests the enhanced email notification functionality.
 import asyncio
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add current directory to path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -73,7 +73,7 @@ async def test_email_notifications():
             message=\"Scheduled maintenance window for dependency management system\",
             priority=\"medium\",
             tier=3,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             details={
                 \"maintenance_type\": \"scheduled\",
                 \"duration\": \"2 hours\",

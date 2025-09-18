@@ -15,7 +15,7 @@ Version: 1.0.0
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from enum import Enum
 from pydantic import BaseModel
@@ -200,7 +200,7 @@ class STRIDEThreatModelingService:
                 mitigation=pattern["mitigation"],
                 affected_assets=[component_name],
                 cvss_score=pattern["cvss_base"],
-                discovered_date=datetime.utcnow()
+                discovered_date=datetime.now(timezone.utc)
             )
             
             threats.append(threat)
@@ -219,7 +219,7 @@ class STRIDEThreatModelingService:
             component_type=component_type,
             threats=threats,
             overall_risk_score=overall_risk,
-            last_updated=datetime.utcnow(),
+            last_updated=datetime.now(timezone.utc),
             version="1.0.0"
         )
     
@@ -256,7 +256,7 @@ class STRIDEThreatModelingService:
                 mitigation=pattern["mitigation"],
                 affected_assets=[component_name],
                 cvss_score=pattern["cvss_base"],
-                discovered_date=datetime.utcnow()
+                discovered_date=datetime.now(timezone.utc)
             )
             
             generic_threats.append(threat)
@@ -304,7 +304,7 @@ class STRIDEThreatModelingService:
             high_threats=high_count,
             medium_threats=medium_count,
             low_threats=low_count,
-            last_updated=datetime.utcnow(),
+            last_updated=datetime.now(timezone.utc),
             version="1.0.0"
         )
     

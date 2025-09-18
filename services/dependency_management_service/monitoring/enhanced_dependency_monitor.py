@@ -13,7 +13,7 @@ import os
 import argparse
 from packaging import version
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 import logging
 
@@ -338,7 +338,7 @@ class EnhancedDependencyMonitor:
     def generate_report(self, all_updates: List[Dict]) -> Dict:
         """Generate a comprehensive dependency monitoring report."""
         report = {
-            'generated_at': datetime.now().isoformat(),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
             'total_updates': len(all_updates),
             'critical_updates': len([u for u in all_updates if u.get('severity') == 'critical']),
             'high_updates': len([u for u in all_updates if u.get('severity') == 'high']),

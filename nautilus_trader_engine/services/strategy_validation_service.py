@@ -6,7 +6,7 @@ It provides a framework for backtesting, performance analysis, and other validat
 """
 
 import logging
-from nautilus_trader_engine.run_initial_backtest import BacktestRunner
+from run_initial_backtest import BacktestRunner
 
 class StrategyValidationService:
     """

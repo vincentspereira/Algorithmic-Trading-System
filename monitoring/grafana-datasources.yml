@@ -1,0 +1,313 @@
+# Grafana Datasources Configuration for Trading System
+# Automatically provisions datasources for comprehensive monitoring
+
+apiVersion: 1
+
+datasources:
+  # Primary Prometheus datasource
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.45.0
+      cacheLevel: 'High'
+      disableMetricsLookup: false
+      incrementalQuerying: true
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: jaeger
+    secureJsonData: {}
+
+  # Alertmanager datasource
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: true
+    jsonData:
+      implementation: prometheus
+      handleGrafanaManagedAlerts: true
+    secureJsonData: {}
+
+  # PostgreSQL datasource for direct database queries
+  - name: PostgreSQL-Trading
+    type: postgres
+    access: proxy
+    url: postgresql:5432
+    database: trading_system
+    user: postgres
+    editable: true
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 10
+      maxIdleConns: 2
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false
+    secureJsonData:
+      password: postgres_password
+
+  # ClickHouse datasource for analytics
+  - name: ClickHouse-Analytics
+    type: vertamedia-clickhouse-datasource
+    access: proxy
+    url: http://clickhouse:8123
+    database: trading_analytics
+    user: default
+    editable: true
+    jsonData:
+      defaultDatabase: trading_analytics
+      usePOST: true
+      useYandexCloudAuthorization: false
+      xHeaderUser: ''
+      xHeaderKey: ''
+      addCorsHeader: true
+      useCompression: true
+      defaultTable: market_data
+    secureJsonData:
+      password: clickhouse_password
+
+  # Redis datasource for cache monitoring
+  - name: Redis-Cache
+    type: redis-datasource
+    access: proxy
+    url: redis://redis:6379
+    editable: true
+    jsonData:
+      client: standalone
+      poolSize: 5
+      timeout: 10
+      pingInterval: 0
+      pipelineWindow: 0
+    secureJsonData:
+      password: redis_password
+
+  # InfluxDB datasource for time-series data
+  - name: InfluxDB-TimeSeries
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: trading_metrics
+    user: influxdb
+    editable: true
+    jsonData:
+      version: InfluxQL
+      timeInterval: '10s'
+      httpMode: GET
+      keepCookies: []
+    secureJsonData:
+      password: influxdb_password
+
+  # Elasticsearch datasource for logs
+  - name: Elasticsearch-Logs
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    database: '[trading-logs-]*'
+    editable: true
+    jsonData:
+      index: trading-logs
+      timeField: '@timestamp'
+      esVersion: '8.0.0'
+      maxConcurrentShardRequests: 5
+      logMessageField: message
+      logLevelField: level
+      includeFrozen: false
+      xpack: false
+    secureJsonData: {}
+
+  # Jaeger datasource for distributed tracing
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    uid: jaeger
+    editable: true
+    jsonData:
+      tracesToLogs:
+        datasourceUid: 'elasticsearch-logs'
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: false
+        filterBySpanID: false
+      tracesToMetrics:
+        datasourceUid: 'prometheus'
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+        queries:
+          - name: 'Sample query'
+            query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m]))'
+      nodeGraph:
+        enabled: true
+    secureJsonData: {}
+
+  # Loki datasource for log aggregation
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: jaeger
+          matcherRegex: '(?:trace_id|traceID)=(\w+)'
+          name: TraceID
+          url: '$${__value.raw}'
+    secureJsonData: {}
+
+  # MinIO/S3 datasource for object storage metrics
+  - name: MinIO-Storage
+    type: minio-datasource
+    access: proxy
+    url: http://minio:9000
+    editable: true
+    jsonData:
+      accessKey: minio_access_key
+      bucketName: trading-data
+      region: us-east-1
+      sigV4Auth: true
+    secureJsonData:
+      secretKey: minio_secret_key
+
+  # TestData datasource for development and testing
+  - name: TestData
+    type: testdata
+    access: proxy
+    editable: true
+    jsonData: {}
+    secureJsonData: {}
+
+  # Mixed datasource for combining multiple sources
+  - name: Mixed
+    type: mixed
+    access: proxy
+    editable: false
+    jsonData: {}
+    secureJsonData: {}
+
+  # Annotations datasource
+  - name: Annotations
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    editable: true
+    jsonData:
+      httpMethod: POST
+    secureJsonData: {}
+
+# Notification channels (legacy, for older Grafana versions)
+notifiers:
+  - name: email-alerts
+    type: email
+    uid: email-alerts
+    org_id: 1
+    is_default: true
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: '10s'
+    settings:
+      addresses: 'admin@trading-system.local;ops@trading-system.local'
+      subject: '[Grafana] Trading System Alert'
+      single_email: false
+
+  - name: slack-alerts
+    type: slack
+    uid: slack-alerts
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: '10s'
+    settings:
+      url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+      username: 'Grafana-TradingSystem'
+      channel: '#trading-alerts'
+      title: 'Trading System Alert'
+      text: |
+        {{ range .Alerts }}
+        *Alert:* {{ .Annotations.summary }}
+        *Description:* {{ .Annotations.description }}
+        *Severity:* {{ .Labels.severity }}
+        *Service:* {{ .Labels.service }}
+        {{ end }}
+      iconEmoji: ':exclamation:'
+      iconUrl: ''
+      mentionUsers: ''
+      mentionGroups: ''
+      mentionChannel: 'here'
+
+# Contact points for unified alerting (Grafana 8+)
+contactPoints:
+  - orgId: 1
+    name: email-contact
+    receivers:
+      - uid: email-receiver
+        type: email
+        settings:
+          addresses:
+            - admin@trading-system.local
+            - ops@trading-system.local
+          subject: '[Trading System] {{ .GroupLabels.alertname }}'
+          message: |
+            {{ range .Alerts }}
+            Alert: {{ .Annotations.summary }}
+            Description: {{ .Annotations.description }}
+            Severity: {{ .Labels.severity }}
+            Service: {{ .Labels.service }}
+            Started: {{ .StartsAt }}
+            {{ if .EndsAt }}Ended: {{ .EndsAt }}{{ end }}
+            {{ end }}
+
+  - orgId: 1
+    name: slack-contact
+    receivers:
+      - uid: slack-receiver
+        type: slack
+        settings:
+          url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+          username: 'Grafana-TradingSystem'
+          channel: '#trading-alerts'
+          title: 'Trading System Alert: {{ .GroupLabels.alertname }}'
+          text: |
+            {{ range .Alerts }}
+            *{{ .Annotations.summary }}*
+            {{ .Annotations.description }}
+            Severity: {{ .Labels.severity }}
+            Service: {{ .Labels.service }}
+            {{ end }}
+          iconEmoji: ':chart_with_upwards_trend:'
+
+# Notification policies for unified alerting
+policies:
+  - orgId: 1
+    receiver: email-contact
+    group_by:
+      - alertname
+      - grafana_folder
+    routes:
+      - receiver: slack-contact
+        object_matchers:
+          - ['severity', '=', 'critical']
+        group_by:
+          - alertname
+        group_wait: 5s
+        group_interval: 5m
+        repeat_interval: 5m
+      - receiver: email-contact
+        object_matchers:
+          - ['severity', '=', 'warning']
+        group_by:
+          - alertname
+        group_wait: 30s
+        group_interval: 30m
+        repeat_interval: 1h

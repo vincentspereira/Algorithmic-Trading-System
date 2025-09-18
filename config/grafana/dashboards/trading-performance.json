@@ -1,0 +1,394 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Trading Engine - Performance Dashboard",
+    "tags": ["trading", "performance", "engine"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Order Execution Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, rate(order_execution_latency_seconds_bucket[5m])) * 1000",
+            "legendFormat": "99th percentile (ms)",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(order_execution_latency_seconds_bucket[5m])) * 1000",
+            "legendFormat": "95th percentile (ms)",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(order_execution_latency_seconds_bucket[5m])) * 1000",
+            "legendFormat": "50th percentile (ms)",
+            "refId": "C"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Latency (ms)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Order Fill Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(rate(trading_orders_filled_total[5m]) / rate(trading_orders_total[5m])) * 100",
+            "legendFormat": "Fill Rate %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 80
+                },
+                {
+                  "color": "green",
+                  "value": 95
+                }
+              ]
+            },
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Slippage Analysis",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(trading_slippage_bps)",
+            "legendFormat": "Avg Slippage (bps)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 5
+                },
+                {
+                  "color": "red",
+                  "value": 10
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Strategy Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "strategy_pnl_total",
+            "legendFormat": "Total P&L - {{strategy}}",
+            "refId": "A"
+          },
+          {
+            "expr": "strategy_sharpe_ratio",
+            "legendFormat": "Sharpe Ratio - {{strategy}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "P&L / Sharpe",
+            "min": null
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Market Data Feed Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"market-data\"}",
+            "legendFormat": "Primary Feed",
+            "refId": "A"
+          },
+          {
+            "expr": "market_data_feed_active",
+            "legendFormat": "Active Feeds",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 6,
+        "title": "Position Sizing",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "position_size_usd",
+            "legendFormat": "Position Size - {{symbol}}",
+            "refId": "A"
+          },
+          {
+            "expr": "position_exposure_percent",
+            "legendFormat": "Exposure % - {{symbol}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Size (USD) / Exposure (%)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 7,
+        "title": "Risk Limits Utilization",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(risk_exposure_current / risk_exposure_limit) * 100",
+            "legendFormat": "Exposure Utilization %",
+            "refId": "A"
+          },
+          {
+            "expr": "(risk_var_current / risk_var_limit) * 100",
+            "legendFormat": "VaR Utilization %",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Utilization %",
+            "min": 0,
+            "max": 100
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 8,
+        "title": "Trading Volume",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(trading_volume_usd_total[5m]))",
+            "legendFormat": "Volume USD/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(trading_volume_shares_total[5m]))",
+            "legendFormat": "Volume Shares/sec",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Volume",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 9,
+        "title": "Order Book Depth",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "orderbook_bid_depth_usd",
+            "legendFormat": "Bid Depth - {{symbol}}",
+            "refId": "A"
+          },
+          {
+            "expr": "orderbook_ask_depth_usd",
+            "legendFormat": "Ask Depth - {{symbol}}",
+            "refId": "B"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Depth (USD)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 24
+        }
+      },
+      {
+        "id": 10,
+        "title": "Engine Throughput",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(trading_engine_events_processed_total[5m])",
+            "legendFormat": "Events/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "trading_engine_queue_size",
+            "legendFormat": "Queue Size",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 24
+        }
+      },
+      {
+        "id": 11,
+        "title": "Broker Connectivity",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "broker_connection_status{broker=\"interactive_brokers\"}",
+            "legendFormat": "Interactive Brokers",
+            "refId": "A"
+          },
+          {
+            "expr": "broker_order_latency_ms{broker=\"interactive_brokers\"}",
+            "legendFormat": "IB Latency (ms)",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 32
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}

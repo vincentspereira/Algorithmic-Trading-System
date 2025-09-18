@@ -1,0 +1,558 @@
+# Docker Compose for Algorithmic Trading System - All 9 Databases
+# Orchestrates PostgreSQL, ClickHouse, DuckDB, Qdrant, Iceberg, Redis, InfluxDB, MinIO, Elasticsearch
+
+version: '3.8'
+
+services:
+  # 1. PostgreSQL with pgvector - Primary OLTP Database
+  postgresql:
+    image: pgvector/pgvector:pg16
+    container_name: trading-postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trading_system
+      POSTGRES_USER: trading_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trading_password}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./init/postgresql:/docker-entrypoint-initdb.d
+      - ./config/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: [
+      "postgres",
+      "-c", "config_file=/etc/postgresql/postgresql.conf",
+      "-c", "shared_preload_libraries=pg_stat_statements,pgvector",
+      "-c", "max_connections=200",
+      "-c", "shared_buffers=256MB",
+      "-c", "effective_cache_size=1GB",
+      "-c", "work_mem=4MB",
+      "-c", "maintenance_work_mem=64MB",
+      "-c", "checkpoint_completion_target=0.9",
+      "-c", "wal_buffers=16MB",
+      "-c", "default_statistics_target=100",
+      "-c", "random_page_cost=1.1",
+      "-c", "effective_io_concurrency=200",
+      "-c", "log_statement=all",
+      "-c", "log_duration=on",
+      "-c", "log_min_duration_statement=1000"
+    ]
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trading_user -d trading_system"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "traefik.enable=false"
+      - "com.trading.service=postgresql"
+      - "com.trading.description=Primary OLTP Database with pgvector"
+
+  # 2. ClickHouse - OLAP Analytics Database
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.12
+    container_name: trading-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: trading_analytics
+      CLICKHOUSE_USER: clickhouse_user
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse_password}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - "8123:8123"  # HTTP interface
+      - "9000:9000"  # Native interface
+      - "9009:9009"  # Inter-server communication
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+      - ./config/clickhouse/config.xml:/etc/clickhouse-server/config.xml
+      - ./config/clickhouse/users.xml:/etc/clickhouse-server/users.xml
+      - ./init/clickhouse:/docker-entrypoint-initdb.d
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.trading.service=clickhouse"
+      - "com.trading.description=OLAP Analytics Database"
+
+  # 3. Qdrant - Vector Database for AI/ML
+  qdrant:
+    image: qdrant/qdrant:v1.7.3
+    container_name: trading-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__LOG_LEVEL: INFO
+    ports:
+      - "6333:6333"  # HTTP API
+      - "6334:6334"  # gRPC API
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - ./config/qdrant/config.yaml:/qdrant/config/production.yaml
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.trading.service=qdrant"
+      - "com.trading.description=Vector Database for AI/ML Embeddings"
+
+  # 4. Redis - Cache and Real-time Data
+  redis:
+    image: redis:7.2-alpine
+    container_name: trading-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [
+      "redis-server",
+      "/usr/local/etc/redis/redis.conf",
+      "--requirepass", "${REDIS_PASSWORD:-redis_password}",
+      "--maxmemory", "2gb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--save", "900", "1",
+      "--save", "300", "10",
+      "--save", "60", "10000",
+      "--appendonly", "yes",
+      "--appendfsync", "everysec"
+    ]
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.trading.service=redis"
+      - "com.trading.description=Cache and Real-time Data Store"
+
+  # 5. InfluxDB - Time-series Metrics Database
+  influxdb:
+    image: influxdb:2.7
+    container_name: trading-influxdb
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: influx_user
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:-influx_password}
+      DOCKER_INFLUXDB_INIT_ORG: trading_org
+      DOCKER_INFLUXDB_INIT_BUCKET: trading_metrics
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-influx_admin_token}
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+      - ./init/influxdb:/docker-entrypoint-initdb.d
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.trading.service=influxdb"
+      - "com.trading.description=Time-series Metrics Database"
+
+  # 6. MinIO - S3-compatible Object Storage
+  minio:
+    image: minio/minio:RELEASE.2024-01-16T16-07-38Z
+    container_name: trading-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:9001
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+      - ./config/minio:/root/.minio
+    command: server /data --console-address ":9001"
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.trading.service=minio"
+      - "com.trading.description=S3-compatible Object Storage"
+
+  # 7. Elasticsearch - Search and Log Analytics
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: trading-elasticsearch
+    restart: unless-stopped
+    environment:
+      - node.name=trading-es-node
+      - cluster.name=trading-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD:-elastic_password}
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - elasticsearch_logs:/usr/share/elasticsearch/logs
+      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.trading.service=elasticsearch"
+      - "com.trading.description=Search and Log Analytics Engine"
+
+  # 8. Zookeeper - Required for Kafka (used by Iceberg)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: trading-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'ruok' | nc localhost 2181"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.trading.service=zookeeper"
+      - "com.trading.description=Coordination Service for Kafka"
+
+  # 9. Kafka - Message Streaming (for Iceberg and general messaging)
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: trading-kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.trading.service=kafka"
+      - "com.trading.description=Message Streaming Platform"
+
+  # 10. Hive Metastore - Required for Iceberg
+  hive-metastore:
+    image: apache/hive:4.0.0
+    container_name: trading-hive-metastore
+    restart: unless-stopped
+    depends_on:
+      - postgresql
+    environment:
+      SERVICE_NAME: metastore
+      DB_DRIVER: postgres
+      SERVICE_OPTS: "-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgresql:5432/metastore_db -Djavax.jdo.option.ConnectionUserName=trading_user -Djavax.jdo.option.ConnectionPassword=${POSTGRES_PASSWORD:-trading_password}"
+    ports:
+      - "9083:9083"
+    volumes:
+      - hive_warehouse:/opt/hive/data/warehouse
+      - ./config/hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "netstat", "-an", "|", "grep", "9083"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.trading.service=hive-metastore"
+      - "com.trading.description=Metadata Service for Iceberg"
+
+  # Database Management Tools
+  # =========================
+
+  # pgAdmin - PostgreSQL Management
+  pgadmin:
+    image: dpage/pgadmin4:8.2
+    container_name: trading-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@trading.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_password}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json
+    networks:
+      - trading-network
+    depends_on:
+      - postgresql
+    labels:
+      - "com.trading.service=pgadmin"
+      - "com.trading.description=PostgreSQL Management Interface"
+
+  # Redis Commander - Redis Management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: trading-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "8081:8081"
+    networks:
+      - trading-network
+    depends_on:
+      - redis
+    labels:
+      - "com.trading.service=redis-commander"
+      - "com.trading.description=Redis Management Interface"
+
+  # Kafka UI - Kafka Management
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: trading-kafka-ui
+    restart: unless-stopped
+    environment:
+      KAFKA_CLUSTERS_0_NAME: trading-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    ports:
+      - "8080:8080"
+    networks:
+      - trading-network
+    depends_on:
+      - kafka
+    labels:
+      - "com.trading.service=kafka-ui"
+      - "com.trading.description=Kafka Management Interface"
+
+  # Monitoring & Health Checks
+  # ==========================
+
+  # Database Health Checker
+  health-checker:
+    build:
+      context: .
+      dockerfile: Dockerfile.health-checker
+    container_name: trading-health-checker
+    restart: unless-stopped
+    environment:
+      CHECK_INTERVAL: 30
+      POSTGRES_HOST: postgresql
+      CLICKHOUSE_HOST: clickhouse
+      REDIS_HOST: redis
+      INFLUXDB_HOST: influxdb
+      ELASTICSEARCH_HOST: elasticsearch
+      MINIO_HOST: minio
+      QDRANT_HOST: qdrant
+    volumes:
+      - ./health-checks:/app/health-checks
+      - health_logs:/app/logs
+    networks:
+      - trading-network
+    depends_on:
+      - postgresql
+      - clickhouse
+      - redis
+      - influxdb
+      - elasticsearch
+      - minio
+      - qdrant
+    labels:
+      - "com.trading.service=health-checker"
+      - "com.trading.description=Database Health Monitoring Service"
+
+  # Nginx - Reverse Proxy and Load Balancer
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: trading-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ./certs:/etc/nginx/certs
+      - nginx_logs:/var/log/nginx
+    networks:
+      - trading-network
+    depends_on:
+      - postgresql
+      - clickhouse
+      - elasticsearch
+      - minio
+    labels:
+      - "com.trading.service=nginx"
+      - "com.trading.description=Reverse Proxy and Load Balancer"
+
+# Networks
+networks:
+  trading-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    labels:
+      - "com.trading.network=main"
+      - "com.trading.description=Main network for trading system databases"
+
+# Volumes
+volumes:
+  # Database Data Volumes
+  postgresql_data:
+    driver: local
+    labels:
+      - "com.trading.volume=postgresql-data"
+  clickhouse_data:
+    driver: local
+    labels:
+      - "com.trading.volume=clickhouse-data"
+  clickhouse_logs:
+    driver: local
+    labels:
+      - "com.trading.volume=clickhouse-logs"
+  qdrant_data:
+    driver: local
+    labels:
+      - "com.trading.volume=qdrant-data"
+  redis_data:
+    driver: local
+    labels:
+      - "com.trading.volume=redis-data"
+  influxdb_data:
+    driver: local
+    labels:
+      - "com.trading.volume=influxdb-data"
+  influxdb_config:
+    driver: local
+    labels:
+      - "com.trading.volume=influxdb-config"
+  minio_data:
+    driver: local
+    labels:
+      - "com.trading.volume=minio-data"
+  elasticsearch_data:
+    driver: local
+    labels:
+      - "com.trading.volume=elasticsearch-data"
+  elasticsearch_logs:
+    driver: local
+    labels:
+      - "com.trading.volume=elasticsearch-logs"
+  zookeeper_data:
+    driver: local
+    labels:
+      - "com.trading.volume=zookeeper-data"
+  zookeeper_logs:
+    driver: local
+    labels:
+      - "com.trading.volume=zookeeper-logs"
+  kafka_data:
+    driver: local
+    labels:
+      - "com.trading.volume=kafka-data"
+  hive_warehouse:
+    driver: local
+    labels:
+      - "com.trading.volume=hive-warehouse"
+  
+  # Management Tool Volumes
+  pgadmin_data:
+    driver: local
+    labels:
+      - "com.trading.volume=pgadmin-data"
+  
+  # Monitoring Volumes
+  health_logs:
+    driver: local
+    labels:
+      - "com.trading.volume=health-logs"
+  nginx_logs:
+    driver: local
+    labels:
+      - "com.trading.volume=nginx-logs"
+
+# Environment Variables Template
+# Create a .env file with these variables:
+# POSTGRES_PASSWORD=your_secure_postgres_password
+# CLICKHOUSE_PASSWORD=your_secure_clickhouse_password
+# REDIS_PASSWORD=your_secure_redis_password
+# INFLUXDB_PASSWORD=your_secure_influxdb_password
+# INFLUXDB_TOKEN=your_secure_influxdb_token
+# MINIO_ACCESS_KEY=your_minio_access_key
+# MINIO_SECRET_KEY=your_minio_secret_key
+# ELASTICSEARCH_PASSWORD=your_secure_elasticsearch_password
+# PGADMIN_PASSWORD=your_secure_pgadmin_password

@@ -1,0 +1,490 @@
+# Infrastructure Services Docker Compose
+# Deploys InfluxDB, Loki, Jaeger, Vault, and Iceberg with health checks
+# Part of the comprehensive algorithmic trading system infrastructure
+
+version: '3.8'
+
+networks:
+  trading-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  influxdb_data:
+    driver: local
+  loki_data:
+    driver: local
+  vault_data:
+    driver: local
+  vault_logs:
+    driver: local
+  jaeger_data:
+    driver: local
+  iceberg_warehouse:
+    driver: local
+  minio_data:
+    driver: local
+  keycloak_data:
+    driver: local
+
+services:
+  # InfluxDB - Time Series Database for Market Data and Metrics
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: trading-influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=trading_admin_2024
+      - DOCKER_INFLUXDB_INIT_ORG=trading_org
+      - DOCKER_INFLUXDB_INIT_BUCKET=market_data
+      - DOCKER_INFLUXDB_INIT_RETENTION=30d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=trading_super_secret_admin_token_2024
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - ./config/influxdb:/etc/influxdb2
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.10
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.influxdb.rule=Host(`influxdb.trading.local`)"
+      - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Loki - Log Aggregation System
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: trading-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.11
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.trading.local`)"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Promtail - Log Shipper for Loki
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: trading-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - trading-network
+    depends_on:
+      loki:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "promtail --version || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Jaeger - Distributed Tracing
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:1.50
+    container_name: trading-jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # Jaeger collector HTTP
+      - "14250:14250"  # Jaeger collector gRPC
+      - "6831:6831/udp"  # Jaeger agent UDP
+      - "6832:6832/udp"  # Jaeger agent UDP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - SPAN_STORAGE_TYPE=memory
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.12
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:14269/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.trading.local`)"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # HashiCorp Vault - Secrets Management
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: trading-vault
+    restart: unless-stopped
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=trading_root_token_2024
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      - VAULT_ADDR=http://127.0.0.1:8200
+    cap_add:
+      - IPC_LOCK
+    command: vault server -dev -dev-listen-address=0.0.0.0:8200
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.13
+    healthcheck:
+      test: ["CMD-SHELL", "vault status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vault.rule=Host(`vault.trading.local`)"
+      - "traefik.http.services.vault.loadbalancer.server.port=8200"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # MinIO - S3-Compatible Object Storage for Iceberg
+  minio:
+    image: minio/minio:RELEASE.2023-11-20T22-40-07Z
+    container_name: trading-minio
+    restart: unless-stopped
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+    environment:
+      - MINIO_ROOT_USER=trading_admin
+      - MINIO_ROOT_PASSWORD=trading_minio_2024
+      - MINIO_DOMAIN=minio.trading.local
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.14
+    healthcheck:
+      test: ["CMD", "/bin/bash", "-c", "timeout 10s bash -c '</dev/tcp/localhost/9000' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio-api.rule=Host(`minio.trading.local`)"
+      - "traefik.http.routers.minio-api.service=minio-api"
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-console.rule=Host(`minio-console.trading.local`)"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Apache Iceberg with Spark - Data Lakehouse
+  iceberg-spark:
+    image: apache/spark:3.5.0-scala2.12-java11-python3-ubuntu
+    container_name: trading-iceberg-spark
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Spark Master UI
+      - "7077:7077"  # Spark Master
+      - "4040:4040"  # Spark Application UI
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_HOST=0.0.0.0
+      - SPARK_MASTER_PORT=7077
+      - SPARK_MASTER_WEBUI_PORT=8080
+      - SPARK_CONF_DIR=/opt/spark/conf
+    volumes:
+      - iceberg_warehouse:/opt/spark/warehouse
+      - ./config/spark:/opt/spark/conf
+      - ./jars:/opt/spark/jars/custom
+    command: >
+      bash -c "
+        # Download Iceberg and AWS SDK JARs
+        wget -O /opt/spark/jars/iceberg-spark-runtime-3.5_2.12-1.4.2.jar https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-3.5_2.12/1.4.2/iceberg-spark-runtime-3.5_2.12-1.4.2.jar
+        wget -O /opt/spark/jars/aws-java-sdk-bundle-1.12.565.jar https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.565/aws-java-sdk-bundle-1.12.565.jar
+        wget -O /opt/spark/jars/hadoop-aws-3.3.4.jar https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar
+        
+        # Start Spark Master
+        /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+      "
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.15
+    depends_on:
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spark.rule=Host(`spark.trading.local`)"
+      - "traefik.http.services.spark.loadbalancer.server.port=8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Iceberg REST Catalog
+  iceberg-rest:
+    image: tabulario/iceberg-rest:0.6.0
+    container_name: trading-iceberg-rest
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      - CATALOG_WAREHOUSE=s3a://warehouse/
+      - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - CATALOG_S3_ENDPOINT=http://minio:9000
+      - CATALOG_S3_ACCESS__KEY__ID=trading_admin
+      - CATALOG_S3_SECRET__ACCESS__KEY=trading_minio_2024
+      - CATALOG_S3_PATH__STYLE__ACCESS=true
+      - CATALOG_JDBC_URL=jdbc:sqlite:file:/tmp/iceberg_rest_mode=memory
+    volumes:
+      - iceberg_warehouse:/tmp/warehouse
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.16
+    depends_on:
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8181/v1/config || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.iceberg-rest.rule=Host(`iceberg.trading.local`)"
+      - "traefik.http.services.iceberg-rest.loadbalancer.server.port=8181"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Service Health Monitor
+  health-monitor:
+    image: alpine:3.18
+    container_name: trading-health-monitor
+    restart: unless-stopped
+    volumes:
+      - ./scripts:/scripts
+    command: >
+      sh -c "
+        apk add --no-cache curl jq
+        while true; do
+          echo '=== Infrastructure Health Check ===' 
+          echo 'InfluxDB:' && curl -s http://influxdb:8086/health | jq -r '.status // "UNKNOWN"'
+          echo 'Loki:' && curl -s http://loki:3100/ready | head -c 10
+          echo 'Jaeger:' && curl -s http://jaeger-all-in-one:14269/ | head -c 10
+          echo 'Vault:' && curl -s http://vault:8200/v1/sys/health | jq -r '.sealed // "UNKNOWN"'
+          echo 'MinIO:' && curl -s http://minio:9000/minio/health/live | head -c 10
+          echo 'Iceberg REST:' && curl -s http://iceberg-rest:8181/v1/config | jq -r '.defaults // "UNKNOWN"'
+          echo '================================'
+          sleep 60
+        done
+      "
+    networks:
+      - trading-network
+    depends_on:
+      - influxdb
+      - loki
+      - jaeger-all-in-one
+      - vault
+      - minio
+      - iceberg-rest
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Keycloak - Identity and Access Management
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: trading-keycloak
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=trading_admin_2024
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak_db_2024
+      - KC_HOSTNAME=keycloak.trading.local
+      - KC_HOSTNAME_STRICT=false
+      - KC_HTTP_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KC_LOG_LEVEL=INFO
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./config/keycloak:/opt/keycloak/data/import
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.20
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.trading.local`)"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Keycloak Database - PostgreSQL
+  keycloak-db:
+    image: postgres:15-alpine
+    container_name: trading-keycloak-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=keycloak_db_2024
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.21
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Traefik - Reverse Proxy and Load Balancer
+  traefik:
+    image: traefik:v3.0
+    container_name: trading-traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8090:8080"  # Traefik Dashboard
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --log.level=INFO
+      - --accesslog=true
+      - --metrics.prometheus=true
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+      - --ping=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik:/etc/traefik
+    networks:
+      trading-network:
+        ipv4_address: 172.20.0.2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.trading.local`)"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/overview"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Additional configurations for production deployment
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-restart-policy: &default-restart-policy
+  restart: unless-stopped
+
+x-healthcheck-defaults: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 5
+  start_period: 30s
+
+# Network and volume definitions are at the top of the file

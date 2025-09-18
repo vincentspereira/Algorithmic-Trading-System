@@ -9,10 +9,10 @@ Version: 1.0.0
 
 import numpy as np
 from collections import deque
-from typing import Dict, Optional
-from datetime import datetime
+from typing import Dict, Optional, Any
+from datetime import datetime, timezone
 
-from .core_indicator_base import AugmentedIndicator, IndicatorSignal, SignalStrength, MarketRegime
+from .core_indicator_base import AugmentedIndicator, IndicatorSignal, SignalType, MarketRegime
 
 
 class BehavioralOverlay(AugmentedIndicator):
@@ -150,13 +150,25 @@ class BehavioralOverlay(AugmentedIndicator):
     def get_signal(self) -> IndicatorSignal:
         """Get behavioral-adjusted signal"""
         
-        direction = 1 if self.adjusted_signal > 0 else -1 if self.adjusted_signal < 0 else 0
-        strength = SignalStrength.MEDIUM  # Can be adjusted based on magnitude
+        # Determine signal type based on adjusted signal value
+        magnitude = abs(self.adjusted_signal)
+        if self.adjusted_signal > 0:
+            signal_type = SignalType.STRONG_BUY if magnitude > 0.7 else SignalType.BUY
+        elif self.adjusted_signal < 0:
+            signal_type = SignalType.STRONG_SELL if magnitude > 0.7 else SignalType.SELL
+        else:
+            signal_type = SignalType.NEUTRAL
+        
+        # Strength is normalized magnitude in [0, 1]
+        strength = float(np.clip(magnitude, 0.0, 1.0))
         
         return IndicatorSignal(
-            direction=direction,
+            signal_type=signal_type,
             strength=strength,
-            confidence=abs(self.adjusted_signal),
+            confidence=strength,
+            timestamp=datetime.now(timezone.utc),
+            value=self.adjusted_signal,
+            normalized_value=self.adjusted_signal,
             metadata=self.metadata.copy()
         )
     

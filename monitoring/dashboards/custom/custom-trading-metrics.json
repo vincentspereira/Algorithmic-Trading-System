@@ -1,0 +1,414 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Custom Trading System Metrics",
+    "tags": ["custom", "trading", "kpi", "performance"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Strategy Performance Heatmap",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "increase(strategy_pnl_bucket{strategy=~\".*\"}[1h])",
+            "legendFormat": "{{strategy}}",
+            "format": "heatmap"
+          }
+        ],
+        "heatmap": {
+          "xBucketSize": null,
+          "yBucketSize": null,
+          "xBucketNumber": null,
+          "yBucketNumber": null
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Market Regime Detection",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "market_regime_indicator{regime=\"trending\"}",
+            "legendFormat": "Trending Market"
+          },
+          {
+            "expr": "market_regime_indicator{regime=\"ranging\"}",
+            "legendFormat": "Ranging Market"
+          },
+          {
+            "expr": "market_regime_indicator{regime=\"volatile\"}",
+            "legendFormat": "Volatile Market"
+          },
+          {
+            "expr": "market_regime_indicator{regime=\"low_volatility\"}",
+            "legendFormat": "Low Volatility Market"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "INACTIVE",
+                    "color": "gray"
+                  },
+                  "1": {
+                    "text": "ACTIVE",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Order Flow Imbalance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "order_flow_imbalance_ratio{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Order Flow Imbalance"
+          },
+          {
+            "expr": "market_microstructure_pressure{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Microstructure Pressure"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Imbalance Ratio",
+            "min": -1,
+            "max": 1
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Alpha Generation by Strategy",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "strategy_alpha_generation{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Alpha"
+          },
+          {
+            "expr": "strategy_beta_exposure{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Beta"
+          },
+          {
+            "expr": "strategy_information_ratio{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Information Ratio"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Alpha / Beta / IR",
+            "min": -2,
+            "max": 2
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Liquidity Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "market_impact_cost{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Market Impact Cost"
+          },
+          {
+            "expr": "bid_ask_spread_bps{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Bid-Ask Spread (bps)"
+          },
+          {
+            "expr": "market_depth_ratio{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Market Depth Ratio"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Cost (bps) / Ratio",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Risk-Adjusted Returns",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sharpe_ratio{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Sharpe Ratio"
+          },
+          {
+            "expr": "sortino_ratio{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Sortino Ratio"
+          },
+          {
+            "expr": "calmar_ratio{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Calmar Ratio"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Risk-Adjusted Return Ratio",
+            "min": -2,
+            "max": 3
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 7,
+        "title": "Execution Quality Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "implementation_shortfall{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - Implementation Shortfall"
+          },
+          {
+            "expr": "volume_weighted_average_price_deviation{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - VWAP Deviation"
+          },
+          {
+            "expr": "time_weighted_average_price_deviation{strategy=~\".*\"}",
+            "legendFormat": "{{strategy}} - TWAP Deviation"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Deviation (bps)",
+            "min": -50,
+            "max": 50
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Portfolio Concentration Risk",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "portfolio_concentration_hhi",
+            "legendFormat": "Herfindahl-Hirschman Index"
+          },
+          {
+            "expr": "portfolio_sector_concentration{sector=~\".*\"}",
+            "legendFormat": "{{sector}} Concentration"
+          },
+          {
+            "expr": "portfolio_geographic_concentration{region=~\".*\"}",
+            "legendFormat": "{{region}} Concentration"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Concentration Index / Weight %",
+            "min": 0,
+            "max": 1
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 9,
+        "title": "Signal Decay Analysis",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "signal_half_life{signal_type=~\".*\"}",
+            "legendFormat": "{{signal_type}} - Half Life (hours)"
+          },
+          {
+            "expr": "signal_strength{signal_type=~\".*\"}",
+            "legendFormat": "{{signal_type}} - Current Strength"
+          },
+          {
+            "expr": "signal_correlation_stability{signal_type=~\".*\"}",
+            "legendFormat": "{{signal_type}} - Correlation Stability"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Hours / Strength / Correlation",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 32
+        }
+      },
+      {
+        "id": 10,
+        "title": "Market Microstructure Indicators",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "effective_spread{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Effective Spread"
+          },
+          {
+            "expr": "price_impact_per_dollar{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Price Impact per $"
+          },
+          {
+            "expr": "order_book_resilience{symbol=~\".*\"}",
+            "legendFormat": "{{symbol}} - Order Book Resilience"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Spread (bps) / Impact / Resilience",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 32
+        }
+      },
+      {
+        "id": 11,
+        "title": "Alternative Data Integration Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "alternative_data_feed_health{source=\"sentiment\"}",
+            "legendFormat": "Sentiment Data Health"
+          },
+          {
+            "expr": "alternative_data_feed_health{source=\"satellite\"}",
+            "legendFormat": "Satellite Data Health"
+          },
+          {
+            "expr": "alternative_data_feed_health{source=\"social_media\"}",
+            "legendFormat": "Social Media Data Health"
+          },
+          {
+            "expr": "alternative_data_feed_health{source=\"economic\"}",
+            "legendFormat": "Economic Data Health"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "HEALTHY",
+                    "color": "green"
+                  },
+                  "2": {
+                    "text": "DEGRADED",
+                    "color": "yellow"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 40
+        }
+      },
+      {
+        "id": 12,
+        "title": "Cross-Asset Correlation Matrix",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "cross_asset_correlation{asset_class_1=~\".*\", asset_class_2=~\".*\"}",
+            "legendFormat": "{{asset_class_1}} vs {{asset_class_2}}",
+            "format": "heatmap"
+          }
+        ],
+        "heatmap": {
+          "xBucketSize": null,
+          "yBucketSize": null,
+          "xBucketNumber": null,
+          "yBucketNumber": null
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 40
+        }
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

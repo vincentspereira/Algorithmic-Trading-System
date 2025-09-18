@@ -5,7 +5,7 @@ Backtesting router for running backtests
 import logging
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, status, Depends
 
@@ -294,7 +294,7 @@ async def run_backtest(
         # Prepare response
         response = BacktestResponse(
             status="completed",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             parameters={
                 "ticker": request.ticker,
                 "start_date": request.start_date.isoformat(),
@@ -431,7 +431,7 @@ async def get_backtest_status(current_user_id: str = Depends(get_current_user)):
                 "fast_period": 10,
                 "slow_period": 30
             },
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "user_id": current_user_id
         }
         
@@ -439,13 +439,13 @@ async def get_backtest_status(current_user_id: str = Depends(get_current_user)):
         return {
             "status": "error",
             "error": f"Backtest modules not available: {str(e)}",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "user_id": current_user_id
         }
     except Exception as e:
         return {
             "status": "error", 
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "user_id": current_user_id
         }

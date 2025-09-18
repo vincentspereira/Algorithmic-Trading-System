@@ -9,7 +9,7 @@ import requests
 import sys
 import os
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -212,7 +212,7 @@ class EscalationProtocolManager:
     
     def create_alert(self, alert_type: str, severity: str, title: str, message: str, details: Dict[str, Any] = None) -> str:
         """Create a new alert instance."""
-        alert_id = f"{alert_type}_{severity}_{int(datetime.now().timestamp())}"
+        alert_id = f"{alert_type}_{severity}_{int(datetime.now(timezone.utc).timestamp())}"
         
         alert = AlertInstance(
             alert_id=alert_id,
@@ -220,7 +220,7 @@ class EscalationProtocolManager:
             severity=severity,
             title=title,
             message=message,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             details=details or {},
             current_level=EscalationLevel.LEVEL_1,
             escalation_history=[],
@@ -280,7 +280,7 @@ class EscalationProtocolManager:
             # Record in escalation history
             history_entry = {
                 "level": level.value,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "notification_results": results,
                 "recipients": escalation_step['recipients']
             }
@@ -297,7 +297,7 @@ class EscalationProtocolManager:
             alert = self.active_alerts[alert_id]
             alert.acknowledged = True
             alert.acknowledged_by = acknowledged_by
-            alert.acknowledged_at = datetime.now().isoformat()
+            alert.acknowledged_at = datetime.now(timezone.utc).isoformat()
             self._save_active_alerts()
             logger.info(f"Alert {alert_id} acknowledged by {acknowledged_by}")
         else:
@@ -305,7 +305,7 @@ class EscalationProtocolManager:
     
     def check_escalation(self):
         """Check all active alerts for escalation."""
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         escalated_alerts = []
         
         for alert_id, alert in self.active_alerts.items():

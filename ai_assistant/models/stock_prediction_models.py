@@ -35,7 +35,7 @@ except ImportError:
     PROPHET_AVAILABLE = False
     logging.warning("Prophet not available. Install with: pip install prophet")
 
-from .forecasting_models import (
+from .forecasting_model_factory import (
     BaseForecastingModel, ModelConfig, ModelType, PredictionResult, 
     ModelPerformance, PredictionHorizon
 )

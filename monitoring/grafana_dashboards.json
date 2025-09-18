@@ -1,0 +1,674 @@
+{
+  "dashboards": [
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Algorithmic Trading System - Database Health Overview",
+        "tags": ["trading-system", "databases", "health"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Database Services Status",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "up{job=~\"postgresql|clickhouse|redis|influxdb|minio|elasticsearch|qdrant\"}",
+                "legendFormat": "{{job}}"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "mappings": [
+                  {
+                    "options": {
+                      "0": {
+                        "text": "DOWN",
+                        "color": "red"
+                      },
+                      "1": {
+                        "text": "UP",
+                        "color": "green"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ],
+                "thresholds": {
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 2,
+            "title": "PostgreSQL Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "postgresql:connection_utilization:rate5m",
+                "legendFormat": "Connection Utilization %"
+              },
+              {
+                "expr": "postgresql:cache_hit_ratio:rate5m",
+                "legendFormat": "Cache Hit Ratio %"
+              },
+              {
+                "expr": "postgresql:transactions:rate5m",
+                "legendFormat": "Transactions/sec"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Percentage / Rate",
+                "max": 100,
+                "min": 0
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "id": 3,
+            "title": "ClickHouse Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "clickhouse:memory_utilization:rate5m",
+                "legendFormat": "Memory Utilization %"
+              },
+              {
+                "expr": "clickhouse:queries:rate5m",
+                "legendFormat": "Queries/sec"
+              },
+              {
+                "expr": "clickhouse:query_duration:p95_5m * 1000",
+                "legendFormat": "Query Duration P95 (ms)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "id": 4,
+            "title": "Redis Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "redis:memory_utilization:rate5m",
+                "legendFormat": "Memory Utilization %"
+              },
+              {
+                "expr": "redis:commands:rate5m",
+                "legendFormat": "Commands/sec"
+              },
+              {
+                "expr": "redis:cache_hit_ratio:rate5m",
+                "legendFormat": "Cache Hit Ratio %"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 16
+            }
+          },
+          {
+            "id": 5,
+            "title": "InfluxDB Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "influxdb:writes:rate5m",
+                "legendFormat": "Writes/sec"
+              },
+              {
+                "expr": "influxdb:write_latency:p95_5m * 1000",
+                "legendFormat": "Write Latency P95 (ms)"
+              },
+              {
+                "expr": "influxdb:query_latency:p95_5m * 1000",
+                "legendFormat": "Query Latency P95 (ms)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 16
+            }
+          },
+          {
+            "id": 6,
+            "title": "Elasticsearch Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "elasticsearch:jvm_memory_utilization:rate5m",
+                "legendFormat": "JVM Memory Utilization %"
+              },
+              {
+                "expr": "elasticsearch:indexing_rate:rate5m",
+                "legendFormat": "Indexing Rate/sec"
+              },
+              {
+                "expr": "elasticsearch:search_latency:p95_5m * 1000",
+                "legendFormat": "Search Latency P95 (ms)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 24
+            }
+          },
+          {
+            "id": 7,
+            "title": "MinIO Storage Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "(minio_disk_storage_used_bytes / minio_disk_storage_total_bytes) * 100",
+                "legendFormat": "Disk Utilization %"
+              },
+              {
+                "expr": "rate(minio_s3_requests_total[5m])",
+                "legendFormat": "S3 Requests/sec"
+              },
+              {
+                "expr": "rate(minio_network_sent_bytes_total[5m])",
+                "legendFormat": "Network Sent (bytes/sec)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 24
+            }
+          },
+          {
+            "id": 8,
+            "title": "Qdrant Vector Database Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "qdrant:memory_utilization:rate5m",
+                "legendFormat": "Memory Utilization %"
+              },
+              {
+                "expr": "rate(qdrant_collections_vectors_total[5m])",
+                "legendFormat": "Vector Operations/sec"
+              },
+              {
+                "expr": "histogram_quantile(0.95, rate(qdrant_search_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "Search Latency P95 (ms)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 32
+            }
+          },
+          {
+            "id": 9,
+            "title": "DuckDB Analytics Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(duckdb_queries_total[5m])",
+                "legendFormat": "Queries/sec"
+              },
+              {
+                "expr": "histogram_quantile(0.95, rate(duckdb_query_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "Query Duration P95 (ms)"
+              },
+              {
+                "expr": "duckdb_memory_usage_bytes / 1024 / 1024",
+                "legendFormat": "Memory Usage (MB)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 32
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "30s"
+      }
+    },
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Algorithmic Trading System - Trading Performance",
+        "tags": ["trading-system", "performance", "trading"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 10,
+            "title": "Order Processing Latency",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "trading:order_latency:p95_1m * 1000",
+                "legendFormat": "P95 Latency (ms)"
+              },
+              {
+                "expr": "trading:order_latency:p99_1m * 1000",
+                "legendFormat": "P99 Latency (ms)"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Milliseconds",
+                "min": 0
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 11,
+            "title": "Order Success Rate",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "trading:order_success_rate:rate5m",
+                "legendFormat": "Success Rate %"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "thresholds": {
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 95
+                    },
+                    {
+                      "color": "green",
+                      "value": 99
+                    }
+                  ]
+                }
+              }
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 12,
+            "title": "Market Data Latency",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "market_data:update_latency:p95_1m * 1000",
+                "legendFormat": "Update Latency P95 (ms)"
+              },
+              {
+                "expr": "market_data:staleness:max_5m",
+                "legendFormat": "Data Staleness (seconds)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "id": 13,
+            "title": "Portfolio Metrics",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "portfolio:pnl:rate5m",
+                "legendFormat": "P&L Rate"
+              },
+              {
+                "expr": "portfolio:exposure:total",
+                "legendFormat": "Total Exposure"
+              },
+              {
+                "expr": "risk:var_utilization:rate5m",
+                "legendFormat": "VaR Utilization %"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "id": 14,
+            "title": "Trading Volume",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "business:trading_volume:rate1h",
+                "legendFormat": "Volume/hour"
+              },
+              {
+                "expr": "trading:orders:rate1m * 60",
+                "legendFormat": "Orders/minute"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 16
+            }
+          },
+          {
+            "id": 15,
+            "title": "Risk Metrics",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "risk:breaches:rate1h",
+                "legendFormat": "Risk Breaches/hour"
+              },
+              {
+                "expr": "business:strategy_performance:rate24h",
+                "legendFormat": "Strategy Performance"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 16
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "15s"
+      }
+    },
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Algorithmic Trading System - System Resources",
+        "tags": ["trading-system", "infrastructure", "resources"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 16,
+            "title": "CPU Utilization",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "node:cpu_utilization:rate5m",
+                "legendFormat": "{{instance}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Percentage",
+                "max": 100,
+                "min": 0
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 17,
+            "title": "Memory Utilization",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "node:memory_utilization:rate5m",
+                "legendFormat": "{{instance}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Percentage",
+                "max": 100,
+                "min": 0
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 18,
+            "title": "Disk I/O",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "node:disk_read_bytes:rate5m",
+                "legendFormat": "Read {{instance}}"
+              },
+              {
+                "expr": "node:disk_write_bytes:rate5m",
+                "legendFormat": "Write {{instance}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Bytes/sec",
+                "min": 0
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "id": 19,
+            "title": "Network I/O",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "node:network_receive_bytes:rate5m",
+                "legendFormat": "Receive {{instance}}"
+              },
+              {
+                "expr": "node:network_transmit_bytes:rate5m",
+                "legendFormat": "Transmit {{instance}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Bytes/sec",
+                "min": 0
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            }
+          },
+          {
+            "id": 20,
+            "title": "Service Availability",
+            "type": "heatmap",
+            "targets": [
+              {
+                "expr": "service:availability:rate24h",
+                "legendFormat": "{{job}}"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 16
+            }
+          }
+        ],
+        "time": {
+          "from": "now-6h",
+          "to": "now"
+        },
+        "refresh": "1m"
+      }
+    },
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Algorithmic Trading System - Kafka Monitoring",
+        "tags": ["trading-system", "kafka", "messaging"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 21,
+            "title": "Kafka Throughput",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "kafka:messages_in:rate5m",
+                "legendFormat": "Messages In/sec"
+              },
+              {
+                "expr": "kafka:bytes_in:rate5m",
+                "legendFormat": "Bytes In/sec"
+              },
+              {
+                "expr": "kafka:bytes_out:rate5m",
+                "legendFormat": "Bytes Out/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 22,
+            "title": "Consumer Lag",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "kafka:consumer_lag:max_5m",
+                "legendFormat": "Max Lag"
+              },
+              {
+                "expr": "kafka:consumer_lag:avg_5m",
+                "legendFormat": "Avg Lag"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 23,
+            "title": "Partition Health",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "kafka:under_replicated_partitions:count",
+                "legendFormat": "Under Replicated"
+              },
+              {
+                "expr": "kafka:offline_partitions:count",
+                "legendFormat": "Offline"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "thresholds": {
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 8
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "30s"
+      }
+    }
+  ]
+}

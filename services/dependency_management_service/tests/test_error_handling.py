@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import Mock, patch
-from datetime import datetime
+from datetime import datetime, timezone
 from dependency_management.error_handling.error_manager import (
     ErrorManager,
     ErrorContext,
@@ -80,7 +80,7 @@ class TestErrorHandlers(unittest.TestCase):
     def test_network_error_handler(self, mock_sleep):
         """Test network error handling with retries"""
         context = ErrorContext(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             error_type="NetworkError",
             message="Connection failed",
             severity=ErrorSeverity.MEDIUM,
@@ -101,7 +101,7 @@ class TestErrorHandlers(unittest.TestCase):
         mock_post.return_value.status_code = 200
         
         context = ErrorContext(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             error_type="SecurityError",
             message="Security violation",
             severity=ErrorSeverity.CRITICAL,
@@ -121,7 +121,7 @@ class TestErrorHandlers(unittest.TestCase):
     def test_performance_error_handler(self):
         """Test performance error handling"""
         context = ErrorContext(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             error_type="PerformanceError",
             message="Performance degraded",
             severity=ErrorSeverity.MEDIUM,
@@ -142,7 +142,7 @@ class TestErrorHandlers(unittest.TestCase):
     def test_resource_error_handler(self):
         """Test resource error handling"""
         context = ErrorContext(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             error_type="ResourceError",
             message="Resource limit exceeded",
             severity=ErrorSeverity.HIGH,

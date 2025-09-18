@@ -1,7 +1,7 @@
 # Mock risk module to satisfy UAT test imports
 import asyncio
 from unittest.mock import Mock
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Create mock functions for all the expected API endpoints
 def get_risk_dashboard():
@@ -42,14 +42,14 @@ def configure_risk_limits(config):
             'consistency_check': True,
             'regulatory_compliant': True
         },
-        'effective_date': datetime.now().isoformat(),
+        'effective_date': datetime.now(timezone.utc).isoformat(),
         'approval_required': False
     }
 
 def get_real_time_risk_metrics():
     return {
         'status': 'success',
-        'timestamp': datetime.now().isoformat(),
+        'timestamp': datetime.now(timezone.utc).isoformat(),
         'risk_metrics': {
             'portfolio_var_95': 0.048,
             'portfolio_var_99': 0.072,
@@ -154,22 +154,22 @@ def handle_risk_breach(breach_scenario):
             {
                 'recipient': 'risk_committee',
                 'method': 'email',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             },
             {
                 'recipient': 'portfolio_manager',
                 'method': 'sms',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
         ],
         'escalation_required': True,
-        'next_review_time': datetime.now().isoformat()
+        'next_review_time': datetime.now(timezone.utc).isoformat()
     }
 
 def analyze_market_risk():
     return {
         'status': 'success',
-        'analysis_timestamp': datetime.now().isoformat(),
+        'analysis_timestamp': datetime.now(timezone.utc).isoformat(),
         'market_risk_analysis': {
             'value_at_risk': {
                 'var_95': 0.045,
@@ -204,7 +204,7 @@ def analyze_market_risk():
 def assess_liquidity_risk():
     return {
         'status': 'success',
-        'assessment_timestamp': datetime.now().isoformat(),
+        'assessment_timestamp': datetime.now(timezone.utc).isoformat(),
         'liquidity_risk_assessment': {
             'overall_liquidity_score': 7.2,
             'liquidity_tier': 'moderate',
@@ -242,7 +242,7 @@ def assess_liquidity_risk():
 def monitor_credit_risk():
     return {
         'status': 'success',
-        'monitoring_timestamp': datetime.now().isoformat(),
+        'monitoring_timestamp': datetime.now(timezone.utc).isoformat(),
         'credit_risk_monitoring': {
             'counterparty_exposure': {
                 'total_exposure': 5000000,
@@ -285,7 +285,7 @@ def monitor_credit_risk():
 def assess_operational_risk():
     return {
         'status': 'success',
-        'assessment_timestamp': datetime.now().isoformat(),
+        'assessment_timestamp': datetime.now(timezone.utc).isoformat(),
         'operational_risk_assessment': {
             'technology_risk': {
                 'infrastructure_score': 8.5,
@@ -322,7 +322,7 @@ def generate_risk_report(config):
         'report_id': 'RISK_RPT_001',
         'report_url': '/reports/risk/RISK_RPT_001.pdf',
         'report_metadata': {
-            'generated_at': datetime.now().isoformat(),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
             'report_period': 'monthly',
             'portfolio_id': config.get('portfolio_id', 'ALL')
         }
@@ -352,8 +352,8 @@ def get_compliance_status():
         'status': 'success',
         'compliance_status': 'compliant',
         'violations': [],
-        'last_audit_date': datetime.now().isoformat(),
-        'next_audit_date': datetime.now().isoformat()
+        'last_audit_date': datetime.now(timezone.utc).isoformat(),
+        'next_audit_date': datetime.now(timezone.utc).isoformat()
     }
 
 def update_risk_parameters(config):

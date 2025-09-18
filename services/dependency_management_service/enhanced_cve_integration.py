@@ -10,7 +10,7 @@ import json
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -284,7 +284,7 @@ class EnhancedCVEIntegration:
             vulnerabilities=vulnerabilities,
             risk_score=risk_score,
             recommendations=recommendations,
-            last_scanned=datetime.now().isoformat(),
+            last_scanned=datetime.now(timezone.utc).isoformat(),
             scan_duration_ms=scan_duration
         )
         
@@ -307,7 +307,10 @@ class EnhancedCVEIntegration:
             # Age factor
             try:
                 published = datetime.fromisoformat(vuln.published_date.replace('Z', '+00:00'))
-                age_days = (datetime.now() - published.replace(tzinfo=None)).days
+                now_utc = datetime.now(timezone.utc)
+                pub = published if getattr(published, "tzinfo", None) else published.replace(tzinfo=timezone.utc)
+                pub_utc = pub if pub.tzinfo == timezone.utc else pub.astimezone(timezone.utc)
+                age_days = (now_utc - pub_utc).days
                 age_factor = max(0.0, 2.0 - (age_days / 365))
             except:
                 age_factor = 1.0

@@ -18,7 +18,7 @@ import logging
 import time
 import json
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Union
 from enum import Enum
 from dataclasses import dataclass, asdict
@@ -315,8 +315,8 @@ class DataFeedManager:
             
             if ticker.last and ticker.last > 0:
                 # Create data point from real-time data
-                current_time = datetime.now()
-                
+                current_time = datetime.now(timezone.utc)
+                    
                 data_point = MarketDataPoint(
                     symbol=symbol,
                     timestamp=current_time,
@@ -338,7 +338,7 @@ class DataFeedManager:
                 # No data available, return error data point
                 return MarketDataPoint(
                     symbol=symbol,
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     open=0.0, high=0.0, low=0.0, close=0.0, volume=0,
                     source=DataSource.IBKR,
                     status=DataStatus.NO_DATA,
@@ -358,7 +358,7 @@ class DataFeedManager:
             # Return error data point
             return MarketDataPoint(
                 symbol=symbol,
-                timestamp=datetime.now(),
+                timestamp=datetime.now(timezone.utc),
                 open=0.0, high=0.0, low=0.0, close=0.0, volume=0,
                 source=DataSource.IBKR,
                 status=DataStatus.FAILED,
@@ -385,7 +385,7 @@ class DataFeedManager:
                 
                 data_point = MarketDataPoint(
                     symbol=symbol,
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     open=float(latest['Open']),
                     high=float(latest['High']),
                     low=float(latest['Low']),
@@ -401,7 +401,7 @@ class DataFeedManager:
                 # No data available
                 return MarketDataPoint(
                     symbol=symbol,
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     open=0.0, high=0.0, low=0.0, close=0.0, volume=0,
                     source=DataSource.YAHOO,
                     status=DataStatus.NO_DATA,
@@ -412,7 +412,7 @@ class DataFeedManager:
             logger.error(f"Yahoo Finance fetch error: {e}")
             return MarketDataPoint(
                 symbol=symbol,
-                timestamp=datetime.now(),
+                timestamp=datetime.now(timezone.utc),
                 open=0.0, high=0.0, low=0.0, close=0.0, volume=0,
                 source=DataSource.YAHOO,
                 status=DataStatus.FAILED,
@@ -460,7 +460,7 @@ class DataFeedManager:
         
         try:
             # Get previous day's data
-            prev_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            prev_date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
             url = f"{source_config.base_url}/v1/open-close/{symbol}/{prev_date}?adjusted=true&apikey={source_config.api_key}"
             
             response = requests.get(url, timeout=source_config.timeout_seconds)
@@ -469,7 +469,7 @@ class DataFeedManager:
             if data.get("status") == "OK":
                 data_point = MarketDataPoint(
                     symbol=symbol,
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     open=float(data["open"]),
                     high=float(data["high"]),
                     low=float(data["low"]),
@@ -491,7 +491,7 @@ class DataFeedManager:
         """Cache data for fallback"""
         self.cache[symbol] = {
             "data": data_point,
-            "timestamp": datetime.now()
+            "timestamp": datetime.now(timezone.utc)
         }
         
         # Limit cache size
@@ -506,7 +506,7 @@ class DataFeedManager:
             cached_entry = self.cache[symbol]
             
             # Check if cache is not too old (1 hour max)
-            if datetime.now() - cached_entry["timestamp"] < timedelta(hours=1):
+            if datetime.now(timezone.utc) - cached_entry["timestamp"] < timedelta(hours=1):
                 cached_data = cached_entry["data"]
                 cached_data.source = DataSource.CACHE
                 return cached_data
@@ -520,7 +520,7 @@ class DataFeedManager:
         
         if success:
             stats["successes"] += 1
-            stats["last_success"] = datetime.now()
+            stats["last_success"] = datetime.now(timezone.utc)
             
             # Update rolling average latency
             if stats["avg_latency"] == 0:
@@ -529,7 +529,7 @@ class DataFeedManager:
                 stats["avg_latency"] = (stats["avg_latency"] * 0.9) + (latency * 0.1)
         else:
             stats["failures"] += 1
-            stats["last_failure"] = datetime.now()
+            stats["last_failure"] = datetime.now(timezone.utc)
         
         # Calculate uptime percentage
         if stats["requests"] > 0:
@@ -683,7 +683,7 @@ async def main():
         json.dump({
             "test_results": test_results,
             "health_report": health_report,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }, f, indent=2, default=str)
     
     logger.info(f"\n💾 Results saved to: {results_file}")

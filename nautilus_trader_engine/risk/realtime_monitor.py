@@ -2,7 +2,7 @@
 
 from typing import Dict, Any
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class RealtimeRiskMonitor:
@@ -25,7 +25,7 @@ class RealtimeRiskMonitor:
             'leverage_ratio': 2.5,
             'concentration_risk': 0.15,
             'calculation_time_ms': 10.0,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         # Check for risk limit violations
@@ -35,7 +35,7 @@ class RealtimeRiskMonitor:
                 'type': 'VAR_LIMIT_BREACH',
                 'severity': 'HIGH',
                 'message': f"Portfolio VaR {risk_metrics['portfolio_var']:.2f} exceeds limit 2500",
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             })
         
         if risk_metrics['leverage_ratio'] > 3.0:  # Leverage limit
@@ -43,7 +43,7 @@ class RealtimeRiskMonitor:
                 'type': 'LEVERAGE_LIMIT_BREACH',
                 'severity': 'MEDIUM',
                 'message': f"Leverage ratio {risk_metrics['leverage_ratio']:.2f} exceeds limit 3.0",
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             })
         
         self.risk_metrics = risk_metrics
@@ -61,3 +61,6 @@ class RealtimeRiskMonitor:
             'max_concentration': 0.20,
             'max_drawdown': 0.10
         }
+
+
+__all__ = ["RealtimeRiskMonitor"]

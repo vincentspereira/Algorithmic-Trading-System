@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from kafka import KafkaConsumer, KafkaProducer
 from kafka.errors import KafkaError
@@ -82,7 +82,7 @@ class KafkaAIBridge:
             # Create response
             result = {
                 'symbol': symbol,
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'prediction': float(prediction),
                 'confidence': 0.85,  # Mock confidence score
                 'features': features,

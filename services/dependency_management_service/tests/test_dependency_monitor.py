@@ -2,7 +2,7 @@
 
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 import pytest
@@ -65,11 +65,11 @@ def test_should_run():
     assert monitor._should_run("*/15 * * * *", None)
     
     # Should not run if last run was recent
-    last_run = datetime.utcnow()
+    last_run = datetime.now(timezone.utc)
     assert not monitor._should_run("*/15 * * * *", last_run)
     
     # Should run if enough time has passed
-    last_run = datetime.utcnow() - timedelta(minutes=16)
+    last_run = datetime.now(timezone.utc) - timedelta(minutes=16)
     assert monitor._should_run("*/15 * * * *", last_run)
 
 @mock.patch('requests.get')
@@ -194,8 +194,8 @@ def test_get_critical_issues(monitor):
         "tier1/TestRepo1": DependencyStatus(
             name="TestRepo1",
             tier="tier1",
-            last_check=datetime.utcnow(),
-            last_update=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
+            last_update=datetime.now(timezone.utc),
             current_commit="test-sha",
             vulnerabilities=[
                 VulnerabilityInfo(
@@ -212,8 +212,8 @@ def test_get_critical_issues(monitor):
         "tier1/TestRepo2": DependencyStatus(
             name="TestRepo2",
             tier="tier1",
-            last_check=datetime.utcnow(),
-            last_update=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
+            last_update=datetime.now(timezone.utc),
             current_commit="test-sha",
             vulnerabilities=[],
             available_update=UpdateInfo(

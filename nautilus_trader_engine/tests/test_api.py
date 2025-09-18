@@ -114,7 +114,7 @@ def test_run_backtest_success(mock_runner, client, auth_headers):
 
 def test_run_backtest_unauthorized(client):
     response = client.post("/api/v1/backtest/backtest/", json={})
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 # Test Optimization Endpoints
 @patch('nautilus_trader_engine.api.routers.optimization.OptimizationEngine')
@@ -140,7 +140,7 @@ def test_run_optimization_success(mock_engine_class, client, auth_headers):
 
 def test_run_optimization_unauthorized(client):
     response = client.post("/api/v1/optimise/optimise/", json={})
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 # Test Features Endpoints
 def test_get_features_success(client, auth_headers):
@@ -154,7 +154,7 @@ def test_get_features_success(client, auth_headers):
 
 def test_get_features_unauthorized(client):
     response = client.get("/api/v1/features/AAPL?start_date=2023-01-01T00:00:00&end_date=2023-01-31T00:00:00&feature_types=market_data")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 # ============================================================================
@@ -212,7 +212,7 @@ def test_invalid_token_format(client):
     """Test API access with malformed token"""
     headers = {"Authorization": "Bearer invalid_token_format"}
     response = client.post("/api/v1/backtest/backtest/", json={}, headers=headers)
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_missing_bearer_prefix(client):
@@ -221,7 +221,7 @@ def test_missing_bearer_prefix(client):
     token = create_access_token(subject="demo_user_001")
     headers = {"Authorization": token}  # Missing "Bearer " prefix
     response = client.post("/api/v1/backtest/backtest/", json={}, headers=headers)
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_expired_token(client):
@@ -233,7 +233,7 @@ def test_expired_token(client):
     )
     headers = {"Authorization": f"Bearer {expired_token}"}
     response = client.post("/api/v1/backtest/backtest/", json={}, headers=headers)
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 # ============================================================================

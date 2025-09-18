@@ -17,7 +17,7 @@ import asyncio
 import logging
 import os
 from typing import Dict, Any, List, Optional, Union
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 from dataclasses import dataclass, asdict
 from contextlib import asynccontextmanager
@@ -217,7 +217,7 @@ class InfluxDBManager:
                     "measurement": metric_point.measurement,
                     "tags": metric_point.tags,
                     "fields": metric_point.fields,
-                    "timestamp": metric_point.timestamp.isoformat() if metric_point.timestamp else datetime.now().isoformat()
+                    "timestamp": metric_point.timestamp.isoformat() if metric_point.timestamp else datetime.now(timezone.utc).isoformat()
                 }
                 
                 if self.config.bucket not in self.fallback_data:
@@ -274,7 +274,7 @@ class InfluxDBManager:
                         "measurement": metric_point.measurement,
                         "tags": metric_point.tags,
                         "fields": metric_point.fields,
-                        "timestamp": metric_point.timestamp.isoformat() if metric_point.timestamp else datetime.now().isoformat()
+                        "timestamp": metric_point.timestamp.isoformat() if metric_point.timestamp else datetime.now(timezone.utc).isoformat()
                     }
                     self.fallback_data[self.config.bucket].append(measurement_data)
                 

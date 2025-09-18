@@ -12,7 +12,7 @@ This module provides:
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, Optional, Any
 
@@ -274,7 +274,7 @@ class TradingModeManager:
             reason: Reason for change
         """
         change_record = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "old_mode": old_mode.value if old_mode else None,
             "new_mode": new_mode.value,
             "reason": reason

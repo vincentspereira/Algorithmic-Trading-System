@@ -6,7 +6,7 @@ These models define the structure for login requests, token responses, user info
 and authentication status checks.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 
@@ -31,13 +31,12 @@ class LoginRequest(BaseModel):
         example="demo123"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "username": "demo",
-                "password": "demo123"
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "username": "demo",
+            "password": "demo123"
         }
+    })
 
 
 class TokenResponse(BaseModel):
@@ -69,15 +68,14 @@ class TokenResponse(BaseModel):
         example=1800
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer",
-                "expires_in": 1800
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "token_type": "bearer",
+            "expires_in": 1800
         }
+    })
 
 
 class RefreshTokenRequest(BaseModel):
@@ -93,12 +91,11 @@ class RefreshTokenRequest(BaseModel):
         example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         }
+    })
 
 
 class UserInfo(BaseModel):
@@ -129,15 +126,14 @@ class UserInfo(BaseModel):
         example="2024-01-01T00:00:00Z"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "user_id": "demo_user_001",
-                "username": "demo",
-                "is_active": True,
-                "created_at": "2024-01-01T00:00:00Z"
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "user_id": "demo_user_001",
+            "username": "demo",
+            "is_active": True,
+            "created_at": "2024-01-01T00:00:00Z"
         }
+    })
 
 
 class AuthStatus(BaseModel):
@@ -163,11 +159,10 @@ class AuthStatus(BaseModel):
         example="2024-01-01T01:00:00Z"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "authenticated": True,
-                "user_id": "demo_user_001",
-                "expires_at": "2024-01-01T01:00:00Z"
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "authenticated": True,
+            "user_id": "demo_user_001",
+            "expires_at": "2024-01-01T01:00:00Z"
         }
+    })

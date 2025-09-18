@@ -10,7 +10,7 @@ import requests
 import sys
 import os
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 from dataclasses import dataclass, asdict
 from collections import defaultdict
@@ -179,7 +179,7 @@ class ConsolidatedWeeklyReportGenerator:
             "average_response_time_ms": 120,
             "failed_scans": 0,
             "successful_scans": 28,
-            "last_scan": datetime.now().isoformat()
+            "last_scan": datetime.now(timezone.utc).isoformat()
         }
     
     def _generate_recommendations(self, report_data: WeeklyReportData) -> List[str]:

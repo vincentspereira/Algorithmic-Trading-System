@@ -13,7 +13,7 @@ import asyncio
 import json
 import logging
 from typing import Dict, List, Set, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, status, Query
@@ -138,7 +138,7 @@ async def websocket_market_data_endpoint(
         await ws_manager.send_to_client(client_id, {
             "type": "connection_confirmed",
             "client_id": client_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "subscribed_topics": topics
         })
         
@@ -156,7 +156,7 @@ async def websocket_market_data_endpoint(
                     await ws_manager.send_to_client(client_id, {
                         "type": "subscription_updated",
                         "topics": new_topics,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     })
                 elif message.get("action") == "unsubscribe":
                     old_topics = message.get("topics", [])
@@ -164,7 +164,7 @@ async def websocket_market_data_endpoint(
                     await ws_manager.send_to_client(client_id, {
                         "type": "unsubscription_updated",
                         "topics": old_topics,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     })
                     
             except WebSocketDisconnect:
@@ -199,7 +199,7 @@ async def websocket_trading_updates_endpoint(websocket: WebSocket):
         await ws_manager.send_to_client(client_id, {
             "type": "connection_confirmed",
             "client_id": client_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "subscribed_topics": ["trading.orders", "trading.positions"]
         })
         
@@ -251,7 +251,7 @@ async def websocket_indicators_endpoint(
         await ws_manager.send_to_client(client_id, {
             "type": "connection_confirmed",
             "client_id": client_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "subscribed_topics": topics
         })
         

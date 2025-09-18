@@ -17,7 +17,7 @@ import pytest
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from nautilus_trader_engine.indicators.volume_weighted import VolumeWeightedIndicators, MarketData
+from nautilus_trader_engine.indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators, MarketData
 from nautilus_trader_engine.indicators.enhanced_volume_weighted import EnhancedMarketData
 
 @pytest.fixture

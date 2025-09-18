@@ -8,7 +8,7 @@ import json
 import uuid
 import asyncio
 from typing import Dict, Any, List, Optional, AsyncGenerator
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 from fastapi import FastAPI, HTTPException, Request
@@ -166,7 +166,7 @@ def format_response_with_reasoning(ai_response: Dict[str, Any]) -> str:
 async def stream_response(ai_response: Dict[str, Any], completion_id: str, model: str) -> AsyncGenerator[str, None]:
     """Stream the response in OpenAI format"""
     response_text = format_response_with_reasoning(ai_response)
-    created = int(datetime.utcnow().timestamp())
+    created = int(datetime.now(timezone.utc).timestamp())
     
     # Split response into chunks for streaming effect
     words = response_text.split()
@@ -226,7 +226,7 @@ async def health_check():
     return {
         "status": "healthy",
         "ai_assistant_connection": ai_assistant_healthy,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 
@@ -239,7 +239,7 @@ async def list_models():
             {
                 "id": "trading-assistant",
                 "object": "model",
-                "created": int(datetime.utcnow().timestamp()),
+                "created": int(datetime.now(timezone.utc).timestamp()),
                 "owned_by": "algorithmic-trading-system",
                 "permission": [],
                 "root": "trading-assistant",
@@ -253,7 +253,7 @@ async def list_models():
 async def create_chat_completion(request: ChatCompletionRequest):
     """Create a chat completion (OpenAI-compatible)"""
     completion_id = f"chatcmpl-{uuid.uuid4().hex[:8]}"
-    created = int(datetime.utcnow().timestamp())
+    created = int(datetime.now(timezone.utc).timestamp())
     
     # Extract user message
     user_message = extract_user_message(request.messages)

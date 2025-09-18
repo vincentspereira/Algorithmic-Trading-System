@@ -1,12 +1,157 @@
-# Production Monitoring and Observability Infrastructure
+# Trading System Monitoring Infrastructure
 
-## Overview
+This directory contains the complete monitoring and observability stack for the algorithmic trading system. The monitoring infrastructure provides comprehensive visibility into system health, performance, and business metrics across all components.
 
-This comprehensive monitoring infrastructure provides enterprise-grade monitoring, metrics collection, alerting, and observability for the trading system. It includes real-time dashboards, predictive analytics, and advanced alerting capabilities.
+## 🏗️ Architecture Overview
 
-## Architecture
+The monitoring stack follows a modern observability architecture with:
 
-The monitoring system consists of several key components:
+- **Metrics Collection**: Prometheus with multiple exporters
+- **Visualization**: Grafana with pre-built dashboards
+- **Alerting**: Alertmanager with multi-channel notifications
+- **Distributed Tracing**: Jaeger for request tracing
+- **Log Aggregation**: ELK stack (Elasticsearch, Logstash, Kibana)
+- **Health Monitoring**: Custom health checkers and blackbox probing
+
+## 📁 Directory Structure
+
+```
+monitoring/
+├── docker-compose.yml              # Main monitoring stack orchestration
+├── prometheus.yml                   # Prometheus configuration
+├── alert_rules.yml                 # Prometheus alerting rules
+├── recording_rules.yml             # Prometheus recording rules
+├── alertmanager.yml                # Alertmanager configuration
+├── blackbox.yml                    # Blackbox exporter configuration
+├── postgres-queries.yaml           # PostgreSQL custom queries
+├── grafana.ini                     # Grafana server configuration
+├── grafana-datasources.yml         # Grafana datasource provisioning
+├── grafana-dashboard-provisioning.yml # Dashboard provisioning config
+├── grafana_dashboards.json         # Pre-built dashboard definitions
+└── README.md                       # This documentation
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- At least 8GB RAM available for monitoring stack
+- Ports 3001, 9090, 9093, 9115, 16686 available
+
+### 1. Environment Setup
+
+```bash
+# Copy environment template
+cp ../database/.env.example .env
+
+# Edit environment variables
+nano .env
+```
+
+### 2. Start Monitoring Stack
+
+```bash
+# Start all monitoring services
+docker-compose up -d
+
+# Check service status
+docker-compose ps
+
+# View logs
+docker-compose logs -f prometheus grafana alertmanager
+```
+
+### 3. Access Interfaces
+
+- **Grafana**: http://localhost:3001 (admin/trading_system_2024)
+- **Prometheus**: http://localhost:9090
+- **Alertmanager**: http://localhost:9093
+- **Jaeger**: http://localhost:16686
+
+## 📊 Monitoring Components
+
+### Core Services
+
+#### Prometheus (Port 9090)
+- **Purpose**: Metrics collection and storage
+- **Retention**: 15 days
+- **Scrape Interval**: 15 seconds
+- **Storage**: Local with optional remote write
+
+#### Grafana (Port 3001)
+- **Purpose**: Visualization and dashboards
+- **Authentication**: Admin user with configurable password
+- **Datasources**: Auto-provisioned (Prometheus, PostgreSQL, etc.)
+- **Dashboards**: Auto-loaded from JSON definitions
+
+#### Alertmanager (Port 9093)
+- **Purpose**: Alert routing and notification
+- **Channels**: Email, Slack, PagerDuty, Webhook
+- **Grouping**: By service and severity
+- **Inhibition**: Prevents alert spam
+
+### Exporters and Collectors
+
+#### Node Exporter
+- **Metrics**: System-level metrics (CPU, memory, disk, network)
+- **Deployment**: On each monitored host
+- **Port**: 9100
+
+#### cAdvisor
+- **Metrics**: Container resource usage and performance
+- **Scope**: All Docker containers
+- **Port**: 8080
+
+#### Database Exporters
+- **PostgreSQL Exporter**: Database performance and health
+- **Redis Exporter**: Cache performance and memory usage
+- **Custom Queries**: Business-specific metrics
+
+#### Blackbox Exporter
+- **Purpose**: External service monitoring
+- **Protocols**: HTTP, HTTPS, TCP, ICMP
+- **Endpoints**: Trading APIs, databases, external services
+
+## 📈 Dashboard Categories
+
+### 1. Database Health Overview
+- Connection status for all 9 databases
+- Query performance and latency
+- Resource utilization (CPU, memory, connections)
+- Error rates and availability
+
+### 2. Trading Performance
+- Order processing metrics
+- Execution latency and slippage
+- Portfolio performance and P&L
+- Strategy performance comparison
+
+### 3. System Resources
+- Host-level metrics (CPU, memory, disk, network)
+- Container resource usage
+- Service availability and health
+- Capacity planning metrics
+
+### 4. Kafka Monitoring
+- Message throughput and latency
+- Consumer lag and partition health
+- Broker performance and availability
+- Topic-level metrics
+
+### 5. Application Performance
+- Request rates and response times
+- Error rates and success ratios
+- Business transaction metrics
+- User experience metrics
+
+### 6. Security and Compliance
+- Authentication and authorization events
+- Audit trail metrics
+- Compliance monitoring
+- Security incident detection
+
+## Legacy Components (Preserved)
 
 ### Core Components
 

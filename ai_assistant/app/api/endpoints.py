@@ -1,6 +1,6 @@
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 from fastapi import APIRouter, HTTPException
@@ -20,7 +20,6 @@ async def health_check():
     """
     Health check endpoint to verify service status and dependencies
     """
-    from datetime import datetime
 
     # Check Phase 2 API connection
     phase2_connected = False
@@ -36,7 +35,7 @@ async def health_check():
 
     return HealthResponse(
         status="healthy",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         version="1.0.0",
         phase2_connection=phase2_connected
     )
@@ -85,7 +84,7 @@ async def chat_with_assistant(request: ChatRequest):
     The agent uses reasoning traces to show its thought process and tool usage.
     """
     session_id = request.session_id or str(uuid.uuid4())
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
 
     if agent_executor is None:
         logger.error("ReAct agent not initialized")
@@ -108,42 +107,24 @@ async def chat_with_assistant(request: ChatRequest):
             context_str = f"Additional context: {request.context}"
             agent_input["input"] = f"{context_str}\n\nUser message: {request.message}"
 
-        logger.info(f"Processing chat request for session {session_id}: {request.message}")
-        result = agent_executor.invoke(agent_input)
-        response_text = result.get("output", "I apologize, but I couldn't generate a proper response.")
-        intermediate_steps = result.get("intermediate_steps", [])
+        # Run the agent with the input
+        result = await agent_executor.ainvoke(agent_input)
 
-        reasoning = []
-        tools_used = []
+        # Extract response and reasoning trace
+        response_text = result.get("output", "")
+        reasoning = result.get("intermediate_steps") or result.get("reasoning_trace")
+        tools_used = result.get("tools_used")
 
-        for step in intermediate_steps:
-            if len(step) >= 2:
-                action, observation = step[0], step[1]
-                tool_name = getattr(action, 'tool', 'unknown')
-                if tool_name not in tools_used:
-                    tools_used.append(tool_name)
-
-                reasoning_step = {
-                    "thought": getattr(action, 'log', ''),
-                    "action": tool_name,
-                    "action_input": getattr(action, 'tool_input', ''),
-                    "observation": str(observation)[:500] + "..." if len(str(observation)) > 500 else str(observation)
-                }
-                reasoning.append(reasoning_step)
-
-        memory.chat_memory.add_user_message(request.message)
-        memory.chat_memory.add_ai_message(response_text)
-
-        logger.info(f"Successfully processed chat request for session {session_id}")
+        # Save to memory
+        memory.save_context({"input": request.message}, {"output": response_text})
 
         return ChatResponse(
             response=response_text,
             session_id=session_id,
             timestamp=timestamp,
-            reasoning=reasoning if reasoning else None,
-            tools_used=tools_used if tools_used else None
+            reasoning=reasoning,
+            tools_used=tools_used
         )
-
     except Exception as e:
         error_msg = f"Error processing chat request: {str(e)}"
         logger.error(f"Chat error for session {session_id}: {error_msg}")

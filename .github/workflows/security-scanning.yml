@@ -1,0 +1,889 @@
+name: Automated Security Scanning
+
+# Comprehensive security scanning workflow for institutional-grade security
+# Integrates SAST, dependency scanning, and compliance checks
+
+on:
+  push:
+    branches: [ main, develop, release/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - sast-only
+          - dependency-only
+          - compliance-only
+      severity_threshold:
+        description: 'Minimum severity level to report'
+        required: false
+        default: 'medium'
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+          - critical
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  SECURITY_SCAN_TIMEOUT: '1800'  # 30 minutes
+  MAX_PARALLEL_SCANS: '3'
+
+jobs:
+  security-scan-setup:
+    name: Security Scan Setup
+    runs-on: ubuntu-latest
+    outputs:
+      scan-matrix: ${{ steps.setup-matrix.outputs.matrix }}
+      scan-type: ${{ steps.setup-scan.outputs.scan-type }}
+      severity-threshold: ${{ steps.setup-scan.outputs.severity-threshold }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+      
+      - name: Setup scan parameters
+        id: setup-scan
+        run: |
+          SCAN_TYPE="${{ github.event.inputs.scan_type || 'full' }}"
+          SEVERITY_THRESHOLD="${{ github.event.inputs.severity_threshold || 'medium' }}"
+          
+          echo "scan-type=${SCAN_TYPE}" >> $GITHUB_OUTPUT
+          echo "severity-threshold=${SEVERITY_THRESHOLD}" >> $GITHUB_OUTPUT
+          
+          echo "🔍 Security scan type: ${SCAN_TYPE}"
+          echo "⚠️ Severity threshold: ${SEVERITY_THRESHOLD}"
+      
+      - name: Setup scan matrix
+        id: setup-matrix
+        run: |
+          # Define scan matrix based on scan type
+          if [[ "${{ steps.setup-scan.outputs.scan-type }}" == "full" ]]; then
+            MATRIX='{
+              "include": [
+                {"scan": "bandit-sast", "path": ".", "config": "security/bandit_config.yaml"},
+                {"scan": "safety-deps", "path": ".", "config": "security/safety_config.json"},
+                {"scan": "semgrep-sast", "path": ".", "config": "security/semgrep_config.yml"},
+                {"scan": "compliance", "path": ".", "config": "security/compliance_config.yaml"}
+              ]
+            }'
+          elif [[ "${{ steps.setup-scan.outputs.scan-type }}" == "sast-only" ]]; then
+            MATRIX='{
+              "include": [
+                {"scan": "bandit-sast", "path": ".", "config": "security/bandit_config.yaml"},
+                {"scan": "semgrep-sast", "path": ".", "config": "security/semgrep_config.yml"}
+              ]
+            }'
+          elif [[ "${{ steps.setup-scan.outputs.scan-type }}" == "dependency-only" ]]; then
+            MATRIX='{
+              "include": [
+                {"scan": "safety-deps", "path": ".", "config": "security/safety_config.json"}
+              ]
+            }'
+          else
+            MATRIX='{
+              "include": [
+                {"scan": "compliance", "path": ".", "config": "security/compliance_config.yaml"}
+              ]
+            }'
+          fi
+          
+          echo "matrix=${MATRIX}" >> $GITHUB_OUTPUT
+          echo "📋 Scan matrix: ${MATRIX}"
+
+  bandit-sast-scan:
+    name: Bandit SAST Security Scan
+    runs-on: ubuntu-latest
+    needs: security-scan-setup
+    if: contains(needs.security-scan-setup.outputs.scan-matrix, 'bandit-sast')
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install security scanning dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[toml] safety semgrep
+          pip install -r security/requirements.txt || echo "Security requirements not found, using defaults"
+      
+      - name: Create security directories
+        run: |
+          mkdir -p security/reports
+          mkdir -p security/alerts
+      
+      - name: Run Bandit SAST scan
+        run: |
+          echo "🔍 Running Bandit SAST security scan..."
+          
+          # Set severity and confidence levels based on threshold
+          SEVERITY_FLAG=""
+          case "${{ needs.security-scan-setup.outputs.severity-threshold }}" in
+            "critical"|"high")
+              SEVERITY_FLAG="-ll"
+              ;;
+            "medium")
+              SEVERITY_FLAG="-l"
+              ;;
+            *)
+              SEVERITY_FLAG=""
+              ;;
+          esac
+          
+          # Run Bandit with configuration
+          bandit -r . \
+            -f json \
+            -o security/reports/bandit-report.json \
+            ${SEVERITY_FLAG} \
+            -c security/bandit_config.yaml \
+            --exclude "/tests/,/.venv/,/node_modules/,/.git/" \
+            || echo "Bandit scan completed with findings"
+          
+          # Also generate human-readable report
+          bandit -r . \
+            -f txt \
+            -o security/reports/bandit-report.txt \
+            ${SEVERITY_FLAG} \
+            -c security/bandit_config.yaml \
+            --exclude "/tests/,/.venv/,/node_modules/,/.git/" \
+            || echo "Bandit text report generated"
+      
+      - name: Process Bandit results
+        run: |
+          echo "📊 Processing Bandit scan results..."
+          
+          if [[ -f "security/reports/bandit-report.json" ]]; then
+            # Count findings by severity
+            HIGH_COUNT=$(jq '[.results[] | select(.issue_severity == "HIGH")] | length' security/reports/bandit-report.json 2>/dev/null || echo "0")
+            MEDIUM_COUNT=$(jq '[.results[] | select(.issue_severity == "MEDIUM")] | length' security/reports/bandit-report.json 2>/dev/null || echo "0")
+            LOW_COUNT=$(jq '[.results[] | select(.issue_severity == "LOW")] | length' security/reports/bandit-report.json 2>/dev/null || echo "0")
+            TOTAL_COUNT=$(jq '.results | length' security/reports/bandit-report.json 2>/dev/null || echo "0")
+            
+            echo "🔴 High severity findings: ${HIGH_COUNT}"
+            echo "🟡 Medium severity findings: ${MEDIUM_COUNT}"
+            echo "🟢 Low severity findings: ${LOW_COUNT}"
+            echo "📈 Total findings: ${TOTAL_COUNT}"
+            
+            # Set outputs for later jobs
+            echo "bandit-high-count=${HIGH_COUNT}" >> $GITHUB_ENV
+            echo "bandit-medium-count=${MEDIUM_COUNT}" >> $GITHUB_ENV
+            echo "bandit-low-count=${LOW_COUNT}" >> $GITHUB_ENV
+            echo "bandit-total-count=${TOTAL_COUNT}" >> $GITHUB_ENV
+            
+            # Create summary for GitHub
+            {
+              echo "## 🔍 Bandit SAST Scan Results"
+              echo "| Severity | Count |"
+              echo "|----------|-------|"
+              echo "| High     | ${HIGH_COUNT} |"
+              echo "| Medium   | ${MEDIUM_COUNT} |"
+              echo "| Low      | ${LOW_COUNT} |"
+              echo "| **Total** | **${TOTAL_COUNT}** |"
+              echo ""
+              
+              if [[ ${HIGH_COUNT} -gt 0 ]]; then
+                echo "⚠️ **Critical Action Required**: ${HIGH_COUNT} high-severity security issues found!"
+              elif [[ ${MEDIUM_COUNT} -gt 0 ]]; then
+                echo "⚠️ **Action Recommended**: ${MEDIUM_COUNT} medium-severity security issues found."
+              else
+                echo "✅ **No high or medium severity issues found.**"
+              fi
+            } >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Bandit scan failed to generate report"
+            echo "bandit-scan-failed=true" >> $GITHUB_ENV
+          fi
+      
+      - name: Upload Bandit reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: bandit-security-reports
+          path: |
+            security/reports/bandit-report.json
+            security/reports/bandit-report.txt
+          retention-days: 30
+      
+      - name: Fail on critical findings
+        if: env.bandit-high-count > 0
+        run: |
+          echo "❌ Build failed due to ${bandit-high-count} high-severity security findings"
+          echo "Please review and fix the security issues before proceeding."
+          exit 1
+
+  safety-dependency-scan:
+    name: Safety Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: security-scan-setup
+    if: contains(needs.security-scan-setup.outputs.scan-matrix, 'safety-deps')
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety
+          
+          # Install project dependencies to scan them
+          if [[ -f "requirements.txt" ]]; then
+            pip install -r requirements.txt
+          fi
+          
+          if [[ -f "auth/requirements.txt" ]]; then
+            pip install -r auth/requirements.txt
+          fi
+      
+      - name: Create reports directory
+        run: mkdir -p security/reports
+      
+      - name: Run Safety dependency scan
+        run: |
+          echo "🔍 Running Safety dependency vulnerability scan..."
+          
+          # Run Safety check
+          safety check \
+            --json \
+            --output security/reports/safety-report.json \
+            || echo "Safety scan completed with findings"
+          
+          # Also generate human-readable report
+          safety check \
+            --output security/reports/safety-report.txt \
+            || echo "Safety text report generated"
+      
+      - name: Process Safety results
+        run: |
+          echo "📊 Processing Safety scan results..."
+          
+          if [[ -f "security/reports/safety-report.json" ]]; then
+            # Count vulnerabilities
+            VULN_COUNT=$(jq '. | length' security/reports/safety-report.json 2>/dev/null || echo "0")
+            
+            echo "🔴 Vulnerabilities found: ${VULN_COUNT}"
+            echo "safety-vuln-count=${VULN_COUNT}" >> $GITHUB_ENV
+            
+            # Create summary for GitHub
+            {
+              echo "## 🛡️ Safety Dependency Scan Results"
+              echo "| Metric | Count |"
+              echo "|--------|-------|"
+              echo "| Vulnerabilities | ${VULN_COUNT} |"
+              echo ""
+              
+              if [[ ${VULN_COUNT} -gt 0 ]]; then
+                echo "⚠️ **Action Required**: ${VULN_COUNT} known vulnerabilities found in dependencies!"
+                echo ""
+                echo "### Vulnerable Packages:"
+                jq -r '.[] | "- **" + .package_name + "** (" + .installed_version + "): " + .vulnerability_id' security/reports/safety-report.json 2>/dev/null || echo "Unable to parse vulnerability details"
+              else
+                echo "✅ **No known vulnerabilities found in dependencies.**"
+              fi
+            } >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Safety scan failed to generate report"
+            echo "safety-scan-failed=true" >> $GITHUB_ENV
+          fi
+      
+      - name: Upload Safety reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: safety-dependency-reports
+          path: |
+            security/reports/safety-report.json
+            security/reports/safety-report.txt
+          retention-days: 30
+      
+      - name: Fail on vulnerabilities (if threshold met)
+        if: env.safety-vuln-count > 0 && (needs.security-scan-setup.outputs.severity-threshold == 'high' || needs.security-scan-setup.outputs.severity-threshold == 'critical')
+        run: |
+          echo "❌ Build failed due to ${safety-vuln-count} dependency vulnerabilities"
+          echo "Please update vulnerable dependencies before proceeding."
+          exit 1
+
+  semgrep-advanced-sast:
+    name: Semgrep Advanced SAST Scan
+    runs-on: ubuntu-latest
+    needs: security-scan-setup
+    if: contains(needs.security-scan-setup.outputs.scan-matrix, 'semgrep-sast')
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+      
+      - name: Create reports directory
+        run: mkdir -p security/reports
+      
+      - name: Run Semgrep SAST scan
+        run: |
+          echo "🔍 Running Semgrep advanced SAST scan..."
+          
+          # Run Semgrep with multiple rulesets
+          semgrep \
+            --config=auto \
+            --config=p/security-audit \
+            --config=p/secrets \
+            --config=p/owasp-top-ten \
+            --json \
+            --output=security/reports/semgrep-report.json \
+            --timeout=1200 \
+            --max-memory=4000 \
+            . || echo "Semgrep scan completed with findings"
+          
+          # Generate human-readable report
+          semgrep \
+            --config=auto \
+            --config=p/security-audit \
+            --config=p/secrets \
+            --config=p/owasp-top-ten \
+            --output=security/reports/semgrep-report.txt \
+            . || echo "Semgrep text report generated"
+      
+      - name: Process Semgrep results
+        run: |
+          echo "📊 Processing Semgrep scan results..."
+          
+          if [[ -f "security/reports/semgrep-report.json" ]]; then
+            # Count findings by severity
+            ERROR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' security/reports/semgrep-report.json 2>/dev/null || echo "0")
+            WARNING_COUNT=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' security/reports/semgrep-report.json 2>/dev/null || echo "0")
+            INFO_COUNT=$(jq '[.results[] | select(.extra.severity == "INFO")] | length' security/reports/semgrep-report.json 2>/dev/null || echo "0")
+            TOTAL_COUNT=$(jq '.results | length' security/reports/semgrep-report.json 2>/dev/null || echo "0")
+            
+            echo "🔴 Error findings: ${ERROR_COUNT}"
+            echo "🟡 Warning findings: ${WARNING_COUNT}"
+            echo "🔵 Info findings: ${INFO_COUNT}"
+            echo "📈 Total findings: ${TOTAL_COUNT}"
+            
+            echo "semgrep-error-count=${ERROR_COUNT}" >> $GITHUB_ENV
+            echo "semgrep-warning-count=${WARNING_COUNT}" >> $GITHUB_ENV
+            echo "semgrep-info-count=${INFO_COUNT}" >> $GITHUB_ENV
+            echo "semgrep-total-count=${TOTAL_COUNT}" >> $GITHUB_ENV
+            
+            # Create summary for GitHub
+            {
+              echo "## 🔍 Semgrep Advanced SAST Results"
+              echo "| Severity | Count |"
+              echo "|----------|-------|"
+              echo "| Error    | ${ERROR_COUNT} |"
+              echo "| Warning  | ${WARNING_COUNT} |"
+              echo "| Info     | ${INFO_COUNT} |"
+              echo "| **Total** | **${TOTAL_COUNT}** |"
+              echo ""
+              
+              if [[ ${ERROR_COUNT} -gt 0 ]]; then
+                echo "⚠️ **Critical Action Required**: ${ERROR_COUNT} error-level security issues found!"
+              elif [[ ${WARNING_COUNT} -gt 0 ]]; then
+                echo "⚠️ **Action Recommended**: ${WARNING_COUNT} warning-level security issues found."
+              else
+                echo "✅ **No critical security issues found.**"
+              fi
+            } >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Semgrep scan failed to generate report"
+            echo "semgrep-scan-failed=true" >> $GITHUB_ENV
+          fi
+      
+      - name: Upload Semgrep reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: semgrep-sast-reports
+          path: |
+            security/reports/semgrep-report.json
+            security/reports/semgrep-report.txt
+          retention-days: 30
+      
+      - name: Fail on critical findings
+        if: env.semgrep-error-count > 0
+        run: |
+          echo "❌ Build failed due to ${semgrep-error-count} error-level security findings"
+          echo "Please review and fix the security issues before proceeding."
+          exit 1
+
+  compliance-check:
+    name: Compliance and Policy Check
+    runs-on: ubuntu-latest
+    needs: security-scan-setup
+    if: contains(needs.security-scan-setup.outputs.scan-matrix, 'compliance')
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install compliance tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml requests
+      
+      - name: Create reports directory
+        run: mkdir -p security/reports
+      
+      - name: Run compliance checks
+        run: |
+          echo "🔍 Running compliance and policy checks..."
+          
+          # Create compliance check script
+          cat > security/compliance_checker.py << 'EOF'
+          #!/usr/bin/env python3
+          import os
+          import json
+          import yaml
+          import re
+          from pathlib import Path
+          
+          def check_sox_compliance():
+              """Check SOX compliance requirements"""
+              issues = []
+              
+              # Check for hardcoded credentials
+              for py_file in Path('.').rglob('*.py'):
+                  if any(exclude in str(py_file) for exclude in ['/tests/', '/.venv/', '/node_modules/']):
+                      continue
+                  
+                  try:
+                      with open(py_file, 'r', encoding='utf-8') as f:
+                          content = f.read()
+                      
+                      # Check for potential hardcoded secrets
+                      patterns = [
+                          r'password\s*=\s*["\'][^"\'
+]+["\']',
+                          r'api_key\s*=\s*["\'][^"\'
+]+["\']',
+                          r'secret\s*=\s*["\'][^"\'
+]+["\']',
+                          r'token\s*=\s*["\'][^"\'
+]+["\']'
+                      ]
+                      
+                      for pattern in patterns:
+                          matches = re.finditer(pattern, content, re.IGNORECASE)
+                          for match in matches:
+                              line_num = content[:match.start()].count('\n') + 1
+                              issues.append({
+                                  'type': 'SOX_VIOLATION',
+                                  'file': str(py_file),
+                                  'line': line_num,
+                                  'issue': 'Potential hardcoded credential detected',
+                                  'severity': 'HIGH'
+                              })
+                  except Exception as e:
+                      print(f"Warning: Could not scan {py_file}: {e}")
+              
+              return issues
+          
+          def check_pci_compliance():
+              """Check PCI DSS compliance requirements"""
+              issues = []
+              
+              # Check for weak cryptography
+              for py_file in Path('.').rglob('*.py'):
+                  if any(exclude in str(py_file) for exclude in ['/tests/', '/.venv/', '/node_modules/']):
+                      continue
+                  
+                  try:
+                      with open(py_file, 'r', encoding='utf-8') as f:
+                          content = f.read()
+                      
+                      # Check for weak crypto patterns
+                      weak_patterns = [
+                          r'hashlib\.md5\(',
+                          r'hashlib\.sha1\(',
+                          r'random\.random\(',
+                          r'ssl\.PROTOCOL_TLS'
+                      ]
+                      
+                      for pattern in weak_patterns:
+                          matches = re.finditer(pattern, content)
+                          for match in matches:
+                              line_num = content[:match.start()].count('\n') + 1
+                              issues.append({
+                                  'type': 'PCI_VIOLATION',
+                                  'file': str(py_file),
+                                  'line': line_num,
+                                  'issue': 'Weak cryptography detected',
+                                  'severity': 'MEDIUM'
+                              })
+                  except Exception as e:
+                      print(f"Warning: Could not scan {py_file}: {e}")
+              
+              return issues
+          
+          def check_gdpr_compliance():
+              """Check GDPR compliance requirements"""
+              issues = []
+              
+              # Check for potential data exposure
+              for py_file in Path('.').rglob('*.py'):
+                  if any(exclude in str(py_file) for exclude in ['/tests/', '/.venv/', '/node_modules/']):
+                      continue
+                  
+                  try:
+                      with open(py_file, 'r', encoding='utf-8') as f:
+                          content = f.read()
+                      
+                      # Check for logging of sensitive data
+                      sensitive_patterns = [
+                          r'log.*email',
+                          r'print.*password',
+                          r'log.*ssn',
+                          r'print.*credit_card'
+                      ]
+                      
+                      for pattern in sensitive_patterns:
+                          matches = re.finditer(pattern, content, re.IGNORECASE)
+                          for match in matches:
+                              line_num = content[:match.start()].count('\n') + 1
+                              issues.append({
+                                  'type': 'GDPR_VIOLATION',
+                                  'file': str(py_file),
+                                  'line': line_num,
+                                  'issue': 'Potential sensitive data exposure',
+                                  'severity': 'MEDIUM'
+                              })
+                  except Exception as e:
+                      print(f"Warning: Could not scan {py_file}: {e}")
+              
+              return issues
+          
+          def main():
+              print("Running compliance checks...")
+              
+              all_issues = []
+              
+              # Run all compliance checks
+              sox_issues = check_sox_compliance()
+              pci_issues = check_pci_compliance()
+              gdpr_issues = check_gdpr_compliance()
+              
+              all_issues.extend(sox_issues)
+              all_issues.extend(pci_issues)
+              all_issues.extend(gdpr_issues)
+              
+              # Generate report
+              report = {
+                  'timestamp': '2024-01-01T00:00:00Z',
+                  'total_issues': len(all_issues),
+                  'sox_issues': len(sox_issues),
+                  'pci_issues': len(pci_issues),
+                  'gdpr_issues': len(gdpr_issues),
+                  'issues': all_issues,
+                  'compliance_score': max(0, 100 - len(all_issues) * 10)
+              }
+              
+              # Save report
+              with open('security/reports/compliance-report.json', 'w') as f:
+                  json.dump(report, f, indent=2)
+              
+              print(f"Compliance check completed: {len(all_issues)} issues found")
+              return len(all_issues)
+          
+          if __name__ == '__main__':
+              exit_code = main()
+              exit(min(exit_code, 10))  # Cap exit code at 10
+          EOF
+          
+          python security/compliance_checker.py
+      
+      - name: Process compliance results
+        run: |
+          echo "📊 Processing compliance check results..."
+          
+          if [[ -f "security/reports/compliance-report.json" ]]; then
+            TOTAL_ISSUES=$(jq '.total_issues' security/reports/compliance-report.json)
+            SOX_ISSUES=$(jq '.sox_issues' security/reports/compliance-report.json)
+            PCI_ISSUES=$(jq '.pci_issues' security/reports/compliance-report.json)
+            GDPR_ISSUES=$(jq '.gdpr_issues' security/reports/compliance-report.json)
+            COMPLIANCE_SCORE=$(jq '.compliance_score' security/reports/compliance-report.json)
+            
+            echo "📊 Compliance Summary:"
+            echo "   SOX violations: ${SOX_ISSUES}"
+            echo "   PCI violations: ${PCI_ISSUES}"
+            echo "   GDPR violations: ${GDPR_ISSUES}"
+            echo "   Total issues: ${TOTAL_ISSUES}"
+            echo "   Compliance score: ${COMPLIANCE_SCORE}%"
+            
+            echo "compliance-total-issues=${TOTAL_ISSUES}" >> $GITHUB_ENV
+            echo "compliance-score=${COMPLIANCE_SCORE}" >> $GITHUB_ENV
+            
+            # Create summary for GitHub
+            {
+              echo "## 📋 Compliance Check Results"
+              echo "| Standard | Violations |"
+              echo "|----------|------------|"
+              echo "| SOX      | ${SOX_ISSUES} |"
+              echo "| PCI DSS  | ${PCI_ISSUES} |"
+              echo "| GDPR     | ${GDPR_ISSUES} |"
+              echo "| **Total** | **${TOTAL_ISSUES}** |"
+              echo ""
+              echo "**Compliance Score: ${COMPLIANCE_SCORE}%**"
+              echo ""
+              
+              if [[ ${TOTAL_ISSUES} -gt 0 ]]; then
+                echo "⚠️ **Compliance Issues Found**: Please review and address violations."
+              else
+                echo "✅ **All compliance checks passed.**"
+              fi
+            } >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Compliance check failed to generate report"
+            echo "compliance-check-failed=true" >> $GITHUB_ENV
+          fi
+      
+      - name: Upload compliance reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: compliance-reports
+          path: security/reports/compliance-report.json
+          retention-days: 30
+
+  comprehensive-security-analysis:
+    name: Comprehensive Security Analysis
+    runs-on: ubuntu-latest
+    needs: [security-scan-setup, bandit-sast-scan, safety-dependency-scan, semgrep-advanced-sast, compliance-check]
+    if: always()
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install analysis dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml requests aiohttp
+      
+      - name: Download all security reports
+        uses: actions/download-artifact@v3
+        with:
+          path: security/reports/artifacts
+      
+      - name: Run comprehensive security scanner
+        env:
+          TEAMS_SECURITY_WEBHOOK: ${{ secrets.TEAMS_SECURITY_WEBHOOK }}
+          DISCORD_SECURITY_WEBHOOK: ${{ secrets.DISCORD_SECURITY_WEBHOOK }}
+          SECURITY_EMAIL_RECIPIENTS: ${{ secrets.SECURITY_EMAIL_RECIPIENTS }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: |
+          echo "🔍 Running comprehensive security analysis..."
+          
+          # Copy our security scanner
+          cp security/automated_security_scanner.py ./scanner.py
+          cp security/security_alert_service.py ./alerts.py
+          
+          # Run the comprehensive scanner
+          python scanner.py \
+            --config security/bandit_config.yaml \
+            --target . \
+            --output security/reports/comprehensive-security-report.json
+      
+      - name: Generate security summary
+        run: |
+          echo "📊 Generating comprehensive security summary..."
+          
+          # Create comprehensive summary
+          cat > security_summary.py << 'EOF'
+          import json
+          import os
+          from pathlib import Path
+          
+          def load_report(file_path):
+              try:
+                  with open(file_path, 'r') as f:
+                      return json.load(f)
+              except:
+                  return {}
+          
+          def main():
+              # Load all reports
+              reports_dir = Path('security/reports')
+              
+              bandit_report = load_report(reports_dir / 'bandit-report.json')
+              safety_report = load_report(reports_dir / 'safety-report.json')
+              compliance_report = load_report(reports_dir / 'compliance-report.json')
+              comprehensive_report = load_report(reports_dir / 'comprehensive-security-report.json')
+              
+              # Calculate overall metrics
+              total_security_findings = len(bandit_report.get('results', []))
+              total_vulnerabilities = len(safety_report) if isinstance(safety_report, list) else 0
+              total_compliance_issues = compliance_report.get('total_issues', 0)
+              
+              # Calculate risk score
+              risk_score = comprehensive_report.get('risk_assessment', {}).get('risk_score', 0)
+              risk_level = comprehensive_report.get('risk_assessment', {}).get('risk_level', 'UNKNOWN')
+              
+              # Calculate compliance score
+              compliance_score = compliance_report.get('compliance_score', 100)
+              
+              # Generate summary
+              summary = {
+                  'scan_timestamp': comprehensive_report.get('metadata', {}).get('scan_timestamp', ''),
+                  'overall_risk_score': risk_score,
+                  'overall_risk_level': risk_level,
+                  'compliance_score': compliance_score,
+                  'total_security_findings': total_security_findings,
+                  'total_vulnerabilities': total_vulnerabilities,
+                  'total_compliance_issues': total_compliance_issues,
+                  'scan_status': 'COMPLETED'
+              }
+              
+              # Save summary
+              with open('security/reports/security-summary.json', 'w') as f:
+                  json.dump(summary, f, indent=2)
+              
+              print(f"Security Summary Generated:")
+              print(f"  Risk Score: {risk_score}/100 ({risk_level})")
+              print(f"  Compliance Score: {compliance_score}%")
+              print(f"  Security Findings: {total_security_findings}")
+              print(f"  Vulnerabilities: {total_vulnerabilities}")
+              print(f"  Compliance Issues: {total_compliance_issues}")
+              
+              return risk_score
+          
+          if __name__ == '__main__':
+              risk_score = main()
+              exit(0 if risk_score < 50 else 1)
+          EOF
+          
+          python security_summary.py
+      
+      - name: Create final security report
+        run: |
+          echo "📋 Creating final security report..."
+          
+          # Load summary
+          SUMMARY=$(cat security/reports/security-summary.json 2>/dev/null || echo '{}')
+          RISK_SCORE=$(echo "$SUMMARY" | jq -r '.overall_risk_score // 0')
+          RISK_LEVEL=$(echo "$SUMMARY" | jq -r '.overall_risk_level // "UNKNOWN"')
+          COMPLIANCE_SCORE=$(echo "$SUMMARY" | jq -r '.compliance_score // 100')
+          SECURITY_FINDINGS=$(echo "$SUMMARY" | jq -r '.total_security_findings // 0')
+          VULNERABILITIES=$(echo "$SUMMARY" | jq -r '.total_vulnerabilities // 0')
+          COMPLIANCE_ISSUES=$(echo "$SUMMARY" | jq -r '.total_compliance_issues // 0')
+          
+          # Create comprehensive summary for GitHub
+          {
+            echo "# 🛡️ Comprehensive Security Scan Results"
+            echo ""
+            echo "## 📊 Overall Security Metrics"
+            echo "| Metric | Value | Status |"
+            echo "|--------|-------|--------|"
+            echo "| Risk Score | ${RISK_SCORE}/100 | ${RISK_LEVEL} |"
+            echo "| Compliance Score | ${COMPLIANCE_SCORE}% | $([ "$COMPLIANCE_SCORE" -ge 90 ] && echo "✅ PASS" || echo "⚠️ REVIEW") |"
+            echo "| Security Findings | ${SECURITY_FINDINGS} | $([ "$SECURITY_FINDINGS" -eq 0 ] && echo "✅ CLEAN" || echo "⚠️ REVIEW") |"
+            echo "| Vulnerabilities | ${VULNERABILITIES} | $([ "$VULNERABILITIES" -eq 0 ] && echo "✅ CLEAN" || echo "⚠️ UPDATE") |"
+            echo "| Compliance Issues | ${COMPLIANCE_ISSUES} | $([ "$COMPLIANCE_ISSUES" -eq 0 ] && echo "✅ COMPLIANT" || echo "⚠️ VIOLATIONS") |"
+            echo ""
+            
+            if [[ "$RISK_LEVEL" == "CRITICAL" || "$RISK_LEVEL" == "HIGH" ]]; then
+              echo "## 🚨 Critical Action Required"
+              echo "The security scan has identified **${RISK_LEVEL}** risk level issues that require immediate attention."
+              echo ""
+              echo "### Immediate Actions:"
+              echo "1. Review all high-severity security findings"
+              echo "2. Update vulnerable dependencies"
+              echo "3. Address compliance violations"
+              echo "4. Re-run security scan after fixes"
+            elif [[ "$RISK_LEVEL" == "MEDIUM" ]]; then
+              echo "## ⚠️ Action Recommended"
+              echo "The security scan has identified medium-level risks that should be addressed."
+            else
+              echo "## ✅ Security Status: Good"
+              echo "No critical security issues detected. Continue monitoring."
+            fi
+            
+            echo ""
+            echo "## 📁 Detailed Reports"
+            echo "Detailed security reports are available in the workflow artifacts:"
+            echo "- Bandit SAST Report"
+            echo "- Safety Dependency Report"
+            echo "- Semgrep Advanced SAST Report"
+            echo "- Compliance Check Report"
+            echo "- Comprehensive Security Analysis"
+          } >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload comprehensive security reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: comprehensive-security-reports
+          path: |
+            security/reports/comprehensive-security-report.json
+            security/reports/security-summary.json
+          retention-days: 90
+      
+      - name: Fail build on critical security issues
+        run: |
+          SUMMARY=$(cat security/reports/security-summary.json 2>/dev/null || echo '{}')
+          RISK_LEVEL=$(echo "$SUMMARY" | jq -r '.overall_risk_level // "UNKNOWN"')
+          
+          if [[ "$RISK_LEVEL" == "CRITICAL" ]]; then
+            echo "❌ Build failed due to CRITICAL security risk level"
+            echo "Please address all critical security issues before proceeding."
+            exit 1
+          elif [[ "$RISK_LEVEL" == "HIGH" && "${{ needs.security-scan-setup.outputs.severity-threshold }}" == "high" ]]; then
+            echo "❌ Build failed due to HIGH security risk level (threshold: high)"
+            echo "Please address high-severity security issues before proceeding."
+            exit 1
+          else
+            echo "✅ Security scan completed successfully"
+            exit 0
+          fi

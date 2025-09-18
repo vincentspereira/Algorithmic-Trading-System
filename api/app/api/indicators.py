@@ -1,11 +1,13 @@
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from datetime import datetime, timezone
 
 from api.app.models import APIResponse, IndicatorRequest
 from api.app.utils import get_cache_key, get_cached_data, set_cached_data
 from nautilus_trader_engine.core.data_feed_manager import DataFeedManager
 from nautilus_trader_engine.indicators.comprehensive_indicators import ComprehensiveIndicators
-from app.core.security import verify_token
+from auth.middleware import AuthMiddleware, AuthContext
+from auth.oauth_service import UserRole, Permission
 
 router = APIRouter()
 data_feed_manager = DataFeedManager()
@@ -15,7 +17,7 @@ indicators_engine = ComprehensiveIndicators()
 async def calculate_indicators(
     request: IndicatorRequest,
     background_tasks: BackgroundTasks,
-    user: dict = Depends(verify_token)
+    auth_context: AuthContext = Depends(AuthMiddleware.require_permission(Permission.MARKET_DATA_READ))
 ):
     """Calculate technical indicators for a symbol"""
     try:
@@ -103,7 +105,7 @@ async def calculate_indicators(
             "symbol": request.symbol.symbol,
             "indicators": all_indicators,
             "summary": summary,
-            "calculation_time": datetime.now(),
+            "calculation_time": datetime.now(timezone.utc),
             "data_points": len(market_data)
         }
 
@@ -117,7 +119,7 @@ async def calculate_indicators(
         raise HTTPException(status_code=500, detail=f"Indicator calculation failed: {str(e)}")
 
 @router.get("/indicators/available")
-async def get_available_indicators(user: dict = Depends(verify_token)):
+async def get_available_indicators(auth_context: AuthContext = Depends(AuthMiddleware.require_permission(Permission.MARKET_DATA_READ))):
     """Get list of available indicators"""
     indicators_info = {
         "trend_indicators": [

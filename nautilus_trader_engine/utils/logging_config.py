@@ -1,7 +1,8 @@
 import logging
 import logging.config
 import os
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
+
 
 def setup_logging():
     log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
@@ -11,7 +12,7 @@ def setup_logging():
         "disable_existing_loggers": False,
         "formatters": {
             "json": {
-                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "()": "pythonjsonlogger.json.JsonFormatter",
                 "format": "%(asctime)s %(name)s %(levelname)s %(message)s"
             },
         },

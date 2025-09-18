@@ -4,7 +4,7 @@ Tests end-to-end functionality across all services.
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import pytest
 from unittest.mock import patch
@@ -154,13 +154,13 @@ class TestDependencyManagementIntegration(IntegrationTestBase):
         manager = DependencyManager(self.config_file)
         
         # Measure operation time
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Perform bulk operations
         updates = manager.check_for_updates()
         manager.collect_performance_metrics("test-dep-0")
         
-        duration = (datetime.utcnow() - start_time).total_seconds()
+        duration = (datetime.now(timezone.utc) - start_time).total_seconds()
         
         # Verify performance meets requirements
         assert duration < 5.0  # Should complete within 5 seconds
@@ -183,9 +183,9 @@ class TestDependencyManagementIntegration(IntegrationTestBase):
             
         # Test API rate limit handling
         with patch('github.Github.get_repo', side_effect=RateLimitExceededException):
-            start_time = datetime.utcnow()
+            start_time = datetime.now(timezone.utc)
             updates = manager.check_for_updates()
-            duration = (datetime.utcnow() - start_time).total_seconds()
+            duration = (datetime.now(timezone.utc) - start_time).total_seconds()
             
             # Should implement backoff
             assert duration >= 1.0
@@ -223,7 +223,7 @@ import pytest_asyncio
 from httpx import AsyncClient
 import aiohttp
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Configure pytest-asyncio to use strict mode
 pytestmark = pytest.mark.asyncio

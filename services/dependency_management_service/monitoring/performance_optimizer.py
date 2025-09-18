@@ -6,7 +6,7 @@ Tracks performance baselines, analyzes resource usage, and provides optimization
 import logging
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import psutil
@@ -72,7 +72,7 @@ class PerformanceOptimizer:
             disk_io_p95=metrics['disk_io'],
             scan_duration_mean=metrics.get('scan_duration', 0),
             scan_duration_p95=metrics.get('scan_duration', 0),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone.utc)
         )
         
         # Update historical data
@@ -82,7 +82,7 @@ class PerformanceOptimizer:
         self.historical_data[dependency].append(current_metrics)
         
         # Remove old data outside window
-        cutoff = datetime.utcnow() - self.window_size
+        cutoff = datetime.now(timezone.utc) - self.window_size
         self.historical_data[dependency] = [
             m for m in self.historical_data[dependency]
             if m.timestamp > cutoff
@@ -111,7 +111,7 @@ class PerformanceOptimizer:
             },
             scan_duration_mean=np.mean([m.scan_duration_mean for m in metrics]),
             scan_duration_p95=np.percentile([m.scan_duration_p95 for m in metrics], 95),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone.utc)
         )
         
         self.baselines[dependency] = baseline

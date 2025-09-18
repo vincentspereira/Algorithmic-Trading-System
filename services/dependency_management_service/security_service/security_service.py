@@ -15,7 +15,7 @@ import asyncio
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 import time
 from monitoring.monitoring_infrastructure import monitoring
@@ -86,7 +86,7 @@ class SecurityService:
                     vulnerabilities=vuln_results,
                     sast_findings=[],
                     risk_score=risk_score,
-                    scan_date=datetime.utcnow()
+                    scan_date=datetime.now(timezone.utc)
                 )
             except Exception as e:
                 monitoring.log_error(tier, name, e)
@@ -118,7 +118,7 @@ class SecurityService:
                 vulnerabilities=vuln_results,
                 sast_findings=sast_results,
                 risk_score=risk_score,
-                scan_date=datetime.utcnow()
+                scan_date=datetime.now(timezone.utc)
             )
             
             # Update resource metrics
@@ -187,7 +187,7 @@ class SecurityService:
                                 affected_versions=[version],
                                 fix_versions=self._get_fix_versions(vuln),
                                 references=self._get_references(vuln),
-                                discovered_date=datetime.utcnow()
+                                discovered_date=datetime.now(timezone.utc)
                             ))
             return vulns
         except Exception as e:

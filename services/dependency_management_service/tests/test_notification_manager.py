@@ -2,7 +2,7 @@
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest import mock
 
 import pytest
@@ -189,8 +189,8 @@ def test_notify_weekly_summary(
         DependencyStatus(
             name="TestRepo",
             tier="tier1",
-            last_check=datetime.utcnow(),
-            last_update=datetime.utcnow(),
+            last_check=datetime.now(timezone.utc),
+            last_update=datetime.now(timezone.utc),
             current_commit="test-sha",
             vulnerabilities=[
                 VulnerabilityInfo(

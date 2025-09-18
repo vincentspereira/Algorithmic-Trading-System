@@ -1,0 +1,338 @@
+# Database Requirements for Algorithmic Trading System
+# Dependencies for all 9 databases: PostgreSQL, ClickHouse, DuckDB, Qdrant, Iceberg, Redis, InfluxDB, MinIO, Elasticsearch
+
+# Core Database Dependencies
+# ========================
+
+# 1. PostgreSQL with pgvector
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+sqlalchemy==2.0.23
+sqlalchemy[postgresql]==2.0.23
+alembic==1.13.1
+pgvector==0.2.4
+
+# 2. ClickHouse OLAP
+clickhouse-driver==0.2.6
+clickhouse-connect==0.6.23
+clickhouse-sqlalchemy==0.2.4
+
+# 3. DuckDB Analytics
+duckdb==0.9.2
+
+# 4. Qdrant Vector Database
+qdrant-client==1.7.0
+
+# 5. Apache Iceberg Data Lakehouse
+pyiceberg==0.5.1
+pyarrow==14.0.2
+
+# 6. Redis Cache
+redis==5.0.1
+redis-py-cluster==2.1.3
+hiredis==2.2.3
+
+# 7. InfluxDB Time-Series
+influxdb-client==1.38.0
+influxdb3-python==0.4.0
+
+# 8. MinIO/S3 Object Storage
+minio==7.2.0
+boto3==1.34.0
+botocore==1.34.0
+s3fs==2023.12.2
+
+# 9. Elasticsearch Search & Analytics
+elasticsearch==8.11.1
+elasticsearch-dsl==8.11.0
+
+# Database Connection Pooling & Management
+# =======================================
+SQLAlchemy==2.0.23
+connection-pool==0.0.3
+dbutils==3.0.3
+
+# Async Database Support
+# =====================
+aioredis==2.0.1
+aiopg==1.4.0
+aiomysql==0.2.0
+aiosqlite==0.19.0
+aiofiles==23.2.1
+
+# Data Processing & Serialization
+# ==============================
+pandas==2.1.4
+numpy==1.24.4
+pyarrow==14.0.2
+fastparquet==2023.10.1
+orjson==3.9.10
+msgpack==1.0.7
+protobuf==4.25.1
+avro-python3==1.11.3
+
+# Configuration & Environment
+# ==========================
+PyYAML==6.0.1
+python-dotenv==1.0.0
+toml==0.10.2
+configparser==6.0.0
+
+# Monitoring & Logging
+# ===================
+prometheus-client==0.19.0
+structlog==23.2.0
+loguru==0.7.2
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+opentelemetry-instrumentation==0.42b0
+opentelemetry-instrumentation-sqlalchemy==0.42b0
+opentelemetry-instrumentation-redis==0.42b0
+opentelemetry-instrumentation-elasticsearch==0.42b0
+
+# Security & Authentication
+# ========================
+cryptography==41.0.8
+bcrypt==4.1.2
+PyJWT==2.8.0
+passlib==1.7.4
+argon2-cffi==23.1.0
+
+# HTTP & API Clients
+# =================
+httpx==0.25.2
+requests==2.31.0
+aiohttp==3.9.1
+websockets==12.0
+
+# Data Validation & Schemas
+# ========================
+pydantic==2.5.2
+marshmallow==3.20.2
+cerberus==1.3.5
+jsonschema==4.20.0
+
+# Testing & Development
+# ====================
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-benchmark==4.0.0
+factory-boy==3.3.0
+faker==20.1.0
+testcontainers==3.7.1
+
+# Performance & Optimization
+# =========================
+uvloop==0.19.0  # Linux/macOS only
+cython==3.0.6
+numba==0.58.1
+psutil==5.9.6
+memory-profiler==0.61.0
+line-profiler==4.1.1
+
+# Utilities
+# =========
+click==8.1.7
+rich==13.7.0
+tqdm==4.66.1
+tenacity==8.2.3
+retrying==1.3.4
+schedule==1.2.1
+apscheduler==3.10.4
+
+# Date & Time Handling
+# ===================
+pendulum==2.1.2
+pytz==2023.3
+dateutil==2.8.2
+arrow==1.3.0
+
+# Machine Learning & AI (Optional)
+# ================================
+scikit-learn==1.3.2
+numpy==1.24.4
+scipy==1.11.4
+statsmodels==0.14.0
+
+# Financial Data Processing
+# ========================
+yfinance==0.2.28
+quandl==3.7.0
+fredapi==0.5.1
+bloomberg==0.9.0
+refinitiv-data==1.0.0
+
+# Vector & Embedding Support
+# =========================
+sentence-transformers==2.2.2
+openai==1.6.1
+huggingface-hub==0.19.4
+transformers==4.36.2
+torch==2.1.2
+
+# Graph & Network Analysis
+# =======================
+networkx==3.2.1
+igraph==0.11.3
+
+# Geospatial Data (Optional)
+# =========================
+geopandas==0.14.1
+shapely==2.0.2
+fiona==1.9.5
+
+# Cloud & Infrastructure
+# =====================
+kubernetes==28.1.0
+docker==6.1.3
+terraform-compliance==1.3.44
+
+# Message Queues & Streaming
+# =========================
+kafka-python==2.0.2
+celery==5.3.4
+rabbitmq==0.2.0
+
+# Backup & Migration
+# =================
+pg-dump==1.0.0
+clickhouse-backup==2.4.25
+
+# Development Tools
+# ================
+black==23.12.0
+isort==5.13.2
+flake8==6.1.0
+mypy==1.8.0
+pre-commit==3.6.0
+bandit==1.7.5
+safety==2.3.5
+
+# Documentation
+# =============
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+mkdocs==1.5.3
+mkdocs-material==9.5.2
+
+# Environment-Specific Dependencies
+# ================================
+
+# Windows-specific
+psycopg2-binary==2.9.9; sys_platform == "win32"
+pywin32==306; sys_platform == "win32"
+
+# Linux-specific
+psycopg2==2.9.9; sys_platform == "linux"
+uvloop==0.19.0; sys_platform == "linux"
+
+# macOS-specific
+psycopg2==2.9.9; sys_platform == "darwin"
+uvloop==0.19.0; sys_platform == "darwin"
+
+# Optional High-Performance Dependencies
+# =====================================
+# Uncomment if needed for production
+# cython==3.0.6
+# numba==0.58.1
+# pypy3.10==7.3.13
+
+# Database-Specific Extras
+# =======================
+
+# PostgreSQL extras
+psycopg2[pool]==2.9.9
+sqlalchemy[postgresql_psycopg2binary]==2.0.23
+
+# ClickHouse extras
+clickhouse-driver[lz4,zstd]==0.2.6
+
+# Redis extras
+redis[hiredis]==5.0.1
+
+# Elasticsearch extras
+elasticsearch[async]==8.11.1
+
+# MinIO/S3 extras
+minio[secure]==7.2.0
+boto3[crt]==1.34.0
+
+# Development & Testing Extras
+# ===========================
+pytest-xdist==3.5.0  # Parallel testing
+pytest-html==4.1.1   # HTML reports
+pytest-json-report==1.5.0  # JSON reports
+coverage[toml]==7.3.4
+
+# Production Monitoring
+# ====================
+sentry-sdk==1.39.2
+datadog==0.48.0
+newrelic==9.4.0
+
+# Load Testing
+# ============
+locust==2.17.0
+k6==0.1.0
+
+# Security Scanning
+# ================
+bandit[toml]==1.7.5
+safety==2.3.5
+semgrep==1.52.0
+
+# Container & Orchestration
+# ========================
+docker-compose==1.29.2
+kubectl==1.28.4
+helm==3.13.3
+
+# Backup & Recovery
+# ================
+borg==1.2.7
+restic==0.16.2
+rclone==1.65.0
+
+# Performance Profiling
+# ====================
+py-spy==0.3.14
+scalene==1.5.26
+memray==1.11.0
+
+# Data Quality & Validation
+# ========================
+great-expectations==0.18.8
+pandera==0.17.2
+deepcheck==0.17.3
+
+# ETL & Data Pipeline
+# ==================
+airflow==2.8.0
+prefect==2.14.21
+dagster==1.5.12
+
+# Time Series Analysis
+# ===================
+statsforecast==1.6.0
+neuralforecast==1.6.4
+mlforecast==0.10.0
+
+# Financial Risk Management
+# ========================
+quantlib==1.32
+riskfolio-lib==4.3.0
+pyportfolioopt==1.5.5
+
+# Alternative Data Sources
+# =======================
+twitter-api-v2==2.1.4
+news-api==0.2.7
+reddit-api==0.3.1
+
+# Compliance & Regulatory
+# ======================
+regtech==1.0.0
+kyc-api==2.1.0
+aml-compliance==3.2.1

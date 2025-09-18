@@ -8,7 +8,7 @@ management, state handling, and workflow orchestration.
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Callable, TypedDict
 from dataclasses import dataclass, field
 from enum import Enum
@@ -126,7 +126,7 @@ class WorkflowManager:
         if workflow_id in self._executions:
             execution = self._executions[workflow_id]
             execution.status = WorkflowStatus.RUNNING
-            execution.start_time = datetime.utcnow()
+            execution.start_time = datetime.now(timezone.utc)
             self.logger.info(f"Started workflow execution: {workflow_id}")
     
     def complete_execution(
@@ -148,7 +148,7 @@ class WorkflowManager:
         if workflow_id in self._executions:
             execution = self._executions[workflow_id]
             execution.status = WorkflowStatus.COMPLETED if success else WorkflowStatus.FAILED
-            execution.end_time = datetime.utcnow()
+            execution.end_time = datetime.now(timezone.utc)
             execution.output_data = output_data.copy()
             execution.error = error
             
@@ -189,9 +189,9 @@ class WorkflowManager:
         node_execution.status = status
         
         if status == NodeStatus.RUNNING and not node_execution.start_time:
-            node_execution.start_time = datetime.utcnow()
+            node_execution.start_time = datetime.now(timezone.utc)
         elif status in [NodeStatus.COMPLETED, NodeStatus.FAILED]:
-            node_execution.end_time = datetime.utcnow()
+            node_execution.end_time = datetime.now(timezone.utc)
             if node_execution.start_time:
                 node_execution.execution_time = (
                     node_execution.end_time - node_execution.start_time

@@ -1,0 +1,356 @@
+# Prometheus Recording Rules for Algorithmic Trading System
+# Pre-computed metrics for better dashboard performance and complex calculations
+
+groups:
+  # Database Performance Recording Rules
+  - name: database_performance
+    interval: 30s
+    rules:
+      # PostgreSQL Performance Metrics
+      - record: postgresql:connection_utilization:rate5m
+        expr: |
+          (
+            pg_stat_database_numbackends / pg_settings_max_connections
+          ) * 100
+
+      - record: postgresql:query_duration:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(pg_stat_activity_max_tx_duration_bucket[5m])
+          )
+
+      - record: postgresql:transactions:rate5m
+        expr: |
+          rate(pg_stat_database_xact_commit[5m]) +
+          rate(pg_stat_database_xact_rollback[5m])
+
+      - record: postgresql:cache_hit_ratio:rate5m
+        expr: |
+          (
+            rate(pg_stat_database_blks_hit[5m]) /
+            (rate(pg_stat_database_blks_hit[5m]) + rate(pg_stat_database_blks_read[5m]))
+          ) * 100
+
+      # ClickHouse Performance Metrics
+      - record: clickhouse:query_duration:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(clickhouse_query_duration_seconds_bucket[5m])
+          )
+
+      - record: clickhouse:memory_utilization:rate5m
+        expr: |
+          (
+            clickhouse_memory_usage_bytes / clickhouse_memory_limit_bytes
+          ) * 100
+
+      - record: clickhouse:queries:rate5m
+        expr: |
+          rate(clickhouse_query_total[5m])
+
+      # Redis Performance Metrics
+      - record: redis:memory_utilization:rate5m
+        expr: |
+          (
+            redis_memory_used_bytes / redis_memory_max_bytes
+          ) * 100
+
+      - record: redis:commands:rate5m
+        expr: |
+          rate(redis_commands_processed_total[5m])
+
+      - record: redis:cache_hit_ratio:rate5m
+        expr: |
+          (
+            rate(redis_keyspace_hits_total[5m]) /
+            (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))
+          ) * 100
+
+      # InfluxDB Performance Metrics
+      - record: influxdb:write_latency:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(influxdb_write_duration_seconds_bucket[5m])
+          )
+
+      - record: influxdb:query_latency:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(influxdb_query_duration_seconds_bucket[5m])
+          )
+
+      - record: influxdb:writes:rate5m
+        expr: |
+          rate(influxdb_writes_total[5m])
+
+      # Elasticsearch Performance Metrics
+      - record: elasticsearch:jvm_memory_utilization:rate5m
+        expr: |
+          (
+            elasticsearch_jvm_memory_used_bytes / elasticsearch_jvm_memory_max_bytes
+          ) * 100
+
+      - record: elasticsearch:search_latency:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(elasticsearch_indices_search_query_time_seconds_bucket[5m])
+          )
+
+      - record: elasticsearch:indexing_rate:rate5m
+        expr: |
+          rate(elasticsearch_indices_indexing_index_total[5m])
+
+  # Trading System Performance Recording Rules
+  - name: trading_performance
+    interval: 15s
+    rules:
+      # Order Processing Metrics
+      - record: trading:order_latency:p95_1m
+        expr: |
+          histogram_quantile(0.95,
+            rate(order_processing_duration_seconds_bucket[1m])
+          )
+
+      - record: trading:order_latency:p99_1m
+        expr: |
+          histogram_quantile(0.99,
+            rate(order_processing_duration_seconds_bucket[1m])
+          )
+
+      - record: trading:orders:rate1m
+        expr: |
+          rate(orders_total[1m])
+
+      - record: trading:order_success_rate:rate5m
+        expr: |
+          (
+            rate(orders_successful_total[5m]) /
+            rate(orders_total[5m])
+          ) * 100
+
+      # Market Data Metrics
+      - record: market_data:update_latency:p95_1m
+        expr: |
+          histogram_quantile(0.95,
+            rate(market_data_update_duration_seconds_bucket[1m])
+          )
+
+      - record: market_data:updates:rate1m
+        expr: |
+          rate(market_data_updates_total[1m])
+
+      - record: market_data:staleness:max_5m
+        expr: |
+          max_over_time(
+            (time() - market_data_last_update_timestamp)[5m:]
+          )
+
+      # Portfolio Metrics
+      - record: portfolio:pnl:rate5m
+        expr: |
+          rate(portfolio_pnl_total[5m])
+
+      - record: portfolio:positions:count
+        expr: |
+          count by (portfolio_id) (portfolio_position_value > 0)
+
+      - record: portfolio:exposure:total
+        expr: |
+          sum by (portfolio_id) (abs(portfolio_position_value))
+
+      # Risk Metrics
+      - record: risk:var_utilization:rate5m
+        expr: |
+          (
+            portfolio_current_var / portfolio_var_limit
+          ) * 100
+
+      - record: risk:breaches:rate1h
+        expr: |
+          rate(risk_limit_breaches_total[1h])
+
+  # System Resource Recording Rules
+  - name: system_resources
+    interval: 30s
+    rules:
+      # CPU Metrics
+      - record: node:cpu_utilization:rate5m
+        expr: |
+          100 - (
+            avg by (instance) (
+              irate(node_cpu_seconds_total{mode="idle"}[5m])
+            ) * 100
+          )
+
+      - record: node:cpu_utilization:rate1h
+        expr: |
+          100 - (
+            avg by (instance) (
+              irate(node_cpu_seconds_total{mode="idle"}[1h])
+            ) * 100
+          )
+
+      # Memory Metrics
+      - record: node:memory_utilization:rate5m
+        expr: |
+          (
+            1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+          ) * 100
+
+      - record: node:memory_available:bytes
+        expr: |
+          node_memory_MemAvailable_bytes
+
+      # Disk Metrics
+      - record: node:disk_utilization:rate5m
+        expr: |
+          (
+            1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)
+          ) * 100
+
+      - record: node:disk_io_utilization:rate5m
+        expr: |
+          rate(node_disk_io_time_seconds_total[5m]) * 100
+
+      - record: node:disk_read_bytes:rate5m
+        expr: |
+          rate(node_disk_read_bytes_total[5m])
+
+      - record: node:disk_write_bytes:rate5m
+        expr: |
+          rate(node_disk_written_bytes_total[5m])
+
+      # Network Metrics
+      - record: node:network_receive_bytes:rate5m
+        expr: |
+          rate(node_network_receive_bytes_total[5m])
+
+      - record: node:network_transmit_bytes:rate5m
+        expr: |
+          rate(node_network_transmit_bytes_total[5m])
+
+      - record: node:network_errors:rate5m
+        expr: |
+          rate(node_network_receive_errs_total[5m]) +
+          rate(node_network_transmit_errs_total[5m])
+
+  # Application Health Recording Rules
+  - name: application_health
+    interval: 30s
+    rules:
+      # Service Availability
+      - record: service:availability:rate5m
+        expr: |
+          avg_over_time(up[5m]) * 100
+
+      - record: service:availability:rate1h
+        expr: |
+          avg_over_time(up[1h]) * 100
+
+      - record: service:availability:rate24h
+        expr: |
+          avg_over_time(up[24h]) * 100
+
+      # HTTP Request Metrics
+      - record: http:request_duration:p95_5m
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          )
+
+      - record: http:request_duration:p99_5m
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_request_duration_seconds_bucket[5m])
+          )
+
+      - record: http:requests:rate5m
+        expr: |
+          rate(http_requests_total[5m])
+
+      - record: http:error_rate:rate5m
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[5m]) /
+            rate(http_requests_total[5m])
+          ) * 100
+
+  # Kafka Performance Recording Rules
+  - name: kafka_performance
+    interval: 30s
+    rules:
+      # Consumer Lag Metrics
+      - record: kafka:consumer_lag:max_5m
+        expr: |
+          max_over_time(kafka_consumer_lag_sum[5m])
+
+      - record: kafka:consumer_lag:avg_5m
+        expr: |
+          avg_over_time(kafka_consumer_lag_sum[5m])
+
+      # Throughput Metrics
+      - record: kafka:messages_in:rate5m
+        expr: |
+          rate(kafka_server_brokertopicmetrics_messagesin_total[5m])
+
+      - record: kafka:bytes_in:rate5m
+        expr: |
+          rate(kafka_server_brokertopicmetrics_bytesin_total[5m])
+
+      - record: kafka:bytes_out:rate5m
+        expr: |
+          rate(kafka_server_brokertopicmetrics_bytesout_total[5m])
+
+      # Partition Metrics
+      - record: kafka:under_replicated_partitions:count
+        expr: |
+          kafka_cluster_partition_under_replicated
+
+      - record: kafka:offline_partitions:count
+        expr: |
+          kafka_controller_kafkacontroller_offlinepartitionscount
+
+  # Business Metrics Recording Rules
+  - name: business_metrics
+    interval: 60s
+    rules:
+      # Trading Volume Metrics
+      - record: business:trading_volume:rate1h
+        expr: |
+          rate(trading_volume_total[1h])
+
+      - record: business:trading_volume:rate24h
+        expr: |
+          rate(trading_volume_total[24h])
+
+      # Revenue Metrics
+      - record: business:revenue:rate1h
+        expr: |
+          rate(trading_revenue_total[1h])
+
+      - record: business:revenue:rate24h
+        expr: |
+          rate(trading_revenue_total[24h])
+
+      # User Activity Metrics
+      - record: business:active_users:count_1h
+        expr: |
+          count by (user_type) (
+            increase(user_activity_total[1h]) > 0
+          )
+
+      - record: business:active_strategies:count
+        expr: |
+          count(strategy_status{status="active"})
+
+      # Performance Attribution
+      - record: business:strategy_performance:rate24h
+        expr: |
+          rate(strategy_pnl_total[24h])
+
+      - record: business:sharpe_ratio:rate30d
+        expr: |
+          (
+            rate(strategy_returns_total[30d]) /
+            stddev_over_time(strategy_returns_total[30d])
+          ) * sqrt(252)

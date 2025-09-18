@@ -1,0 +1,313 @@
+name: Tier 1 - Critical Repository Monitoring
+
+# Tier 1: Core trading engine and security components
+# Runs every 15 minutes with immediate alerts
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  NOTIFICATION_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_CRITICAL }}
+  DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CRITICAL }}
+  EMAIL_RECIPIENTS: ${{ secrets.CRITICAL_EMAIL_LIST }}
+
+jobs:
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        pip install bandit safety semgrep pip-audit
+        npm install -g audit-ci retire
+    
+    - name: Run Bandit SAST scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        bandit -r . -f txt
+      continue-on-error: true
+    
+    - name: Run Safety dependency scan
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+      continue-on-error: true
+    
+    - name: Run Semgrep security scan
+      run: |
+        semgrep --config=auto --json --output=semgrep-report.json . || true
+        semgrep --config=auto .
+      continue-on-error: true
+    
+    - name: Run pip-audit
+      run: |
+        pip-audit --format=json --output=pip-audit-report.json || true
+        pip-audit
+      continue-on-error: true
+    
+    - name: Analyze security reports
+      id: security-analysis
+      run: |
+        python .github/scripts/analyze-security-reports.py
+      continue-on-error: true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports-${{ github.run_number }}
+        path: |
+          *-report.json
+          security-summary.json
+    
+    - name: Send critical security alerts
+      if: steps.security-analysis.outputs.critical-issues == 'true'
+      run: |
+        python .github/scripts/send-critical-alert.py \
+          --type="security" \
+          --severity="critical" \
+          --report="security-summary.json"
+
+  dependency-monitoring:
+    name: Dependency Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Check Python dependencies
+      run: |
+        pip install pip-check-reqs pipdeptree
+        pip-check-reqs --ignore-module=pkg_resources .
+        pipdeptree --warn fail
+    
+    - name: Check for outdated packages
+      run: |
+        pip list --outdated --format=json > outdated-packages.json
+        python .github/scripts/check-outdated-deps.py
+    
+    - name: License compliance check
+      run: |
+        pip install pip-licenses
+        pip-licenses --format=json --output-file=licenses.json
+        python .github/scripts/check-license-compliance.py
+    
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-reports-${{ github.run_number }}
+        path: |
+          outdated-packages.json
+          licenses.json
+          dependency-summary.json
+
+  performance-monitoring:
+    name: Performance Baseline Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest-benchmark memory-profiler
+    
+    - name: Run performance benchmarks
+      run: |
+        python -m pytest tests/performance/ --benchmark-json=benchmark-results.json
+    
+    - name: Memory usage analysis
+      run: |
+        python .github/scripts/memory-analysis.py
+    
+    - name: Check performance regression
+      id: perf-check
+      run: |
+        python .github/scripts/check-performance-regression.py
+    
+    - name: Upload performance reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-reports-${{ github.run_number }}
+        path: |
+          benchmark-results.json
+          memory-analysis.json
+          performance-summary.json
+    
+    - name: Alert on performance regression
+      if: steps.perf-check.outputs.regression-detected == 'true'
+      run: |
+        python .github/scripts/send-critical-alert.py \
+          --type="performance" \
+          --severity="warning" \
+          --report="performance-summary.json"
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install quality tools
+      run: |
+        pip install flake8 black isort mypy pylint radon
+    
+    - name: Run code formatting check
+      run: |
+        black --check --diff .
+        isort --check-only --diff .
+    
+    - name: Run linting
+      run: |
+        flake8 . --format=json --output-file=flake8-report.json || true
+        flake8 .
+      continue-on-error: true
+    
+    - name: Run type checking
+      run: |
+        mypy . --json-report mypy-report || true
+    
+    - name: Run complexity analysis
+      run: |
+        radon cc . --json > complexity-report.json
+        radon mi . --json > maintainability-report.json
+    
+    - name: Generate quality summary
+      run: |
+        python .github/scripts/analyze-code-quality.py
+    
+    - name: Upload quality reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: quality-reports-${{ github.run_number }}
+        path: |
+          *-report.json
+          quality-summary.json
+
+  infrastructure-health:
+    name: Infrastructure Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check Docker configurations
+      run: |
+        docker --version
+        docker-compose --version
+        docker-compose config
+    
+    - name: Validate Kubernetes manifests
+      run: |
+        if [ -d "k8s" ]; then
+          kubectl --dry-run=client apply -f k8s/
+        fi
+    
+    - name: Check environment configurations
+      run: |
+        python .github/scripts/validate-env-configs.py
+    
+    - name: Database connection tests
+      run: |
+        python .github/scripts/test-db-connections.py
+      env:
+        DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        REDIS_URL: ${{ secrets.TEST_REDIS_URL }}
+
+  notification-summary:
+    name: Send Monitoring Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, dependency-monitoring, performance-monitoring, code-quality, infrastructure-health]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all reports
+      uses: actions/download-artifact@v3
+    
+    - name: Generate comprehensive summary
+      run: |
+        python .github/scripts/generate-monitoring-summary.py \
+          --tier="1" \
+          --repository="${{ github.repository }}" \
+          --run-id="${{ github.run_number }}"
+    
+    - name: Send Teams notification
+      run: |
+        python .github/scripts/send-teams-notification.py \
+          --webhook="${{ env.NOTIFICATION_WEBHOOK }}" \
+          --summary="monitoring-summary.json"
+    
+    - name: Send Discord notification
+      run: |
+        python .github/scripts/send-discord-notification.py \
+          --webhook="${{ env.DISCORD_WEBHOOK }}" \
+          --summary="monitoring-summary.json"
+    
+    - name: Send email alerts
+      if: contains(needs.*.result, 'failure')
+      run: |
+        python .github/scripts/send-email-alert.py \
+          --recipients="${{ env.EMAIL_RECIPIENTS }}" \
+          --summary="monitoring-summary.json" \
+          --severity="high"
+    
+    - name: Update monitoring dashboard
+      run: |
+        python .github/scripts/update-dashboard.py \
+          --tier="1" \
+          --summary="monitoring-summary.json"
+      env:
+        GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+        GRAFANA_URL: ${{ secrets.GRAFANA_URL }}

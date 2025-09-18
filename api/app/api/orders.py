@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
@@ -30,7 +30,7 @@ async def submit_order(
         # Prepare the order event for Kafka
         order_event = request.dict()
         order_event["user_id"] = user["user_id"]
-        order_event["timestamp"] = datetime.now().isoformat()
+        order_event["timestamp"] = datetime.now(timezone.utc).isoformat()
         order_event["request_id"] = str(uuid4()) # Add a unique request ID for traceability
 
         # Send the order request to a Kafka topic for asynchronous processing
@@ -82,7 +82,7 @@ async def cancel_order(order_id: str, user: dict = Depends(verify_token)):
         await connection_manager.broadcast_all({
             "type": "order_cancelled",
             "data": {"order_id": order_id, "result": result},
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
 
         return APIResponse(

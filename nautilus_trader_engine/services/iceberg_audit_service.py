@@ -12,7 +12,7 @@ This service provides:
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -95,7 +95,7 @@ class IcebergAuditService:
         self.audit_table = None
         self.kafka_consumer = None
         self.batch_buffer: List[AuditRecord] = []
-        self.last_flush_time = datetime.utcnow()
+        self.last_flush_time = datetime.now(timezone.utc)
         
         # Initialize Iceberg catalog and table
         self._initialize_iceberg()
@@ -226,7 +226,7 @@ class IcebergAuditService:
                 error_message=event_data.get('error_message'),
                 risk_score=risk_score,
                 compliance_flags=compliance_flags,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
                 partition_date=timestamp.strftime('%Y-%m-%d')
             )
         except Exception as e:
@@ -234,7 +234,7 @@ class IcebergAuditService:
             # Return a minimal record to avoid data loss
             return AuditRecord(
                 audit_id=str(uuid.uuid4()),
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 user_id='parse_error',
                 user_role='unknown',
                 session_id=None,
@@ -251,8 +251,8 @@ class IcebergAuditService:
                 error_message=f"Parse error: {str(e)}",
                 risk_score=10.0,  # High risk for parse errors
                 compliance_flags=['PARSE_ERROR'],
-                created_at=datetime.utcnow(),
-                partition_date=datetime.utcnow().strftime('%Y-%m-%d')
+                created_at=datetime.now(timezone.utc),
+                partition_date=datetime.now(timezone.utc).strftime('%Y-%m-%d')
             )
     
     def _calculate_risk_score(self, event_data: Dict[str, Any]) -> float:
@@ -331,7 +331,7 @@ class IcebergAuditService:
         
         # Check if we should flush
         if (len(self.batch_buffer) >= self.batch_size or 
-            datetime.utcnow() - self.last_flush_time > timedelta(seconds=self.flush_interval_seconds)):
+            datetime.now(timezone.utc) - self.last_flush_time > timedelta(seconds=self.flush_interval_seconds)):
             self._flush_batch()
     
     def _flush_batch(self):
@@ -347,7 +347,7 @@ class IcebergAuditService:
             
             # Clear buffer and update flush time
             self.batch_buffer.clear()
-            self.last_flush_time = datetime.utcnow()
+            self.last_flush_time = datetime.now(timezone.utc)
             
         except Exception as e:
             logger.error(f"Error flushing audit batch: {e}")
@@ -399,7 +399,7 @@ class IcebergAuditService:
             )
             
             # Write to partitioned Parquet files
-            timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
             filename = f"audit_batch_{timestamp}_{uuid.uuid4().hex[:8]}.parquet"
             filepath = fallback_dir / filename
             
@@ -436,7 +436,7 @@ class IcebergAuditService:
                             logger.error(f"Error processing audit message: {e}")
                 
                 # Periodic flush check
-                if (datetime.utcnow() - self.last_flush_time > 
+                if (datetime.now(timezone.utc) - self.last_flush_time > 
                     timedelta(seconds=self.flush_interval_seconds)):
                     self._flush_batch()
                 

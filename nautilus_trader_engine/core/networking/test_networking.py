@@ -4,13 +4,9 @@ Basic tests for networking components
 """
 
 import asyncio
-import sys
-import os
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from network_manager import NetworkManager, NetworkConfig, NetworkMode, NetworkProtocol
+from nautilus_trader_engine.core.networking.network_manager import NetworkManager, NetworkConfig, NetworkMode, NetworkProtocol
 
 
 async def test_network_manager_basic():

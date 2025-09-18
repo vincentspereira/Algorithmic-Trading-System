@@ -1,6 +1,6 @@
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 
 import structlog
 
@@ -27,7 +27,7 @@ async def market_data_streamer(connection_manager: ConnectionManager, data_feed_
                                 "type": "market_data",
                                 "symbol": symbol,
                                 "data": quote,
-                                "timestamp": datetime.now().isoformat()
+                                "timestamp": datetime.now(timezone.utc).isoformat()
                             })
                     except Exception as e:
                         logger.error("Failed to stream data", symbol=symbol, error=str(e))
@@ -80,7 +80,7 @@ async def indicator_calculator(connection_manager: ConnectionManager, data_feed_
                                         "strength": macd_result.strength
                                     }
                                 },
-                                "timestamp": datetime.now().isoformat()
+                                "timestamp": datetime.now(timezone.utc).isoformat()
                             }
 
                             await connection_manager.broadcast_to_symbol(symbol, indicator_update)

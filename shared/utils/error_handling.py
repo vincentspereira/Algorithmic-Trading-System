@@ -15,7 +15,7 @@ from enum import Enum
 import random
 import sys
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +69,7 @@ class TradingSystemError(Exception):
         self.severity = severity
         self.category = category
         self.context = context or {}
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
 
 
 class NetworkError(TradingSystemError):
@@ -395,7 +395,7 @@ class ErrorContext:
         self.user_id = user_id
         self.request_id = request_id
         self.additional_data = additional_data or {}
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
 
 
 def handle_error(
@@ -423,7 +423,7 @@ def handle_error(
     error_info = {
         "error_type": type(error).__name__,
         "error_message": str(error),
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
     
     # Add context information
@@ -528,7 +528,7 @@ def create_error_response(
         "error": {
             "type": type(error).__name__,
             "message": str(error),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     }
     
@@ -569,7 +569,7 @@ class ErrorCollector:
             error_data = {
                 "type": error_type,
                 "message": str(error),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             if context:

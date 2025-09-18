@@ -1,0 +1,282 @@
+groups:
+  - name: trading_system_critical
+    rules:
+      # Trading Engine Health
+      - alert: TradingEngineDown
+        expr: up{job="trading-engine"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: trading-engine
+        annotations:
+          summary: "Trading Engine is down"
+          description: "Trading Engine has been down for more than 30 seconds. All trading operations are halted."
+          runbook_url: "https://docs.trading-system.com/runbooks/trading-engine-down"
+
+      - alert: HighOrderExecutionLatency
+        expr: histogram_quantile(0.95, rate(order_execution_duration_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: critical
+          component: order-management
+        annotations:
+          summary: "High order execution latency detected"
+          description: "95th percentile order execution latency is {{ $value }}s, exceeding 500ms threshold."
+
+      - alert: OrderExecutionFailureRate
+        expr: rate(order_execution_failures_total[5m]) / rate(order_execution_attempts_total[5m]) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+          component: order-management
+        annotations:
+          summary: "High order execution failure rate"
+          description: "Order execution failure rate is {{ $value | humanizePercentage }}, exceeding 5% threshold."
+
+      # Portfolio Risk Alerts
+      - alert: PortfolioVaRExceeded
+        expr: portfolio_var_current > portfolio_var_limit
+        for: 0s
+        labels:
+          severity: critical
+          component: risk-management
+        annotations:
+          summary: "Portfolio VaR limit exceeded"
+          description: "Current portfolio VaR ({{ $value }}) exceeds the configured limit."
+
+      - alert: PositionLimitBreach
+        expr: position_size_current > position_size_limit
+        for: 0s
+        labels:
+          severity: critical
+          component: risk-management
+        annotations:
+          summary: "Position size limit breached"
+          description: "Position size for {{ $labels.symbol }} ({{ $value }}) exceeds the configured limit."
+
+      - alert: MaxDrawdownExceeded
+        expr: portfolio_drawdown_current > portfolio_max_drawdown_limit
+        for: 0s
+        labels:
+          severity: critical
+          component: risk-management
+        annotations:
+          summary: "Maximum drawdown limit exceeded"
+          description: "Current portfolio drawdown ({{ $value | humanizePercentage }}) exceeds maximum allowed drawdown."
+
+  - name: trading_system_warning
+    rules:
+      # Market Data Alerts
+      - alert: MarketDataFeedLatency
+        expr: histogram_quantile(0.95, rate(market_data_latency_seconds_bucket[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: market-data
+        annotations:
+          summary: "High market data feed latency"
+          description: "95th percentile market data latency is {{ $value }}s, exceeding 100ms threshold."
+
+      - alert: MarketDataFeedDown
+        expr: up{job="market-data-feed"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          component: market-data
+        annotations:
+          summary: "Market data feed is down"
+          description: "Primary market data feed has been down for more than 1 minute. Fallback mechanisms should activate."
+
+      - alert: StaleMarketData
+        expr: time() - market_data_last_update_timestamp > 300
+        for: 0s
+        labels:
+          severity: warning
+          component: market-data
+        annotations:
+          summary: "Stale market data detected"
+          description: "Market data for {{ $labels.symbol }} hasn't been updated for {{ $value }}s."
+
+      # Strategy Performance Alerts
+      - alert: StrategyUnderperformance
+        expr: strategy_daily_pnl < strategy_expected_pnl * 0.5
+        for: 4h
+        labels:
+          severity: warning
+          component: strategy
+        annotations:
+          summary: "Strategy underperformance detected"
+          description: "Strategy {{ $labels.strategy }} is significantly underperforming expected returns."
+
+      - alert: HighStrategyVolatility
+        expr: strategy_volatility_rolling_30d > strategy_volatility_threshold
+        for: 1h
+        labels:
+          severity: warning
+          component: strategy
+        annotations:
+          summary: "High strategy volatility detected"
+          description: "Strategy {{ $labels.strategy }} volatility ({{ $value | humanizePercentage }}) exceeds threshold."
+
+      # System Resource Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage on {{ $labels.instance }} is {{ $value }}%, exceeding 80% threshold."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage on {{ $labels.instance }} is {{ $value }}%, exceeding 85% threshold."
+
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Low disk space detected"
+          description: "Disk usage on {{ $labels.instance }} {{ $labels.mountpoint }} is {{ $value }}%, exceeding 90% threshold."
+
+  - name: database_alerts
+    rules:
+      # Database Health
+      - alert: DatabaseConnectionPoolExhausted
+        expr: database_connection_pool_active / database_connection_pool_max > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Database connection pool utilization is {{ $value | humanizePercentage }}, exceeding 90% threshold."
+
+      - alert: DatabaseSlowQueries
+        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile database query time is {{ $value }}s, exceeding 1s threshold."
+
+      - alert: DatabaseReplicationLag
+        expr: database_replication_lag_seconds > 30
+        for: 2m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database replication lag"
+          description: "Database replication lag is {{ $value }}s, exceeding 30s threshold."
+
+  - name: security_alerts
+    rules:
+      # Security Monitoring
+      - alert: HighFailedLoginAttempts
+        expr: rate(auth_login_failures_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "Failed login attempts rate is {{ $value }}/min, exceeding 10/min threshold."
+
+      - alert: UnauthorizedAPIAccess
+        expr: rate(api_unauthorized_attempts_total[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "Unauthorized API access attempts detected"
+          description: "Unauthorized API access attempts rate is {{ $value }}/min, exceeding 5/min threshold."
+
+      - alert: SSLCertificateExpiringSoon
+        expr: ssl_certificate_expiry_days < 30
+        for: 0s
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.domain }} expires in {{ $value }} days."
+
+  - name: ai_ml_alerts
+    rules:
+      # AI/ML Model Monitoring
+      - alert: ModelPredictionAccuracyDrop
+        expr: model_prediction_accuracy < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          component: ai-ml
+        annotations:
+          summary: "Model prediction accuracy dropped"
+          description: "Model {{ $labels.model_type }} accuracy is {{ $value | humanizePercentage }}, below 70% threshold."
+
+      - alert: FeatureDriftDetected
+        expr: feature_drift_score > 0.7
+        for: 5m
+        labels:
+          severity: warning
+          component: ai-ml
+        annotations:
+          summary: "Feature drift detected"
+          description: "Feature {{ $labels.feature }} drift score is {{ $value }}, exceeding 0.7 threshold."
+
+      - alert: ModelInferenceLatencyHigh
+        expr: histogram_quantile(0.95, rate(model_inference_duration_seconds_bucket[5m])) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          component: ai-ml
+        annotations:
+          summary: "High model inference latency"
+          description: "95th percentile model inference latency is {{ $value }}s, exceeding 2s threshold."
+
+  - name: compliance_alerts
+    rules:
+      # Compliance Monitoring
+      - alert: ComplianceViolation
+        expr: rate(compliance_violations_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          component: compliance
+        annotations:
+          summary: "Compliance violation detected"
+          description: "Compliance violation of type {{ $labels.type }} detected at rate {{ $value }}/min."
+
+      - alert: RegulatoryReportingFailure
+        expr: regulatory_report_status == 0
+        for: 0s
+        labels:
+          severity: critical
+          component: compliance
+        annotations:
+          summary: "Regulatory reporting failure"
+          description: "Regulatory report {{ $labels.report_type }} has failed to generate or submit."
+
+      - alert: AuditTrailGap
+        expr: time() - audit_trail_last_event_timestamp > 3600
+        for: 0s
+        labels:
+          severity: warning
+          component: compliance
+        annotations:
+          summary: "Audit trail gap detected"
+          description: "No audit trail events recorded for {{ $labels.category }} in the last hour."

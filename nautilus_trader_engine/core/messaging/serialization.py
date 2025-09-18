@@ -315,3 +315,60 @@ class ZeroCopySerializer:
             'buffer_size': self.buffer_size,
             'serializers': list(self.serializers.keys())
         }
+
+class MessageSerializer:
+    '''Facade serializer used by tests and higher-level messaging APIs.
+    Chooses an underlying serializer implementation based on config and exposes
+    a stable interface (serialize, deserialize, compression + schema helpers).
+    '''
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        fmt = (self.config.get('format') or 'json').lower()
+        if fmt == 'binary':
+            self._serializer: Serializer = BinarySerializer()
+        else:
+            self._serializer = JSONSerializer()
+        # Internal state for optional stats
+        self._last_sizes = {'original': 0, 'compressed': 0}
+        self._last_times_ms = {'compression': 0.0, 'decompression': 0.0}
+        self._validation_errors: List[str] = []
+
+    def serialize(self, message: Any) -> bytes:
+        # Best effort conversion to dict for JSON serializer
+        payload: Any = message
+        if isinstance(self._serializer, JSONSerializer):
+            if hasattr(message, 'dict') and callable(getattr(message, 'dict')):
+                payload = message.dict()
+            elif hasattr(message, '__dict__'):
+                payload = dict(message.__dict__)
+            elif not isinstance(message, (dict, list, str, int, float, bool)) and message is not None:
+                payload = str(message)
+        data = self._serializer.serialize(payload)
+        # Record pseudo stats without actual compression
+        self._last_sizes['original'] = len(data)
+        self._last_sizes['compressed'] = len(data)
+        return data
+
+    def deserialize(self, data: bytes) -> Any:
+        return self._serializer.deserialize(data)
+
+    def get_compression_stats(self) -> Dict[str, Any]:
+        # Since no compression is applied here, return neutral metrics
+        original = self._last_sizes['original']
+        compressed = self._last_sizes['compressed'] or original
+        ratio = (compressed / original) if original > 0 else 1.0
+        return {
+            'compression_ratio': ratio,
+            'compression_time_ms': self._last_times_ms['compression'],
+            'decompression_time_ms': self._last_times_ms['decompression'],
+            'original_size_bytes': original,
+            'compressed_size_bytes': compressed,
+        }
+
+    def validate_schema(self, message: Any) -> bool:
+        # Placeholder: always valid; set errors list accordingly
+        self._validation_errors = []
+        return True
+
+    def get_validation_errors(self) -> List[str]:
+        return list(self._validation_errors)

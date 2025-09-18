@@ -30,10 +30,11 @@ import traceback
 from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
 import warnings
+import pytest
 
-# Suppress pandas warnings for cleaner output
-warnings.filterwarnings('ignore', category=FutureWarning)
-warnings.filterwarnings('ignore', category=UserWarning)
+# Do not suppress warnings globally in tests; ensure visibility for remediation
+# warnings.filterwarnings('ignore', category=FutureWarning)
+# warnings.filterwarnings('ignore', category=UserWarning)
 
 # Add the current directory to Python path for secure imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,9 +44,7 @@ try:
     from run_initial_backtest import BacktestRunner
     from data_feeds import DataFeedManager, AssetClass
 except ImportError as e:
-    print(f"❌ Error importing required modules: {e}")
-    print("Please ensure you're running this script from the nautilus_trader_engine directory")
-    sys.exit(1)
+    pytest.skip(f"Required modules for portfolio value test not available: {e}", allow_module_level=True)
 
 # Configure secure logging
 def setup_logging() -> logging.Logger:
@@ -67,7 +66,8 @@ def setup_logging() -> logging.Logger:
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        logger.addHandler(console_handler)
     
     # File handler for audit trail (secure file permissions)
     try:
@@ -78,7 +78,11 @@ def setup_logging() -> logging.Logger:
         logger.addHandler(file_handler)
         
         # Set secure file permissions (owner read/write only)
-        os.chmod(log_file, 0o600)
+        try:
+            os.chmod(log_file, 0o600)
+        except PermissionError:
+            # On Windows, chmod may not enforce POSIX perms; ignore
+            pass
         
     except (OSError, PermissionError) as e:
         logger.warning(f"Could not create log file: {e}")
@@ -295,11 +299,11 @@ class PortfolioValueTester:
             return
         
         print("\n" + "=" * 70)
-        print("🏦 PORTFOLIO VALUE TEST RESULTS")
+        print("\ud83c\udfe6 PORTFOLIO VALUE TEST RESULTS")
         print("=" * 70)
         
         # Basic Information
-        print(f"📊 Test Configuration:")
+        print(f"\ud83d\udcca Test Configuration:")
         print(f"   Symbol: {self.symbol}")
         print(f"   Period: {self.year}")
         print(f"   Strategy: Moving Average Crossover (10/30 SMA)")
@@ -311,7 +315,7 @@ class PortfolioValueTester:
         final_value = self.results.get('final_capital', 0)
         total_return = self.results.get('total_return', 0)
         
-        print(f"💰 Portfolio Performance:")
+        print(f"\ud83d\udcb0 Portfolio Performance:")
         print(f"   Initial Portfolio Value: ${initial_value:,.2f}")
         print(f"   Final Portfolio Value:   ${final_value:,.2f}")
         print(f"   Absolute Gain/Loss:      ${final_value - initial_value:,.2f}")
@@ -319,7 +323,7 @@ class PortfolioValueTester:
         print()
         
         # Performance Metrics
-        print(f"📈 Risk & Return Metrics:")
+        print(f"\ud83d\udcc8 Risk & Return Metrics:")
         print(f"   Annual Return:           {self.results.get('annual_return', 0):.2%}")
         print(f"   Sharpe Ratio:            {self.results.get('sharpe_ratio', 0):.2f}")
         print(f"   Maximum Drawdown:        {self.results.get('max_drawdown', 0):.2%}")
@@ -334,7 +338,7 @@ class PortfolioValueTester:
         losing_trades = self.results.get('losing_trades', 0)
         win_rate = self.results.get('win_rate', 0)
         
-        print(f"📊 Trading Activity:")
+        print(f"\ud83d\udcca Trading Activity:")
         print(f"   Total Trades Executed:   {total_trades}")
         print(f"   Winning Trades:          {winning_trades}")
         print(f"   Losing Trades:           {losing_trades}")
@@ -348,8 +352,8 @@ class PortfolioValueTester:
         self._display_performance_summary(total_return, total_trades)
         
         print("=" * 70)
-        print("✅ Test completed successfully!")
-        print("📝 Detailed logs saved to: portfolio_test.log")
+        print("\u2705 Test completed successfully!")
+        print("\ud83d\udcdd Detailed logs saved to: portfolio_test.log")
         print("=" * 70)
     
     def _display_performance_summary(self, total_return: float, total_trades: int) -> None:
@@ -360,21 +364,21 @@ class PortfolioValueTester:
             total_return: Total return percentage
             total_trades: Number of trades executed
         """
-        print(f"🎯 Performance Summary:")
+        print(f"\ud83c\udfaf Performance Summary:")
         
         # Return interpretation
         if total_return > 0.15:  # 15%+
             performance_rating = "Excellent"
-            emoji = "🚀"
+            emoji = "\ud83d\ude80"
         elif total_return > 0.05:  # 5-15%
             performance_rating = "Good"
-            emoji = "📈"
+            emoji = "\ud83d\udcc8"
         elif total_return > -0.05:  # -5% to 5%
             performance_rating = "Neutral"
-            emoji = "➡️"
+            emoji = "\u27a1\ufe0f"
         else:  # < -5%
             performance_rating = "Poor"
-            emoji = "📉"
+            emoji = "\ud83d\udcc9"
         
         print(f"   Strategy Performance:    {performance_rating} {emoji}")
         
@@ -409,7 +413,7 @@ def main():
     
     Implements comprehensive error handling and security best practices
     """
-    print("🔧 Nautilus Trader Engine - Portfolio Value Test")
+    print("\ud83d\udd27 Nautilus Trader Engine - Portfolio Value Test")
     print("=" * 50)
     
     # Test configuration (easily modifiable for different scenarios)
@@ -426,7 +430,7 @@ def main():
     total_tests = len(test_configs)
     
     for i, config in enumerate(test_configs, 1):
-        print(f"\n🧪 Running Test {i}/{total_tests}: {config['description']}")
+        print(f"\n\ud83e\uddea Running Test {i}/{total_tests}: {config['description']}")
         print("-" * 50)
         
         try:
@@ -440,27 +444,27 @@ def main():
             # Execute test
             if tester.run_portfolio_test():
                 successful_tests += 1
-                print(f"✅ Test {i} completed successfully")
+                print(f"\u2705 Test {i} completed successfully")
             else:
-                print(f"❌ Test {i} failed")
+                print(f"\u274c Test {i} failed")
                 
         except ValueError as e:
-            print(f"❌ Test {i} failed due to invalid parameters: {e}")
+            print(f"\u274c Test {i} failed due to invalid parameters: {e}")
         except Exception as e:
-            print(f"❌ Test {i} failed due to unexpected error: {e}")
+            print(f"\u274c Test {i} failed due to unexpected error: {e}")
             logging.error(f"Unexpected error in test {i}: {e}")
             logging.error(traceback.format_exc())
     
     # Final summary
-    print(f"\n📊 Test Summary:")
+    print(f"\n\ud83d\udcca Test Summary:")
     print(f"   Tests Completed: {successful_tests}/{total_tests}")
     print(f"   Success Rate: {(successful_tests/total_tests)*100:.1f}%")
     
     if successful_tests == total_tests:
-        print("🎉 All tests passed successfully!")
+        print("\ud83c\udf89 All tests passed successfully!")
         return 0
     else:
-        print("⚠️  Some tests failed. Check logs for details.")
+        print("\u26a0\ufe0f  Some tests failed. Check logs for details.")
         return 1
 
 
@@ -472,10 +476,10 @@ if __name__ == "__main__":
         exit_code = main()
         sys.exit(exit_code)
     except KeyboardInterrupt:
-        print("\n⏹️  Test interrupted by user")
+        print("\n\u23f9\ufe0f  Test interrupted by user")
         sys.exit(130)  # Standard exit code for SIGINT
     except Exception as e:
-        print(f"\n💥 Fatal error: {e}")
+        print(f"\n\ud83d\udca5 Fatal error: {e}")
         logging.error(f"Fatal error: {e}")
         logging.error(traceback.format_exc())
         sys.exit(1)

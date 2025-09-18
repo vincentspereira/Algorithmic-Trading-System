@@ -1,0 +1,214 @@
+name: Tier 4 - Experimental Repository Monitoring
+
+# Tier 4: Experimental features, research projects, and low-priority utilities
+# Runs daily with minimal alerts
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  NOTIFICATION_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_EXPERIMENTAL }}
+  DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_EXPERIMENTAL }}
+  EMAIL_RECIPIENTS: ${{ secrets.EXPERIMENTAL_EMAIL_LIST }}
+
+jobs:
+  minimal-security:
+    name: Minimal Security Check (Tier 4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        pip install bandit
+    
+    - name: Run minimal security scan
+      run: |
+        bandit -r . -ll -f json -o bandit-report.json || true
+      continue-on-error: true
+    
+    - name: Check for critical issues only
+      run: |
+        python .github/scripts/check-critical-only.py --tier=4
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier4-security-${{ github.run_number }}
+        path: |
+          bandit-report.json
+          critical-issues.json
+      if: failure()
+
+  dependency-check:
+    name: Basic Dependency Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Check for critical vulnerabilities
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+    
+    - name: Filter critical vulnerabilities
+      run: |
+        python .github/scripts/filter-critical-vulns.py --tier=4
+    
+    - name: Upload dependency report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier4-dependencies-${{ github.run_number }}
+        path: |
+          safety-report.json
+          critical-vulns.json
+      if: failure()
+
+  basic-build:
+    name: Basic Build Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js (if needed)
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+      if: hashFiles('package.json') != ''
+    
+    - name: Install minimal dependencies
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+    
+    - name: Install Node dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm install --production
+        fi
+      if: hashFiles('package.json') != ''
+    
+    - name: Basic syntax check
+      run: |
+        python -m py_compile **/*.py || true
+    
+    - name: Generate build status
+      run: |
+        python .github/scripts/generate-basic-status.py --tier=4
+    
+    - name: Upload build status
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier4-build-${{ github.run_number }}
+        path: |
+          build-status.json
+      if: failure()
+
+  repository-health:
+    name: Repository Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check repository structure
+      run: |
+        python .github/scripts/check-repo-health.py --tier=4
+    
+    - name: Generate health report
+      run: |
+        python .github/scripts/generate-health-report.py --tier=4
+    
+    - name: Upload health report
+      uses: actions/upload-artifact@v3
+      with:
+        name: tier4-health-${{ github.run_number }}
+        path: |
+          health-report.json
+
+  notification-summary:
+    name: Send Tier 4 Summary
+    runs-on: ubuntu-latest
+    needs: [minimal-security, dependency-check, basic-build, repository-health]
+    if: failure()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download failure reports only
+      uses: actions/download-artifact@v3
+    
+    - name: Generate failure summary
+      run: |
+        python .github/scripts/generate-monitoring-summary.py \
+          --tier="4" \
+          --repository="${{ github.repository }}" \
+          --run-id="${{ github.run_number }}" \
+          --failures-only
+    
+    - name: Send critical notifications only
+      run: |
+        python .github/scripts/send-tier4-notifications.py \
+          --summary="monitoring-summary.json" \
+          --critical-only
+      env:
+        TEAMS_WEBHOOK: ${{ env.NOTIFICATION_WEBHOOK }}
+        DISCORD_WEBHOOK: ${{ env.DISCORD_WEBHOOK }}
+        EMAIL_RECIPIENTS: ${{ env.EMAIL_RECIPIENTS }}
+
+  weekly-cleanup:
+    name: Weekly Cleanup
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 2 * * 0'  # Only on Sundays
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Clean old artifacts
+      run: |
+        python .github/scripts/cleanup-old-artifacts.py --tier=4
+    
+    - name: Archive old reports
+      run: |
+        python .github/scripts/archive-reports.py --tier=4
+    
+    - name: Generate cleanup summary
+      run: |
+        python .github/scripts/generate-cleanup-summary.py --tier=4

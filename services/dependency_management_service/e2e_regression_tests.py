@@ -10,7 +10,7 @@ import logging
 import os
 import subprocess
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import pytest
@@ -233,7 +233,7 @@ class E2ERegressionTestFramework:
         tier_config = self.config["tier_tests"][tier]
         test_results = {
             "tier": tier,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "test_scenarios": [],
             "dependencies_tested": [],
             "success_count": 0,
@@ -334,7 +334,7 @@ class E2ERegressionTestFramework:
                 "old_version": "1.0.0",
                 "new_version": "1.1.0",
                 "type": "minor_update",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             # Send update notification to dependency monitor
@@ -480,7 +480,7 @@ class E2ERegressionTestFramework:
         logger.info("Testing integration points...")
         
         integration_results = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "kafka_event_flow": await self._test_kafka_event_flow(),
             "api_contracts": await self._test_api_contracts(),
             "database_consistency": await self._test_database_consistency(),

@@ -10,7 +10,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import logging
@@ -264,7 +264,7 @@ class IntegrationTestPipeline:
         
         results = {
             "service": service,
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
             "tests": {}
         }
         
@@ -280,7 +280,7 @@ class IntegrationTestPipeline:
         # Run end-to-end validations
         results["tests"]["e2e"] = self.run_end_to_end_validations(service)
         
-        results["completed_at"] = datetime.now().isoformat()
+        results["completed_at"] = datetime.now(timezone.utc).isoformat()
         results["overall_status"] = self._calculate_overall_status(results["tests"])
         
         # Save results

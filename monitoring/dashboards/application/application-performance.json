@@ -1,0 +1,345 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Application Performance Monitoring",
+    "tags": ["application", "performance", "trading-engine", "api"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"trading-api\"}[5m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Requests/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "API Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"trading-api\"}[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"trading-api\"}[5m]))",
+            "legendFormat": "50th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"trading-api\"}[5m]))",
+            "legendFormat": "99th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Response Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "API Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"trading-api\",status=~\"4..|5..\"}[5m])",
+            "legendFormat": "{{status}} errors"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Trading Engine Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(trading_orders_processed_total[5m])",
+            "legendFormat": "Orders Processed/sec"
+          },
+          {
+            "expr": "rate(trading_strategies_executed_total[5m])",
+            "legendFormat": "Strategies Executed/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Operations/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Market Data Feed Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(market_data_latency_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(market_data_latency_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Latency (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Order Execution Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(order_execution_duration_seconds_bucket[5m]))",
+            "legendFormat": "Execution Time 95th percentile"
+          },
+          {
+            "expr": "rate(order_fills_total[5m])",
+            "legendFormat": "Order Fills/sec"
+          },
+          {
+            "expr": "rate(order_rejections_total[5m])",
+            "legendFormat": "Order Rejections/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Time (s) / Rate (ops/s)",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 7,
+        "title": "Application Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=~\"trading-.*\"}",
+            "legendFormat": "{{job}} Memory"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Bytes",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Application CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total{job=~\"trading-.*\"}[5m]) * 100",
+            "legendFormat": "{{job}} CPU %"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "CPU Usage %",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 9,
+        "title": "Kafka Message Throughput",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(kafka_producer_record_send_total[5m])",
+            "legendFormat": "Messages Sent/sec"
+          },
+          {
+            "expr": "rate(kafka_consumer_records_consumed_total[5m])",
+            "legendFormat": "Messages Consumed/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Messages/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 32
+        }
+      },
+      {
+        "id": 10,
+        "title": "WebSocket Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "websocket_connections_active",
+            "legendFormat": "Active WebSocket Connections"
+          },
+          {
+            "expr": "rate(websocket_messages_sent_total[5m])",
+            "legendFormat": "Messages Sent/sec"
+          },
+          {
+            "expr": "rate(websocket_messages_received_total[5m])",
+            "legendFormat": "Messages Received/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Connections / Messages/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 32
+        }
+      },
+      {
+        "id": 11,
+        "title": "Cache Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(cache_hits_total[5m])",
+            "legendFormat": "Cache Hits/sec"
+          },
+          {
+            "expr": "rate(cache_misses_total[5m])",
+            "legendFormat": "Cache Misses/sec"
+          },
+          {
+            "expr": "rate(cache_hits_total[5m]) / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m])) * 100",
+            "legendFormat": "Cache Hit Ratio %"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Operations/sec | Percentage",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 40
+        }
+      },
+      {
+        "id": 12,
+        "title": "Background Job Queue",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "job_queue_pending_total",
+            "legendFormat": "Pending Jobs"
+          },
+          {
+            "expr": "rate(job_queue_processed_total[5m])",
+            "legendFormat": "Jobs Processed/sec"
+          },
+          {
+            "expr": "rate(job_queue_failed_total[5m])",
+            "legendFormat": "Jobs Failed/sec"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Jobs / Jobs/sec",
+            "min": 0
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 40
+        }
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

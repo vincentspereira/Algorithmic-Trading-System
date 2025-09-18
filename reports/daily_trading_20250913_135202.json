@@ -1,0 +1,134 @@
+{
+  "report_info": {
+    "name": "Daily Trading Report",
+    "type": "daily_trading",
+    "period_start": "2025-09-13T12:52:02.902694",
+    "period_end": "2025-09-13T13:52:02.902708",
+    "generated_at": "2025-09-13T13:52:02.902833"
+  },
+  "trading_summary": {
+    "total_trades": 1,
+    "total_orders": 0,
+    "order_to_trade_ratio": 0.0,
+    "unique_traders": 1,
+    "trading_volume": 1000.0
+  },
+  "compliance_summary": {
+    "total_metrics": 9,
+    "warning_metrics": 0,
+    "critical_metrics": 0,
+    "metrics": [
+      {
+        "metric_id": "total_trades",
+        "name": "Total Trades",
+        "description": "Total number of trades executed",
+        "value": 1,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.906361",
+        "metadata": {}
+      },
+      {
+        "metric_id": "avg_trade_size",
+        "name": "Average Trade Size",
+        "description": "Average size of executed trades",
+        "value": 1000.0,
+        "unit": "currency",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.906469",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_violations",
+        "name": "Total Compliance Violations",
+        "description": "Total number of compliance violations",
+        "value": 0,
+        "unit": "count",
+        "threshold": 10.0,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.907454",
+        "metadata": {}
+      },
+      {
+        "metric_id": "violation_resolution_rate",
+        "name": "Violation Resolution Rate",
+        "description": "Percentage of violations that have been resolved",
+        "value": 100.0,
+        "unit": "percentage",
+        "threshold": 90.0,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.907482",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_security_events",
+        "name": "Total Security Events",
+        "description": "Total number of security-related events",
+        "value": 0,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.908484",
+        "metadata": {}
+      },
+      {
+        "metric_id": "failed_login_attempts",
+        "name": "Failed Login Attempts",
+        "description": "Number of failed login attempts",
+        "value": 0,
+        "unit": "count",
+        "threshold": 100.0,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.909462",
+        "metadata": {}
+      },
+      {
+        "metric_id": "unique_ip_addresses",
+        "name": "Unique IP Addresses",
+        "description": "Number of unique IP addresses accessing the system",
+        "value": 0,
+        "unit": "count",
+        "threshold": null,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.909472",
+        "metadata": {}
+      },
+      {
+        "metric_id": "total_system_errors",
+        "name": "Total System Errors",
+        "description": "Total number of system errors",
+        "value": 0,
+        "unit": "count",
+        "threshold": 50.0,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.910456",
+        "metadata": {}
+      },
+      {
+        "metric_id": "system_error_rate",
+        "name": "System Error Rate",
+        "description": "Percentage of events that are system errors",
+        "value": 0.0,
+        "unit": "percentage",
+        "threshold": 5.0,
+        "status": "normal",
+        "calculation_date": "2025-09-13 13:52:02.911380",
+        "metadata": {}
+      }
+    ]
+  },
+  "detailed_events": [
+    {
+      "event_id": "c1ece10f-3cbd-401d-8eb4-e182e64a3c46",
+      "event_type": "trade_execution",
+      "timestamp": "2025-09-13T13:52:02.896056",
+      "user_id": "trader_1",
+      "action": "execute_trade",
+      "details": {
+        "amount": 1000
+      }
+    }
+  ]
+}

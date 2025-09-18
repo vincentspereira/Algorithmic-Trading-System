@@ -115,21 +115,28 @@ The system has made significant progress with **75% completion** across all 5 de
 - **Free Paper Trading**: Zero-cost data sources during testing phase
 
 ### Custom Volume-Weighted Technical Indicators
-- **40+ Custom Indicators**: Built with TA-Lib and NumPy for enhanced accuracy
-- **Volume-Weighted Averages**: VW SMA/EMA (5/13/21/34/55 day) for entry/exit signals
-- **Advanced Momentum**: VW MACD, VW MFI with histogram analysis
-- **Risk Management**: 21/8 Day VW ATR, Normalized ATR for position sizing
-- **Market Strength**: Turtle Trading methodology for cross-market ranking
-- **Regime Detection**: Choppy Market Index for trend vs. range identification
-- **Statistical Measures**: Beta, auto-correlation, volatility calculations
+- **55+ Custom Indicators**: Built with TA-Lib and NumPy for enhanced accuracy
+- **Volume-Weighted Methodology**: Advanced (price × volume).ewm() / volume.ewm() calculations
+- **Comprehensive Indicator Suite**:
+  - **Trend Indicators**: VW SMA/EMA, Hull MA, Kaufman AMA, DEMA, TEMA with alpha = 1.0/n
+  - **Momentum Indicators**: VW RSI, VW MACD, Stochastic, Williams %R, CCI with volume confirmation
+  - **Volatility Indicators**: VW ATR, VW ATRP (Normalized ATR), Bollinger Bands, Keltner Channels
+  - **Volume Indicators**: VWAP, OBV, A/D Line, MFI, Chaikin Oscillator, Volume ROC
+- **Candlestick Pattern Analysis**: 15+ patterns with volume confirmation and trend context
+- **Advanced Features**: Signal aggregation, confidence scoring, concurrent execution
+- **Market Analysis**: Choppy Market Index, Buy/Sell Easier Day, Turtle Trading methodology
 
 ### Trading & Analytics
-- **📈 Multi-Asset Support**: Stocks, ETFs, Options, Futures, Forex, Crypto
-- **⚡ High-Performance Backtesting**: GPU-accelerated with VectorBT + NautilusTrader
-- **🔮 AI-Powered Predictions**: LSTM, ARIMA, and custom ML models
-- **📊 Advanced Options Analytics**: QuantLib integration for Greeks and pricing
-- **🎯 Custom Indicators**: 55+ volume-weighted technical indicators
-- **🤖 No-Code Strategy Builder**: Visual Blockly interface
+- **📈 Multi-Asset Support**: Stocks, ETFs, Options, Futures, Forex, Crypto with unified API
+- **⚡ High-Performance Backtesting**: GPU-accelerated with VectorBT + NautilusTrader engine
+- **🔮 AI-Powered Predictions**: LSTM, ARIMA, and custom ML models with real-time inference
+- **📊 Advanced Options Analytics**: QuantLib integration for Greeks and pricing models
+- **🎯 Custom Indicators**: 55+ volume-weighted technical indicators with concurrent execution
+- **🤖 No-Code Strategy Builder**: Visual Blockly interface generating clean Python code
+- **📋 Strategy Framework**: Comprehensive base classes with institutional-grade features
+- **⚖️ Risk Management**: Real-time position monitoring, drawdown controls, exposure limits
+- **📊 Performance Analytics**: Advanced metrics, attribution analysis, benchmark comparison
+- **🔄 Event-Driven Architecture**: Kafka-based strategy execution with audit trails
 
 ### AI & Machine Learning
 - **🧠 Agentic AI Assistant**: Multi-agent system with specialized roles
@@ -304,14 +311,19 @@ To prevent this issue in the future:
 
 ## 📚 Documentation
 
-Comprehensive documentation is available in the `/docs` directory:
+Comprehensive documentation is available in the `/docs` directory and module-specific READMEs:
 
+### Core System Documentation
 - **[System Status Report](docs/SYSTEM_STATUS_REPORT.md)**: Current completion status
 - **[Phase Audit Reports](docs/PHASE_4_AUDIT_REPORT.md)**: Detailed phase analysis
 - **[API Documentation](docs/09.%20API%20Documentation%20-%20Algorithmic%20Trading%20System.markdown)**: Complete API reference
 - **[Deployment Guide](docs/13.%20Deployment%20Guide%20-%20Algorithmic%20Trading%20System.markdown)**: Production deployment
 - **[Security Setup](docs/SECURITY_SETUP.md)**: Enterprise security configuration
-- **[Dependency Management System](docs/dependency_management_system.md)**: Detailed documentation on dependency management.
+- **[Dependency Management System](docs/dependency_management_system.md)**: Detailed documentation on dependency management
+
+### Module-Specific Documentation
+- **[Technical Indicators Guide](nautilus_trader_engine/indicators/README.md)**: 55+ volume-weighted indicators, usage examples, and performance optimization
+- **[Strategy Development Guide](nautilus_trader_engine/strategies/README.md)**: Comprehensive strategy framework, templates, and best practices
 
 ## 🔧 Development
 
@@ -319,9 +331,17 @@ Comprehensive documentation is available in the `/docs` directory:
 ```
 ├── nautilus_trader_engine/     # Core trading engine and APIs
 │   ├── api/                   # FastAPI routers and middleware
-│   ├── indicators/            # Custom technical indicators
+│   ├── indicators/            # 55+ Custom volume-weighted technical indicators
+│   │   ├── core/              # Core indicator implementations
+│   │   ├── volume_weighted/   # Volume-weighted indicator suite
+│   │   ├── candlestick/       # Pattern recognition algorithms
+│   │   └── README.md          # Comprehensive indicator documentation
 │   ├── services/              # Business logic services
-│   └── strategies/            # Trading strategies
+│   └── strategies/            # Comprehensive trading strategy framework
+│       ├── core/              # Base strategy classes and managers
+│       ├── examples/          # Example strategy implementations
+│       ├── templates/         # Strategy development templates
+│       └── README.md          # Strategy development guide
 ├── ai_assistant/              # AI services and agents
 │   ├── models/                # ML models and training
 │   ├── rag_pipeline/          # Document processing
@@ -432,6 +452,6 @@ Private repository - All rights reserved.
 
 ---
 
-**Status**: Core Trading Complete (75% Complete)  
+**Status**: Core Trading Complete with Enhanced Indicators & Strategies (78% Complete)  
 **Last Updated**: January 15, 2025  
-**Version**: 4.1.0
+**Version**: 4.2.0

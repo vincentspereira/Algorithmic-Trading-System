@@ -4,17 +4,18 @@ Provides endpoints for health dashboard data
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-import redis
-import json
 
-from ..main import verify_token, APIResponse, get_cached_data, set_cached_data, REDIS_AVAILABLE, redis_client
+# Import shared utilities and models to avoid circular imports with api.main
+from api.app.core.security import verify_token
+from api.app.models import APIResponse
+from api.app.utils import get_cached_data, set_cached_data
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/monitoring", tags=["monitoring"])
+router = APIRouter(prefix="/monitoring", tags=["monitoring"]) 
 
 # Pydantic models for monitoring data
 class DependencyHealth(BaseModel):
@@ -64,7 +65,7 @@ MOCK_DEPENDENCIES = [
         "tier": 1,
         "status": "healthy",
         "version": "2.0.1",
-        "last_update": datetime.now() - timedelta(hours=2),
+        "last_update": datetime.now(timezone.utc) - timedelta(hours=2),
         "uptime": 99.98,
         "latency": 12.5,
         "error_count": 0
@@ -74,7 +75,7 @@ MOCK_DEPENDENCIES = [
         "tier": 1,
         "status": "healthy",
         "version": "3.5.0",
-        "last_update": datetime.now() - timedelta(hours=1),
+        "last_update": datetime.now(timezone.utc) - timedelta(hours=1),
         "uptime": 99.99,
         "latency": 8.2,
         "error_count": 0
@@ -84,7 +85,7 @@ MOCK_DEPENDENCIES = [
         "tier": 1,
         "status": "warning",
         "version": "0.1.5",
-        "last_update": datetime.now() - timedelta(days=1),
+        "last_update": datetime.now(timezone.utc) - timedelta(days=1),
         "uptime": 98.5,
         "latency": 45.3,
         "error_count": 3,
@@ -95,7 +96,7 @@ MOCK_DEPENDENCIES = [
         "tier": 2,
         "status": "healthy",
         "version": "15.3",
-        "last_update": datetime.now() - timedelta(hours=3),
+        "last_update": datetime.now(timezone.utc) - timedelta(hours=3),
         "uptime": 99.95,
         "latency": 5.1,
         "error_count": 0
@@ -105,7 +106,7 @@ MOCK_DEPENDENCIES = [
         "tier": 2,
         "status": "healthy",
         "version": "7.0.11",
-        "last_update": datetime.now() - timedelta(minutes=30),
+        "last_update": datetime.now(timezone.utc) - timedelta(minutes=30),
         "uptime": 99.99,
         "latency": 0.8,
         "error_count": 0
@@ -118,7 +119,7 @@ MOCK_VULNERABILITIES = [
         "severity": "high",
         "component": "NautilusTrader",
         "description": "Potential memory leak in order processing module",
-        "published_date": datetime.now() - timedelta(days=7),
+        "published_date": datetime.now(timezone.utc) - timedelta(days=7),
         "remediation": "Upgrade to version 2.0.2 or apply patch"
     },
     {
@@ -126,7 +127,7 @@ MOCK_VULNERABILITIES = [
         "severity": "medium",
         "component": "LangChain",
         "description": "Insecure temporary file creation",
-        "published_date": datetime.now() - timedelta(days=14),
+        "published_date": datetime.now(timezone.utc) - timedelta(days=14),
         "remediation": "Upgrade to version 0.1.6"
     }
 ]
@@ -137,7 +138,7 @@ MOCK_ALERTS = [
         "severity": "warning",
         "title": "High latency in LangChain service",
         "description": "Average response time exceeded 40ms threshold",
-        "timestamp": datetime.now() - timedelta(minutes=15),
+        "timestamp": datetime.now(timezone.utc) - timedelta(minutes=15),
         "component": "AI Assistant"
     }
 ]
@@ -162,7 +163,7 @@ async def get_health_dashboard(user: dict = Depends(verify_token)):
         if cached_data and isinstance(cached_data, dict):
             # Check if cached data is recent (less than 30 seconds old)
             cached_timestamp = datetime.fromisoformat(cached_data.get("timestamp", ""))
-            if datetime.now() - cached_timestamp < timedelta(seconds=30):
+            if datetime.now(timezone.utc) - cached_timestamp < timedelta(seconds=30):
                 return APIResponse(
                     success=True, 
                     data=cached_data, 
@@ -171,13 +172,13 @@ async def get_health_dashboard(user: dict = Depends(verify_token)):
         
         # Generate fresh data (in a real implementation, this would query actual services)
         dashboard_data = HealthDashboardData(
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             system_status="healthy",
             system_metrics=SystemMetrics(**MOCK_METRICS),
             dependencies=[DependencyHealth(**dep) for dep in MOCK_DEPENDENCIES],
             vulnerabilities=[VulnerabilityInfo(**vuln) for vuln in MOCK_VULNERABILITIES],
             alerts=MOCK_ALERTS,
-            last_scan=datetime.now() - timedelta(minutes=5)
+            last_scan=datetime.now(timezone.utc) - timedelta(minutes=5)
         )
         
         # Convert to dict for caching

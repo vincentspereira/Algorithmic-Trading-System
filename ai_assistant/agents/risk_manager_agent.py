@@ -8,7 +8,7 @@ sizing calculations to ensure safe trading operations.
 import asyncio
 import logging
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.agent_utils import AgentBase, AgentMessage, AgentResponse
@@ -70,7 +70,7 @@ class RiskManagerAgent(AgentBase):
         try:
             risk_assessment = {
                 "symbol": symbol,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "risk_tolerance": risk_tolerance
             }
             

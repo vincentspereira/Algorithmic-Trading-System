@@ -1,0 +1,300 @@
+# Blackbox Exporter Configuration for Trading System
+# Monitors HTTP endpoints, TCP services, and ICMP connectivity
+
+modules:
+  # HTTP GET probe for web services
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202]
+      method: GET
+      headers:
+        Host: trading-system.local
+        Accept-Language: en-US
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+
+  # HTTP POST probe for API endpoints
+  http_post_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202]
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: Bearer test-token
+      body: '{"test": true}'
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+
+  # HTTP probe for trading API with authentication
+  trading_api_probe:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 401]  # 401 is acceptable for auth check
+      method: GET
+      headers:
+        User-Agent: "TradingSystem-HealthCheck/1.0"
+        Accept: application/json
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      tls_config:
+        insecure_skip_verify: false
+
+  # WebSocket probe for real-time data feeds
+  websocket_probe:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [101]  # WebSocket upgrade
+      method: GET
+      headers:
+        Connection: Upgrade
+        Upgrade: websocket
+        Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+        Sec-WebSocket-Version: "13"
+      no_follow_redirects: false
+
+  # HTTPS probe with SSL certificate validation
+  https_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202]
+      method: GET
+      fail_if_not_ssl: true
+      tls_config:
+        insecure_skip_verify: false
+        ca_file: "/etc/ssl/certs/ca-certificates.crt"
+
+  # TCP probe for database connections
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+
+  # PostgreSQL specific probe
+  postgres_connect:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+      query_response:
+        - expect: "^\\x00\\x00\\x00\\x08\\x04\\xd2\\x16/"
+        - send: "\\x00\\x00\\x00\\x08\\x04\\xd2\\x16."
+
+  # Redis probe
+  redis_connect:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+      query_response:
+        - expect: "^\\+PONG"
+        - send: "PING\\r\\n"
+
+  # ClickHouse HTTP interface probe
+  clickhouse_http:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        User-Agent: "ClickHouse-HealthCheck/1.0"
+      body: "SELECT 1"
+      no_follow_redirects: false
+
+  # Elasticsearch cluster health probe
+  elasticsearch_health:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Content-Type: application/json
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - '"status":("green"|"yellow")'
+
+  # Kafka broker probe
+  kafka_connect:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+
+  # MinIO/S3 API probe
+  minio_api:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200, 403]  # 403 is acceptable for unauthenticated request
+      method: GET
+      headers:
+        User-Agent: "MinIO-HealthCheck/1.0"
+      no_follow_redirects: false
+
+  # InfluxDB health probe
+  influxdb_health:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Accept: application/json
+      no_follow_redirects: false
+
+  # Grafana health probe
+  grafana_health:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Accept: application/json
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - '"database":\s*"ok"'
+
+  # Prometheus health probe
+  prometheus_health:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200]
+      method: GET
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - 'Prometheus Server'
+
+  # ICMP ping probe
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+      source_ip_address: "0.0.0.0"
+
+  # DNS probe
+  dns_probe:
+    prober: dns
+    timeout: 5s
+    dns:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+      query_name: "trading-system.local"
+      query_type: "A"
+      valid_rcodes:
+        - NOERROR
+      validate_answer_rrs:
+        fail_if_matches_regexp:
+          - ".*\.invalid"
+        fail_if_not_matches_regexp:
+          - ".*\.local"
+
+  # SSH probe for server connectivity
+  ssh_banner:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+      query_response:
+        - expect: "^SSH-2.0-"
+
+  # SMTP probe for email notifications
+  smtp_starttls:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: true
+      query_response:
+        - expect: "^220 "
+        - send: "EHLO blackbox.local"
+        - expect: "^250-STARTTLS"
+        - send: "STARTTLS"
+        - expect: "^220 "
+        - starttls: true
+        - send: "EHLO blackbox.local"
+        - expect: "^250 "
+        - send: "QUIT"
+
+  # Custom trading system health endpoint
+  trading_system_health:
+    prober: http
+    timeout: 15s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Accept: application/json
+        User-Agent: "TradingSystem-Monitor/1.0"
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - '"status":\s*"healthy"'
+        - '"trading_engine":\s*"running"'
+        - '"database_connections":\s*"ok"'
+      body_size_limit: 1048576  # 1MB limit
+
+  # Market data feed health check
+  market_data_health:
+    prober: http
+    timeout: 20s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Accept: application/json
+        Authorization: Bearer health-check-token
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - '"data_feeds":\s*"active"'
+        - '"last_update":\s*"[0-9]{4}-[0-9]{2}-[0-9]{2}'
+
+  # Order management system health
+  oms_health:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Accept: application/json
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - '"order_processing":\s*"enabled"'
+        - '"broker_connections":\s*"connected"'

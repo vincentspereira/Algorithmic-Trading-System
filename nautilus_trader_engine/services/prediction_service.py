@@ -7,7 +7,7 @@ import logging
 import pandas as pd
 from typing import Dict, Any
 
-from ai_assistant.forecasting_models import (
+from ai_assistant.models.forecasting_model_factory import (
     BaseForecastingModel,
     ForecastingModelFactory,
     ModelConfig,

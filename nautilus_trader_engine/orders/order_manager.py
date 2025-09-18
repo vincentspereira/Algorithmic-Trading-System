@@ -5,7 +5,7 @@ Handles order submission, execution, and management across different asset class
 import asyncio
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 @dataclass
@@ -54,7 +54,7 @@ class MultiAssetOrderManager:
                 status='FILLED',
                 fill_price=self._get_mock_fill_price(order),
                 fill_quantity=order.get('quantity', 0),
-                timestamp=datetime.now().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
                 commission=self._calculate_mock_commission(order)
             )
             
@@ -70,7 +70,7 @@ class MultiAssetOrderManager:
                 status='REJECTED',
                 fill_price=0.0,
                 fill_quantity=0.0,
-                timestamp=datetime.now().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
                 commission=0.0,
                 error_message=str(e)
             )

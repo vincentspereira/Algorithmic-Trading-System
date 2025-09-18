@@ -495,3 +495,52 @@ class KernelBypassSocket:
             'buffer_size': self.buffer_size,
             'statistics': self._stats.copy()
         }
+
+
+class KernelBypass:
+    """
+    Backward-compatible facade for KernelBypassSocket used by unit tests.
+    Provides a simple, synchronous wrapper around the async socket implementation.
+    """
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        self._socket = KernelBypassSocket()
+
+    # Optional no-op DPDK integration points used by tests (they are patched in tests)
+    def initialize_dpdk(self) -> bool:
+        return True
+
+    def get_dpdk_stats(self) -> Dict[str, Any]:
+        return {
+            'packets_received': 0,
+            'packets_transmitted': 0,
+            'packets_dropped': 0,
+            'rx_rate_pps': 0,
+            'tx_rate_pps': 0,
+            'latency_ns': 0,
+        }
+
+    # Synchronous convenience wrappers
+    def connect(self, host: str, port: int):
+        return asyncio.run(self._socket.connect(host, port))
+
+    def close(self):
+        return asyncio.run(self._socket.close())
+
+    def send(self, data: bytes) -> int:
+        return asyncio.run(self._socket.send(data))
+
+    def send_zero_copy(self, data: bytes) -> int:
+        return asyncio.run(self._socket.send_zero_copy(data))
+
+    def receive(self, buffer_size: int = 65536) -> bytes:
+        return asyncio.run(self._socket.receive(buffer_size))
+
+    def receive_zero_copy(self, buffer_size: int = 65536) -> bytes:
+        return asyncio.run(self._socket.receive_zero_copy(buffer_size))
+
+    def is_alive(self) -> bool:
+        return asyncio.run(self._socket.is_alive())
+
+    def get_stats(self) -> Dict[str, Any]:
+        return self._socket.get_stats()

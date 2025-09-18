@@ -351,6 +351,7 @@ class SignalType(Enum):
     """Enumeration of trading signal types"""
     STRONG_BUY = "strong_buy"
     BUY = "buy"
+    HOLD = "hold"
     NEUTRAL = "neutral"
     SELL = "sell"
     STRONG_SELL = "strong_sell"
@@ -393,7 +394,7 @@ class TimeframeConvergence(Enum):
     STRONG_BEARISH = "strong_bearish"
     DIVERGENT = "divergent"
 
-@dataclass
+@dataclass(slots=True)
 class RiskMetrics:
     """Risk management metrics"""
     stop_loss: Optional[float] = None
@@ -406,7 +407,7 @@ class RiskMetrics:
     risk_level: RiskLevel = RiskLevel.MODERATE
     confidence_interval: Tuple[float, float] = field(default_factory=lambda: (0.0, 0.0))
 
-@dataclass
+@dataclass(slots=True)
 class SmartMoneyMetrics:
     """Smart money analysis metrics"""
     flow_direction: SmartMoneyFlow = SmartMoneyFlow.NEUTRAL
@@ -418,7 +419,7 @@ class SmartMoneyMetrics:
     flow_strength: float = 0.0
     accumulation_distribution: float = 0.0
 
-@dataclass
+@dataclass(slots=True)
 class IndicatorSignal:
     """Comprehensive indicator signal with institutional features"""
     signal_type: SignalType
@@ -490,6 +491,7 @@ class IndicatorConfig:
                  enable_regime_adaptation: bool = True,
                  enable_multi_timeframe: bool = True,
                  enable_risk_management: bool = True,
+                 use_classic_alpha: bool = False,
                  **kwargs):
         
         self.period = max(1, period)
@@ -504,6 +506,8 @@ class IndicatorConfig:
         self.enable_regime_adaptation = enable_regime_adaptation
         self.enable_multi_timeframe = enable_multi_timeframe
         self.enable_risk_management = enable_risk_management
+        # Alpha policy flag: if True use classic 2/(n+1), else unified 1/n
+        self.use_classic_alpha = use_classic_alpha
         
         # Additional parameters
         for key, value in kwargs.items():
@@ -521,6 +525,13 @@ class IndicatorConfig:
             logger.error(f"Configuration validation failed: {e}")
             return False
 
+    # Compute EMA alpha according to policy
+    def get_alpha(self, period: int, alpha: Optional[float] = None) -> float:
+        if alpha is not None:
+            return float(alpha)
+        p = max(1, int(period))
+        return (2.0 / (p + 1)) if self.use_classic_alpha else (1.0 / p)
+
 class IndicatorResult:
     """Enhanced result class for indicator calculations"""
     
@@ -528,12 +539,23 @@ class IndicatorResult:
                  value: float,
                  timestamp: datetime = None,
                  signal: Optional[IndicatorSignal] = None,
-                 metadata: Dict[str, Any] = None):
+                 confidence: Optional[float] = None,
+                 upper_band: Optional[float] = None,
+                 lower_band: Optional[float] = None,
+                 metadata: Dict[str, Any] = None,
+                 **kwargs):
         
         self.value = value
         self.timestamp = timestamp or datetime.now()
         self.signal = signal
+        self.confidence = confidence
+        self.upper_band = upper_band
+        self.lower_band = lower_band
         self.metadata = metadata or {}
+        
+        # Attach any additional dynamic fields
+        for k, v in (kwargs or {}).items():
+            setattr(self, k, v)
         
         # Performance tracking
         self.calculation_time: Optional[float] = None
@@ -553,6 +575,13 @@ class IndicatorResult:
                 'strength': self.signal.strength,
                 'confidence': self.signal.confidence
             }
+        
+        if self.confidence is not None:
+            result['confidence'] = self.confidence
+        if self.upper_band is not None:
+            result['upper_band'] = self.upper_band
+        if self.lower_band is not None:
+            result['lower_band'] = self.lower_band
         
         return result
 
@@ -583,6 +612,13 @@ class BaseIndicator(ABC):
         # Validation
         if not self.config.validate():
             raise ValueError(f"Invalid configuration for {self.name}")
+        
+        # Cooperative multiple inheritance: forward initialization to next class in MRO
+        try:
+            super().__init__()
+        except Exception:
+            # Some bases may omit __init__; safe to ignore
+            pass
     
     @abstractmethod
     def update(self, price: float, volume: float = 1.0, timestamp: datetime = None) -> IndicatorResult:
@@ -678,6 +714,30 @@ class VolumeWeightedIndicator(BaseIndicator):
         # Cap extreme weights
         return np.clip(weight, 0.1, 5.0)
     
+    # Helper to standardize data ingestion for calculate() methods in indicators
+    def _add_data_point(self, price: float, volume: float = 1.0, timestamp: Optional[datetime] = None) -> None:
+        """Store incoming price/volume/timestamp and maintain rolling stats."""
+        with self._lock:
+            self.count += 1
+            ts = timestamp or datetime.now()
+            self.prices.append(price)
+            self.volumes.append(volume)
+            self.timestamps.append(ts)
+            self._update_volume_stats()
+    
+    # Convenience alias used by some indicators
+    def _calculate_volume_weight(self, volume: float) -> float:
+        return float(self._get_volume_weight(volume))
+    
+    # Convenience helper used by some indicators
+    def _calculate_volume_weighted_average(self, prices: List[float], volumes: List[float]) -> float:
+        if not prices:
+            return 0.0
+        vol_sum = float(np.sum(volumes)) if len(volumes) else 0.0
+        if vol_sum <= 0.0:
+            return float(np.mean(prices))
+        return float(np.dot(np.asarray(prices, dtype=float), np.asarray(volumes, dtype=float)) / vol_sum)
+    
     @abstractmethod
     def _calculate_volume_weighted_value(self) -> float:
         """Calculate the volume-weighted indicator value"""
@@ -705,7 +765,20 @@ class AugmentedIndicator(VolumeWeightedIndicator):
         super().__init__(config)
         
         # Pillar 1: Volume Integration & Confirmation
-        self.volume_confirmation_score = 0.0
+        if VOLUME_CONFIRMATION_AVAILABLE:
+            self.volume_confirmation_score = VolumeConfirmationScore(
+                overall_score=0.5,
+                price_volume_sync=0.5,
+                volume_breakout=0.5,
+                volume_persistence=0.5,
+                institutional_presence=0.5,
+                volume_trend_alignment=0.5,
+                volume_quality=0.5,
+                confidence=0.3,
+                timestamp=datetime.now()
+            )
+        else:
+            self.volume_confirmation_score = 0.0
         self.volume_weighted_signals = deque(maxlen=100)
         self.institutional_volume_threshold = 2.0  # 2x average volume
         self.volume_profile = {
@@ -865,7 +938,7 @@ class AugmentedIndicator(VolumeWeightedIndicator):
             # Update result metadata with institutional metrics
             result.metadata.update({
                 'regime': self.current_regime.name,
-                'volume_confirmation': self.volume_confirmation_score,
+                'volume_confirmation': self._volume_confirmation_strength(),
                 'smart_money_activity': self.smart_money_metrics.institutional_activity,
                 'institutional_bias': self.institutional_bias,
                 'anomaly_score': self.anomaly_score,
@@ -1024,10 +1097,29 @@ class AugmentedIndicator(VolumeWeightedIndicator):
             'volume_quality': 0.10
         }
         
-        self.volume_confirmation_score = sum(
+        overall_score = sum(
             confirmation_components[key] * weights[key] 
             for key in confirmation_components
         )
+        
+        # Confidence based on data coverage of recent volume window (up to 20)
+        data_coverage = min(1.0, len(recent_volumes) / 20.0)
+        confidence = 0.3 + 0.7 * data_coverage
+        
+        if VOLUME_CONFIRMATION_AVAILABLE:
+            self.volume_confirmation_score = VolumeConfirmationScore(
+                overall_score=overall_score,
+                price_volume_sync=confirmation_components['price_volume_sync'],
+                volume_breakout=confirmation_components['volume_breakout'],
+                volume_persistence=confirmation_components['volume_persistence'],
+                institutional_presence=confirmation_components['institutional_presence'],
+                volume_trend_alignment=confirmation_components['volume_trend_alignment'],
+                volume_quality=confirmation_components['volume_quality'],
+                confidence=confidence,
+                timestamp=datetime.now()
+            )
+        else:
+            self.volume_confirmation_score = overall_score
         
         # Store detailed volume metrics
         self.volume_metrics = {
@@ -1224,15 +1316,15 @@ class AugmentedIndicator(VolumeWeightedIndicator):
                 )
                 
                 # Apply adapted parameters
-if 'period' in adapted_params:
-    self.config.period = max(1, int(adapted_params['period']))
+                if 'period' in adapted_params:
+                    self.config.period = max(1, int(adapted_params['period']))
 
-    # Enhance with volatility adjustment
-    if len(self.risk_metrics_history) > 0 and self.risk_metrics.volatility > 0:
-        recent_vols = [m.volatility for m in list(self.risk_metrics_history)[-10:]]
-        avg_vol = np.mean(recent_vols) if recent_vols else self.risk_metrics.volatility
-        vol_factor = min(2.0, max(0.5, self.risk_metrics.volatility / avg_vol))
-        self.config.period = max(1, int(self.config.period * vol_factor))
+                    # Enhance with volatility adjustment
+                    if len(self.risk_metrics_history) > 0 and getattr(self.risk_metrics, 'volatility', 0) > 0:
+                        recent_vols = [m.volatility for m in list(self.risk_metrics_history)[-10:]]
+                        avg_vol = np.mean(recent_vols) if recent_vols else self.risk_metrics.volatility
+                        vol_factor = min(2.0, max(0.5, self.risk_metrics.volatility / avg_vol))
+                        self.config.period = max(1, int(self.config.period * vol_factor))
         else:
             # Fallback to basic regime adaptation
             if self.current_regime == MarketRegime.HIGH_VOLATILITY:
@@ -1434,10 +1526,10 @@ if 'period' in adapted_params:
     def _generate_feature_importance(self):
         """Generate feature importance for explainable AI"""
         self.feature_importance = {
-            'volume_confirmation': self.volume_confirmation_score,
+            'volume_confirmation': self._volume_confirmation_strength(),
             'regime_confidence': self.regime_confidence,
             'smart_money_activity': self.smart_money_metrics.institutional_activity,
-            'risk_level': 1.0 - (self.risk_metrics.risk_level.value / 5.0),  # Invert risk level
+            'risk_level': 1.0 - (self._risk_level_normalized()),  # Invert normalized risk level
             'timeframe_convergence': 1.0 if self.timeframe_convergence != TimeframeConvergence.NEUTRAL else 0.5
         }
     
@@ -1524,6 +1616,38 @@ if 'period' in adapted_params:
         elif self.model_confidence > 0.8:
             # Decrease adaptation rate if model confidence is high
             self.parameter_adaptation_rate = max(0.001, self.parameter_adaptation_rate * 0.9)
+
+    def _risk_level_normalized(self) -> float:
+        """Map RiskLevel enum to a normalized [0,1] float severity score.
+        0.0 = VERY_LOW risk, 1.0 = EXTREME risk.
+        """
+        mapping = {
+            RiskLevel.VERY_LOW: 0,
+            RiskLevel.LOW: 1,
+            RiskLevel.MODERATE: 2,
+            RiskLevel.HIGH: 3,
+            RiskLevel.VERY_HIGH: 4,
+            RiskLevel.EXTREME: 5,
+        }
+        level_index = mapping.get(self.risk_metrics.risk_level, 2)
+        return level_index / 5.0
+
+    def _volume_confirmation_strength(self) -> float:
+        """Return a numeric [0,1] volume confirmation strength regardless of underlying type.
+        Handles float, int, or objects with an 'overall_score' attribute.
+        """
+        v = getattr(self, 'volume_confirmation_score', None)
+        if v is None:
+            return 0.0
+        try:
+            if isinstance(v, (int, float)):
+                return float(v)
+            overall = getattr(v, 'overall_score', None)
+            if overall is not None:
+                return float(overall)
+            return float(v)
+        except Exception:
+            return 0.0
     
     def _store_performance_feedback(self, result: IndicatorResult):
         """Store performance feedback for adaptive learning"""
@@ -1537,52 +1661,65 @@ if 'period' in adapted_params:
         self.performance_feedback.append(feedback)
     
     def _generate_institutional_signal(self, value: float, timestamp: datetime) -> IndicatorSignal:
-        """Generate comprehensive institutional-grade signal"""
-        # Base signal generation (to be implemented by subclasses)
-        signal_type = SignalType.NEUTRAL
-        strength = 0.0
-        confidence = 0.5
+        """Generate comprehensive institutional-grade signal.
+        If subclass provides `_generate_enhanced_signal`, use it as base and enrich.
+        """
+        # Subclass hook for technical signal
+        base_signal = None
+        hook = getattr(self, '_generate_enhanced_signal', None)
+        if callable(hook):
+            try:
+                base_signal = hook(value, timestamp)
+            except Exception:
+                base_signal = None
         
-        # Enhanced confidence calculation
+        if not isinstance(base_signal, IndicatorSignal):
+            base_signal = IndicatorSignal(
+                signal_type=SignalType.NEUTRAL,
+                strength=0.0,
+                confidence=0.5,
+                timestamp=timestamp,
+                value=value,
+            )
+        
+        # Institutional confidence
         confidence_factors = [
-            self.volume_confirmation_score,
+            self._volume_confirmation_strength(),
             self.regime_confidence,
             self.smart_money_metrics.institutional_activity,
-            1.0 - (self.risk_metrics.risk_level.value / 5.0),  # Invert risk level
-            self.model_confidence
+            1.0 - (self._risk_level_normalized()),
+            self.model_confidence,
         ]
-        
-        # Weighted average confidence
         weights = [0.25, 0.2, 0.2, 0.15, 0.2]
         enhanced_confidence = sum(f * w for f, w in zip(confidence_factors, weights))
+        combined_confidence = min(1.0, 0.5 * float(base_signal.confidence) + 0.5 * enhanced_confidence)
         
-        # Risk-adjusted signal strength
-        self.risk_adjusted_signal = strength * self.position_sizing_factor
-        
-        # Create enhanced institutional signal
-        return IndicatorSignal(
-            signal_type=signal_type,
-            strength=self.risk_adjusted_signal,
-            confidence=enhanced_confidence,
-            timestamp=timestamp,
-            value=value,
-            volume_confirmation=self.volume_confirmation_score > 0.5,
-            volume_strength=self.volume_confirmation_score,
-            market_regime=self.current_regime,
-            regime_confidence=self.regime_confidence,
-            smart_money_metrics=self.smart_money_metrics,
-            risk_metrics=self.risk_metrics,
-            # Additional institutional features
-            institutional_bias=self.institutional_bias,
-            order_flow_imbalance=self.order_flow_imbalance,
-            anomaly_score=self.anomaly_score,
-            behavioral_bias=self.behavioral_bias,
-            auto_stop_loss=self.auto_stop_loss,
-            auto_take_profit=self.auto_take_profit,
-            position_sizing_factor=self.position_sizing_factor,
-            feature_importance=self.feature_importance.copy(),
-            signal_attribution=self.signal_attribution.copy()
-        )
+        # Risk adjust but preserve direction
+        base_signal.strength = float(base_signal.strength) * self.position_sizing_factor
+        base_signal.confidence = combined_confidence
+        base_signal.volume_confirmation = bool(base_signal.volume_confirmation) or self._volume_confirmation_strength() > 0.5
+        base_signal.volume_strength = max(float(getattr(base_signal, 'volume_strength', 0.0)), self._volume_confirmation_strength())
+        if getattr(base_signal, 'normalized_value', None) is None and value is not None:
+            try:
+                base_signal.normalized_value = float(value) / 100.0
+            except Exception:
+                base_signal.normalized_value = None
+        base_signal.market_regime = self.current_regime
+        base_signal.regime_confidence = self.regime_confidence
+        base_signal.smart_money_metrics = self.smart_money_metrics
+        base_signal.risk_metrics = self.risk_metrics
+        base_signal.institutional_bias = self.institutional_bias
+        base_signal.order_flow_imbalance = self.order_flow_imbalance
+        base_signal.anomaly_score = self.anomaly_score
+        base_signal.behavioral_bias = self.behavioral_bias
+        base_signal.auto_stop_loss = self.auto_stop_loss
+        base_signal.auto_take_profit = self.auto_take_profit
+        base_signal.position_sizing_factor = self.position_sizing_factor
+        base_signal.feature_importance = self.feature_importance.copy()
+        base_signal.signal_attribution = self.signal_attribution.copy()
+        if getattr(base_signal, 'metadata', None) is None:
+            base_signal.metadata = {}
+        return base_signal
 
 # ===========================================
 # UTILITY FUNCTIONS
@@ -1600,7 +1737,7 @@ def calculate_ema(values: List[float], period: int, alpha: Optional[float] = Non
         return None
     
     if alpha is None:
-        alpha = 2.0 / (period + 1)
+        alpha = 1.0 / max(1, period)
     
     if len(values) == 1:
         return values[0]

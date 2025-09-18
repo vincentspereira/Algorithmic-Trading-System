@@ -50,7 +50,7 @@ class KafkaEventProducer:
         self.batch_size = 16384  # 16KB batches for better throughput
         self.linger_ms = 5  # Wait up to 5ms to batch messages
         self.compression_type = 'snappy'  # Fast compression
-        self.acks = 1  # Wait for leader acknowledgment
+        self.acks = 'all'  # Wait for all replicas acknowledgment for idempotence
         self.retries = 3
         self.max_in_flight_requests = 5
         
@@ -61,12 +61,12 @@ class KafkaEventProducer:
                 bootstrap_servers=self.bootstrap_servers,
                 value_serializer=self._serialize_message,
                 key_serializer=self._serialize_key,
-                batch_size=self.batch_size,
+                max_batch_size=self.batch_size,
                 linger_ms=self.linger_ms,
-                compression_type=self.compression_type,
+                compression_type=None,
                 acks=self.acks,
-                retries=self.retries,
-                max_in_flight_requests_per_connection=self.max_in_flight_requests,
+                
+                
                 enable_idempotence=True,  # Prevent duplicate messages
                 request_timeout_ms=30000,
                 retry_backoff_ms=100

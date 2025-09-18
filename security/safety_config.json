@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "Safety Configuration for Institutional Trading System",
+  "description": "Configuration for Safety dependency vulnerability scanning with institutional-grade security requirements",
+  
+  "ignore": [
+    "# Temporarily ignored vulnerabilities - Review regularly",
+    "# Format: vulnerability_id: reason for ignoring",
+    "# Example: 12345: False positive - not applicable to our use case"
+  ],
+  
+  "audit_and_monitor": {
+    "description": "Vulnerabilities to audit and monitor but not fail builds",
+    "vulnerabilities": [
+      "# Low-severity vulnerabilities that require monitoring",
+      "# These will generate alerts but won't fail CI/CD"
+    ]
+  },
+  
+  "severity_thresholds": {
+    "fail_build_on": [
+      "critical",
+      "high"
+    ],
+    "warn_on": [
+      "medium",
+      "low"
+    ]
+  },
+  
+  "institutional_requirements": {
+    "sox_compliance": {
+      "enabled": true,
+      "fail_on_violations": true,
+      "description": "SOX compliance requires immediate remediation of security vulnerabilities"
+    },
+    "pci_dss_compliance": {
+      "enabled": true,
+      "fail_on_violations": true,
+      "description": "PCI DSS compliance for payment card data protection"
+    },
+    "gdpr_compliance": {
+      "enabled": true,
+      "fail_on_violations": false,
+      "description": "GDPR compliance for data protection"
+    }
+  },
+  
+  "scanning_configuration": {
+    "full_scan": {
+      "enabled": true,
+      "include_dev_dependencies": true,
+      "check_unpinned_requirements": true
+    },
+    "continuous_monitoring": {
+      "enabled": true,
+      "frequency": "daily",
+      "alert_on_new_vulnerabilities": true
+    }
+  },
+  
+  "notification_settings": {
+    "teams": {
+      "enabled": true,
+      "webhook_env_var": "TEAMS_SECURITY_WEBHOOK",
+      "notify_on": ["critical", "high"]
+    },
+    "discord": {
+      "enabled": true,
+      "webhook_env_var": "DISCORD_SECURITY_WEBHOOK",
+      "notify_on": ["critical", "high"]
+    },
+    "email": {
+      "enabled": true,
+      "recipients_env_var": "SECURITY_EMAIL_RECIPIENTS",
+      "notify_on": ["critical", "high", "medium"]
+    },
+    "pagerduty": {
+      "enabled": false,
+      "service_key_env_var": "PAGERDUTY_SERVICE_KEY",
+      "notify_on": ["critical"]
+    }
+  },
+  
+  "reporting": {
+    "formats": ["json", "txt", "html"],
+    "include_remediation_advice": true,
+    "include_cvss_scores": true,
+    "include_exploit_maturity": true,
+    "retention_days": 90
+  },
+  
+  "integration": {
+    "jira": {
+      "enabled": false,
+      "create_tickets_for": ["critical", "high"],
+      "project_key": "SEC",
+      "issue_type": "Security Vulnerability"
+    },
+    "slack": {
+      "enabled": false,
+      "webhook_env_var": "SLACK_SECURITY_WEBHOOK",
+      "channel": "#security-alerts"
+    }
+  },
+  
+  "custom_rules": {
+    "financial_data_protection": {
+      "enabled": true,
+      "description": "Enhanced security for financial trading systems",
+      "rules": [
+        {
+          "name": "crypto_library_check",
+          "description": "Ensure cryptographic libraries are up-to-date",
+          "packages": ["cryptography", "pycryptodome", "pyopenssl"],
+          "min_versions": {
+            "cryptography": "41.0.0",
+            "pycryptodome": "3.18.0",
+            "pyopenssl": "23.2.0"
+          }
+        },
+        {
+          "name": "web_framework_security",
+          "description": "Ensure web frameworks have latest security patches",
+          "packages": ["django", "flask", "fastapi", "tornado"],
+          "check_cve_database": true
+        },
+        {
+          "name": "database_driver_security",
+          "description": "Ensure database drivers are secure",
+          "packages": ["psycopg2", "pymongo", "redis", "sqlalchemy"],
+          "check_cve_database": true
+        }
+      ]
+    },
+    "trading_system_specific": {
+      "enabled": true,
+      "description": "Security rules specific to algorithmic trading systems",
+      "rules": [
+        {
+          "name": "market_data_libraries",
+          "description": "Security for market data processing libraries",
+          "packages": ["pandas", "numpy", "scipy", "matplotlib"],
+          "check_for_rce_vulnerabilities": true
+        },
+        {
+          "name": "networking_libraries",
+          "description": "Security for networking and API libraries",
+          "packages": ["requests", "urllib3", "aiohttp", "websockets"],
+          "check_for_ssrf_vulnerabilities": true
+        }
+      ]
+    }
+  },
+  
+  "remediation": {
+    "auto_update": {
+      "enabled": false,
+      "description": "Automatic updates disabled for trading system stability",
+      "allowed_severity_levels": []
+    },
+    "manual_review_required": {
+      "enabled": true,
+      "description": "All updates require manual review for trading systems",
+      "approval_process": "security_team_review"
+    },
+    "testing_requirements": {
+      "unit_tests": true,
+      "integration_tests": true,
+      "performance_tests": true,
+      "security_regression_tests": true
+    }
+  },
+  
+  "metadata": {
+    "version": "1.0.0",
+    "created_date": "2024-01-01",
+    "last_updated": "2024-01-01",
+    "owner": "Security Team",
+    "review_frequency": "monthly",
+    "next_review_date": "2024-02-01"
+  }
+}

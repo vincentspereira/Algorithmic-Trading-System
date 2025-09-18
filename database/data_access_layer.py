@@ -15,7 +15,7 @@ Version: 1.0.0
 
 import asyncio
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 import logging
 
@@ -87,7 +87,7 @@ class UserRepository(BaseRepository):
             await session.execute(
                 update(User)
                 .where(User.id == user_id)
-                .values(last_login=datetime.utcnow())
+                .values(last_login=datetime.now(timezone.utc))
             )
             await session.commit()
     
@@ -208,7 +208,7 @@ class OrderRepository(BaseRepository):
                                 filled_quantity: float = None, avg_fill_price: float = None):
         """Update order status and fill information"""
         async with await self.get_session() as session:
-            update_values = {"status": status, "updated_at": datetime.utcnow()}
+            update_values = {"status": status, "updated_at": datetime.now(timezone.utc)}
             
             if filled_quantity is not None:
                 update_values["filled_quantity"] = filled_quantity
@@ -217,7 +217,7 @@ class OrderRepository(BaseRepository):
                 update_values["avg_fill_price"] = avg_fill_price
             
             if status in ["FILLED", "PARTIALLY_FILLED"]:
-                update_values["filled_at"] = datetime.utcnow()
+                update_values["filled_at"] = datetime.now(timezone.utc)
             
             await session.execute(
                 update(Order)
@@ -266,11 +266,20 @@ class PositionRepository(BaseRepository):
             
             if position:
                 # Update existing position
-                position.quantity = quantity
-                position.avg_cost = avg_cost
-                position.market_value = market_value
-                position.unrealized_pnl = unrealized_pnl
-                position.last_updated = datetime.utcnow()
+-                position.quantity += quantity
+-                position.average_price = avg_price
+-                position.last_updated = datetime.utcnow()
+-                position.last_updated = datetime.now(timezone.utc)
+-                self.session.commit()
+-                return position
++                position.quantity = quantity
++                position.avg_cost = avg_cost
++                position.market_value = market_value
++                position.unrealized_pnl = unrealized_pnl
++                position.last_updated = datetime.now(timezone.utc)
++                await session.commit()
++                await session.refresh(position)
++                return position
             else:
                 # Create new position
                 position = Position(
@@ -330,7 +339,8 @@ class PositionRepository(BaseRepository):
                         Position.symbol == symbol
                     )
                 )
-                .values(quantity=0, last_updated=datetime.utcnow())
+-                .values(quantity=0, last_updated=datetime.utcnow())
++                .values(quantity=0, last_updated=datetime.now(timezone.utc))
             )
             await session.commit()
 
@@ -381,7 +391,8 @@ class StrategyRepository(BaseRepository):
             await session.execute(
                 update(Strategy)
                 .where(Strategy.id == strategy_id)
-                .values(is_active=is_active, updated_at=datetime.utcnow())
+-                .values(is_active=is_active, updated_at=datetime.utcnow())
++                .values(is_active=is_active, updated_at=datetime.now(timezone.utc))
             )
             await session.commit()
     
@@ -391,7 +402,8 @@ class StrategyRepository(BaseRepository):
             await session.execute(
                 update(Strategy)
                 .where(Strategy.id == strategy_id)
-                .values(parameters=parameters, updated_at=datetime.utcnow())
+-                .values(parameters=parameters, updated_at=datetime.utcnow())
++                .values(parameters=parameters, updated_at=datetime.now(timezone.utc))
             )
             await session.commit()
 

@@ -12,7 +12,7 @@ import json
 import logging
 from typing import List, Dict, Optional
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -257,7 +257,7 @@ def create_update_notification(
         message=f"New version {new_version} available (current: {current_version})",
         priority=priority,
         tier=tier,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         details={
             "dependency": dependency_name,
             "current_version": current_version,
@@ -278,7 +278,7 @@ def create_security_notification(
         message=f"CVE-{vulnerability['cve_id']}: {vulnerability['description']}",
         priority="critical",
         tier=tier,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         details={
             "dependency": dependency_name,
             "cve_id": vulnerability["cve_id"],
@@ -314,7 +314,7 @@ class EmailNotificationService:
             message=issue_description,
             priority="critical",
             tier=tier,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             details={
                 "dependency": dependency_name,
                 "issue_type": "critical_failure",
@@ -335,7 +335,7 @@ class EmailNotificationService:
             message=f"Security vulnerability detected: {cve_details.get('cve_id', 'Unknown CVE')}",
             priority="critical",
             tier=1,  # Security issues are always tier 1
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             details={
                 "dependency": dependency_name,
                 "cve_id": cve_details.get("cve_id", "Unknown"),
@@ -368,7 +368,7 @@ class EmailNotificationService:
             "period": summary_period,
             "total_notifications": len(self.batch_notifications),
             "grouped_summary": grouped_notifications,
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
         
         payload = NotificationPayload(
@@ -376,7 +376,7 @@ class EmailNotificationService:
             message=f"Summary of {len(self.batch_notifications)} dependency notifications",
             priority="medium",
             tier=0,  # Summary notifications
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             details=summary_details,
             recipients=recipients
         )
@@ -417,7 +417,7 @@ async def send_dependency_update_email(email_service: EmailNotificationService,
         message=f"Update available: {old_version} → {new_version}",
         priority=priority,
         tier=tier,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         details={
             "dependency": dependency_name,
             "old_version": old_version,
