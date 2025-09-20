@@ -1,0 +1,23 @@
+from nautilus_trader.model.data import Bar
+from nautilus_trader.model.enums import PriceType
+from nautilus_trader.model.events import OrderSide
+from nautilus_trader.model.indicators import Indicator
+from nautilus_trader.model.instruments import Instrument
+
+
+class WMA(Indicator):
+    def __init__(self, period: int, price_type: PriceType = PriceType.CLOSE, instrument: Instrument = None):
+        super().__init__(instrument)
+        self.period = period
+        self.price_type = price_type
+        self.prices = []
+
+    def _calculate(self, bar: Bar):
+        price = bar.price(self.price_type)
+        self.prices.append(price)
+        if len(self.prices) > self.period:
+            self.prices.pop(0)
+        if len(self.prices) == self.period:
+            weights = range(1, self.period + 1)
+            wma = sum(p * w for p, w in zip(self.prices, weights)) / sum(weights)
+            self.add_value(wma, bar.ts_event)
