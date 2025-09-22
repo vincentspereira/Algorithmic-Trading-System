@@ -223,4 +223,9 @@ celerybeat.pid
 dmypy.json
 
 # Pyre type checker
+# Pyre type checker
+.pyre/
+
+# Forks directory - contains nested Git repositories
+forks/
 .pyre/
