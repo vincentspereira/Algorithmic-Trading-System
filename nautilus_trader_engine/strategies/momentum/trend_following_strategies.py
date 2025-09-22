@@ -22,8 +22,8 @@ from enum import Enum
 from datetime import datetime
 
 # Import base components
-from ..core.base_strategy import BaseStrategy, StrategyConfig
-from ..signal_generator import SignalGenerator, TradingSignal, SignalType, SignalStrength
+from ...core.base_strategy import BaseStrategy, StrategyConfig
+from ..architecture.pillars.signal_generation import SignalGenerator, MultiTimeframeSignal, SignalType, SignalStrength
 
 logger = logging.getLogger(__name__)
 
@@ -374,7 +374,7 @@ class MovingAverageTrendStrategy(TrendFollowingStrategy):
         self.ma_type = config.parameters.get('ma_type', 'sma')  # sma, ema
         self.confirmation_periods = config.parameters.get('confirmation_periods', 2)
     
-    def generate_signals(self, market_data: List[Dict]) -> List[TradingSignal]:
+    def generate_signals(self, market_data: List[Dict]) -> List[MultiTimeframeSignal]:
         """Generate moving average crossover signals"""
         try:
             if len(market_data) < max(self.short_period, self.long_period) + self.confirmation_periods:
@@ -414,7 +414,7 @@ class MovingAverageTrendStrategy(TrendFollowingStrategy):
                         stop_loss = current_price - (2 * atr)
                         take_profit = current_price + (self.risk_reward_ratio * 2 * atr)
                         
-                        signal = TradingSignal(
+                        signal = MultiTimeframeSignal(
                             symbol=self.config.symbols[0],
                             signal_type=SignalType.BUY,
                             strength=self._determine_signal_strength(analysis['trend_metrics']),
@@ -444,7 +444,7 @@ class MovingAverageTrendStrategy(TrendFollowingStrategy):
                         stop_loss = current_price + (2 * atr)
                         take_profit = current_price - (self.risk_reward_ratio * 2 * atr)
                         
-                        signal = TradingSignal(
+                        signal = MultiTimeframeSignal(
                             symbol=self.config.symbols[0],
                             signal_type=SignalType.SELL,
                             strength=self._determine_signal_strength(analysis['trend_metrics']),
@@ -509,7 +509,7 @@ class MACDTrendStrategy(TrendFollowingStrategy):
         self.signal_period = config.parameters.get('macd_signal', 9)
         self.histogram_threshold = config.parameters.get('histogram_threshold', 0.0)
     
-    def generate_signals(self, market_data: List[Dict]) -> List[TradingSignal]:
+    def generate_signals(self, market_data: List[Dict]) -> List[MultiTimeframeSignal]:
         """Generate MACD-based trend signals"""
         try:
             if len(market_data) < self.slow_period + self.signal_period:
@@ -547,7 +547,7 @@ class MACDTrendStrategy(TrendFollowingStrategy):
                         stop_loss = current_price - (2 * atr)
                         take_profit = current_price + (self.risk_reward_ratio * 2 * atr)
                         
-                        signal = TradingSignal(
+                        signal = MultiTimeframeSignal(
                             symbol=self.config.symbols[0],
                             signal_type=SignalType.BUY,
                             strength=self._determine_signal_strength(analysis['trend_metrics']),
@@ -577,7 +577,7 @@ class MACDTrendStrategy(TrendFollowingStrategy):
                         stop_loss = current_price + (2 * atr)
                         take_profit = current_price - (self.risk_reward_ratio * 2 * atr)
                         
-                        signal = TradingSignal(
+                        signal = MultiTimeframeSignal(
                             symbol=self.config.symbols[0],
                             signal_type=SignalType.SELL,
                             strength=self._determine_signal_strength(analysis['trend_metrics']),
@@ -615,7 +615,7 @@ class MACDTrendStrategy(TrendFollowingStrategy):
             
             return tr.rolling(window=period).mean().iloc[-1]
             
-        except Exception e:
+        except Exception as e:
             self.logger.error(f"Error calculating ATR: {e}")
             return 0.01
     
@@ -639,7 +639,7 @@ class ADXTrendStrategy(TrendFollowingStrategy):
         self.adx_threshold = config.parameters.get('adx_threshold', 25)
         self.di_threshold = config.parameters.get('di_threshold', 5)
     
-    def generate_signals(self, market_data: List[Dict]) -> List[TradingSignal]:
+    def generate_signals(self, market_data: List[Dict]) -> List[MultiTimeframeSignal]:
         """Generate ADX-based trend signals"""
         try:
             if len(market_data) < self.adx_period * 2:
@@ -671,7 +671,7 @@ class ADXTrendStrategy(TrendFollowingStrategy):
                         stop_loss = current_price - (2 * atr)
                         take_profit = current_price + (self.risk_reward_ratio * 2 * atr)
                         
-                        signal = TradingSignal(
+                        signal = MultiTimeframeSignal(
                             symbol=self.config.symbols[0],
                             signal_type=SignalType.BUY,
                             strength=self._determine_signal_strength_adx(current_adx),
@@ -700,7 +700,7 @@ class ADXTrendStrategy(TrendFollowingStrategy):
                         stop_loss = current_price + (2 * atr)
                         take_profit = current_price - (self.risk_reward_ratio * 2 * atr)
                         
-                        signal = TradingSignal(
+                        signal = MultiTimeframeSignal(
                             symbol=self.config.symbols[0],
                             signal_type=SignalType.SELL,
                             strength=self._determine_signal_strength_adx(current_adx),

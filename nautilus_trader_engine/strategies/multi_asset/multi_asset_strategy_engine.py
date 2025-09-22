@@ -6,7 +6,7 @@ import asyncio
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 

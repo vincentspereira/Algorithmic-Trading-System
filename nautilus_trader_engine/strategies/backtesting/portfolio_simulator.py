@@ -21,7 +21,7 @@ from collections import defaultdict
 
 from .config import TransactionCosts
 from .results import Trade, Position, PortfolioSnapshot
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 

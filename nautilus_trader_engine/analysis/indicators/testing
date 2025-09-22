@@ -1,0 +1,154 @@
+"""
+Simple test script for institutional-grade indicators
+"""
+
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Mock bar class for testing
+class MockBar:
+    def __init__(self, close, high=None, low=None, volume=1000):
+        self.close = close
+        self.high = high if high is not None else close * 1.01
+        self.low = low if low is not None else close * 0.99
+        self.volume = volume
+        self.open = close * 0.995
+
+def test_augmented_rsi():
+    """Test Augmented RSI indicator"""
+    print("Testing Augmented RSI...")
+
+    try:
+        from momentum.augmented_rsi import AugmentedRSI, AugmentedRSIConfig
+
+        config = AugmentedRSIConfig(
+            rsi_period=14,
+            overbought_level=70,
+            oversold_level=30
+        )
+        rsi = AugmentedRSI(config)
+
+        print(f"✓ RSI initialized with period {config.rsi_period}")
+
+        # Test with sample data
+        prices = [100, 102, 101, 103, 102, 104, 103, 105, 104, 106,
+                 105, 107, 106, 108, 107, 109, 108, 110, 109, 111]
+
+        for price in prices:
+            bar = MockBar(price)
+            rsi.update(bar)
+
+        print(f"✓ RSI processed {len(prices)} bars")
+
+        if rsi.is_ready:
+            signal = rsi.value_meta
+            print(f"✓ RSI signal: {signal.signal_type}")
+            print(f"✓ RSI confidence: {signal.composite_confidence:.3f}")
+            print(f"✓ RSI value: {rsi.rsi:.2f}")
+        else:
+            print("⚠ RSI not ready yet")
+
+        return True
+
+    except Exception as e:
+        print(f"✗ RSI test failed: {e}")
+        return False
+
+def test_augmented_macd():
+    """Test Augmented MACD indicator"""
+    print("\nTesting Augmented MACD...")
+
+    try:
+        from momentum.augmented_macd import AugmentedMACD
+        from base import AugmentedIndicatorConfig
+
+        config = AugmentedIndicatorConfig()
+        macd = AugmentedMACD(config)
+
+        print("✓ MACD initialized")
+
+        # Test with sample data
+        prices = [100 + i * 0.5 for i in range(50)]  # Upward trend
+
+        for price in prices:
+            bar = MockBar(price)
+            macd.handle_bar(bar)
+
+        print(f"✓ MACD processed {len(prices)} bars")
+
+        if macd.is_ready:
+            signal = macd.value_meta
+            print(f"✓ MACD signal: {signal.signal_type}")
+            print(f"✓ MACD confidence: {signal.composite_confidence:.3f}")
+        else:
+            print("⚠ MACD not ready yet")
+
+        return True
+
+    except Exception as e:
+        print(f"✗ MACD test failed: {e}")
+        return False
+
+def test_augmented_ma_crossover():
+    """Test Augmented MA Crossover system"""
+    print("\nTesting Augmented MA Crossover...")
+
+    try:
+        from momentum.augmented_ma_crossover import AugmentedMACrossover, AugmentedMACrossoverConfig
+
+        config = AugmentedMACrossoverConfig(
+            fast_period=10,
+            slow_period=20
+        )
+        ma_crossover = AugmentedMACrossover(config)
+
+        print(f"✓ MA Crossover initialized with periods {config.fast_period}/{config.slow_period}")
+
+        # Test with sample data
+        prices = [100] * 30 + [105] * 30  # Should create crossover
+
+        for price in prices:
+            bar = MockBar(price)
+            ma_crossover.handle_bar(bar)
+
+        print(f"✓ MA Crossover processed {len(prices)} bars")
+
+        if ma_crossover.is_ready:
+            signal = ma_crossover.value_meta
+            print(f"✓ MA Crossover signal: {signal.signal_type}")
+            print(f"✓ MA Crossover confidence: {signal.composite_confidence:.3f}")
+        else:
+            print("⚠ MA Crossover not ready yet")
+
+        return True
+
+    except Exception as e:
+        print(f"✗ MA Crossover test failed: {e}")
+        return False
+
+def main():
+    """Run all tests"""
+    print("=== Institutional-Grade Indicator Tests ===\n")
+
+    results = []
+    results.append(test_augmented_rsi())
+    results.append(test_augmented_macd())
+    results.append(test_augmented_ma_crossover())
+
+    print("\n=== Test Results ===")
+    passed = sum(results)
+    total = len(results)
+    print(f"Passed: {passed}/{total}")
+
+    if passed == total:
+        print("🎉 All tests passed! Institutional-grade indicators are working correctly.")
+    else:
+        print("⚠️ Some tests failed. Please check the implementation.")
+
+    return passed == total
+
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)
+    sys.exit(0 if success else 1)

@@ -253,6 +253,8 @@ __all__ = [
     'OrderType',
     'StrategyManager',
     'SimpleMovingAverageStrategy',
+    'BaseInstitutionalStrategy',
+    'AugmentedMomentumStrategy',
     'create_signal',
     'validate_ohlcv_data',
     

@@ -23,19 +23,19 @@ from abc import ABC, abstractmethod
 
 # Import technical indicators
 try:
-    from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators, IndicatorResult
-    from nautilus_trader_engine.indicators.core_indicator_base import AugmentedIndicator, IndicatorConfig
+    from ..indicators.consolidated_indicators import ConsolidatedIndicators, IndicatorResult
+    from ..indicators.base import AugmentedIndicator, AugmentedIndicatorConfig
 except ImportError:
     # Fallback for development
     class ConsolidatedIndicators:
         @staticmethod
         def rsi(*args, **kwargs):
             return None
-    
+
     class AugmentedIndicator:
         pass
-    
-    class IndicatorConfig:
+
+    class AugmentedIndicatorConfig:
         pass
 
 

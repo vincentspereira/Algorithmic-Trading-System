@@ -22,7 +22,7 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 import pandas as pd
 import numpy as np
 from decimal import Decimal
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 

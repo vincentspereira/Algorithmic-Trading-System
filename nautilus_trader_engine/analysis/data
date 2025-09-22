@@ -1,0 +1,65 @@
+"""
+Candle data structures for technical indicators
+"""
+
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional
+
+
+@dataclass
+class CandleData:
+    """Represents a single candlestick data point"""
+
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+    timestamp: datetime
+
+    @property
+    def body_size(self) -> float:
+        """Size of the candle body"""
+        return abs(self.close - self.open)
+
+    @property
+    def upper_shadow(self) -> float:
+        """Length of upper shadow/wick"""
+        return self.high - max(self.open, self.close)
+
+    @property
+    def lower_shadow(self) -> float:
+        """Length of lower shadow/wick"""
+        return min(self.open, self.close) - self.low
+
+    @property
+    def total_range(self) -> float:
+        """Total range from high to low"""
+        return self.high - self.low
+
+    @property
+    def is_bullish(self) -> bool:
+        """True if candle is bullish (close > open)"""
+        return self.close > self.open
+
+    @property
+    def is_bearish(self) -> bool:
+        """True if candle is bearish (close < open)"""
+        return self.close < self.open
+
+    @property
+    def is_doji(self) -> bool:
+        """True if candle is a doji (very small body)"""
+        body_ratio = self.body_size / self.total_range if self.total_range > 0 else 0
+        return body_ratio < 0.05  # Body less than 5% of total range
+
+    @property
+    def body_ratio(self) -> float:
+        """Ratio of body size to total range"""
+        return self.body_size / self.total_range if self.total_range > 0 else 0
+
+    @property
+    def midpoint(self) -> float:
+        """Midpoint of the candle body"""
+        return (self.open + self.close) / 2

@@ -1,446 +1,926 @@
-# Trading System Monitoring Infrastructure
+# Comprehensive Monitoring for Nautilus Trader Engine
 
-This directory contains the complete monitoring and observability stack for the algorithmic trading system. The monitoring infrastructure provides comprehensive visibility into system health, performance, and business metrics across all components.
+This directory contains the complete monitoring, logging, and observability stack for the Nautilus Trader Engine, providing institutional-grade visibility into system performance, health, and behavior.
 
-## 🏗️ Architecture Overview
+## Overview
 
-The monitoring stack follows a modern observability architecture with:
+The monitoring system provides:
 
-- **Metrics Collection**: Prometheus with multiple exporters
-- **Visualization**: Grafana with pre-built dashboards
-- **Alerting**: Alertmanager with multi-channel notifications
-- **Distributed Tracing**: Jaeger for request tracing
-- **Log Aggregation**: ELK stack (Elasticsearch, Logstash, Kibana)
-- **Health Monitoring**: Custom health checkers and blackbox probing
+- **Real-time Metrics**: Performance and business metrics collection
+- **Distributed Tracing**: Request tracing across microservices
+- **Log Aggregation**: Centralized logging with advanced search
+- **Alerting**: Intelligent alerting with escalation policies
+- **Dashboards**: Comprehensive visualization and reporting
+- **Health Checks**: Automated system health validation
+- **Performance Monitoring**: Detailed performance analysis and profiling
 
-## 📁 Directory Structure
+## Architecture
+
+### Monitoring Stack
 
 ```
-monitoring/
-├── docker-compose.yml              # Main monitoring stack orchestration
-├── prometheus.yml                   # Prometheus configuration
-├── alert_rules.yml                 # Prometheus alerting rules
-├── recording_rules.yml             # Prometheus recording rules
-├── alertmanager.yml                # Alertmanager configuration
-├── blackbox.yml                    # Blackbox exporter configuration
-├── postgres-queries.yaml           # PostgreSQL custom queries
-├── grafana.ini                     # Grafana server configuration
-├── grafana-datasources.yml         # Grafana datasource provisioning
-├── grafana-dashboard-provisioning.yml # Dashboard provisioning config
-├── grafana_dashboards.json         # Pre-built dashboard definitions
-└── README.md                       # This documentation
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Application   │    │   Prometheus    │    │     Grafana     │
+│   (Metrics)     │───▶│   (Collection)  │───▶│  (Dashboards)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       │
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Jaeger        │    │     Loki        │    │   AlertManager  │
+│   (Tracing)     │    │   (Logging)     │───▶│   (Alerts)      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       │
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Node Exporter │    │  Promtail       │    │   Slack/Email   │
+│  (System)       │    │  (Log Shipping) │    │  (Notifications)|
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Docker and Docker Compose installed
-- At least 8GB RAM available for monitoring stack
-- Ports 3001, 9090, 9093, 9115, 16686 available
-
-### 1. Environment Setup
-
-```bash
-# Copy environment template
-cp ../database/.env.example .env
-
-# Edit environment variables
-nano .env
-```
-
-### 2. Start Monitoring Stack
-
-```bash
-# Start all monitoring services
-docker-compose up -d
-
-# Check service status
-docker-compose ps
-
-# View logs
-docker-compose logs -f prometheus grafana alertmanager
-```
-
-### 3. Access Interfaces
-
-- **Grafana**: http://localhost:3001 (admin/trading_system_2024)
-- **Prometheus**: http://localhost:9090
-- **Alertmanager**: http://localhost:9093
-- **Jaeger**: http://localhost:16686
-
-## 📊 Monitoring Components
-
-### Core Services
-
-#### Prometheus (Port 9090)
-- **Purpose**: Metrics collection and storage
-- **Retention**: 15 days
-- **Scrape Interval**: 15 seconds
-- **Storage**: Local with optional remote write
-
-#### Grafana (Port 3001)
-- **Purpose**: Visualization and dashboards
-- **Authentication**: Admin user with configurable password
-- **Datasources**: Auto-provisioned (Prometheus, PostgreSQL, etc.)
-- **Dashboards**: Auto-loaded from JSON definitions
-
-#### Alertmanager (Port 9093)
-- **Purpose**: Alert routing and notification
-- **Channels**: Email, Slack, PagerDuty, Webhook
-- **Grouping**: By service and severity
-- **Inhibition**: Prevents alert spam
-
-### Exporters and Collectors
-
-#### Node Exporter
-- **Metrics**: System-level metrics (CPU, memory, disk, network)
-- **Deployment**: On each monitored host
-- **Port**: 9100
-
-#### cAdvisor
-- **Metrics**: Container resource usage and performance
-- **Scope**: All Docker containers
-- **Port**: 8080
-
-#### Database Exporters
-- **PostgreSQL Exporter**: Database performance and health
-- **Redis Exporter**: Cache performance and memory usage
-- **Custom Queries**: Business-specific metrics
-
-#### Blackbox Exporter
-- **Purpose**: External service monitoring
-- **Protocols**: HTTP, HTTPS, TCP, ICMP
-- **Endpoints**: Trading APIs, databases, external services
-
-## 📈 Dashboard Categories
-
-### 1. Database Health Overview
-- Connection status for all 9 databases
-- Query performance and latency
-- Resource utilization (CPU, memory, connections)
-- Error rates and availability
-
-### 2. Trading Performance
-- Order processing metrics
-- Execution latency and slippage
-- Portfolio performance and P&L
-- Strategy performance comparison
-
-### 3. System Resources
-- Host-level metrics (CPU, memory, disk, network)
-- Container resource usage
-- Service availability and health
-- Capacity planning metrics
-
-### 4. Kafka Monitoring
-- Message throughput and latency
-- Consumer lag and partition health
-- Broker performance and availability
-- Topic-level metrics
-
-### 5. Application Performance
-- Request rates and response times
-- Error rates and success ratios
-- Business transaction metrics
-- User experience metrics
-
-### 6. Security and Compliance
-- Authentication and authorization events
-- Audit trail metrics
-- Compliance monitoring
-- Security incident detection
-
-## Legacy Components (Preserved)
-
-### Core Components
-
-1. **Monitoring Infrastructure** (`monitoring_infrastructure.py`)
-   - Metrics collection using Prometheus client
-   - System performance monitoring
-   - Health checks and status reporting
-   - Alert management
-
-2. **Advanced Alerting & Analytics** (`advanced_alerting_analytics.py`)
-   - Anomaly detection using statistical models
-   - Predictive analytics for trend analysis
-   - Alert correlation engine
-   - Performance analysis and recommendations
-
-3. **Monitoring Server** (`monitoring_server.py`)
-   - HTTP API for monitoring data
-   - Real-time WebSocket updates
-   - Web-based dashboards
-   - Integration with external monitoring tools
-
-### External Services
-
-1. **Prometheus** - Time series database and metrics collection
-2. **Grafana** - Visualization and dashboards
-3. **Redis** - Caching and temporary data storage
-
-## Features
-
-### Metrics Collection
-- System metrics (CPU, memory, disk, network)
-- Application metrics (HTTP requests, trading orders, security events)
-- Custom business metrics
-- Real-time metric updates
-
-### Health Monitoring
-- Component health checks
-- System resource monitoring
-- Automated health status reporting
-- Configurable health thresholds
-
-### Alerting
-- Multi-level alert severity (INFO, WARNING, ERROR, CRITICAL)
-- Alert correlation and grouping
-- Anomaly detection alerts
-- Predictive alerts based on trends
-
-### Analytics
-- Performance trend analysis
-- Anomaly detection using statistical models
-- Predictive analytics for capacity planning
-- Alert correlation and root cause analysis
-
-### Dashboards
-- Real-time system overview
-- Interactive web dashboards
-- Grafana integration for advanced visualization
-- Mobile-responsive design
-
-## Quick Start
-
-### Prerequisites
-- Docker and Docker Compose
-- Python 3.11+
-- 8GB+ RAM recommended
-
-### Starting the Monitoring Stack
-
-1. **Build and start all services:**
-   ```bash
-   cd monitoring
-   docker-compose up -d
-   ```
-
-2. **Verify services are running:**
-   ```bash
-   docker-compose ps
-   ```
-
-3. **Check health status:**
-   ```bash
-   curl http://localhost:8090/health
-   ```
-
-### Accessing Services
-
-- **Monitoring Dashboard**: http://localhost:8090
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin123)
-- **Metrics Endpoint**: http://localhost:8090/metrics
-
-## API Endpoints
-
-### Health and Status
-- `GET /health` - System health check
-- `GET /status` - Detailed system status
-- `GET /metrics` - Prometheus metrics
-
-### Monitoring API
-- `GET /api/v1/alerts` - Get all alerts
-- `POST /api/v1/alerts/{id}/resolve` - Resolve an alert
-- `GET /api/v1/health-checks` - Get health check results
-- `GET /api/v1/system-metrics` - Get current system metrics
-
-### WebSocket
-- `WS /ws` - Real-time monitoring updates
-
-## Configuration
-
-### Environment Variables
-- `MONITORING_MODE` - Set to 'production' for production mode
-- `LOG_LEVEL` - Logging level (INFO, DEBUG, WARNING, ERROR)
-- `METRICS_RETENTION_DAYS` - How long to retain metrics (default: 30)
-
-### Prometheus Configuration
-Edit `config/prometheus.yml` to add new scrape targets:
-
-```yaml
-scrape_configs:
-  - job_name: 'your-service'
-    static_configs:
-      - targets: ['your-service:port']
-```
-
-### Grafana Dashboards
-- Pre-configured dashboards are in `config/grafana/dashboards/`
-- Access Grafana at http://localhost:3000 to create custom dashboards
-
-## Monitoring Metrics
-
-### System Metrics
-- `trading_system_system_cpu_percent` - CPU usage percentage
-- `trading_system_system_memory_percent` - Memory usage percentage
-- `trading_system_system_disk_percent` - Disk usage percentage
+## Metrics Collection
 
 ### Application Metrics
-- `trading_system_http_requests_total` - Total HTTP requests
-- `trading_system_http_request_duration_seconds` - HTTP request duration
-- `trading_system_trading_orders_total` - Total trading orders
-- `trading_system_security_events_total` - Security events
 
-### Custom Metrics
-You can add custom metrics using the MetricsCollector:
+#### Business Metrics
 
 ```python
-from monitoring_infrastructure import MetricsCollector
+from monitoring.metrics import BusinessMetrics
 
-collector = MetricsCollector()
-collector.increment_counter('custom_metric', {'label': 'value'})
-collector.set_gauge('custom_gauge', 42.0)
-collector.observe_histogram('custom_duration', 0.123)
+# Trading performance metrics
+metrics = BusinessMetrics()
+
+# Record trade execution
+metrics.record_trade(
+    symbol="AAPL",
+    side="BUY",
+    quantity=100,
+    price=150.25,
+    strategy="momentum"
+)
+
+# Record P&L
+metrics.record_pnl(
+    account_id="account_123",
+    realized_pnl=1250.50,
+    unrealized_pnl=-320.75
+)
+
+# Record signal accuracy
+metrics.record_signal_accuracy(
+    strategy="rsi_divergence",
+    accuracy=0.78,
+    total_signals=150
+)
 ```
 
-## Alerting Rules
+#### Performance Metrics
 
-### Default Alert Conditions
-- CPU usage > 90% (CRITICAL)
-- Memory usage > 90% (CRITICAL)
-- Disk usage > 95% (CRITICAL)
-- High error rates (WARNING/ERROR)
-- Anomalous behavior detected (WARNING)
+```python
+from monitoring.metrics import PerformanceMetrics
 
-### Custom Alerts
-Add custom alert rules in `config/alert_rules.yml`:
+perf_metrics = PerformanceMetrics()
+
+# Record API response times
+@perf_metrics.timed("api_response_time")
+async def get_portfolio(request):
+    # API logic here
+    return portfolio_data
+
+# Record database query performance
+with perf_metrics.timed("database_query"):
+    result = db.execute("SELECT * FROM trades")
+
+# Record memory usage
+perf_metrics.record_memory_usage()
+
+# Record error rates
+perf_metrics.record_error("database_connection_failed")
+```
+
+#### System Metrics
+
+```python
+from monitoring.metrics import SystemMetrics
+
+sys_metrics = SystemMetrics()
+
+# Record resource usage
+sys_metrics.record_cpu_usage()
+sys_metrics.record_memory_usage()
+sys_metrics.record_disk_usage()
+sys_metrics.record_network_io()
+
+# Record queue depths
+sys_metrics.record_queue_depth("order_queue", 45)
+sys_metrics.record_queue_depth("signal_queue", 12)
+```
+
+### Custom Metrics
+
+#### Counter Metrics
+
+```python
+from prometheus_client import Counter
+
+# Trade counter
+trades_total = Counter(
+    'trades_total',
+    'Total number of trades executed',
+    ['strategy', 'symbol', 'side']
+)
+
+# Increment counter
+trades_total.labels(
+    strategy='momentum',
+    symbol='AAPL',
+    side='BUY'
+).inc()
+```
+
+#### Gauge Metrics
+
+```python
+from prometheus_client import Gauge
+
+# Account balance gauge
+account_balance = Gauge(
+    'account_balance',
+    'Current account balance',
+    ['account_id', 'currency']
+)
+
+# Set gauge value
+account_balance.labels(
+    account_id='acc_123',
+    currency='USD'
+).set(100000.50)
+```
+
+#### Histogram Metrics
+
+```python
+from prometheus_client import Histogram
+
+# Request duration histogram
+request_duration = Histogram(
+    'request_duration_seconds',
+    'Request duration in seconds',
+    ['method', 'endpoint']
+)
+
+# Time function execution
+with request_duration.labels(
+    method='GET',
+    endpoint='/api/portfolio'
+).time():
+    result = get_portfolio()
+```
+
+## Distributed Tracing
+
+### Setting up Tracing
+
+```python
+from monitoring.tracing import setup_tracing, create_span
+
+# Initialize tracing
+setup_tracing(
+    service_name="nautilus-trader-engine",
+    jaeger_host="jaeger:14268"
+)
+
+# Create spans for operations
+with create_span("execute_trade") as span:
+    span.set_attribute("symbol", "AAPL")
+    span.set_attribute("quantity", 100)
+
+    # Trade execution logic
+    result = execute_trade_logic()
+
+    span.set_attribute("success", result.success)
+    if not result.success:
+        span.record_exception(result.error)
+```
+
+### Custom Spans
+
+```python
+from monitoring.tracing import tracer
+
+# Manual span creation
+with tracer.start_as_current_span("complex_calculation") as span:
+    span.set_attribute("algorithm", "rsi_calculation")
+    span.set_attribute("period", 14)
+
+    # Complex calculation
+    rsi_values = calculate_rsi(prices, 14)
+
+    span.set_attribute("data_points", len(rsi_values))
+    span.add_event("calculation_completed")
+```
+
+## Logging
+
+### Structured Logging
+
+```python
+import structlog
+from monitoring.logging import setup_logging
+
+# Configure structured logging
+setup_logging(
+    level="INFO",
+    format="json",
+    loki_url="http://loki:3100"
+)
+
+# Structured log entries
+logger = structlog.get_logger()
+
+# Business logic logging
+logger.info(
+    "trade_executed",
+    symbol="AAPL",
+    side="BUY",
+    quantity=100,
+    price=150.25,
+    strategy="momentum",
+    account_id="acc_123"
+)
+
+# Error logging with context
+try:
+    result = risky_operation()
+except Exception as e:
+    logger.error(
+        "operation_failed",
+        operation="risky_operation",
+        error=str(e),
+        error_type=type(e).__name__,
+        stack_trace=traceback.format_exc()
+    )
+```
+
+### Log Levels and Context
+
+```python
+# Debug logging for development
+logger.debug(
+    "indicator_calculation",
+    indicator="RSI",
+    period=14,
+    data_points=len(prices),
+    execution_time=0.023
+)
+
+# Warning for potential issues
+logger.warning(
+    "high_volatility_detected",
+    symbol="TSLA",
+    volatility=0.45,
+    threshold=0.30,
+    timestamp=datetime.now().iso()
+)
+
+# Error for failures
+logger.error(
+    "broker_connection_lost",
+    broker="interactive_brokers",
+    error="connection_timeout",
+    retry_count=3
+)
+
+# Critical for system issues
+logger.critical(
+    "database_unavailable",
+    database="postgresql",
+    impact="trading_halted",
+    affected_accounts=150
+)
+```
+
+## Alerting
+
+### Alert Rules
 
 ```yaml
+# alerting_rules.yml
 groups:
-  - name: custom_alerts
+  - name: trading_alerts
     rules:
-      - alert: HighLatency
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
-        for: 2m
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% which is above 5%"
+
+      - alert: LowTradeVolume
+        expr: rate(trades_total[1h]) < 10
+        for: 15m
         labels:
           severity: warning
         annotations:
-          summary: High request latency detected
+          summary: "Low trading volume"
+          description: "Only {{ $value }} trades in the last hour"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency"
+          description: "95th percentile latency is {{ $value }}s"
 ```
 
-## Testing
+### Alert Manager Configuration
 
-### Basic Functionality Test
-```bash
-docker-compose exec monitoring-infrastructure python monitoring/test_basic_functionality.py
+```yaml
+# alertmanager.yml
+global:
+  smtp_smtp:
+    host: smtp.gmail.com
+    port: 587
+    username: alerts@nautilus-trader.com
+    password: ${SMTP_PASSWORD}
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'team-notifications'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-notifications'
+
+receivers:
+  - name: 'team-notifications'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK}'
+        channel: '#trading-alerts'
+        title: '{{ .GroupLabels.alertname }}'
+        text: '{{ .CommonAnnotations.description }}'
+
+  - name: 'critical-notifications'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK}'
+        channel: '#critical-alerts'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_KEY}'
 ```
 
-### Comprehensive Test Suite
-```bash
-docker-compose exec monitoring-infrastructure python monitoring/test_comprehensive_monitoring.py
+## Dashboards
+
+### Grafana Dashboards
+
+#### Trading Performance Dashboard
+
+- **Real-time P&L**: Current profit/loss across accounts
+- **Trade Volume**: Number of trades executed over time
+- **Strategy Performance**: Win rate and returns by strategy
+- **Risk Metrics**: VaR, Sharpe ratio, max drawdown
+
+#### System Performance Dashboard
+
+- **API Response Times**: Latency percentiles and trends
+- **Resource Usage**: CPU, memory, disk, network utilization
+- **Error Rates**: Application and infrastructure errors
+- **Queue Depths**: Processing queue lengths
+
+#### Business Metrics Dashboard
+
+- **Account Balances**: Real-time account equity
+- **Position Sizes**: Current exposure by asset
+- **Market Data**: Feed health and latency
+- **Compliance**: Regulatory metric tracking
+
+### Custom Dashboard Creation
+
+```python
+from monitoring.dashboards import create_dashboard, Panel, Row
+
+# Create trading dashboard
+dashboard = create_dashboard("Trading Performance")
+
+# Add P&L row
+pnl_row = Row("Profit & Loss")
+pnl_row.add_panel(
+    Panel(
+        title="Real-time P&L",
+        type="graph",
+        targets=[{
+            "expr": "sum(realized_pnl + unrealized_pnl) by (account)",
+            "legend": "{{account}}"
+        }]
+    )
+)
+
+dashboard.add_row(pnl_row)
+
+# Save dashboard
+dashboard.save_to_grafana(grafana_url, api_key)
 ```
 
-### Load Testing
-```bash
-# Generate test metrics
-curl -X POST http://localhost:8090/api/v1/test/generate-metrics
+## Health Checks
+
+### Application Health Checks
+
+```python
+from monitoring.health import HealthChecker, HealthCheck
+
+# Create health checker
+health_checker = HealthChecker()
+
+# Add database health check
+@health_checker.add_check("database")
+async def check_database():
+    try:
+        # Test database connection
+        await db.execute("SELECT 1")
+        return HealthCheck.healthy("Database connection OK")
+    except Exception as e:
+        return HealthCheck.unhealthy(f"Database error: {e}")
+
+# Add broker connectivity check
+@health_checker.add_check("broker")
+async def check_broker():
+    try:
+        # Test broker connection
+        connected = await broker.ping()
+        if connected:
+            return HealthCheck.healthy("Broker connection OK")
+        else:
+            return HealthCheck.unhealthy("Broker not responding")
+    except Exception as e:
+        return HealthCheck.unhealthy(f"Broker error: {e}")
+
+# Add external API checks
+@health_checker.add_check("market_data")
+async def check_market_data():
+    try:
+        # Test market data feed
+        data = await market_data.get_quote("AAPL")
+        if data:
+            return HealthCheck.healthy("Market data feed OK")
+        else:
+            return HealthCheck.unhealthy("No market data received")
+    except Exception as e:
+        return HealthCheck.unhealthy(f"Market data error: {e}")
+
+# Expose health endpoint
+@app.get("/health")
+async def health_endpoint():
+    return await health_checker.run_all_checks()
 ```
+
+### Dependency Health Checks
+
+```python
+# Comprehensive dependency checks
+health_checks = {
+    "redis": check_redis_connection,
+    "postgres": check_postgres_connection,
+    "rabbitmq": check_rabbitmq_connection,
+    "external_api": check_external_api,
+    "disk_space": check_disk_space,
+    "memory_usage": check_memory_usage
+}
+
+# Run all checks
+results = await health_checker.run_checks(health_checks)
+
+# Return detailed health status
+return {
+    "status": "healthy" if all(r.healthy for r in results.values()) else "unhealthy",
+    "checks": {name: check.to_dict() for name, check in results.items()},
+    "timestamp": datetime.now().isoformat()
+}
+```
+
+## Performance Profiling
+
+### Code Profiling
+
+```python
+from monitoring.profiling import Profiler
+
+profiler = Profiler()
+
+# Profile function execution
+@profiler.profile
+def calculate_indicators(prices, volumes):
+    # Complex indicator calculations
+    rsi = calculate_rsi(prices)
+    macd = calculate_macd(prices)
+    bollinger = calculate_bollinger_bands(prices)
+
+    return {
+        'rsi': rsi,
+        'macd': macd,
+        'bollinger': bollinger
+    }
+
+# Profile async functions
+@profiler.profile_async
+async def execute_trading_strategy(signals):
+    # Trading logic
+    trades = []
+    for signal in signals:
+        trade = await execute_trade(signal)
+        trades.append(trade)
+
+    return trades
+
+# Get profiling results
+profile_data = profiler.get_results()
+print(f"Total execution time: {profile_data['total_time']}")
+print(f"Most expensive function: {profile_data['bottlenecks'][0]}")
+```
+
+### Memory Profiling
+
+```python
+from monitoring.profiling import MemoryProfiler
+
+memory_profiler = MemoryProfiler()
+
+# Profile memory usage
+@memory_profiler.profile_memory
+def process_large_dataset(data):
+    # Memory-intensive operations
+    processed_data = heavy_processing(data)
+    results = complex_calculations(processed_data)
+
+    return results
+
+# Get memory statistics
+memory_stats = memory_profiler.get_memory_stats()
+print(f"Peak memory usage: {memory_stats['peak_memory']} MB")
+print(f"Memory growth: {memory_stats['memory_growth']} MB")
+```
+
+## Integration Examples
+
+### Prometheus Integration
+
+```python
+from prometheus_client import start_http_server, Counter, Histogram
+from monitoring.metrics import MetricsCollector
+
+# Start metrics server
+start_http_server(8001)
+
+# Create metrics collector
+metrics = MetricsCollector()
+
+# Business metrics
+trades_executed = Counter(
+    'trades_executed_total',
+    'Total number of trades executed',
+    ['strategy', 'symbol']
+)
+
+trade_value = Histogram(
+    'trade_value_dollars',
+    'Value of executed trades',
+    ['strategy'],
+    buckets=[100, 1000, 10000, 100000, 1000000]
+)
+
+# Record metrics
+def record_trade(trade):
+    trades_executed.labels(
+        strategy=trade.strategy,
+        symbol=trade.symbol
+    ).inc()
+
+    trade_value.labels(
+        strategy=trade.strategy
+    ).observe(trade.value)
+```
+
+### Jaeger Tracing Integration
+
+```python
+from jaeger_client import Config
+from monitoring.tracing import TracingManager
+
+# Configure Jaeger
+config = Config(
+    config={
+        'sampler': {
+            'type': 'const',
+            'param': 1,
+        },
+        'local_agent': {
+            'reporting_host': 'jaeger',
+            'reporting_port': 14268,
+        },
+        'logging': True,
+    },
+    service_name='nautilus-trader-engine',
+)
+
+# Initialize tracing
+tracer = config.initialize_tracer()
+
+# Create tracing manager
+tracing_manager = TracingManager(tracer)
+
+# Trace operations
+@tracing_manager.trace
+async def process_trade_request(request):
+    with tracer.start_active_span('validate_request') as scope:
+        # Validation logic
+        is_valid = validate_request(request)
+        scope.span.set_tag('valid', is_valid)
+
+    if is_valid:
+        with tracer.start_active_span('execute_trade') as scope:
+            # Trade execution
+            result = await execute_trade(request)
+            scope.span.set_tag('success', result.success)
+
+    return result
+```
+
+### ELK Stack Integration
+
+```python
+import logging
+from elasticsearch import Elasticsearch
+from monitoring.logging import ELKHandler
+
+# Configure ELK logging
+es = Elasticsearch(['elasticsearch:9200'])
+elk_handler = ELKHandler(es, index='nautilus-logs')
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[elk_handler]
+)
+
+logger = logging.getLogger('nautilus')
+
+# Structured logging to ELK
+logger.info('Trade executed', extra={
+    'trade_id': '12345',
+    'symbol': 'AAPL',
+    'quantity': 100,
+    'price': 150.25,
+    'strategy': 'momentum',
+    'pnl': 125.50
+})
+```
+
+## Alerting Examples
+
+### Custom Alert Rules
+
+```python
+from monitoring.alerting import AlertManager, AlertRule
+
+alert_manager = AlertManager()
+
+# Define custom alert rules
+rules = [
+    AlertRule(
+        name="HighSlippage",
+        condition=lambda: get_average_slippage() > 0.005,
+        severity="warning",
+        message="Average slippage exceeded 0.5%",
+        cooldown_minutes=15
+    ),
+
+    AlertRule(
+        name="StrategyDivergence",
+        condition=lambda: detect_strategy_divergence() > 0.1,
+        severity="critical",
+        message="Strategy performance diverged significantly",
+        cooldown_minutes=5
+    ),
+
+    AlertRule(
+        name="DataFeedDelay",
+        condition=lambda: get_data_feed_delay() > 30,
+        severity="warning",
+        message="Market data feed delay exceeded 30 seconds",
+        cooldown_minutes=10
+    )
+]
+
+# Register rules
+for rule in rules:
+    alert_manager.add_rule(rule)
+
+# Start monitoring
+alert_manager.start_monitoring(interval_seconds=60)
+```
+
+## Best Practices
+
+### Metrics Collection
+
+1. **Use appropriate metric types**: Counters for events, gauges for states, histograms for distributions
+2. **Add relevant labels**: Include dimensions for filtering and aggregation
+3. **Avoid high cardinality**: Don't create metrics with unbounded label values
+4. **Use meaningful names**: Follow naming conventions (e.g., `http_requests_total`)
+
+### Logging Practices
+
+1. **Structured logging**: Use key-value pairs instead of free-form text
+2. **Appropriate log levels**: DEBUG for development, INFO for normal operations, WARN/ERROR for issues
+3. **Include context**: Add relevant IDs, timestamps, and metadata
+4. **Performance aware**: Avoid expensive operations in logging code
+
+### Alerting Guidelines
+
+1. **Alert on symptoms, not causes**: Alert when user experience is impacted
+2. **Set appropriate thresholds**: Use statistical analysis to determine normal ranges
+3. **Avoid alert fatigue**: Use appropriate cooldown periods and escalation
+4. **Include actionable information**: Alerts should contain enough context to investigate
+
+### Dashboard Design
+
+1. **Focus on key metrics**: Show the most important information prominently
+2. **Use consistent layouts**: Standardize dashboard layouts across teams
+3. **Include time ranges**: Allow users to view data across different time periods
+4. **Add documentation**: Include descriptions and links to runbooks
 
 ## Troubleshooting
 
-### Common Issues
+### Common Monitoring Issues
 
-1. **Container won't start**
-   - Check logs: `docker-compose logs monitoring-infrastructure`
-   - Verify port availability: `netstat -tulpn | grep 8090`
+#### Metrics Not Appearing
 
-2. **Metrics not appearing**
-   - Check Prometheus targets: http://localhost:9090/targets
-   - Verify metrics endpoint: `curl http://localhost:8090/metrics`
+```bash
+# Check Prometheus targets
+curl http://prometheus:9090/api/v1/targets
 
-3. **Grafana connection issues**
-   - Check Grafana logs: `docker-compose logs grafana`
-   - Verify datasource configuration in Grafana UI
+# Verify metrics endpoint
+curl http://localhost:8001/metrics
 
-### Performance Tuning
+# Check service discovery
+docker-compose logs prometheus
+```
 
-1. **High Memory Usage**
-   - Reduce metrics retention period
-   - Increase scrape intervals
-   - Limit number of metric labels
+#### Tracing Not Working
 
-2. **High CPU Usage**
-   - Reduce monitoring frequency
-   - Optimize alert rules
-   - Use metric aggregation
+```bash
+# Check Jaeger UI
+open http://localhost:16686
 
-## Development
+# Verify tracing configuration
+docker-compose logs jaeger
 
-### Adding New Metrics
-1. Define metric in `monitoring_infrastructure.py`
-2. Add collection logic in appropriate component
-3. Update Grafana dashboards if needed
-4. Add tests for new metrics
+# Test tracing manually
+curl -X POST http://localhost:14268/api/traces \
+  -H "Content-Type: application/json" \
+  -d @test_trace.json
+```
 
-### Adding New Health Checks
-1. Implement check function in `HealthChecker`
-2. Register the check in `_register_default_checks`
-3. Add tests for the new check
+#### Logs Not Appearing
 
-### Extending Alerting
-1. Add alert logic in `advanced_alerting_analytics.py`
-2. Update alert correlation rules
-3. Add notification channels if needed
+```bash
+# Check Loki logs
+curl "http://loki:3100/loki/api/v1/query?query={job=\"nautilus\"}"
+
+# Verify Promtail configuration
+docker-compose logs promtail
+
+# Test log shipping
+docker-compose exec promtail logcli query "{job=\"nautilus\"}"
+```
+
+### Performance Issues
+
+#### High Memory Usage
+
+```bash
+# Check memory metrics
+curl http://prometheus:9090/api/v1/query?query=process_resident_memory_bytes
+
+# Profile memory usage
+python -m memory_profiler script.py
+
+# Check for memory leaks
+python -c "
+import tracemalloc
+tracemalloc.start()
+# Run code
+snapshot = tracemalloc.take_snapshot()
+for stat in snapshot.statistics('lineno')[:10]:
+    print(stat)
+"
+```
+
+#### High CPU Usage
+
+```bash
+# Profile CPU usage
+python -m cProfile -s time script.py
+
+# Check system metrics
+curl http://prometheus:9090/api/v1/query?query=rate(process_cpu_user_seconds_total[5m])
+
+# Use py-spy for live profiling
+py-spy top --pid $(pgrep python)
+```
 
 ## Security Considerations
 
-- Change default Grafana password in production
-- Use HTTPS for external access
-- Implement authentication for monitoring APIs
-- Regularly update container images
-- Monitor access logs
+### Monitoring Security
 
-## Backup and Recovery
+1. **Access control**: Restrict access to monitoring dashboards and APIs
+2. **Data encryption**: Encrypt sensitive monitoring data at rest and in transit
+3. **Audit logging**: Log all access to monitoring systems
+4. **Network security**: Isolate monitoring traffic on private networks
 
-### Data Backup
-```bash
-# Backup Prometheus data
-docker-compose exec prometheus tar -czf /tmp/prometheus-backup.tar.gz /prometheus
+### Metrics Security
 
-# Backup Grafana dashboards
-docker-compose exec grafana tar -czf /tmp/grafana-backup.tar.gz /var/lib/grafana
-```
+1. **Sensitive data**: Avoid logging or metrics containing sensitive information
+2. **PII protection**: Anonymize or exclude personally identifiable information
+3. **Access logging**: Log all queries to metrics and logs
+4. **Rate limiting**: Implement rate limiting on monitoring endpoints
 
-### Recovery
-```bash
-# Restore from backup
-docker-compose down
-# Restore data volumes
-docker-compose up -d
-```
-
-## Scaling
+## Scaling Considerations
 
 ### Horizontal Scaling
-- Use Prometheus federation for multiple instances
-- Load balance monitoring APIs
-- Distribute alert processing
 
-### Vertical Scaling
-- Increase container resource limits
-- Optimize database queries
-- Use metric sampling for high-volume metrics
+```yaml
+# Docker Compose scaling
+services:
+  nautilus-trader-engine:
+    deploy:
+      replicas: 3
+    labels:
+      - "prometheus-job=nautilus"
+      - "prometheus-port=8001"
+```
 
-## Support
+### Monitoring at Scale
 
-For issues and questions:
-1. Check the troubleshooting section
-2. Review container logs
-3. Verify configuration files
-4. Test with minimal setup
+1. **Federated Prometheus**: Use federation for multi-region setups
+2. **Thanos**: Long-term storage and global querying
+3. **Cortex**: Horizontally scalable Prometheus backend
+4. **Loki scaling**: Use object storage for log scaling
 
-## License
+## Integration with CI/CD
 
-This monitoring infrastructure is part of the trading system project.
+### Automated Testing
+
+```yaml
+# CI pipeline with monitoring validation
+- name: Run integration tests
+  run: |
+    docker-compose up -d
+    sleep 30
+    python -m pytest tests/integration/ -v
+
+- name: Validate monitoring
+  run: |
+    # Check metrics are being collected
+    curl -f http://prometheus:9090/api/v1/query?query=up
+
+    # Check health endpoints
+    curl -f http://localhost:8000/health
+
+    # Validate dashboards
+    curl -f http://grafana:3000/api/health
+```
+
+### Deployment Monitoring
+
+```yaml
+# Deployment with monitoring
+- name: Deploy application
+  run: |
+    docker-compose up -d --scale nautilus-trader-engine=2
+
+- name: Wait for healthy deployment
+  run: |
+    for i in {1..30}; do
+      if curl -f http://localhost:8000/health; then
+        echo "Application is healthy"
+        break
+      fi
+      sleep 10
+    done
+
+- name: Validate metrics collection
+  run: |
+    # Ensure new instances are being monitored
+    instances=$(curl -s http://prometheus:9090/api/v1/query?query=up | jq '.data.result | length')
+    if [ "$instances" -lt 2 ]; then
+      echo "Not all instances are being monitored"
+      exit 1
+    fi
+```
+
+This comprehensive monitoring setup ensures the Nautilus Trader Engine maintains high availability, performance, and observability in production environments.

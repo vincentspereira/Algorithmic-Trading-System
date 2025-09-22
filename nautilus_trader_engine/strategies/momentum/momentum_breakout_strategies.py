@@ -22,8 +22,8 @@ from enum import Enum
 from datetime import datetime
 
 # Import base components
-from ..core.base_strategy import BaseStrategy, StrategyConfig
-from ..signal_generator import SignalGenerator, TradingSignal, SignalType, SignalStrength
+from ...core.base_strategy import BaseStrategy, StrategyConfig
+from ...architecture.pillars.signal_generation import SignalGenerator, MultiTimeframeSignal, SignalType, SignalStrength
 
 logger = logging.getLogger(__name__)
 
@@ -369,7 +369,7 @@ class PriceMomentumBreakoutStrategy(MomentumBreakoutStrategy):
         self.breakout_threshold = config.parameters.get('breakout_threshold', 2.0)
         self.confirmation_periods = config.parameters.get('confirmation_periods', 2)
     
-    def generate_signals(self, market_data: List[Dict]) -> List[TradingSignal]:
+    def generate_signals(self, market_data: List[Dict]) -> List[MultiTimeframeSignal]:
         """Generate price momentum breakout signals"""
         try:
             if len(market_data) < self.momentum_period + self.confirmation_periods:
@@ -401,7 +401,7 @@ class PriceMomentumBreakoutStrategy(MomentumBreakoutStrategy):
                     stop_loss = current_price - (2 * atr)
                     take_profit = current_price + (self.risk_reward_ratio * 2 * atr)
                     
-                    signal = TradingSignal(
+                    signal = MultiTimeframeSignal(
                         symbol=self.config.symbols[0],
                         signal_type=SignalType.BUY,
                         strength=self._determine_signal_strength(momentum_metrics),
@@ -435,7 +435,7 @@ class PriceMomentumBreakoutStrategy(MomentumBreakoutStrategy):
                     stop_loss = current_price + (2 * atr)
                     take_profit = current_price - (self.risk_reward_ratio * 2 * atr)
                     
-                    signal = TradingSignal(
+                    signal = MultiTimeframeSignal(
                         symbol=self.config.symbols[0],
                         signal_type=SignalType.SELL,
                         strength=self._determine_signal_strength(momentum_metrics),
@@ -499,7 +499,7 @@ class VolumeMomentumBreakoutStrategy(MomentumBreakoutStrategy):
         self.min_volume_spike = config.parameters.get('min_volume_spike', 2.0)
         self.price_confirmation = config.parameters.get('price_confirmation', True)
     
-    def generate_signals(self, market_data: List[Dict]) -> List[TradingSignal]:
+    def generate_signals(self, market_data: List[Dict]) -> List[MultiTimeframeSignal]:
         """Generate volume momentum breakout signals"""
         try:
             if len(market_data) < 20:
@@ -547,7 +547,7 @@ class VolumeMomentumBreakoutStrategy(MomentumBreakoutStrategy):
                         stop_loss = current_price + (2 * atr)
                         take_profit = current_price - (self.risk_reward_ratio * 2 * atr)
                     
-                    signal = TradingSignal(
+                    signal = MultiTimeframeSignal(
                         symbol=self.config.symbols[0],
                         signal_type=signal_type,
                         strength=self._determine_signal_strength(momentum_metrics),
@@ -612,7 +612,7 @@ class VolatilityMomentumBreakoutStrategy(MomentumBreakoutStrategy):
         self.volatility_expansion_ratio = config.parameters.get('volatility_expansion_ratio', 1.5)
         self.trend_confirmation = config.parameters.get('trend_confirmation', True)
     
-    def generate_signals(self, market_data: List[Dict]) -> List[TradingSignal]:
+    def generate_signals(self, market_data: List[Dict]) -> List[MultiTimeframeSignal]:
         """Generate volatility momentum breakout signals"""
         try:
             if len(market_data) < 30:
@@ -653,7 +653,7 @@ class VolatilityMomentumBreakoutStrategy(MomentumBreakoutStrategy):
                     else:
                         return signals  # No clear direction
                     
-                    signal = TradingSignal(
+                    signal = MultiTimeframeSignal(
                         symbol=self.config.symbols[0],
                         signal_type=signal_type,
                         strength=self._determine_signal_strength(momentum_metrics),

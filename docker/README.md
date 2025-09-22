@@ -1,417 +1,480 @@
-# Docker Development Environment
+# Docker Containerization for Nautilus Trader Engine
 
-This directory contains the Docker configuration for the Algorithmic Trading System development environment. The setup provides a complete, production-like environment that can be run locally with minimal configuration.
+This directory contains the complete Docker containerization setup for the Nautilus Trader Engine, providing production-ready containerized deployment with development, testing, and monitoring capabilities.
 
-## 🚀 Quick Start
+## Overview
+
+The Docker setup includes:
+
+- **Multi-stage Dockerfile** with optimized production builds
+- **Docker Compose** orchestration for complete stack deployment
+- **Development environment** with hot reloading
+- **GPU support** for machine learning workloads
+- **Monitoring stack** with Prometheus, Grafana, and ELK
+- **Database integration** with PostgreSQL and Redis
+- **Security hardening** with non-root users and minimal images
+
+## Quick Start
 
 ### Prerequisites
 
-- **Docker Desktop** (Windows/macOS) or **Docker Engine** (Linux)
-- **Docker Compose** v2.0 or higher
-- **Git** for cloning the repository
-- **PowerShell** (Windows) or **Bash** (Linux/macOS)
+```bash
+# Install Docker and Docker Compose
+# Linux/macOS
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
 
-### Installation
+# Windows (using Chocolatey)
+choco install docker-desktop
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd algorithmic-trading-system
-   ```
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.18.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
 
-2. **Run the setup script:**
-   
-   **Windows (PowerShell):**
-   ```powershell
-   .\scripts\setup-dev-environment.ps1
-   ```
-   
-   **Linux/macOS (Bash):**
-   ```bash
-   chmod +x scripts/setup-dev-environment.sh
-   ./scripts/setup-dev-environment.sh
-   ```
+### Basic Deployment
 
-3. **Access the application:**
-   - Frontend: http://localhost:3000
-   - API Gateway: http://localhost:8001
-   - API Documentation: http://localhost:8001/docs
+```bash
+# Clone the repository
+git clone https://github.com/your-org/nautilus-trader-engine.git
+cd nautilus-trader-engine
 
-## 📋 Services Overview
+# Start the complete stack
+docker-compose up -d
 
-### Core Application Services
+# Check service status
+docker-compose ps
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **Frontend** | 3000 | Next.js React application |
-| **API Gateway** | 8001 | FastAPI gateway and main API |
-| **Market Data Service** | 8002 | Real-time market data processing |
-| **Trading Engine** | 8003 | NautilusTrader-based trading engine |
-| **Portfolio Manager** | 8004 | Portfolio management and optimization |
-| **Risk Manager** | 8005 | Real-time risk monitoring |
-| **AI Assistant** | 8006 | Agentic AI assistant service |
+# View logs
+docker-compose logs -f nautilus-trader-engine
+```
 
-### Infrastructure Services
+### Development Environment
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **PostgreSQL** | 5432 | Primary database with pgvector |
-| **ClickHouse** | 8123, 9000 | Time-series analytics database |
-| **Redis** | 6379 | Caching and session storage |
-| **Apache Kafka** | 9092, 29092 | Event streaming platform |
-| **Zookeeper** | 2181 | Kafka coordination service |
-| **Schema Registry** | 8081 | Kafka schema management |
+```bash
+# Start development environment with hot reloading
+docker-compose --profile dev up -d
 
-### Background Services
+# Run tests in container
+docker-compose exec nautilus-dev python -m pytest
 
-| Service | Description |
-|---------|-------------|
-| **Celery Worker** | Background task processing |
-| **Celery Beat** | Scheduled task management |
+# Access development API
+curl http://localhost:8002/docs
+```
 
-### Monitoring & Observability
+## Architecture
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **Prometheus** | 9090 | Metrics collection |
-| **Grafana** | 3001 | Metrics visualization |
-| **Jaeger** | 16686 | Distributed tracing |
-| **Kafka UI** | 8080 | Kafka cluster management |
-| **Elasticsearch** | 9200 | Log aggregation |
+### Container Stages
 
-### AI & Development Tools
+The Dockerfile uses multi-stage builds for optimization:
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **Qdrant** | 6333 | Vector database for AI |
-| **Jupyter Lab** | 8888 | Interactive development |
-| **MinIO** | 9000, 9001 | S3-compatible object storage |
-| **Keycloak** | 8090 | Identity and access management |
+1. **base**: Common dependencies and system packages
+2. **development**: Full development environment with all tools
+3. **testing**: Runs automated tests and quality checks
+4. **builder**: Builds Python dependencies for production
+5. **production**: Minimal runtime image for production deployment
+6. **gpu**: GPU-enabled image for ML workloads
+7. **debug**: Troubleshooting image with debugging tools
+8. **minimal**: Ultra-lightweight image for specific use cases
 
-## 🔧 Configuration
+### Service Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐
+│   Load Balancer │    │     API Gateway │
+│     (nginx)     │    │   (traefik)     │
+└─────────────────┘    └─────────────────┘
+          │                       │
+          └───────────────────────┘
+                  │
+        ┌─────────────────┐
+        │ Nautilus Engine │
+        │   (main app)    │
+        └─────────────────┘
+          │         │
+          │         │
+┌─────────────────┐   ┌─────────────────┐
+│     Redis       │   │   PostgreSQL    │
+│     (cache)     │   │   (database)    │
+└─────────────────┘   └─────────────────┘
+          │
+          │
+┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
+│   Prometheus    │   │     Grafana     │   │   Node Exporter │
+│  (metrics)      │   │   (dashboards)  │   │   (system)      │
+└─────────────────┘   └─────────────────┘   └─────────────────┘
+```
+
+## Configuration
 
 ### Environment Variables
 
-The system uses a comprehensive `.env` file for configuration. Copy `.env.example` to `.env` and customize:
+Create a `.env` file for configuration:
 
 ```bash
-cp .env.example .env
+# Application
+ENVIRONMENT=production
+LOG_LEVEL=INFO
+MAX_WORKERS=4
+CACHE_SIZE_MB=512
+
+# Database
+POSTGRES_URL=postgresql://nautilus:password@postgres:5432/nautilus_trader
+REDIS_URL=redis://redis:6379/0
+
+# External APIs
+ALPHA_VANTAGE_API_KEY=your_key_here
+FINNHUB_API_KEY=your_key_here
+
+# Security
+SECRET_KEY=your-secret-key-here
+JWT_SECRET_KEY=your-jwt-secret-here
+
+# GPU (optional)
+GPU_ENABLED=0
+CUDA_VISIBLE_DEVICES=0
 ```
-
-**Key Configuration Sections:**
-
-- **Database Settings:** PostgreSQL, ClickHouse, Redis connections
-- **Message Broker:** Kafka and Zookeeper configuration
-- **Market Data:** API keys for data providers
-- **Trading:** Broker configurations (Interactive Brokers)
-- **AI Services:** OpenAI, Anthropic API keys
-- **Security:** JWT secrets, encryption keys
-- **Monitoring:** Service discovery and alerting
 
 ### Docker Compose Profiles
 
-The system supports multiple profiles for different use cases:
+Use profiles to run different service combinations:
 
 ```bash
-# Basic development (default)
-docker compose --profile development up
+# Production stack
+docker-compose up -d
 
-# With monitoring services
-docker compose --profile development --profile monitoring up
+# Development with monitoring
+docker-compose --profile dev --profile monitoring up -d
 
-# Full setup with AI services
-docker compose --profile development --profile monitoring --profile ai up
+# GPU-enabled deployment
+docker-compose --profile gpu up -d
 
-# Testing environment
-docker compose --profile testing up
+# Full observability stack
+docker-compose --profile monitoring --profile logging up -d
 ```
 
-## 🛠️ Development Workflow
+## Usage Examples
 
-### Starting the Environment
-
-1. **Full setup with monitoring:**
-   ```bash
-   ./scripts/setup-dev-environment.sh -m
-   ```
-
-2. **With AI services:**
-   ```bash
-   ./scripts/setup-dev-environment.sh -a -m
-   ```
-
-3. **Clean restart:**
-   ```bash
-   ./scripts/setup-dev-environment.sh -c
-   ```
-
-### Common Commands
+### Basic Trading Operations
 
 ```bash
-# View service status
-docker compose ps
+# Start the engine
+docker-compose up -d nautilus-trader-engine
 
-# View logs for all services
-docker compose logs -f
+# Check health
+curl http://localhost:8000/health
 
-# View logs for specific service
-docker compose logs -f api-gateway
+# Get system status
+curl http://localhost:8000/api/v1/status
 
-# Restart a service
-docker compose restart trading-engine
-
-# Execute commands in a container
-docker compose exec api-gateway /bin/bash
-
-# Stop all services
-docker compose down
-
-# Stop and remove volumes (⚠️ data loss)
-docker compose down --volumes
+# Run a backtest
+curl -X POST http://localhost:8000/api/v1/backtest \
+  -H "Content-Type: application/json" \
+  -d @backtest_config.json
 ```
 
-### Hot Reloading
-
-The development environment supports hot reloading:
-
-- **Frontend:** Next.js hot reload on file changes
-- **Backend:** FastAPI auto-reload on Python file changes
-- **Jupyter:** Notebooks auto-save and reload
-
-### Database Access
-
-**PostgreSQL:**
-```bash
-# Connect to PostgreSQL
-docker compose exec postgres psql -U postgres -d trading_system
-
-# Or use external client
-psql postgresql://postgres:trading_password_2024@localhost:5432/trading_system
-```
-
-**ClickHouse:**
-```bash
-# Connect to ClickHouse
-docker compose exec clickhouse clickhouse-client
-
-# Or via HTTP
-curl "http://localhost:8123/?query=SELECT%20version()"
-```
-
-**Redis:**
-```bash
-# Connect to Redis
-docker compose exec redis redis-cli
-```
-
-## 📊 Monitoring & Debugging
-
-### Health Checks
-
-All services include health checks. Monitor service health:
+### Development Workflow
 
 ```bash
-# Check service health
-docker compose ps
+# Start development environment
+docker-compose --profile dev up -d
 
-# View health check logs
-docker compose logs [service-name] | grep health
+# Run tests
+docker-compose exec nautilus-dev python -m pytest tests/unit/
+
+# Run linting
+docker-compose exec nautilus-dev flake8 nautilus_trader_engine/
+
+# Generate documentation
+docker-compose exec nautilus-dev python scripts/generate_docs.py
 ```
 
-### Prometheus Metrics
-
-Access Prometheus at http://localhost:9090 to query metrics:
-
-- **Application metrics:** Custom business metrics
-- **Infrastructure metrics:** CPU, memory, disk usage
-- **Trading metrics:** Order latency, execution rates
-- **Market data metrics:** Feed latency, message rates
-
-### Grafana Dashboards
-
-Access Grafana at http://localhost:3001 (admin/grafana_admin_2024):
-
-- **System Overview:** Infrastructure health
-- **Trading Performance:** Trading metrics and KPIs
-- **Market Data:** Data feed monitoring
-- **Application Performance:** Service response times
-
-### Distributed Tracing
-
-Access Jaeger at http://localhost:16686 for request tracing:
-
-- **End-to-end request tracking**
-- **Performance bottleneck identification**
-- **Service dependency mapping**
-
-## 🔒 Security Considerations
-
-### Development vs Production
-
-**Development Environment:**
-- Simplified authentication
-- Exposed ports for debugging
-- Relaxed security policies
-- Default credentials (change in production)
-
-**Production Deployment:**
-- Enable TLS/SSL encryption
-- Use secrets management (Vault, AWS Secrets Manager)
-- Implement proper network segmentation
-- Enable audit logging
-- Use production-grade credentials
-
-### Secrets Management
+### Database Operations
 
 ```bash
-# Never commit secrets to version control
-echo ".env" >> .gitignore
+# Access PostgreSQL
+docker-compose exec postgres psql -U nautilus -d nautilus_trader
 
-# Use environment-specific .env files
-cp .env.example .env.development
-cp .env.example .env.production
+# Access Redis CLI
+docker-compose exec redis redis-cli
+
+# Backup database
+docker-compose exec postgres pg_dump -U nautilus nautilus_trader > backup.sql
+
+# Restore database
+docker-compose exec -T postgres psql -U nautilus nautilus_trader < backup.sql
 ```
 
-## 🧪 Testing
-
-### Running Tests
+### Monitoring
 
 ```bash
-# Run all tests
-docker compose --profile testing run --rm test-runner pytest
+# Access Grafana dashboards
+open http://localhost:3000  # admin/admin
 
-# Run specific test suite
-docker compose exec api-gateway pytest tests/unit/
+# Access Prometheus metrics
+open http://localhost:9090
 
-# Run integration tests
-docker compose exec api-gateway pytest tests/integration/
-
-# Run with coverage
-docker compose exec api-gateway pytest --cov=src tests/
+# Query metrics
+curl "http://localhost:9090/api/v1/query?query=up"
 ```
 
-### Test Databases
+## Advanced Configuration
 
-The testing profile includes isolated test databases:
+### Custom Docker Images
 
-- **Test PostgreSQL:** Separate database for tests
-- **Test Redis:** Separate Redis instance
-- **Test Kafka:** Isolated Kafka topics
+Build custom images for specific requirements:
 
-## 📈 Performance Optimization
+```dockerfile
+# Dockerfile.custom
+FROM nautilus-trader-engine:latest
 
-### Resource Limits
+# Add custom dependencies
+RUN pip install custom-package==1.0.0
 
-For production, uncomment and adjust resource limits in `.env`:
+# Add custom configuration
+COPY custom-config.yml /app/config/
+
+# Set custom entrypoint
+CMD ["python", "-m", "my_custom_entrypoint"]
+```
+
+### Kubernetes Deployment
+
+Use the Docker images in Kubernetes:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nautilus-trader
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nautilus-trader
+  template:
+    metadata:
+      labels:
+        app: nautilus-trader
+    spec:
+      containers:
+      - name: nautilus
+        image: nautilus-trader-engine:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+```
+
+### GPU Support
+
+For GPU workloads:
 
 ```bash
-# Memory limits
-POSTGRES_MEMORY_LIMIT=2g
-REDIS_MEMORY_LIMIT=1g
-KAFKA_MEMORY_LIMIT=2g
+# Ensure NVIDIA Docker is installed
+# https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
-# CPU limits
-POSTGRES_CPU_LIMIT=1.0
-REDIS_CPU_LIMIT=0.5
+# Run GPU-enabled container
+docker run --gpus all -p 8000:8000 nautilus-trader-engine:gpu
+
+# Or with docker-compose
+docker-compose --profile gpu up -d
 ```
 
-### Volume Optimization
+## Security
+
+### Container Security
+
+- **Non-root user**: All containers run as non-root user
+- **Minimal base images**: Use slim/alpine images where possible
+- **No privileged containers**: No privileged mode or host mounts
+- **Read-only filesystems**: Use read-only root filesystems where possible
+
+### Network Security
+
+- **Internal networks**: Services communicate on private networks
+- **No exposed ports**: Only necessary ports are exposed
+- **Environment variables**: Sensitive data passed via environment variables
+- **Secrets management**: Use Docker secrets or external secret managers
+
+### Image Security
 
 ```bash
-# Use named volumes for better performance
-docker volume ls
+# Scan images for vulnerabilities
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+  aquasec/trivy image nautilus-trader-engine:latest
 
-# Backup important volumes
-docker run --rm -v postgres_data:/data -v $(pwd):/backup alpine tar czf /backup/postgres_backup.tar.gz /data
+# Sign images
+docker trust sign nautilus-trader-engine:latest
+
+# Use trusted base images
+FROM python:3.11-slim@sha256:...
 ```
 
-## 🚨 Troubleshooting
+## Performance Optimization
+
+### Image Optimization
+
+```dockerfile
+# Use multi-stage builds
+FROM python:3.11-slim as builder
+# Build dependencies
+FROM python:3.11-slim as production
+# Copy only necessary files
+
+# Use .dockerignore
+# Exclude unnecessary files
+
+# Optimize layer caching
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+```
+
+### Runtime Optimization
+
+```bash
+# Set appropriate resource limits
+docker run --memory=2g --cpus=2 nautilus-trader-engine:latest
+
+# Use health checks
+docker run --health-cmd="curl -f http://localhost:8000/health" \
+  --health-interval=30s nautilus-trader-engine:latest
+
+# Optimize for specific workloads
+docker run --read-only --tmpfs /tmp nautilus-trader-engine:latest
+```
+
+## Troubleshooting
 
 ### Common Issues
 
-**Port Conflicts:**
+**Container won't start**
 ```bash
-# Check port usage
-netstat -tulpn | grep :3000
+# Check logs
+docker-compose logs nautilus-trader-engine
 
-# Kill process using port
-sudo kill -9 $(lsof -t -i:3000)
-```
-
-**Memory Issues:**
-```bash
-# Check Docker memory usage
+# Check resource usage
 docker stats
 
-# Increase Docker Desktop memory limit
-# Docker Desktop → Settings → Resources → Memory
+# Verify configuration
+docker-compose config
 ```
 
-**Service Won't Start:**
+**Database connection issues**
 ```bash
-# Check service logs
-docker compose logs [service-name]
-
-# Check service configuration
-docker compose config
-
-# Validate compose file
-docker compose config --quiet
-```
-
-**Database Connection Issues:**
-```bash
-# Test database connectivity
-docker compose exec api-gateway python -c "import psycopg2; print('PostgreSQL OK')"
-
 # Check database logs
-docker compose logs postgres
+docker-compose logs postgres
+
+# Test connection
+docker-compose exec nautilus-trader-engine python -c "
+import psycopg2
+conn = psycopg2.connect('postgresql://nautilus:password@postgres:5432/nautilus_trader')
+print('Database connection successful')
+"
 ```
 
-### Performance Issues
+**Memory issues**
+```bash
+# Monitor memory usage
+docker stats
+
+# Adjust memory limits
+docker-compose up -d --scale nautilus-trader-engine=1
+```
+
+**GPU issues**
+```bash
+# Check GPU availability
+docker run --rm --gpus all nvidia/cuda:11.8-base nvidia-smi
+
+# Verify GPU support in container
+docker run --rm --gpus all nautilus-trader-engine:gpu python -c "
+import torch
+print('CUDA available:', torch.cuda.is_available())
+"
+```
+
+### Debugging
 
 ```bash
-# Monitor resource usage
-docker stats --no-stream
+# Access container shell
+docker-compose exec nautilus-trader-engine bash
 
-# Check disk usage
-docker system df
+# Run debug container
+docker run -it --entrypoint bash nautilus-trader-engine:debug
 
-# Clean up unused resources
-docker system prune -a
+# View container logs
+docker logs nautilus-trader-engine
+
+# Follow logs in real-time
+docker logs -f nautilus-trader-engine
 ```
 
-### Network Issues
+## CI/CD Integration
 
-```bash
-# List Docker networks
-docker network ls
+### GitHub Actions Example
 
-# Inspect network configuration
-docker network inspect algorithmic-trading-system_trading-network
+```yaml
+name: Docker CI/CD
 
-# Test service connectivity
-docker compose exec api-gateway ping postgres
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build Docker image
+      run: docker build -t nautilus-trader-engine:test .
+    - name: Run tests
+      run: docker run nautilus-trader-engine:test python -m pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build and push Docker image
+      run: |
+        docker build -t nautilus-trader-engine:latest .
+        docker tag nautilus-trader-engine:latest ghcr.io/${{ github.repository }}/nautilus-trader-engine:latest
+        docker push ghcr.io/${{ github.repository }}/nautilus-trader-engine:latest
 ```
 
-## 📚 Additional Resources
+## Contributing
 
-- **Docker Documentation:** https://docs.docker.com/
-- **Docker Compose Reference:** https://docs.docker.com/compose/
-- **FastAPI Documentation:** https://fastapi.tiangolo.com/
-- **Next.js Documentation:** https://nextjs.org/docs
-- **NautilusTrader Documentation:** https://nautilustrader.io/
+When contributing to the Docker setup:
 
-## 🤝 Contributing
+1. **Test changes locally** before committing
+2. **Update documentation** for any configuration changes
+3. **Follow security best practices** for container images
+4. **Optimize for performance** and minimal image sizes
+5. **Add health checks** for new services
+6. **Update CI/CD pipelines** for deployment changes
 
-When contributing to the Docker configuration:
+## Support
 
-1. **Test changes locally** with different profiles
-2. **Update documentation** for new services
-3. **Maintain backward compatibility** when possible
-4. **Follow security best practices**
-5. **Update health checks** for new services
+For Docker-related issues:
 
-## 📄 License
+- Check the [Docker Documentation](https://docs.docker.com/)
+- Review [Docker Compose Documentation](https://docs.docker.com/compose/)
+- Create an issue in the main repository
+- Check existing issues for similar problems
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## License
+
+This Docker setup is part of the Nautilus Trader Engine project and follows the same license terms.

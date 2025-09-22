@@ -34,13 +34,14 @@ from scipy import stats
 
 # Import base strategy class and required modules
 from ...core.base_strategy import BaseRetailStrategy
-from ....core.risk_management import RiskParameters, PositionSizer
-from ....core.market_regime import MarketRegimeDetector, MarketRegime
-from ....indicators.technical_indicators import TechnicalIndicators
-from ....indicators.candlestick_patterns import CandlestickPatterns
-from ....core.signal_generator import Signal, SignalType, SignalStrength
-from ....core.execution_engine import ExecutionIntent, OrderType
-from ....core.performance_tracker import PerformanceMetrics
+from ...architecture.pillars.risk_management import RiskParameters
+from ...utils.risk_management_utils import PositionSizer
+from ...architecture.pillars.market_regime_detection import MarketRegimeDetector, MarketRegime
+from ...indicators.technical_indicators import TechnicalIndicators
+from ...indicators.candlestick_patterns import CandlestickPatterns
+from ...architecture.pillars.signal_generation import Signal, SignalType, SignalStrength
+from ...architecture.pillars.execution_intent import ExecutionIntent, OrderType
+from ...utils.performance_tracker import PerformanceMetrics
 
 
 class GapType(Enum):

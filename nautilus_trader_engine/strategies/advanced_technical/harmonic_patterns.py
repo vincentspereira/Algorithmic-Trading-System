@@ -41,7 +41,7 @@ except ImportError:
     np = None
 
 # Base strategy components
-from ..pairs_trading_strategies import (
+from ..base_strategy import (
     StrategyType, PositionType, SignalStrength,
     TradingSignal, Position, StrategyConfig
 )

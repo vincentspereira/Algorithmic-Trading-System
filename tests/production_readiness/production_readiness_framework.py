@@ -1405,18 +1405,10 @@ class ComplianceValidator:
         
         return results
 
+# Add missing import for random
+import random
+
 class ProductionReadinessValidator:
-    """Main production readiness validation orchestrator"""
-    
-    def __init__(self, environment: str = "production", version: str = "1.0.0"):
-        self.environment = environment
-        self.version = version
-        self.security_validator = SecurityValidator()
-        self.performance_validator = PerformanceValidator()
-        self.compliance_validator = ComplianceValidator()
-        self.validation_results = []
-    
-    async def run_comprehensive_validation(self) -> ProductionReadinessReport:
         """Run comprehensive production readiness validation"""
         logger.info(f"Starting comprehensive production readiness validation for {self.environment}")
         

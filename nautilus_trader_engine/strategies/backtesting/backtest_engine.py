@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 from .config import BacktestConfig, BacktestMode, TransactionCosts
 from .results import BacktestResults, Trade, Position, PortfolioSnapshot, TradeType, TradeStatus
 from .metrics import MetricsCalculator
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 # Setup logging

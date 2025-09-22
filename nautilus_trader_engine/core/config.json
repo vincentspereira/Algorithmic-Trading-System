@@ -1,0 +1,228 @@
+{
+  "version": "5.0.0",
+  "environment": "development",
+  "debug": true,
+  "log_level": "INFO",
+  "timezone": "UTC",
+  "data_retention_days": 365,
+  "backup_interval_hours": 24,
+  "health_check_interval": 60,
+  "metrics_collection_interval": 30,
+
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "trading_system",
+    "username": "trading_user",
+    "password": "${DATABASE_PASSWORD}",
+    "ssl_mode": "require",
+    "connection_pool_size": 10,
+    "connection_timeout": 30
+  },
+
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "password": null,
+    "db": 0,
+    "connection_pool_size": 10,
+    "socket_timeout": 5
+  },
+
+  "trading": {
+    "max_position_size": 100000.0,
+    "max_daily_loss": 50000.0,
+    "max_drawdown": 0.1,
+    "risk_per_trade": 0.02,
+    "commission_rate": 0.0005,
+    "slippage_tolerance": 0.001,
+    "max_orders_per_minute": 60
+  },
+
+  "indicators": {
+    "default_timeframe": "1m",
+    "warmup_periods": 100,
+    "max_calculation_time": 1.0,
+    "cache_enabled": true,
+    "cache_ttl": 300,
+    "parallel_processing": true,
+    "max_workers": 4
+  },
+
+  "strategies": {
+    "max_active_strategies": 10,
+    "signal_timeout": 30,
+    "execution_timeout": 10,
+    "max_concurrent_orders": 5,
+    "risk_management_enabled": true,
+    "performance_tracking_enabled": true
+  },
+
+  "engines": {
+    "multi_timeframe_engine": {
+      "enabled": true,
+      "timeframes": ["1m", "5m", "15m", "1h", "4h", "1d"],
+      "max_concurrent_calculations": 8,
+      "cache_enabled": true,
+      "cache_ttl": 60
+    },
+    "smart_money_engine": {
+      "enabled": true,
+      "order_flow_tracking": true,
+      "institutional_detection": true,
+      "market_impact_analysis": true,
+      "minimum_trade_size": 10000
+    }
+  },
+
+  "data_feeds": {
+    "primary": "interactive_brokers",
+    "fallback": ["yahoo_finance", "alpha_vantage", "finnhub"],
+    "cache_enabled": true,
+    "cache_ttl": 300,
+    "rate_limiting": {
+      "requests_per_minute": 60,
+      "burst_limit": 10
+    }
+  },
+
+  "brokers": {
+    "interactive_brokers": {
+      "enabled": true,
+      "host": "127.0.0.1",
+      "port": 7497,
+      "client_id": 1,
+      "account": "${IB_ACCOUNT}",
+      "paper_trading": true
+    },
+    "alpaca": {
+      "enabled": true,
+      "api_key": "${ALPACA_API_KEY}",
+      "api_secret": "${ALPACA_API_SECRET}",
+      "paper_trading": true
+    }
+  },
+
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "port": 9090,
+      "metrics_path": "/metrics"
+    },
+    "grafana": {
+      "enabled": true,
+      "port": 3000,
+      "admin_user": "admin",
+      "admin_password": "${GRAFANA_PASSWORD}"
+    },
+    "alerting": {
+      "email_enabled": true,
+      "slack_enabled": false,
+      "alert_rules": {
+        "high_cpu_usage": 90.0,
+        "high_memory_usage": 85.0,
+        "max_drawdown_alert": 0.05,
+        "daily_loss_alert": 10000.0
+      }
+    }
+  },
+
+  "security": {
+    "jwt_secret": "${JWT_SECRET}",
+    "jwt_expiration_hours": 24,
+    "bcrypt_rounds": 12,
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst_limit": 10
+    },
+    "cors_origins": [
+      "http://localhost:3000",
+      "http://localhost:3001"
+    ]
+  },
+
+  "ai_assistant": {
+    "enabled": true,
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "rag_enabled": true,
+    "vector_db": "qdrant",
+    "embedding_model": "text-embedding-ada-002"
+  },
+
+  "backtesting": {
+    "enabled": true,
+    "default_capital": 100000.0,
+    "commission_model": "percentage",
+    "slippage_model": "fixed",
+    "parallel_execution": true,
+    "max_workers": 4,
+    "cache_results": true,
+    "result_retention_days": 30
+  },
+
+  "optimization": {
+    "enabled": true,
+    "optimizer": "optuna",
+    "max_trials": 100,
+    "timeout_minutes": 60,
+    "parallel_trials": 4,
+    "early_stopping": true,
+    "pruner": "median"
+  },
+
+  "logging": {
+    "console": {
+      "enabled": true,
+      "level": "INFO",
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "file": {
+      "enabled": true,
+      "level": "DEBUG",
+      "filename": "logs/trading_system.log",
+      "max_bytes": 10485760,
+      "backup_count": 5,
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "syslog": {
+      "enabled": false,
+      "host": "localhost",
+      "port": 514,
+      "facility": "local0"
+    }
+  },
+
+  "plugins": {
+    "enabled": true,
+    "auto_discovery": true,
+    "plugin_directories": [
+      "plugins/indicators",
+      "plugins/strategies",
+      "plugins/engines"
+    ],
+    "trusted_plugins": [
+      "volume_weighted_indicators",
+      "machine_learning_indicators",
+      "risk_management_strategies"
+    ]
+  },
+
+  "performance": {
+    "profiling_enabled": false,
+    "memory_monitoring": true,
+    "cpu_monitoring": true,
+    "disk_monitoring": true,
+    "network_monitoring": false,
+    "metrics_export_interval": 30
+  },
+
+  "experimental": {
+    "quantum_computing": false,
+    "neural_network_acceleration": false,
+    "blockchain_integration": false,
+    "decentralized_execution": false
+  }
+}

@@ -8,4 +8,3 @@ echo Calling pytest...
 pytest tests/unit/test_unit_portfolio_management.py --cov=. --cov-report=html --cov-report=term-missing -v
 echo Pytest execution finished.
 echo See test_output.txt for results.
-cmd /k

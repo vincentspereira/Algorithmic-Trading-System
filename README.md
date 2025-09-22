@@ -330,18 +330,47 @@ Comprehensive documentation is available in the `/docs` directory and module-spe
 ### Project Structure
 ```
 ├── nautilus_trader_engine/     # Core trading engine and APIs
-│   ├── api/                   # FastAPI routers and middleware
-│   ├── indicators/            # 55+ Custom volume-weighted technical indicators
-│   │   ├── core/              # Core indicator implementations
-│   │   ├── volume_weighted/   # Volume-weighted indicator suite
-│   │   ├── candlestick/       # Pattern recognition algorithms
-│   │   └── README.md          # Comprehensive indicator documentation
-│   ├── services/              # Business logic services
-│   └── strategies/            # Comprehensive trading strategy framework
-│       ├── core/              # Base strategy classes and managers
-│       ├── examples/          # Example strategy implementations
-│       ├── templates/         # Strategy development templates
-│       └── README.md          # Strategy development guide
+│   ├── core/                  # Core infrastructure and base classes
+│   ├── analysis/              # Analysis components and algorithms
+│   │   ├── indicators/        # 55+ Custom volume-weighted technical indicators
+│   │   │   ├── trend/         # Trend indicators (ADX, MACD, RSI, etc.)
+│   │   │   ├── momentum/      # Momentum indicators (RSI, Stochastic, etc.)
+│   │   │   ├── volatility/    # Volatility indicators (ATR, Bollinger Bands)
+│   │   │   ├── volume/        # Volume indicators (OBV, MFI, VWAP)
+│   │   │   ├── volume_weighted/ # Volume-weighted variants
+│   │   │   ├── moving_averages/ # Moving averages (SMA, EMA, etc.)
+│   │   │   ├── pair_trading/  # Pair trading indicators
+│   │   │   ├── machine_learning/ # ML-based indicators
+│   │   │   ├── seasonal/      # Seasonal analysis indicators
+│   │   │   ├── custom/        # Custom composite indicators
+│   │   │   ├── composite/     # Composite indicator combinations
+│   │   │   └── misc/          # Miscellaneous indicators
+│   │   ├── patterns/          # Pattern recognition algorithms
+│   │   │   ├── candlestick/   # Candlestick pattern analysis
+│   │   │   ├── chart/         # Chart pattern recognition
+│   │   │   ├── pattern_detectors/ # Pattern detection algorithms
+│   │   │   └── harmonic/      # Harmonic pattern analysis
+│   │   └── market_structure/  # Market structure analysis
+│   │       ├── support_resistance/ # Support/resistance analysis
+│   │       ├── fibonacci/     # Fibonacci analysis
+│   │       ├── gann/          # Gann analysis
+│   │       ├── elliot/        # Elliott Wave analysis
+│   │       └── order_flow/    # Order flow analysis
+│   ├── engines/               # Specialized analysis engines
+│   │   ├── multi_timeframe_engine/ # Multi-timeframe analysis
+│   │   └── smart_money_engine/ # Smart money tracking
+│   ├── strategies/            # Comprehensive trading strategy framework
+│   │   ├── single_asset/      # Single asset trading strategies
+│   │   ├── multi_asset/       # Multi-asset trading strategies
+│   │   ├── pair_trading/      # Pair trading strategies
+│   │   └── execution/         # Execution strategies
+│   ├── integration/           # External integrations
+│   │   ├── data_feeds/        # Market data integrations
+│   │   ├── brokers/           # Broker integrations
+│   │   └── analytics/         # Analytics platform integrations
+│   ├── tests/                 # Comprehensive testing framework
+│   ├── docs/                  # Auto-generated documentation
+│   └── api/                   # FastAPI routers and middleware
 ├── ai_assistant/              # AI services and agents
 │   ├── models/                # ML models and training
 │   ├── rag_pipeline/          # Document processing
@@ -452,6 +481,6 @@ Private repository - All rights reserved.
 
 ---
 
-**Status**: Core Trading Complete with Enhanced Indicators & Strategies (78% Complete)  
-**Last Updated**: January 15, 2025  
-**Version**: 4.2.0
+**Status**: Institutional-Grade Architecture with 5-Pillar Strategy Framework (85% Complete)
+**Last Updated**: September 21, 2025
+**Version**: 5.0.0

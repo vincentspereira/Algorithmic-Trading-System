@@ -11,7 +11,7 @@ import pandas as pd
 from scipy import stats
 from sklearn.linear_model import LinearRegression
 import warnings
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 warnings.filterwarnings('ignore')
 

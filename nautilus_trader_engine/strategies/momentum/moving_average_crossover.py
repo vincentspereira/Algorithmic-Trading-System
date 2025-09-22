@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional, Dict, Any
 import logging
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 logger = logging.getLogger(__name__)

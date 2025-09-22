@@ -15,7 +15,7 @@ from nautilus_trader.strategy import Strategy
 from stable_baselines3.common.base_class import BaseAlgorithm
 
 from nautilus_trader_engine.rl.environment import NautilusTradingEnv
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 

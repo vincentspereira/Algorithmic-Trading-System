@@ -30,13 +30,26 @@ except ImportError:
     pd = None
     np = None
 
-# Strategy modules - import from actual pairs_trading directory
+# Import StrategyConfig from the correct location
 try:
-    from ..pairs_trading.pairs_strategies import (
-        StrategyType, PositionType, SignalStrength,
-        TradingSignal, Position, StrategyConfig
-    )
+    from .strategy_config_schema import StrategyConfig
 except ImportError:
+    # Fallback if schema is not available
+    class StrategyConfig:
+        def __init__(self, *args, **kwargs):
+            pass
+
+# Strategy modules - import from actual pair_trading directory
+try:
+    from ..pair_trading import (
+        StrategyType, PositionType, SignalStrength,
+        TradingSignal, Position
+    )
+    # Add a log to confirm successful import
+    logging.info("Successfully imported from pair_trading package")
+except ImportError as e:
+    # Add a log to show the import error
+    logging.error(f"Failed to import from pair_trading package: {e}")
     # Define basic types if pairs_trading not available
     from enum import Enum
     
@@ -44,6 +57,9 @@ except ImportError:
         PAIRS_TRADING = "pairs_trading"
         MOMENTUM = "momentum"
         MEAN_REVERSION = "mean_reversion"
+        CONVERGENCE = "convergence"
+        DIVERGENCE = "divergence"
+        ADAPTIVE = "adaptive"
     
     class PositionType(Enum):
         LONG = "long"
@@ -60,12 +76,9 @@ except ImportError:
     
     class Position:
         pass
-    
-    class StrategyConfig:
-        pass
 
 try:
-    from ..pairs_trading import (
+    from ..pair_trading import (
         PairsStrategy, ConvergenceStrategy, DivergenceStrategy,
         PairSelector, CorrelationAnalyzer, SpreadIndicators,
         PairsRiskManager, PairsPerformanceAnalyzer
@@ -461,8 +474,64 @@ class StrategyFactory:
             self.logger.error(f"Error cloning strategy: {e}")
             return None
 
+class AugmentedStrategyFactory(BaseStrategyFactory):
+    """Factory for augmented trading strategies"""
+
+    def _register_blueprints(self):
+        """Register augmented strategy blueprints"""
+        self.blueprints["augmented_momentum"] = StrategyBlueprint(
+            name="Augmented Momentum Strategy",
+            strategy_type="augmented_momentum",
+            category="augmented_strategies",
+            default_config=StrategyConfig(
+                strategy_type=StrategyType.MOMENTUM,
+                symbols=["SPY"],
+                timeframe="1d",
+                initial_capital=10000.0,
+                max_position_size=0.1,
+                stop_loss=0.05,
+                take_profit=0.1,
+                parameters={
+                    "momentum_period": 20,
+                    "regime_threshold": 0.5,
+                }
+            ),
+            description="Momentum strategy with augmented features",
+            risk_level="medium",
+            min_capital=5000.0,
+            recommended_timeframes=["1d", "4h"],
+            asset_classes=["stocks", "etfs"]
+        )
+
+    def create_strategy(self, blueprint_name: str, config: Optional[StrategyConfig] = None) -> Any:
+        """Create augmented strategy"""
+        from ..momentum.augmented_momentum_strategy import AugmentedMomentumStrategy
+
+        blueprint = self.get_blueprint(blueprint_name)
+        if not blueprint:
+            self.logger.error(f"Blueprint {blueprint_name} not found")
+            return None
+
+        strategy_config = config or blueprint.default_config
+
+        if not self.validate_config(blueprint_name, strategy_config):
+            self.logger.error(f"Invalid configuration for {blueprint_name}")
+            return None
+
+        try:
+            if blueprint.strategy_type == "augmented_momentum":
+                return AugmentedMomentumStrategy(strategy_config)
+            else:
+                self.logger.error(f"Unknown augmented strategy type: {blueprint.strategy_type}")
+                return None
+
+        except Exception as e:
+            self.logger.error(f"Error creating augmented strategy: {e}")
+            return None
+
 # Global factory instance
 strategy_factory = StrategyFactory()
+strategy_factory.register_factory("augmented_strategies", AugmentedStrategyFactory())
 
 # Convenience functions
 def create_strategy(category: str, blueprint_name: str, 

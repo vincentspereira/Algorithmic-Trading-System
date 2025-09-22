@@ -30,15 +30,15 @@ from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 import json
 
-from ..BaseInstitutionalStrategy import (
+from ..core.base_institutional_strategy import (
     BaseInstitutionalStrategy, IndicatorSignal, RiskParameters, ExecutionIntent,
     SignalType, MarketRegime, ExecutionAction, ExecutionAlgorithm, ExecutionUrgency, TimeInForce
 )
 from ..indicators.traditional.volatility_indicators import VolatilityIndicators
 from ..indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators
 from ..indicators.traditional.momentum_indicators import MomentumIndicators
-from ..risk_management_utils import RiskManagementUtils
-from ..execution_intent_utils import ExecutionIntentUtils
+from ..utils.risk_management_utils import RiskManagementUtils
+from ..utils.execution_intent_utils import ExecutionIntentUtils
 
 
 class BollingerSqueezeStrategy(BaseInstitutionalStrategy):

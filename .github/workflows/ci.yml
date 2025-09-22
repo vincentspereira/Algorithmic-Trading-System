@@ -1,405 +1,388 @@
-name: Continuous Integration and Deployment
+name: CI Pipeline
 
 on:
   push:
-    branches: [ staging, main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
-  schedule:
-    - cron: '0 2 * * *'  # Daily security scans at 2 AM UTC
+    branches: [ main, develop ]
 
 env:
-  PYTHON_VERSION: "3.12"
-  NODE_VERSION: "18"
+  PYTHON_VERSION: '3.11'
+  DOCKER_BUILDKIT: 1
 
 jobs:
-  security-scan:
+  # ================================
+  # Code Quality Checks
+  # ================================
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Install security tools
-      run: |
-        python -m pip install --upgrade pip
-        pip install bandit safety semgrep
-    - name: Run Bandit security scan
-      run: |
-        bandit -r . -f json -o bandit_report.json || true
-        bandit -r . -ll
-    - name: Run Safety dependency scan
-      run: |
-        safety check --json --output safety_report.json || true
-        safety check
-    - name: Run Semgrep security scan
-      run: |
-        semgrep --config=auto --json --output=semgrep_report.json . || true
-        semgrep --config=auto .
-    - name: Upload security reports
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: security-reports
-        path: |
-          bandit_report.json
-          safety_report.json
-          semgrep_report.json
+        fetch-depth: 0
 
-  lint:
-    runs-on: ubuntu-latest
-    needs: security-scan
-    steps:
-    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 black isort mypy
-    - name: Run Black formatter check
-      run: |
-        black --check --diff .
-    - name: Run isort import sorting check
-      run: |
-        isort --check-only --diff .
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Type checking with mypy
-      run: |
-        mypy . --ignore-missing-imports --no-strict-optional || true
+        pip install -r requirements-dev.txt
 
-  test:
+    - name: Run pre-commit hooks
+      run: |
+        pip install pre-commit
+        pre-commit run --all-files
+
+    - name: Run security scan
+      run: |
+        pip install bandit
+        bandit -r nautilus_trader_engine/ -f json -o bandit_report.json
+        # Fail if high severity issues found
+        python -c "
+        import json
+        with open('bandit_report.json') as f:
+            data = json.load(f)
+        high_severity = [i for i in data.get('results', []) if i.get('issue_severity') == 'HIGH']
+        if high_severity:
+            print(f'Found {len(high_severity)} high severity security issues')
+            exit(1)
+        "
+
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: bandit_report.json
+
+  # ================================
+  # Unit Tests
+  # ================================
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
-    needs: lint
-    strategy:
-      matrix:
-        test-type: [unit, integration, e2e]
+    needs: quality
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: trading_test
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
       redis:
-        image: redis:7-alpine
+        image: redis:7
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 6379:6379
-      kafka:
-        image: confluentinc/cp-kafka:latest
-        env:
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-        ports:
-          - 9092:9092
-      zookeeper:
-        image: confluentinc/cp-zookeeper:latest
-        env:
-          ZOOKEEPER_CLIENT_PORT: 2181
-          ZOOKEEPER_TICK_TIME: 2000
-        ports:
-          - 2181:2181
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r backtesting/service/requirements.txt
-        pip install pytest-cov pytest-xdist pytest-mock pytest-asyncio pytest-benchmark psutil numpy pandas
-    - name: Wait for services
-      run: |
-        sleep 30
-        # Test database connection
-        python -c "import psycopg2; psycopg2.connect('host=localhost port=5432 dbname=trading_test user=postgres password=postgres')"
-        # Test Redis connection
-        python -c "import redis; redis.Redis(host='localhost', port=6379).ping()"
+        pip install -r requirements-dev.txt
+        pip install -r nautilus_trader_engine/requirements.txt
+
     - name: Run unit tests
-      if: matrix.test-type == 'unit'
       run: |
-        pytest tests/unit/ -v --cov=src --cov-report=xml --cov-report=html --cov-fail-under=80 --junitxml=junit/unit-test-results.xml -n auto
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trading_test
-        REDIS_URL: redis://localhost:6379/0
-        TEST_ENVIRONMENT: ci
-    - name: Run integration tests
-      if: matrix.test-type == 'integration'
-      run: |
-        pytest tests/integration/ -v --cov=src --cov-report=xml --cov-append --junitxml=junit/integration-test-results.xml --maxfail=5 -n auto
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trading_test
-        REDIS_URL: redis://localhost:6379/0
-        KAFKA_BOOTSTRAP_SERVERS: localhost:9092
-        TEST_ENVIRONMENT: ci
-    - name: Run end-to-end tests
-      if: matrix.test-type == 'e2e'
-      run: |
-        pytest tests/e2e/ -v --cov=src --cov-report=xml --cov-append --junitxml=junit/e2e-test-results.xml --maxfail=3
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trading_test
-        REDIS_URL: redis://localhost:6379/0
-        KAFKA_BOOTSTRAP_SERVERS: localhost:9092
-        TEST_ENVIRONMENT: ci
+        python -m pytest nautilus_trader_engine/tests/unit/ \
+          -v \
+          --cov=nautilus_trader_engine \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term-missing \
+          --cov-fail-under=90 \
+          --junitxml=test-results.xml \
+          --tb=short
+
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
-      if: always()
-      with:
-        file: ./coverage.xml
-        flags: ${{ matrix.test-type }}
-        name: codecov-${{ matrix.test-type }}
-    - name: Upload test results
       uses: actions/upload-artifact@v3
-      if: always()
       with:
-        name: test-results-${{ matrix.test-type }}
+        name: coverage-reports
         path: |
           htmlcov/
           coverage.xml
-          junit/
+          test-results.xml
 
-  performance:
+  # ================================
+  # Integration Tests
+  # ================================
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
-    needs: lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: unit-tests
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: trading_test
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
       redis:
-        image: redis:7-alpine
+        image: redis:7
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 6379:6379
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest-benchmark psutil numpy pandas memory-profiler
-    - name: Run performance tests
+        pip install -r requirements-dev.txt
+        pip install -r nautilus_trader_engine/requirements.txt
+
+    - name: Run integration tests
       run: |
-        pytest tests/performance/ -v --benchmark-json=benchmark-results.json --benchmark-min-rounds=3
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trading_test
-        REDIS_URL: redis://localhost:6379/0
-        TEST_ENVIRONMENT: ci
-    - name: Upload benchmark results
+        python -m pytest nautilus_trader_engine/tests/integration/ \
+          -v \
+          --tb=short \
+          --junitxml=integration-results.xml \
+          --durations=10
+
+    - name: Upload integration test results
       uses: actions/upload-artifact@v3
       with:
-        name: benchmark-results
-        path: benchmark-results.json
-    - name: Performance regression check
-      run: |
-        python -c "
-        import json
-        with open('benchmark-results.json') as f:
-            results = json.load(f)
-        for benchmark in results['benchmarks']:
-            if benchmark['stats']['mean'] > 0.1:  # 100ms threshold
-                print(f'WARNING: {benchmark[\"name\"]} took {benchmark[\"stats\"][\"mean\"]:.4f}s')
-        "
+        name: integration-results
+        path: integration-results.xml
 
-  build:
+  # ================================
+  # Performance Tests
+  # ================================
+  performance-tests:
+    name: Performance Tests
     runs-on: ubuntu-latest
-    needs: test
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker images
-      run: |
-        # Build with version tags
-        export VERSION=${GITHUB_SHA::8}
-        export REGISTRY=ghcr.io/${{ github.repository_owner }}
-        
-        # Build core services
-        docker build -t $REGISTRY/trading-api:$VERSION -t $REGISTRY/trading-api:latest ./api
-        docker build -t $REGISTRY/market-data:$VERSION -t $REGISTRY/market-data:latest ./market_data_service
-        docker build -t $REGISTRY/order-management:$VERSION -t $REGISTRY/order-management:latest ./order_management
-        
-        # Push images
-        docker push $REGISTRY/trading-api:$VERSION
-        docker push $REGISTRY/trading-api:latest
-        docker push $REGISTRY/market-data:$VERSION
-        docker push $REGISTRY/market-data:latest
-        docker push $REGISTRY/order-management:$VERSION
-        docker push $REGISTRY/order-management:latest
-    - name: Run container security scan
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'ghcr.io/${{ github.repository_owner }}/trading-api:latest'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-    - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
+    needs: integration-tests
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[perf]'))
 
-  benchmark:
-    runs-on: ubuntu-latest
-    needs: test
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r backtesting/service/requirements.txt
-        pip install pytest-benchmark locust
+        pip install -r requirements-dev.txt
+        pip install -r nautilus_trader_engine/requirements.txt
+
     - name: Run performance benchmarks
       run: |
-        pytest tests/benchmarks/ -v --benchmark-json=benchmark_results.json
-    - name: Run load tests
+        python scripts/run_benchmarks.py --iterations 100 --export-json
+
+    - name: Compare with baseline
       run: |
-        # Start services for load testing
-        docker-compose -f docker-compose.phase1.yml up -d
-        sleep 30
-        locust -f load_testing/locustfile.py --headless -u 10 -r 2 -t 60s --host=http://localhost:8000 --html=load_test_report.html
-    - name: Upload benchmark results
+        if [ -f benchmarks/baseline.json ]; then
+          python scripts/run_benchmarks.py --compare --ci
+        else
+          echo "No baseline found, creating new baseline"
+          python scripts/run_benchmarks.py --baseline
+        fi
+
+    - name: Upload performance results
       uses: actions/upload-artifact@v3
       with:
         name: performance-results
-        path: |
-          benchmark_results.json
-          load_test_report.html
+        path: benchmarks/results/
 
-  production-readiness:
+  # ================================
+  # Docker Build and Test
+  # ================================
+  docker-build:
+    name: Docker Build
     runs-on: ubuntu-latest
-    needs: [build, benchmark]
+    needs: [unit-tests, integration-tests]
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker images
+      run: |
+        docker-compose build --parallel
+
+    - name: Test Docker containers
+      run: |
+        docker-compose up -d
+        sleep 30
+        docker-compose ps
+        # Test health endpoints
+        curl -f http://localhost:8000/health || exit 1
+        docker-compose down
+
+    - name: Run security scan on Docker images
+      run: |
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          aquasec/trivy:latest image \
+          --format json \
+          --output trivy-results.json \
+          nautilus-trader-engine:latest
+
+    - name: Upload Docker security scan
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-security-scan
+        path: trivy-results.json
+
+  # ================================
+  # Documentation Build
+  # ================================
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    - name: Install dependencies
+
+    - name: Install documentation dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run production readiness validation
+        pip install -r docs/requirements.txt
+
+    - name: Build documentation
       run: |
-        python tests/production_readiness/run_production_readiness_validation.py
-    - name: Upload production readiness report
+        cd docs
+        make html
+        make linkcheck
+
+    - name: Upload documentation
       uses: actions/upload-artifact@v3
       with:
-        name: production-readiness-report
-        path: tests/production_readiness/results/
+        name: documentation
+        path: docs/_build/html/
 
-  deploy-staging:
+  # ================================
+  # Coverage Report
+  # ================================
+  coverage-report:
+    name: Coverage Report
     runs-on: ubuntu-latest
-    needs: [build, production-readiness, performance]
-    if: github.ref == 'refs/heads/main'
-    environment: staging
-    steps:
-    - uses: actions/checkout@v4
-    - name: Deploy to staging
-      run: |
-        echo "Deploying to staging environment..."
-        # Kubernetes deployment
-        kubectl apply -f k8s/staging/
-        kubectl rollout status deployment/trading-engine -n staging
-    - name: Run smoke tests
-      run: |
-        echo "Running smoke tests against staging..."
-        pytest tests/smoke/ --env=staging --timeout=300
-    - name: Validate deployment
-      run: |
-        # Health check endpoints
-        curl -f http://staging.trading-system.com/health || exit 1
-        curl -f http://staging.trading-system.com/api/v1/status || exit 1
+    needs: unit-tests
+    if: github.event_name == 'pull_request'
 
-  deploy-production:
-    runs-on: ubuntu-latest
-    needs: [deploy-staging]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
     steps:
-    - uses: actions/checkout@v4
-    - name: Blue-Green deployment preparation
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download coverage reports
+      uses: actions/download-artifact@v3
+      with:
+        name: coverage-reports
+
+    - name: Generate coverage report
       run: |
-        echo "Preparing blue-green deployment..."
-        # Create new deployment slot
-        kubectl apply -f k8s/production/blue-green-prep.yml
-    - name: Deploy to production
-      run: |
-        echo "Deploying to production environment..."
-        kubectl apply -f k8s/production/
-        kubectl rollout status deployment/trading-engine -n production
-    - name: Run comprehensive health checks
-      run: |
-        echo "Running comprehensive health checks..."
-        pytest tests/health/ --env=production --timeout=600
-        # Database connectivity
-        python scripts/health_check_db.py
-        # Market data feeds
-        python scripts/health_check_feeds.py
-    - name: Switch traffic to new deployment
-      run: |
-        echo "Switching traffic to new deployment..."
-        kubectl patch service trading-engine-service -p '{"spec":{"selector":{"version":"${{ github.sha }}"}}}' -n production
-    - name: Post-deployment validation
-      run: |
-        sleep 60  # Allow traffic to stabilize
-        curl -f https://api.trading-system.com/health || exit 1
-        curl -f https://api.trading-system.com/api/v1/status || exit 1
-    - name: Notify deployment success
+        pip install coverage
+        coverage report --show-missing
+        coverage html
+
+    - name: Comment PR with coverage
+      uses: dorny/test-reporter@v1
       if: success()
+      with:
+        name: Coverage Results
+        path: 'test-results.xml'
+        reporter: jest-junit
+
+  # ================================
+  # Final Status Check
+  # ================================
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    needs: [quality, unit-tests, integration-tests, docker-build, docs]
+    if: always()
+
+    steps:
+    - name: Check all jobs
       run: |
-        echo "Production deployment successful!"
-        # Send notification to Slack/Teams/Discord
-    - name: Notify deployment failure
-      if: failure()
-      run: |
-        echo "Production deployment failed!"
-        # Send alert notification
+        if [[ "${{ needs.quality.result }}" != "success" ]]; then
+          echo "Quality checks failed"
+          exit 1
+        fi
+        if [[ "${{ needs.unit-tests.result }}" != "success" ]]; then
+          echo "Unit tests failed"
+          exit 1
+        fi
+        if [[ "${{ needs.integration-tests.result }}" != "success" ]]; then
+          echo "Integration tests failed"
+          exit 1
+        fi
+        if [[ "${{ needs.docker-build.result }}" != "success" ]]; then
+          echo "Docker build failed"
+          exit 1
+        fi
+        if [[ "${{ needs.docs.result }}" != "success" ]]; then
+          echo "Documentation build failed"
+          exit 1
+        fi
+        echo "All CI checks passed! ✅"

@@ -1,162 +1,214 @@
-# Multi-stage build for production optimization
-FROM python:3.11-slim as base
+# Nautilus Trader Engine - Multi-Stage Docker Build
+# Optimized for production deployment with security and performance in mind
 
-# Set build arguments
-ARG PYTHON_VERSION=3.11
-ARG NODE_VERSION=18
+# ================================
+# Base Stage - Common Dependencies
+# ================================
+FROM python:3.11-slim as base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONHASHSEED=random \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VENV_IN_PROJECT=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
+    DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
+    gcc \
+    g++ \
+    libffi-dev \
+    libssl-dev \
     curl \
     git \
-    libpq-dev \
-    libssl-dev \
-    libffi-dev \
-    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install poetry
+# Create non-root user
+RUN groupadd -r nautilus && useradd -r -g nautilus nautilus
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
-# Copy dependency files
-COPY pyproject.toml poetry.lock* ./
-
-# Configure poetry and install dependencies
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-root \
-    && rm -rf $POETRY_CACHE_DIR
-
-# Frontend build stage
-FROM node:${NODE_VERSION}-alpine as frontend-builder
-
-WORKDIR /app/frontend
-
-# Copy frontend package files
-COPY frontend/package*.json ./
-
-# Install frontend dependencies
-RUN npm ci --only=production
-
-# Copy frontend source
-COPY frontend/ ./
-
-# Build frontend
-RUN npm run build
-
-# Production stage
-FROM python:3.11-slim as production
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    libpq5 \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd -r appuser \
-    && useradd -r -g appuser appuser
-
-# Set work directory
-WORKDIR /app
-
-# Copy Python dependencies from base stage
-COPY --from=base /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=base /usr/local/bin /usr/local/bin
-
-# Copy built frontend from frontend-builder stage
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-
-# Copy application code
-COPY . .
-
-# Create necessary directories
-RUN mkdir -p /app/logs /app/data /app/temp \
-    && chown -R appuser:appuser /app
-
-# Switch to non-root user
-USER appuser
-
-# Expose ports
-EXPOSE 8000 8001 8002
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
-
-# Default command
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-# Development stage
+# ================================
+# Development Stage
+# ================================
 FROM base as development
 
-# Install development dependencies
-RUN poetry install --with dev
+# Copy requirements for development
+COPY requirements-dev.txt ./
 
-# Install additional development tools
-RUN pip install debugpy pytest-xdist
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-dev.txt
 
-# Copy application code
+# Copy source code
 COPY . .
 
-# Create development user
-RUN groupadd -r devuser && useradd -r -g devuser devuser \
-    && mkdir -p /app/logs /app/data /app/temp \
-    && chown -R devuser:devuser /app
+# Change ownership to non-root user
+RUN chown -R nautilus:nautilus /app
 
-USER devuser
+# Switch to non-root user
+USER nautilus
 
-# Expose additional development ports
-EXPOSE 8000 8001 8002 5678
+# Expose port for development server
+EXPOSE 8000
 
-# Development command with hot reload
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Default command for development
+CMD ["python", "-m", "nautilus_trader_engine"]
 
-# Testing stage
+# ================================
+# Testing Stage
+# ================================
 FROM development as testing
 
-# Copy test files
-COPY tests/ ./tests/
-
 # Run tests
-RUN python -m pytest tests/ -v --tb=short
+RUN python -m pytest tests/ -v --cov=nautilus_trader_engine --cov-report=xml
 
-# Worker stage for background tasks
-FROM production as worker
+# ================================
+# Builder Stage - Dependencies Only
+# ================================
+FROM base as builder
 
-# Override command for worker processes
-CMD ["python", "-m", "celery", "worker", "-A", "shared.tasks.celery_app", "--loglevel=info"]
+# Copy requirements
+COPY requirements.txt ./
 
-# Scheduler stage for periodic tasks
-FROM production as scheduler
+# Install Python dependencies
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Override command for scheduler
-CMD ["python", "-m", "celery", "beat", "-A", "shared.tasks.celery_app", "--loglevel=info"]
+# ================================
+# Production Stage
+# ================================
+FROM python:3.11-slim as production
 
-# Market data service stage
-FROM production as market-data
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Expose market data specific port
-EXPOSE 8001
+# Create non-root user
+RUN groupadd -r nautilus && useradd -r -g nautilus nautilus
 
-# Override command for market data service
-CMD ["python", "-m", "services.market_data.main"]
+# Set working directory
+WORKDIR /app
 
-# Trading engine stage
-FROM production as trading-engine
+# Copy installed packages from builder
+COPY --from=builder /root/.local /home/nautilus/.local
 
-# Expose trading engine specific port
-EXPOSE 8002
+# Copy application code
+COPY nautilus_trader_engine/ ./nautilus_trader_engine/
+COPY scripts/ ./scripts/
+COPY config/ ./config/
 
-# Override command for trading engine
-CMD ["python", "-m", "services.trading_engine.main"]
+# Change ownership to non-root user
+RUN chown -R nautilus:nautilus /app
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/cache && \
+    chown -R nautilus:nautilus /app/logs /app/data /app/cache
+
+# Set environment variables for production
+ENV PATH=/home/nautilus/.local/bin:$PATH \
+    PYTHONPATH=/app
+
+# Switch to non-root user
+USER nautilus
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Default command for production
+CMD ["python", "-m", "nautilus_trader_engine.core.main"]
+
+# ================================
+# GPU Stage - For ML workloads
+# ================================
+FROM python:3.11-slim as gpu
+
+# Install CUDA runtime (adjust version as needed)
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    && curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub | apt-key add - \
+    && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64 /" > /etc/apt/sources.list.d/cuda.list \
+    && apt-get update && apt-get install -y \
+    cuda-runtime-11-8 \
+    libcudnn8 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy from production stage
+COPY --from=production /app /app
+COPY --from=builder /root/.local /home/nautilus/.local
+
+# Install GPU-specific packages
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Set GPU environment variables
+ENV CUDA_VISIBLE_DEVICES=0 \
+    PATH=/home/nautilus/.local/bin:$PATH \
+    PYTHONPATH=/app
+
+# Switch to non-root user
+USER nautilus
+
+# Health check for GPU
+HEALTHCHECK --interval=60s --timeout=30s --start-period=30s --retries=3 \
+    CMD python -c "import torch; print('GPU available:', torch.cuda.is_available())" || exit 1
+
+# ================================
+# Debug Stage - For troubleshooting
+# ================================
+FROM production as debug
+
+# Install debugging tools
+USER root
+RUN apt-get update && apt-get install -y \
+    vim \
+    htop \
+    net-tools \
+    dnsutils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to non-root user
+USER nautilus
+
+# Enable debug mode
+ENV DEBUG=1
+
+# ================================
+# Minimal Stage - Ultra-lightweight
+# ================================
+FROM python:3.11-alpine as minimal
+
+# Install minimal runtime dependencies
+RUN apk add --no-cache \
+    curl \
+    && addgroup -g 1000 nautilus \
+    && adduser -D -s /bin/sh -u 1000 -G nautilus nautilus
+
+# Set working directory
+WORKDIR /app
+
+# Copy minimal application code
+COPY --from=production /app/nautilus_trader_engine/core /app/nautilus_trader_engine/core
+COPY --from=production /app/nautilus_trader_engine/__init__.py /app/nautilus_trader_engine/
+COPY --from=builder /root/.local /home/nautilus/.local
+
+# Set environment
+ENV PATH=/home/nautilus/.local/bin:$PATH \
+    PYTHONPATH=/app
+
+# Switch to non-root user
+USER nautilus
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+EXPOSE 8000
+
+CMD ["python", "-c", "print('Nautilus Trader Engine Minimal Container Running')"]

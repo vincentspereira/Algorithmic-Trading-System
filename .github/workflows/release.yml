@@ -1,0 +1,300 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  # ================================
+  # Create Release
+  # ================================
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
+      version: ${{ steps.get_version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Generate changelog from git history
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            CHANGES=$(git log --oneline --pretty=format:"* %s" | head -20)
+          else
+            CHANGES=$(git log --oneline --pretty=format:"* %s" ${PREVIOUS_TAG}..HEAD)
+          fi
+
+          # Escape newlines for GitHub output
+          CHANGES="${CHANGES//'%'/'%25'}"
+          CHANGES="${CHANGES//$'\n'/'%0A'}"
+          CHANGES="${CHANGES//$'\r'/'%0D'}"
+
+          echo "changes<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
+          body: |
+            ## Changes in this release
+
+            ${{ steps.changelog.outputs.changes }}
+
+            ## Docker Images
+
+            - `ghcr.io/${{ github.repository }}:v${{ steps.get_version.outputs.version }}`
+            - `ghcr.io/${{ github.repository }}:v${{ steps.get_version.outputs.version }}-gpu`
+            - `ghcr.io/${{ github.repository }}:v${{ steps.get_version.outputs.version }}-minimal`
+
+            ## Installation
+
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}:v${{ steps.get_version.outputs.version }}
+            ```
+
+            ## What's Changed
+
+            *Full changelog: [Compare releases](https://github.com/${{ github.repository }}/compare/${{ steps.changelog.outputs.previous_tag }}...${{ github.ref }})*
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
+
+  # ================================
+  # Build and Push Release Images
+  # ================================
+  build-release-images:
+    runs-on: ubuntu-latest
+    needs: create-release
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push production image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: production
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:v${{ needs.create-release.outputs.version }}
+            ghcr.io/${{ github.repository }}:latest
+          labels: |
+            org.opencontainers.image.title=Nautilus Trader Engine
+            org.opencontainers.image.description=Institutional-grade algorithmic trading platform
+            org.opencontainers.image.version=v${{ needs.create-release.outputs.version }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=MIT
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build and push GPU image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: gpu
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:v${{ needs.create-release.outputs.version }}-gpu
+            ghcr.io/${{ github.repository }}:latest-gpu
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      - name: Build and push minimal image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: minimal
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:v${{ needs.create-release.outputs.version }}-minimal
+            ghcr.io/${{ github.repository }}:latest-minimal
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # ================================
+  # Publish to PyPI (Optional)
+  # ================================
+  publish-pypi:
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: ${{ !contains(github.ref, 'beta') && !contains(github.ref, 'alpha') && !contains(github.ref, 'rc') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*
+
+  # ================================
+  # Update Documentation
+  # ================================
+  update-docs:
+    runs-on: ubuntu-latest
+    needs: create-release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Build documentation
+        run: |
+          cd docs
+          sphinx-build -b html . _build/html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          destination_dir: ${{ needs.create-release.outputs.version }}
+
+  # ================================
+  # Create Git Tag for Latest
+  # ================================
+  tag-latest:
+    runs-on: ubuntu-latest
+    needs: [create-release, build-release-images]
+    if: ${{ !contains(github.ref, 'beta') && !contains(github.ref, 'alpha') && !contains(github.ref, 'rc') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update latest tag
+        run: |
+          git tag -f latest
+          git push -f origin latest
+
+  # ================================
+  # Notify Release
+  # ================================
+  notify-release:
+    runs-on: ubuntu-latest
+    needs: [create-release, build-release-images]
+    if: always()
+
+    steps:
+      - name: Notify release status
+        run: |
+          if [ "${{ needs.build-release-images.result }}" == "success" ]; then
+            echo "✅ Release ${{ needs.create-release.outputs.version }} published successfully"
+            # Add notification commands here (Slack, Teams, email, etc.)
+            echo "Docker images available at:"
+            echo "  - ghcr.io/${{ github.repository }}:v${{ needs.create-release.outputs.version }}"
+            echo "  - ghcr.io/${{ github.repository }}:v${{ needs.create-release.outputs.version }}-gpu"
+            echo "  - ghcr.io/${{ github.repository }}:v${{ needs.create-release.outputs.version }}-minimal"
+          else
+            echo "❌ Release failed"
+            # Add failure notification commands here
+          fi
+
+  # ================================
+  # Update Version in Code
+  # ================================
+  update-version:
+    runs-on: ubuntu-latest
+    needs: create-release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update version in code
+        run: |
+          # Update version in __init__.py or version.py
+          VERSION_FILE="nautilus_trader_engine/__init__.py"
+          if [ -f "$VERSION_FILE" ]; then
+            sed -i "s/__version__ = .*/__version__ = \"${{ needs.create-release.outputs.version }}\"/" $VERSION_FILE
+          fi
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update version to ${{ needs.create-release.outputs.version }}"
+          title: "Update version to ${{ needs.create-release.outputs.version }}"
+          body: |
+            This PR updates the version number to ${{ needs.create-release.outputs.version }} after the release.
+
+            ## Changes
+            - Updated version in `nautilus_trader_engine/__init__.py`
+            - Auto-generated by release workflow
+          branch: update-version-${{ needs.create-release.outputs.version }}
+          delete-branch: true

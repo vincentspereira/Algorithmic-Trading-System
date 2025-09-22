@@ -32,7 +32,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 import json
 
-from ..BaseInstitutionalStrategy import (
+from ...core.base_institutional_strategy import (
     BaseInstitutionalStrategy, IndicatorSignal, RiskParameters, ExecutionIntent,
     SignalType, MarketRegime, ExecutionAction, ExecutionAlgorithm, ExecutionUrgency, TimeInForce
 )

@@ -70,7 +70,7 @@ except ImportError:
 # Technical Analysis imports
 try:
     import talib
-    from ....indicators.consolidated_indicators import ConsolidatedIndicators
+    from ...indicators.consolidated_indicators import ConsolidatedIndicators
     TALIB_AVAILABLE = True
 except ImportError:
     TALIB_AVAILABLE = False

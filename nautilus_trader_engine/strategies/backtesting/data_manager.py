@@ -31,7 +31,7 @@ try:
 except ImportError:
     PANDAS_DATAREADER_AVAILABLE = False
 
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 @dataclass

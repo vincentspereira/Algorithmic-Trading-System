@@ -102,6 +102,12 @@ from .logging_utils import (
     clear_request_context
 )
 
+from .kafka_utils import (
+    get_kafka_broker,
+    create_kafka_producer,
+    create_kafka_consumer
+)
+
 # Export all public functions and classes
 __all__ = [
     # Formatting utilities
@@ -171,5 +177,10 @@ __all__ = [
     'log_api_request',
     'get_performance_logger',
     'set_request_context',
-    'clear_request_context'
+    'clear_request_context',
+    
+    # Kafka utilities
+    'get_kafka_broker',
+    'create_kafka_producer',
+    'create_kafka_consumer'
 ]

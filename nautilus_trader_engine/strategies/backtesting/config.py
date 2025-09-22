@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Any, Union
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 

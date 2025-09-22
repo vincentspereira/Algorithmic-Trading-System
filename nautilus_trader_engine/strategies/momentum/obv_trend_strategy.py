@@ -30,15 +30,15 @@ from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 import json
 
-from ..BaseInstitutionalStrategy import (
+from ...core.base_institutional_strategy import (
     BaseInstitutionalStrategy, IndicatorSignal, RiskParameters, ExecutionIntent,
     SignalType, MarketRegime, ExecutionAction, ExecutionAlgorithm, ExecutionUrgency, TimeInForce
 )
-from ..indicators.traditional.volume_indicators import VolumeIndicators
-from ..indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators
-from ..indicators.traditional.trend_indicators import TrendIndicators
-from ..risk_management_utils import RiskManagementUtils
-from ..execution_intent_utils import ExecutionIntentUtils
+from ...indicators.traditional.volume_indicators import VolumeIndicators
+from ...indicators.volume_weighted.volume_weighted_indicators import VolumeWeightedIndicators
+from ...indicators.traditional.trend_indicators import TrendIndicators
+from ...utils.risk_management_utils import RiskManagementUtils
+from ...utils.execution_intent_utils import ExecutionIntentUtils
 
 
 class OBVTrendStrategy(BaseInstitutionalStrategy):

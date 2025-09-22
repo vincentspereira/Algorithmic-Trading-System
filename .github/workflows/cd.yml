@@ -1,0 +1,357 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      version:
+        description: 'Version to deploy'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ================================
+  # Build and Push Docker Images
+  # ================================
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    outputs:
+      image-digest: ${{ steps.push.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: actions/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker images
+      id: push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+
+  # ================================
+  # Security Scan
+  # ================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        scan-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Fail on critical vulnerabilities
+      run: |
+        # Parse Trivy results and fail on critical issues
+        if [ -f trivy-results.sarif ]; then
+          critical_count=$(jq '.runs[0].results | length' trivy-results.sarif 2>/dev/null || echo 0)
+          if [ "$critical_count" -gt 0 ]; then
+            echo "Found $critical_count critical vulnerabilities"
+            exit 1
+          fi
+        fi
+
+  # ================================
+  # Deploy to Staging
+  # ================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-push, security-scan]
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to ECS
+      run: |
+        # Update ECS service
+        aws ecs update-service \
+          --cluster nautilus-staging \
+          --service nautilus-trader-engine \
+          --force-new-deployment \
+          --region ${{ secrets.AWS_REGION }}
+
+    - name: Wait for deployment to complete
+      run: |
+        aws ecs wait services-stable \
+          --cluster nautilus-staging \
+          --services nautilus-trader-engine \
+          --region ${{ secrets.AWS_REGION }}
+
+    - name: Run smoke tests
+      run: |
+        # Wait for service to be healthy
+        sleep 60
+
+        # Run basic health checks
+        curl -f https://staging-api.nautilus-trader.com/health || exit 1
+        curl -f https://staging-api.nautilus-trader.com/api/v1/status || exit 1
+
+    - name: Run integration tests against staging
+      run: |
+        python -m pytest tests/integration/ \
+          -v \
+          --tb=short \
+          --base-url=https://staging-api.nautilus-trader.com
+
+  # ================================
+  # Deploy to Production
+  # ================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Create deployment backup
+      run: |
+        # Create database backup before deployment
+        aws rds create-db-snapshot \
+          --db-instance-identifier nautilus-production \
+          --db-snapshot-identifier pre-deployment-${{ github.sha }} \
+          --region ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to production ECS
+      run: |
+        # Blue-green deployment
+        aws ecs update-service \
+          --cluster nautilus-production \
+          --service nautilus-trader-engine \
+          --force-new-deployment \
+          --region ${{ secrets.AWS_REGION }}
+
+    - name: Wait for production deployment
+      run: |
+        aws ecs wait services-stable \
+          --cluster nautilus-production \
+          --services nautilus-trader-engine \
+          --region ${{ secrets.AWS_REGION }}
+
+    - name: Health checks and validation
+      run: |
+        # Wait for service to be healthy
+        sleep 120
+
+        # Run comprehensive health checks
+        curl -f https://api.nautilus-trader.com/health || exit 1
+        curl -f https://api.nautilus-trader.com/api/v1/status || exit 1
+
+        # Validate API responses
+        response=$(curl -s https://api.nautilus-trader.com/api/v1/system/info)
+        if [[ $(echo "$response" | jq -r '.status') != "healthy" ]]; then
+          echo "System health check failed"
+          exit 1
+        fi
+
+    - name: Performance validation
+      run: |
+        # Run performance tests against production
+        python scripts/run_benchmarks.py --remote-url=https://api.nautilus-trader.com --compare
+
+    - name: Notify deployment success
+      run: |
+        # Send notification to Slack/Teams
+        curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"🚀 Nautilus Trader Engine deployed to production successfully!"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ================================
+  # Rollback Plan
+  # ================================
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: failure() && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Rollback deployment
+      run: |
+        # Rollback to previous task definition
+        aws ecs update-service \
+          --cluster nautilus-production \
+          --service nautilus-trader-engine \
+          --task-definition nautilus-trader-engine-previous \
+          --region ${{ secrets.AWS_REGION }}
+
+    - name: Notify rollback
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"⚠️ Production deployment failed, rollback initiated"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ================================
+  # Post-Deployment Monitoring
+  # ================================
+  post-deploy-monitoring:
+    name: Post-Deploy Monitoring
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: success()
+
+    steps:
+    - name: Monitor deployment for 30 minutes
+      run: |
+        echo "Monitoring deployment for 30 minutes..."
+
+        # Check metrics every 5 minutes
+        for i in {1..6}; do
+          echo "Check $i/6 - $(date)"
+
+          # Check response times
+          response_time=$(curl -o /dev/null -s -w '%{time_total}' https://api.nautilus-trader.com/health)
+          if (( $(echo "$response_time > 2.0" | bc -l) )); then
+            echo "High response time detected: ${response_time}s"
+            # Could trigger alert here
+          fi
+
+          # Check error rates (would integrate with monitoring system)
+          sleep 300
+        done
+
+    - name: Generate deployment report
+      run: |
+        # Generate and store deployment metrics
+        echo "Deployment completed successfully at $(date)" > deployment_report.txt
+        echo "Commit: ${{ github.sha }}" >> deployment_report.txt
+        echo "Version: ${{ github.event.inputs.version || 'latest' }}" >> deployment_report.txt
+
+        # Upload report as artifact
+        # (would be enhanced with actual metrics)
+
+  # ================================
+  # Release Management
+  # ================================
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Generate release notes
+      run: |
+        # Generate release notes from PRs and commits
+        python scripts/generate_release_notes.py \
+          --tag ${{ github.ref_name }} \
+          --output release_notes.md
+
+    - name: Create GitHub release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+
+    - name: Update version in documentation
+      run: |
+        # Update version in docs
+        sed -i "s/version:.*/version: ${{ github.ref_name }}/g" docs/conf.py
+
+    - name: Trigger documentation deployment
+      run: |
+        # Trigger documentation site update
+        curl -X POST \
+          -H "Authorization: token ${{ secrets.DOCS_DEPLOY_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/dispatches \
+          -d '{"event_type": "docs-update", "client_payload": {"version": "${{ github.ref_name }}"}}'

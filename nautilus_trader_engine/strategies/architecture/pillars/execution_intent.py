@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any, Tuple, Union
 from enum import Enum
 from dataclasses import dataclass, field
 import logging
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
+from ....indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 logger = logging.getLogger(__name__)

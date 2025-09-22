@@ -18,9 +18,9 @@ try:
 except ImportError:
     TALIB_AVAILABLE = False
 
-from ..core.base_strategy import BaseStrategy, StrategyConfig, Signal, SignalType
+from ...core.base_strategy import BaseStrategy, StrategyConfig, Signal, SignalType
 from ..backtesting.results import Trade, TradeType
-from ..indicators.consolidated_indicators import ConsolidatedIndicators
+from ...indicators.consolidated_indicators import ConsolidatedIndicators
 
 
 # Setup logging

@@ -1,55 +1,113 @@
-# Development and Testing Dependencies
+# Development Dependencies for Nautilus Trader Engine
+# Includes all production dependencies plus development and testing tools
+
+# Include production requirements
+-r requirements.txt
 
 # Testing Framework
-pytest>=7.4.0
-pytest-cov>=4.1.0
-pytest-mock>=3.11.1
-pytest-asyncio>=0.21.1
-pytest-benchmark>=4.0.0
-pytest-xdist>=3.3.1
-pytest-html>=3.2.0
+pytest>=7.4.0,<8.0.0
+pytest-asyncio>=0.21.0,<1.0.0
+pytest-cov>=4.1.0,<5.0.0
+pytest-mock>=3.11.0,<4.0.0
+pytest-xdist>=3.3.0,<4.0.0
+pytest-benchmark>=4.0.0,<5.0.0
 
-# Code Quality
-black>=23.7.0
-isort>=5.12.0
-flake8>=6.0.0
-mypy>=1.5.0
-bandit>=1.7.5
-safety>=2.3.5
-
-# Load Testing
-locust>=2.16.1
-
-# Security Scanning
-semgrep>=1.35.0
-
-# Documentation
-sphinx>=7.1.2
-sphinx-rtd-theme>=1.3.0
+# Code Quality and Linting
+black>=23.7.0,<24.0.0
+isort>=5.12.0,<6.0.0
+flake8>=6.0.0,<7.0.0
+mypy>=1.5.0,<2.0.0
+pylint>=2.17.0,<3.0.0
+bandit>=1.7.0,<2.0.0
+safety>=2.3.0,<3.0.0
 
 # Development Tools
-pre-commit>=3.3.3
-ipython>=8.14.0
-jupyter>=1.0.0
+jupyter>=1.0.0,<2.0.0
+ipykernel>=6.23.0,<7.0.0
+notebook>=6.5.0,<7.0.0
+jupyterlab>=4.0.0,<5.0.0
 
-# API Testing
-requests>=2.31.0
-httpx>=0.24.1
+# Documentation
+sphinx>=7.0.0,<8.0.0
+sphinx-rtd-theme>=1.3.0,<2.0.0
+myst-parser>=2.0.0,<3.0.0
+sphinx-autodoc-typehints>=1.24.0,<2.0.0
+sphinx-copybutton>=0.5.0,<1.0.0
+
+# API Documentation
+mkdocs>=1.5.0,<2.0.0
+mkdocs-material>=9.0.0,<10.0.0
+mkdocstrings[python]>=0.22.0,<1.0.0
+
+# Performance Profiling
+memory-profiler>=0.61.0,<1.0.0
+line-profiler>=4.1.0,<5.0.0
+py-spy>=0.3.0,<1.0.0
+
+# Mocking and Fixtures
+responses>=0.24.0,<1.0.0
+freezegun>=1.2.0,<2.0.0
+factory-boy>=3.2.0,<4.0.0
 
 # Database Testing
-pytest-postgresql>=5.0.0
-pytest-redis>=3.0.2
+pytest-postgresql>=5.0.0,<6.0.0
+pytest-redis>=3.0.0,<4.0.0
 
-# Mock Services
-responses>=0.23.3
-factory-boy>=3.3.0
-faker>=19.3.0
+# Load Testing
+locust>=2.15.0,<3.0.0
+
+# Container Development
+docker-compose>=1.29.0,<2.0.0
+
+# Environment Management
+pip-tools>=7.0.0,<8.0.0
+pipdeptree>=2.13.0,<3.0.0
+
+# Git and Version Control
+pre-commit>=3.3.0,<4.0.0
+commitizen>=3.0.0,<4.0.0
+
+# Security Testing
+sqlmap>=1.7.0,<2.0.0
+nikto>=2.5.0,<3.0.0
 
 # Performance Monitoring
-psutil>=5.9.5
-memory-profiler>=0.61.0
+pyinstrument>=4.5.0,<5.0.0
+scalene>=1.5.0,<2.0.0
 
-# Type Checking
-types-requests>=2.31.0
-types-redis>=4.6.0
-types-PyYAML>=6.0.12
+# Debugging
+ipdb>=0.13.0,<1.0.0
+pdbpp>=0.10.0,<1.0.0
+rich>=13.5.0,<14.0.0
+
+# API Testing
+httpx>=0.24.0,<1.0.0
+requests-mock>=1.11.0,<2.0.0
+
+# Data Validation
+pandera>=0.16.0,<1.0.0
+great-expectations>=0.17.0,<1.0.0
+
+# Visualization (for development and debugging)
+matplotlib>=3.7.0,<4.0.0
+seaborn>=0.12.0,<1.0.0
+plotly>=5.15.0,<6.0.0
+bokeh>=3.2.0,<4.0.0
+
+# Time Series Analysis (additional tools)
+statsmodels>=0.14.0,<1.0.0
+prophet>=1.1.0,<2.0.0
+pmdarima>=2.0.0,<3.0.0
+
+# GPU Development (optional)
+# cupy>=12.0.0,<13.0.0
+# cudf>=23.6.0,<24.0.0
+# cuml>=23.6.0,<24.0.0
+
+# Cloud Development (optional)
+# boto3>=1.28.0,<2.0.0
+# google-cloud-storage>=2.10.0,<3.0.0
+# azure-storage-blob>=12.17.0,<13.0.0
+
+# Kubernetes Development (optional)
+# kubernetes>=26.1.0,<27.0.0

@@ -37,7 +37,7 @@ except ImportError:
     stats = None
 
 # Base strategy components
-from ..pairs_trading_strategies import (
+from ..pairs_trading.pairs_trading_strategies import (
     StrategyType, PositionType, SignalStrength,
     TradingSignal, Position, StrategyConfig
 )

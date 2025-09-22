@@ -43,7 +43,7 @@ from ...core.events import SignalEvent, OrderEvent
 from ...core.risk_management import RiskManager
 from ...core.portfolio_management import PortfolioManager
 from ...core.signal_generator import SignalGenerator
-from ..core.base_strategy import BaseStrategy, StrategyConfig
+from ..base_strategy import BaseStrategy, StrategyConfig
 from ...utils.technical_indicators import (
     calculate_sma, calculate_ema, calculate_rsi,
     calculate_bollinger_bands, calculate_correlation

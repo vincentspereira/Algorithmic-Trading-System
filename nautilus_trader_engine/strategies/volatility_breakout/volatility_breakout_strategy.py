@@ -6,13 +6,13 @@ import logging
 from dataclasses import dataclass
 
 # Import base classes and utilities
-from BaseInstitutionalStrategy import (
+from ..core.base_institutional_strategy import (
     BaseInstitutionalStrategy, MarketRegime, SignalType, ExecutionAction,
     ExecutionIntent, PerformanceMetrics, StrategyState
 )
-from risk_management_utils import RiskManagementUtils
-from execution_intent_utils import ExecutionIntentUtils, ExecutionConstraints
-from strategy_config_schema import (
+from ..utils.risk_management_utils import RiskManagementUtils
+from ..utils.execution_intent_utils import ExecutionIntentUtils, ExecutionConstraints
+from ..core.strategy_config_schema import (
     StrategyConfig, StrategyCategory, AssetClass, TimeFrame,
     IndicatorConfig, SignalConfig, RiskConfig, RegimeConfig,
     ExecutionConfig, PerformanceConfig, BacktestConfig

@@ -1,0 +1,88 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Application logs
+  - job_name: nautilus-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nautilus-trader-engine
+          __path__: /app/logs/*.log
+    pipeline_stages:
+      - match:
+          selector: '{job="nautilus-trader-engine"}'
+          stages:
+            - json:
+                expressions:
+                  level: level
+                  message: message
+                  timestamp: timestamp
+            - labels:
+                level:
+                job:
+            - timestamp:
+                source: timestamp
+                format: RFC3339
+
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          __path__: /var/log/*.log
+    pipeline_stages:
+      - match:
+          selector: '{job="system"}'
+          stages:
+            - regex:
+                expression: '^(?P<timestamp>\w+\s+\d+\s+\d+:\d+:\d+)\s+(?P<hostname>\w+)\s+(?P<process>\w+)\[(?P<pid>\d+)\]:\s+(?P<message>.+)$'
+            - labels:
+                hostname:
+                process:
+                pid:
+
+  # Docker container logs
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*-json.log
+    pipeline_stages:
+      - docker: {}
+
+  # Custom application metrics logs
+  - job_name: nautilus-metrics
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nautilus-metrics
+          __path__: /app/logs/metrics/*.log
+    pipeline_stages:
+      - match:
+          selector: '{job="nautilus-metrics"}'
+          stages:
+            - json:
+                expressions:
+                  metric_name: metric_name
+                  value: value
+                  labels: labels
+                  timestamp: timestamp
+            - labels:
+                metric_name:
+            - timestamp:
+                source: timestamp
+                format: RFC3339

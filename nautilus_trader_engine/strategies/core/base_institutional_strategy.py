@@ -808,7 +808,7 @@ class BaseInstitutionalStrategy(ABC):
         """Start the strategy"""
         self.state = StrategyState.ACTIVE
         self.start_time = datetime.now()
-        self.logger.info(f"Strategy {self.strategy_name} started")
+        self.logger.info(f"Strategy {self.strategy_name} started.")
     
     def stop_strategy(self) -> None:
         """Stop the strategy"""

@@ -1,37 +1,256 @@
-# Prometheus Configuration for Algorithmic Trading System
-# Global configuration
+# Prometheus Configuration for Nautilus Trader Engine
+# Comprehensive monitoring configuration with service discovery and alerting
+
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
-  external_labels:
-    cluster: 'algorithmic-trading'
-    environment: 'development'
+  scrape_timeout: 10s
 
-# Alertmanager configuration
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-            - alertmanager:9093
+          - alertmanager:9093
 
-# Scrape configuration
 scrape_configs:
-  # Prometheus itself
-  - job_name: 'prometheus'
+  # ================================
+  # Application Services
+  # ================================
+  - job_name: 'nautilus-trader-engine'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['nautilus-trader-engine:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    labels:
+      service: 'trading-engine'
+      environment: 'production'
 
-  # Node Exporter
+  # ================================
+  # API Gateway
+  # ================================
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    labels:
+      service: 'api-gateway'
+
+  # ================================
+  # Database Services
+  # ================================
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres:9187']
+    scrape_interval: 30s
+    labels:
+      service: 'database'
+      db_type: 'postgresql'
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:9121']
+    scrape_interval: 15s
+    labels:
+      service: 'cache'
+      cache_type: 'redis'
+
+  # ================================
+  # Message Queue
+  # ================================
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    labels:
+      service: 'message-queue'
+
+  # ================================
+  # External Services
+  # ================================
+  - job_name: 'market-data-feeds'
+    static_configs:
+      - targets:
+        - 'alpha-vantage:8000'
+        - 'finnhub:8000'
+        - 'polygon:8000'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    labels:
+      service: 'market-data'
+
+  # ================================
+  # System Monitoring
+  # ================================
   - job_name: 'node-exporter'
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets:
+        - 'node-exporter:9100'
+    scrape_interval: 30s
+    labels:
+      service: 'system-metrics'
 
-  # cAdvisor
+  # ================================
+  # Container Monitoring
+  # ================================
   - job_name: 'cadvisor'
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets:
+        - 'cadvisor:8080'
+    scrape_interval: 30s
+    labels:
+      service: 'container-metrics'
 
-  # Redis Exporter
-  - job_name: 'redis-exporter'
+  # ================================
+  # Load Balancer
+  # ================================
+  - job_name: 'nginx'
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ['nginx:9113']
+    scrape_interval: 30s
+    labels:
+      service: 'load-balancer'
+
+  # ================================
+  # Service Discovery (Docker)
+  # ================================
+  - job_name: 'docker-services'
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 15s
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
+        target_label: container_name
+      - source_labels: [__meta_docker_container_label_prometheus_job]
+        target_label: job
+        action: keep
+      - source_labels: [__meta_docker_container_label_prometheus_port]
+        target_label: __meta_docker_port
+        regex: '(.+)'
+        action: keep
+      - source_labels: [__meta_docker_port]
+        target_label: __address__
+        regex: '(.+):(.+)'
+        replacement: '${1}:${2}'
+        action: replace
+
+  # ================================
+  # Kubernetes Service Discovery
+  # ================================
+  - job_name: 'kubernetes-services'
+    kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+            - trading
+            - monitoring
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+        action: replace
+        target_label: __scheme__
+        regex: (https?)
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: (.+?)(?::\d+)?;(\d+)
+        replacement: $1:$2
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_service_name]
+        action: replace
+        target_label: kubernetes_name
+
+  # ================================
+  # Blackbox Monitoring
+  # ================================
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://api.nautilus-trader.com/health
+        - https://staging-api.nautilus-trader.com/health
+        - https://alpha-vantage.com/health
+        - https://finnhub.io/api/v1/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # ================================
+  # Custom Metrics Collection
+  # ================================
+  - job_name: 'trading-metrics'
+    static_configs:
+      - targets: ['nautilus-trader-engine:8002']
+    metrics_path: '/trading-metrics'
+    scrape_interval: 30s
+    params:
+      format: ['prometheus']
+    labels:
+      service: 'trading-metrics'
+      type: 'business'
+
+  - job_name: 'risk-metrics'
+    static_configs:
+      - targets: ['nautilus-trader-engine:8002']
+    metrics_path: '/risk-metrics'
+    scrape_interval: 60s
+    labels:
+      service: 'risk-metrics'
+      type: 'compliance'
+
+  # ================================
+  # Pushgateway for Batch Jobs
+  # ================================
+  - job_name: 'pushgateway'
+    static_configs:
+      - targets: ['pushgateway:9091']
+    honor_labels: true
+    scrape_interval: 30s
+    labels:
+      service: 'batch-jobs'
+
+# ================================
+# Remote Write Configuration
+# ================================
+remote_write:
+  - url: "http://cortex:9009/api/prom/push"
+    remote_timeout: 30s
+    queue_config:
+      capacity: 10000
+      max_shards: 100
+      min_shards: 1
+      max_samples_per_send: 1000
+      batch_send_deadline: 5s
+      min_backoff: 30ms
+      max_backoff: 5s
+
+# ================================
+# Remote Read Configuration
+# ================================
+remote_read:
+  - url: "http://cortex:9009/api/prom/read"
+    remote_timeout: 30s
+    read_recent: true

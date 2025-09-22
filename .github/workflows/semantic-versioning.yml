@@ -1,0 +1,254 @@
+name: Semantic Versioning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # ================================
+  # Version Management
+  # ================================
+  version-management:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+      version_type: ${{ steps.version.outputs.version_type }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js for semantic versioning
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install semantic-release
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+
+      - name: Analyze commits for version bump
+        id: version
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+
+          # Analyze commits since last tag
+          if [ "$LATEST_TAG" = "v0.0.0" ]; then
+            COMMITS=$(git log --oneline)
+          else
+            COMMITS=$(git log --oneline ${LATEST_TAG}..HEAD)
+          fi
+
+          # Determine version bump type
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE\|feat!:"; then
+            VERSION_TYPE="major"
+            NEW_VERSION=$(echo $LATEST_TAG | sed 's/v//' | awk -F. '{print $1+1".0.0"}')
+          elif echo "$COMMITS" | grep -q "^feat:"; then
+            VERSION_TYPE="minor"
+            NEW_VERSION=$(echo $LATEST_TAG | sed 's/v//' | awk -F. '{print $1"."$2+1".0"}')
+          elif echo "$COMMITS" | grep -q "^fix:"; then
+            VERSION_TYPE="patch"
+            NEW_VERSION=$(echo $LATEST_TAG | sed 's/v//' | awk -F. '{print $1"."$2"."$3+1}')
+          else
+            VERSION_TYPE="none"
+            NEW_VERSION=$(echo $LATEST_TAG | sed 's/v//')
+          fi
+
+          echo "Version type: $VERSION_TYPE"
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+
+  # ================================
+  # Update Version Files
+  # ================================
+  update-version-files:
+    runs-on: ubuntu-latest
+    needs: version-management
+    if: needs.version-management.outputs.version_type != 'none'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update version in Python files
+        run: |
+          VERSION="${{ needs.version-management.outputs.new_version }}"
+          echo "Updating version to $VERSION"
+
+          # Update __init__.py
+          if [ -f "nautilus_trader_engine/__init__.py" ]; then
+            sed -i "s/__version__ = .*/__version__ = \"$VERSION\"/" nautilus_trader_engine/__init__.py
+          fi
+
+          # Update setup.py or pyproject.toml if they exist
+          if [ -f "setup.py" ]; then
+            sed -i "s/version=.*/version=\"$VERSION\",/" setup.py
+          fi
+
+          if [ -f "pyproject.toml" ]; then
+            sed -i "s/version = .*/version = \"$VERSION\"/" pyproject.toml
+          fi
+
+      - name: Update Dockerfile labels
+        run: |
+          VERSION="${{ needs.version-management.outputs.new_version }}"
+          sed -i "s/org.opencontainers.image.version=.*/org.opencontainers.image.version=\"v$VERSION\"/" Dockerfile
+
+      - name: Commit version updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "chore: bump version to ${{ needs.version-management.outputs.new_version }}" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+
+  # ================================
+  # Create Release PR (for main branch)
+  # ================================
+  create-release-pr:
+    runs-on: ubuntu-latest
+    needs: [version-management, update-version-files]
+    if: github.ref == 'refs/heads/main' && needs.version-management.outputs.version_type != 'none'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          VERSION="${{ needs.version-management.outputs.new_version }}"
+          VERSION_TYPE="${{ needs.version-management.outputs.version_type }}"
+
+          # Generate changelog content
+          cat > changelog.md << EOF
+          ## [${VERSION}] - $(date +%Y-%m-%d)
+
+          ### ${VERSION_TYPE^} Changes
+
+          $(git log --oneline --pretty=format:"* %s" HEAD~10..HEAD | head -10)
+
+          ### Commits
+          $(git log --oneline --pretty=format:"* %h %s" HEAD~10..HEAD | head -10)
+          EOF
+
+          # Read changelog
+          CHANGELOG_CONTENT=$(cat changelog.md)
+          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//'%'/'%25'}"
+          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//$'\n'/'%0A'}"
+          CHANGELOG_CONTENT="${CHANGELOG_CONTENT//$'\r'/'%0D'}"
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create release pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: prepare release v${{ needs.version-management.outputs.new_version }}"
+          title: "Release v${{ needs.version-management.outputs.new_version }}"
+          body: |
+            ## 🚀 Release v${{ needs.version-management.outputs.new_version }}
+
+            This PR prepares the codebase for release v${{ needs.version-management.outputs.new_version }}.
+
+            ### Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ### Version Bump Type
+            ${{ needs.version-management.outputs.version_type }}
+
+            ### Checklist
+            - [ ] Version updated in `nautilus_trader_engine/__init__.py`
+            - [ ] Docker labels updated
+            - [ ] Tests pass
+            - [ ] Documentation updated
+            - [ ] Ready for release
+
+            ---
+            *This PR was automatically created by the semantic versioning workflow.*
+          branch: release/v${{ needs.version-management.outputs.new_version }}
+          base: main
+          delete-branch: true
+          labels: |
+            release
+            ${{ needs.version-management.outputs.version_type }}
+
+  # ================================
+  # Validate Version Consistency
+  # ================================
+  validate-version:
+    runs-on: ubuntu-latest
+    needs: version-management
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate version consistency
+        run: |
+          VERSION="${{ needs.version-management.outputs.new_version }}"
+
+          echo "Validating version consistency: $VERSION"
+
+          # Check if version exists in __init__.py
+          if [ -f "nautilus_trader_engine/__init__.py" ]; then
+            if ! grep -q "__version__ = \"$VERSION\"" nautilus_trader_engine/__init__.py; then
+              echo "❌ Version mismatch in nautilus_trader_engine/__init__.py"
+              exit 1
+            fi
+          fi
+
+          # Check setup.py
+          if [ -f "setup.py" ]; then
+            if ! grep -q "version=\"$VERSION\"" setup.py; then
+              echo "❌ Version mismatch in setup.py"
+              exit 1
+            fi
+          fi
+
+          # Check pyproject.toml
+          if [ -f "pyproject.toml" ]; then
+            if ! grep -q "version = \"$VERSION\"" pyproject.toml; then
+              echo "❌ Version mismatch in pyproject.toml"
+              exit 1
+            fi
+          fi
+
+          echo "✅ All version files are consistent"
+
+  # ================================
+  # Update Branch Protection Rules (Optional)
+  # ================================
+  update-branch-protection:
+    runs-on: ubuntu-latest
+    needs: version-management
+    if: github.ref == 'refs/heads/main' && needs.version-management.outputs.version_type == 'major'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update branch protection rules
+        run: |
+          echo "Major version bump detected: ${{ needs.version-management.outputs.new_version }}"
+          echo "Consider updating branch protection rules for the new major version"
+          # Add commands to update branch protection rules via GitHub API
+          # This would require a separate script or API calls

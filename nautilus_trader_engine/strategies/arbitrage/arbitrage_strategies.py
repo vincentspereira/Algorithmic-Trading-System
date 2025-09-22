@@ -29,8 +29,8 @@ warnings.filterwarnings('ignore')
 
 # Import technical indicators
 try:
-    from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators, IndicatorResult
-    from nautilus_trader_engine.indicators.core_indicator_base import AugmentedIndicator, IndicatorConfig
+    from ...indicators.consolidated_indicators import ConsolidatedIndicators, IndicatorResult
+    from ...indicators.core_indicator_base import AugmentedIndicator, IndicatorConfig
 except ImportError:
     # Fallback for development
     class ConsolidatedIndicators:

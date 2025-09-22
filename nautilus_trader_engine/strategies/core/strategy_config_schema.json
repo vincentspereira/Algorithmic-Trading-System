@@ -1,0 +1,42 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Strategy Configuration",
+    "description": "Schema for strategy configuration files",
+    "type": "object",
+    "properties": {
+        "strategy_name": {
+            "description": "The name of the strategy",
+            "type": "string"
+        },
+        "instrument": {
+            "description": "The instrument to trade",
+            "type": "string"
+        },
+        "bar_type": {
+            "description": "The bar type for the data",
+            "type": "string"
+        },
+        "parameters": {
+            "description": "Strategy-specific parameters",
+            "type": "object"
+        },
+        "risk_management": {
+            "description": "Risk management settings",
+            "type": "object",
+            "properties": {
+                "account_risk_percentage": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "max_drawdown_percentage": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                }
+            },
+            "required": ["account_risk_percentage"]
+        }
+    },
+    "required": ["strategy_name", "instrument", "bar_type", "parameters", "risk_management"]
+}

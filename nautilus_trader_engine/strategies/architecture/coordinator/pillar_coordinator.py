@@ -22,28 +22,27 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import all pillar components
-from .signal_generation import (
+from ..pillars.signal_generation import (
     SignalGenerator, TradingSignal, SignalStrength, SignalType,
     create_signal_generator
 )
-from .market_regime_detection import (
+from ..pillars.market_regime_detection import (
     MarketRegimeDetector, MarketRegime, RegimeStrength,
     create_market_regime_detector
 )
-from .risk_management import (
+from ..pillars.risk_management import (
     RiskManager, RiskLevel, PositionSizeResult,
     create_risk_manager
 )
-from .execution_intent import (
+from ..pillars.execution_intent import (
     ExecutionIntentManager, ExecutionIntent, OrderType, ExecutionAlgorithm,
     create_execution_intent_manager
 )
-from .performance_analytics import (
-from nautilus_trader_engine.indicators.consolidated_indicators import ConsolidatedIndicators
-
+from ..pillars.performance_analytics import (
     PerformanceAnalyticsManager, PerformanceReport, ReportingPeriod,
     create_performance_analytics_manager
 )
+from ....indicators.consolidated_indicators import ConsolidatedIndicators
 
 logger = logging.getLogger(__name__)
 

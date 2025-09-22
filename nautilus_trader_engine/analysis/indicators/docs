@@ -1,0 +1,197 @@
+# Comprehensive Candlestick Patterns Inventory
+
+This document provides a complete inventory of all candlestick patterns implemented in the `nautilus_trader_engine/indicators/patterns` folder.
+
+## 🕯️ **Patterns by Category**
+
+### **1. Single Candle Patterns** (`/patterns/candlestick_patterns/single_candle_patterns.py`)
+| Pattern | Status | Description | Reliability | Trading Rules |
+|---------|--------|-------------|-------------|---------------|
+| **Hammer** | ✅ Implemented | Small body, long lower wick | High (60-70%) | Entry: Next candle confirmation, Stop: Below low |
+| **Inverted Hammer** | ✅ Implemented | Small body, long upper wick | Medium (67%) | Entry: Next candle confirmation, Stop: Below low |
+| **Shooting Star** | ❌ Not Found | Small body, long upper wick (bearish) | Medium (50-60%) | Entry: Next candle confirmation, Stop: Above high |
+| **Hanging Man** | ❌ Not Found | Small body, long lower wick (bearish) | Low-Moderate | Entry: Next candle confirmation, Stop: Above high |
+| **Doji** | ❌ Not Found | Open ≈ Close, long wicks | Variable | Entry: Breakout confirmation, Stop: Beyond range |
+| **Spinning Top** | ❌ Not Found | Small body, long upper/lower wicks | Variable | Entry: Breakout confirmation, Stop: Beyond range |
+| **High Wave** | ❌ Not Found | Large body, very long wicks | Variable | Entry: Breakout confirmation, Stop: Beyond range |
+
+### **2. Two Candle Patterns** (`/patterns/candlestick_patterns/two_candle_patterns.py`)
+| Pattern | Status | Description | Reliability | Trading Rules |
+|---------|--------|-------------|-------------|---------------|
+| **Bullish Engulfing** | ✅ Implemented | Small bearish candle engulfed by large bullish | High (62%) | Entry: Close of engulfing candle, Stop: Below pattern low |
+| **Bearish Engulfing** | ✅ Implemented | Small bullish candle engulfed by large bearish | High (62%) | Entry: Close of engulfing candle, Stop: Above pattern high |
+| **Piercing Pattern** | ❌ Not Found | Bearish candle, bullish opens below low, closes above midpoint | Medium (64%) | Entry: Close of bullish candle, Stop: Below pattern low |
+| **Dark Cloud Cover** | ❌ Not Found | Bullish candle, bearish opens above high, closes below midpoint | Medium | Entry: Close of bearish candle, Stop: Above pattern high |
+| **Tweezer Bottom** | ❌ Not Found | Two candles with identical lows | Medium (56%) | Entry: Break above resistance, Stop: Below lows |
+| **Tweezer Top** | ❌ Not Found | Two candles with identical highs | Moderate | Entry: Break below support, Stop: Above highs |
+
+### **3. Three Candle Patterns** (`/patterns/candlestick_patterns/three_candle_patterns.py`)
+| Pattern | Status | Description | Reliability | Trading Rules |
+|---------|--------|-------------|-------------|---------------|
+| **Morning Star** | ✅ Implemented | Bearish, small-bodied, bullish candle | Very High (78%) | Entry: After third candle, Stop: Below small-bodied low |
+| **Evening Star** | ✅ Implemented | Bullish, small-bodied, bearish candle | High | Entry: After third candle, Stop: Above small-bodied high |
+| **Three White Soldiers** | ❌ Not Found | Three consecutive long bullish candles | Very High (84%) | Entry: Break above pattern, Stop: Below first candle low |
+| **Three Black Crows** | ❌ Not Found | Three consecutive long bearish candles | High | Entry: Break below pattern, Stop: Above first candle high |
+| **Three Inside Up** | ❌ Not Found | Bearish, bullish (inside), bullish (closes above first open) | Medium (65%) | Entry: After third candle, Stop: Below pattern low |
+| **Three Inside Down** | ❌ Not Found | Bullish, bearish (inside), bearish (closes below first open) | Moderate | Entry: After third candle, Stop: Above pattern high |
+| **Abandoned Baby Bullish** | ❌ Not Found | Bearish, Doji (gap down), bullish (gap up) | Rare but High | Entry: After third candle, Stop: Below Doji low |
+| **Abandoned Baby Bearish** | ❌ Not Found | Bullish, Doji (gap up), bearish (gap down) | Rare but High | Entry: After third candle, Stop: Above Doji high |
+
+### **4. Complex/Multi-Candle Patterns** (`/patterns/candlestick_patterns/`)
+| Pattern | Status | Description | Reliability | Trading Rules |
+|---------|--------|-------------|-------------|---------------|
+| **Rising Three Methods** | ❌ Not Found | Bullish trend, three small bearish, then bullish | Reliable | Entry: Break above consolidation, Stop: Below pattern low |
+| **Falling Three Methods** | ❌ Not Found | Bearish trend, three small bullish, then bearish | Reliable | Entry: Break below consolidation, Stop: Above pattern high |
+| **Upside Tasuki Gap** | ❌ Not Found | Bullish, gap up, bearish (doesn't fill gap) | Moderate | Entry: Break above gap, Stop: Below gap level |
+| **Downside Tasuki Gap** | ❌ Not Found | Bearish, gap down, bullish (doesn't fill gap) | Moderate | Entry: Break below gap, Stop: Above gap level |
+| **Mat Hold** | ❌ Not Found | Similar to Rising Three Methods | Moderate | Entry: Break above consolidation, Stop: Below pattern low |
+| **Rising Window** | ❌ Not Found | Gap between two bullish candles | Gaps act as support | Entry: Pullback to gap support, Stop: Below gap |
+| **Falling Window** | ❌ Not Found | Gap between two bearish candles | Gaps act as resistance | Entry: Pullback to gap resistance, Stop: Above gap |
+
+### **5. Institutional Candlestick Patterns** (`/patterns/candlestick_patterns/institutional_patterns.py`)
+| Pattern | Status | Description | Focus | Implementation |
+|---------|--------|-------------|-------|---------------|
+| **Volume-Confirmed Patterns** | ⚠️ Partial | Patterns with volume confirmation scoring | Volume Analysis | Basic implementation exists |
+| **Smart Money Patterns** | ⚠️ Partial | Patterns indicating institutional activity | Order Flow | Framework exists |
+| **Regime-Aware Patterns** | ⚠️ Partial | Patterns adjusted for market conditions | Market Regime | Basic adaptation |
+
+### **6. Pattern Detection Framework** (`/patterns/pattern_detectors/`)
+| Detector | Status | Coverage | Description |
+|----------|--------|----------|-------------|
+| **Single Candle Detector** | ✅ Implemented | 7+ patterns | Detects single candle patterns |
+| **Two Candle Detector** | ✅ Implemented | 6+ patterns | Detects two candle patterns |
+| **Three Candle Detector** | ✅ Implemented | 8+ patterns | Detects three candle patterns |
+| **Five Candle Detector** | ⚠️ Partial | Limited | Advanced pattern detection |
+| **Four Candle Detector** | ⚠️ Partial | Limited | Complex pattern detection |
+| **Consolidated Detector** | ✅ Implemented | All patterns | Unified pattern detection |
+
+### **7. Chart Patterns** (`/patterns/chart_patterns/`)
+| Pattern Type | Status | Examples | Complexity |
+|--------------|--------|----------|------------|
+| **Reversal Patterns** | ⚠️ Partial | Head & Shoulders, Double Top/Bottom | High |
+| **Continuation Patterns** | ⚠️ Partial | Flags, Pennants, Wedges | Medium |
+| **Complex Patterns** | ⚠️ Partial | Advanced chart patterns | Very High |
+
+### **8. Pattern Utilities** (`/patterns/candlestick_patterns/utils.py`)
+| Utility | Status | Purpose | Implementation |
+|---------|--------|---------|---------------|
+| **Pattern Scoring** | ⚠️ Partial | Confidence scoring for patterns | Basic framework |
+| **Volume Analysis** | ⚠️ Partial | Volume confirmation logic | Partial implementation |
+| **Pattern Validation** | ⚠️ Partial | Pattern validity checks | Basic validation |
+
+## 📊 **Implementation Status Summary**
+
+### **Candlestick Patterns Status**
+| Category | Total Patterns | Implemented | Missing | Completion % |
+|----------|----------------|-------------|---------|--------------|
+| Single Candle | 7 | 2 | 5 | 29% |
+| Two Candle | 6 | 2 | 4 | 33% |
+| Three Candle | 8 | 2 | 6 | 25% |
+| Complex/Multi | 7 | 0 | 7 | 0% |
+| **Total** | **28** | **6** | **22** | **21%** |
+
+### **Pattern Detection Framework**
+- ✅ **Basic Detection**: Single, Two, and Three candle patterns
+- ⚠️ **Advanced Detection**: Partial implementation for complex patterns
+- ✅ **Unified Interface**: Consolidated detector available
+- ⚠️ **Institutional Features**: Partial volume and regime integration
+
+## 🎯 **Missing Critical Patterns**
+
+### **High Priority (Essential Trading Patterns)**
+1. **Doji Family** - Doji, Spinning Top, High Wave
+2. **Engulfing Variations** - Piercing Pattern, Dark Cloud Cover
+3. **Tweezer Patterns** - Tweezer Top/Bottom
+4. **Three Soldiers/Crows** - Three White Soldiers, Three Black Crows
+5. **Abandoned Baby** - Bullish/Bearish Abandoned Baby
+
+### **Medium Priority (Advanced Patterns)**
+6. **Three Inside Patterns** - Three Inside Up/Down
+7. **Gap Patterns** - Tasuki Gaps, Rising/Falling Windows
+8. **Method Patterns** - Rising/Falling Three Methods
+9. **Complex Patterns** - Mat Hold, advanced variations
+
+### **Low Priority (Specialized Patterns)**
+10. **Rare Patterns** - Very rare but high-reliability patterns
+11. **Advanced Combinations** - Multi-pattern combinations
+
+## 🔧 **Institutional Enhancement Requirements**
+
+### **Volume Confirmation Integration**
+- [ ] Add volume scoring to all patterns (0.0-1.0 scale)
+- [ ] Implement volume confirmation thresholds
+- [ ] Add volume-MA ratio analysis
+
+### **Smart Money Detection**
+- [ ] Order book analysis integration
+- [ ] Large trade detection
+- [ ] Institutional flow identification
+
+### **Regime Awareness**
+- [ ] Volatility-adjusted pattern recognition
+- [ ] Trend alignment scoring
+- [ ] Market condition adaptation
+
+### **Risk Management**
+- [ ] Auto stop-loss calculation for each pattern
+- [ ] Risk-reward ratio integration
+- [ ] Pattern-specific risk parameters
+
+## 📈 **Enhancement Roadmap**
+
+### **Phase 1: Core Pattern Completion (High Priority)**
+1. **Implement Missing Single Candle Patterns**
+   - Doji, Spinning Top, Shooting Star, Hanging Man
+2. **Complete Two Candle Patterns**
+   - Piercing Pattern, Dark Cloud Cover, Tweezer patterns
+3. **Add Three Candle Patterns**
+   - Three White Soldiers, Three Black Crows, Three Inside patterns
+
+### **Phase 2: Advanced Pattern Integration**
+4. **Complex Multi-Candle Patterns**
+   - Rising/Falling Three Methods, Tasuki Gaps
+5. **Gap and Window Patterns**
+   - Rising/Falling Windows, advanced gap patterns
+6. **Rare High-Reliability Patterns**
+   - Abandoned Baby, Mat Hold
+
+### **Phase 3: Institutional Features**
+7. **Volume Confirmation System**
+   - Comprehensive volume analysis for all patterns
+8. **Smart Money Integration**
+   - Order flow and microstructure analysis
+9. **Regime Adaptation**
+   - Market condition-aware pattern recognition
+10. **Risk Management Factory**
+    - Automated risk parameters for all patterns
+
+## 🎯 **Success Criteria**
+
+### **Pattern Coverage**
+- ✅ **75+ Patterns**: Target comprehensive pattern library
+- ✅ **Institutional Enhancement**: All patterns with 5-pillar architecture
+- ✅ **Volume Confirmation**: Every pattern with volume scoring
+- ✅ **Risk Management**: Auto stop-loss/take-profit for each pattern
+
+### **Performance Metrics**
+- ✅ **Detection Accuracy**: >85% pattern recognition accuracy
+- ✅ **False Positive Rate**: <5% false pattern detections
+- ✅ **Real-time Processing**: <1ms per pattern analysis
+- ✅ **Memory Efficiency**: Optimized for high-frequency data
+
+### **Integration Requirements**
+- ✅ **Strategy Integration**: Seamless integration with trading strategies
+- ✅ **Multi-timeframe Support**: Pattern analysis across timeframes
+- ✅ **Backtesting Compatibility**: Full backtesting engine integration
+- ✅ **Live Trading Ready**: Production-ready for live trading
+
+---
+
+## 📋 **Current Status Summary**
+
+**Total Candlestick Patterns Identified**: 28+ patterns
+**Currently Implemented**: 6 patterns (21% complete)
+**Missing Patterns**: 22+ patterns (79% remaining)
+**Institutional Enhancement**: Partial (needs completion)
+
+**Next Priority**: Complete high-priority missing patterns and implement institutional features across all patterns.
